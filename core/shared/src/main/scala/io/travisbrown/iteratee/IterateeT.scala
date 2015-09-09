@@ -15,7 +15,7 @@ import Iteratee._
  *
  * @tparam E The type of the input data (mnemonic: '''E'''lement type)
  * @tparam F The type constructor representing an effect.
- *           The type constructor [[Id]] is used to model pure computations, and is fixed as such in the type alias [[Iteratee]].
+ *           The type constructor [[cats.Id]] is used to model pure computations, and is fixed as such in the type alias [[Iteratee]].
  * @tparam A The type of the calculated result
  */
 sealed abstract class IterateeT[E, F[_], A] {

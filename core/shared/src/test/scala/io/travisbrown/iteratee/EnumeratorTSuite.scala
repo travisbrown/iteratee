@@ -9,7 +9,9 @@ import org.scalacheck.{ Arbitrary, Gen }
 import org.scalatest.FunSuite
 import org.typelevel.discipline.scalatest.Discipline
 
-class EnumeratorTSuite extends FunSuite with Discipline with Function0Instances with IntInstances with ListInstances with OptionInstances {
+class EnumeratorTSuite extends FunSuite with Discipline
+  with Function0Instances with IntInstances with ListInstances with OptionInstances
+  with ArbitraryKInstances with EqInstances {
   checkAll("EnumeratorT[Int, Option]", GroupLaws[EnumeratorT[Int, Option]].monoid)
   checkAll("EnumeratorT[Int, Option]", MonadTests[EnumeratorT[?, Option]].monad[Int, Int, Int])
 
