@@ -10,7 +10,7 @@ import Iteratee._
  *
  * @tparam E The type of the input data (mnemonic: '''E'''lement type)
  * @tparam F The type constructor representing an effect.
- *           The type constructor [[Id]] is used to model pure computations, and is fixed as such in the type alias [[Step]].
+ *           The type constructor [[cats.Id]] is used to model pure computations, and is fixed as such in the type alias [[Step]].
  * @tparam A The type of the calculated result
  */
 sealed abstract class StepT[E, F[_], A] {
