@@ -1,6 +1,6 @@
-package scalaz
-package iteratee
+package io.travisbrown.iteratee
 
+import cats.Applicative
 import Iteratee._
 
 /**
@@ -10,7 +10,7 @@ import Iteratee._
  *
  * @tparam E The type of the input data (mnemonic: '''E'''lement type)
  * @tparam F The type constructor representing an effect.
- *           The type constructor [[scalaz.Id]] is used to model pure computations, and is fixed as such in the type alias [[scalaz.iteratee.Step]].
+ *           The type constructor [[Id]] is used to model pure computations, and is fixed as such in the type alias [[Step]].
  * @tparam A The type of the calculated result
  */
 sealed abstract class StepT[E, F[_], A] {
@@ -43,10 +43,10 @@ sealed abstract class StepT[E, F[_], A] {
   def mapCont(k: (Input[E] => IterateeT[E, F, A]) => IterateeT[E, F, A])(implicit F: Applicative[F]): IterateeT[E, F, A] =
     mapContOr[IterateeT[E, F, A]](k, pointI)
 
-  def doneValue: LazyOption[A] =
+  def doneValue: Option[A] =
     fold(
-      _ => LazyOption.lazyNone
-      , (a, _) => LazyOption.lazySome(a)
+      _ => None
+      , (a, _) => Some(a)
     )
 
   def doneValueOr(a: => A): A =
@@ -58,10 +58,10 @@ sealed abstract class StepT[E, F[_], A] {
       , (a, _) => k(a)
     )
 
-  def doneInput: LazyOption[Input[E]] =
+  def doneInput: Option[Input[E]] =
     fold(
-      _ => LazyOption.lazyNone
-      , (_, i) => LazyOption.lazySome(i)
+      _ => None
+      , (_, i) => Some(i)
     )
 
   def doneInputOr(a: => Input[E]): Input[E] =
@@ -77,7 +77,7 @@ sealed abstract class StepT[E, F[_], A] {
     fold(_ => cont, (_, _) => done)
 
   def pointI(implicit P: Applicative[F]): IterateeT[E, F, A] =
-    iterateeT(P.point(this))
+    iterateeT(P.pure(this))
 }
 
 // object StepT is in the implicit scope for EnumeratorT, so we mix in EnumeratorTInstances here.

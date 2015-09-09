@@ -1,8 +1,9 @@
-package scalaz
-package iteratee
+package io.travisbrown.iteratee
 
+import algebra.Monoid
+import cats.Applicative
+import cats.Id
 import Iteratee._
-import Id._
 
 trait IterateeFunctions {
   def iteratee[E, A](s: Step[E, A]): Iteratee[E, A] =
@@ -15,24 +16,24 @@ trait IterateeFunctions {
     import Iteratee._
     def step(acc: F[A])(s: Input[E]): Iteratee[E, F[A]] =
       s(el = e => iter.foldT[Iteratee[E, F[A]]](
-        done = (a, _) => cont(step(mon.append(acc, F.point(a)))),
+        done = (a, _) => cont(step(mon.combine(acc, F.pure(a)))),
         cont = k => k(elInput(e)).foldT(
-          done = (a, _) => cont(step(mon.append(acc, F.point(a)))),
+          done = (a, _) => cont(step(mon.combine(acc, F.pure(a)))),
           cont = k2 => cont((in: Input[E]) => for {
             h <- k2(in)
             t <- this.repeatBuild[E, A, F](iter)
-          } yield mon.append(acc, mon.append(F.point(h), t)))
+          } yield mon.combine(acc, mon.combine(F.pure(h), t)))
         )),
         empty = cont(step(acc)),
         eof = done(acc, eofInput))
-    cont(step(mon.zero))
+    cont(step(mon.empty))
   }
 
   /**
    * Iteratee that collects all inputs with the given monoid.
    */
   def collect[A, F[_]](implicit mon: Monoid[F[A]], pt: Applicative[F]): Iteratee[A, F[A]] = {
-    fold[A, Id, F[A]](mon.zero)((acc, e) => mon.append(acc, pt.point(e)))
+    fold[A, Id, F[A]](mon.empty)((acc, e) => mon.combine(acc, pt.pure(e)))
   }
 
   /**
@@ -40,8 +41,8 @@ trait IterateeFunctions {
    *
    * This iteratee is useful for F[_] with efficient cons, i.e. List.
    */
-  def reversed[A, F[_]](implicit r: Reducer[A, F[A]]): Iteratee[A, F[A]] = {
-    fold[A, Id, F[A]](r.monoid.zero)((acc, e) => r.cons(e, acc))
+  def reversed[A, F[_]](implicit mon: Monoid[F[A]], pt: Applicative[F]): Iteratee[A, F[A]] = {
+    fold[A, Id, F[A]](mon.empty)((acc, e) => mon.combine(pt.pure(e), acc))
   }
 
   /**
@@ -51,11 +52,11 @@ trait IterateeFunctions {
     def loop(acc: F[A], n: Int)(s: Input[A]): Iteratee[A, F[A]] =
       s(el = e =>
         if (n <= 0) done[A, Id, F[A]](acc, s)
-        else cont(loop(mon.append(acc, pt.point(e)), n - 1))
+        else cont(loop(mon.combine(acc, pt.pure(e)), n - 1))
         , empty = cont(loop(acc, n))
         , eof = done[A, Id, F[A]](acc, s)
       )
-    cont(loop(mon.zero, n))
+    cont(loop(mon.empty, n))
   }
 
   /**
@@ -64,12 +65,12 @@ trait IterateeFunctions {
   def takeWhile[A, F[_]](p: A => Boolean)(implicit mon: Monoid[F[A]], pt: Applicative[F]): Iteratee[A, F[A]] = {
     def loop(acc: F[A])(s: Input[A]): Iteratee[A, F[A]] =
       s(el = e =>
-        if (p(e)) cont(loop(mon.append(acc, pt.point(e))))
+        if (p(e)) cont(loop(mon.combine(acc, pt.pure(e))))
         else done[A, Id, F[A]](acc, s)
         , empty = cont(loop(acc))
         , eof = done[A, Id, F[A]](acc, eofInput)
       )
-    cont(loop(mon.zero))
+    cont(loop(mon.empty))
   }
 
   /**
@@ -83,7 +84,7 @@ trait IterateeFunctions {
    */
   def groupBy[A, F[_]](pred: (A, A) => Boolean)(implicit mon: Monoid[F[A]], pr: Applicative[F]): Iteratee[A, F[A]] = {
     Iteratee.peek[A, Id] flatMap {
-      case None => done(Monoid[F[A]].zero, Input.Empty[A])
+      case None => done(Monoid[F[A]].empty, Input.Empty[A])
       case Some(h) => takeWhile(pred(_, h))
     }
   }

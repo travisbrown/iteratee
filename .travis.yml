@@ -1,0 +1,28 @@
+language: scala
+
+scala:
+  - 2.10.5
+  - 2.11.7
+
+jdk:
+  - openjdk7
+  - oraclejdk7
+  - oraclejdk8
+
+cache:
+  directories:
+    - $HOME/.ivy2/cache
+    - $HOME/.sbt/boot
+
+script:
+  - if [[ "$TRAVIS_BRANCH" == "scalajs" ]];
+      then sbt ++$TRAVIS_SCALA_VERSION clean validateJS;
+      else sbt ++$TRAVIS_SCALA_VERSION clean coverage validateJVM coverageReport;
+    fi
+
+  # See http://www.scala-sbt.org/0.13/docs/Travis-CI-with-sbt.html
+  # Tricks to avoid unnecessary cache updates
+  - find $HOME/.sbt -name "*.lock" | xargs rm
+  - find $HOME/.ivy2 -name "ivydata-*.properties" | xargs rm
+
+after_success: bash <(curl -s https://codecov.io/bash)
