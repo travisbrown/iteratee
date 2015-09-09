@@ -92,6 +92,16 @@ lazy val coreBase = crossProject.in(file("core"))
 lazy val core = coreBase.jvm
 lazy val coreJS = coreBase.js
 
+lazy val benchmark = project
+  .settings(moduleName := "iteratee-benchmark")
+  .settings(allSettings)
+  .settings(noPublishSettings)
+  .settings(
+    libraryDependencies += "org.scalaz" %% "scalaz-iteratee" % "7.2.0-M3"
+  )
+  .enablePlugins(JmhPlugin)
+  .dependsOn(core)
+
 lazy val publishSettings = Seq(
   releaseCrossBuild := true,
   releasePublishArtifactsAction := PgpKeys.publishSigned.value,
