@@ -32,9 +32,6 @@ lazy val baseSettings = Seq(
   ),
   scalacOptions in (Compile, console) := compilerOptions,
   scalacOptions in (Compile, test) := compilerOptions,
-  libraryDependencies ++= Seq(
-    compilerPlugin("org.spire-math" % "kind-projector" % "0.6.3" cross CrossVersion.binary)
-  ),
   resolvers ++= Seq(
     Resolver.sonatypeRepo("releases"),
     Resolver.sonatypeRepo("snapshots")
@@ -78,7 +75,7 @@ lazy val coreBase = crossProject.in(file("core"))
   .settings(
     libraryDependencies += "org.spire-math" %%% "cats-core" % catsVersion,
     libraryDependencies ++= Seq(
-      "org.scalacheck" %% "scalacheck" % "1.12.5-SNAPSHOT",
+      "org.scalacheck" %% "scalacheck" % "1.12.5",
       "org.scalatest" %% "scalatest" % "3.0.0-M7",
       "org.spire-math" %% "cats-free" % catsVersion,
       "org.spire-math" %% "cats-laws" % catsVersion,
@@ -91,6 +88,17 @@ lazy val coreBase = crossProject.in(file("core"))
 
 lazy val core = coreBase.jvm
 lazy val coreJS = coreBase.js
+
+lazy val io = project
+  .settings(moduleName := "iteratee-io")
+  .settings(allSettings)
+  .settings(
+    crossScalaVersions := Seq("2.11.7"),
+    libraryDependencies ++= Seq(
+      //"org.scala-lang.modules" %% "scala-java8-compat" % "0.7.0",
+      "org.spire-math" %% "cats-core" % catsVersion
+    )
+  )
 
 lazy val benchmark = project
   .settings(moduleName := "iteratee-benchmark")
