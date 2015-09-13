@@ -32,9 +32,6 @@ lazy val baseSettings = Seq(
   ),
   scalacOptions in (Compile, console) := compilerOptions,
   scalacOptions in (Compile, test) := compilerOptions,
-  libraryDependencies ++= Seq(
-    compilerPlugin("org.spire-math" % "kind-projector" % "0.6.3" cross CrossVersion.binary)
-  ),
   resolvers ++= Seq(
     Resolver.sonatypeRepo("releases"),
     Resolver.sonatypeRepo("snapshots")
@@ -78,7 +75,7 @@ lazy val coreBase = crossProject.in(file("core"))
   .settings(
     libraryDependencies += "org.spire-math" %%% "cats-core" % catsVersion,
     libraryDependencies ++= Seq(
-      "org.scalacheck" %% "scalacheck" % "1.12.5-SNAPSHOT",
+      "org.scalacheck" %% "scalacheck" % "1.12.5",
       "org.scalatest" %% "scalatest" % "3.0.0-M7",
       "org.spire-math" %% "cats-free" % catsVersion,
       "org.spire-math" %% "cats-laws" % catsVersion,

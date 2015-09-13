@@ -1,6 +1,10 @@
 resolvers ++= Seq(
   Classpaths.typesafeReleases,
   Classpaths.sbtPluginReleases,
+  Resolver.url(
+    "scoverage-bintray",
+    url("https://dl.bintray.com/sksamuel/sbt-plugins/")
+  )(Resolver.ivyStylePatterns),
   "jgit-repo" at "http://download.eclipse.org/jgit/maven"
 )
 
