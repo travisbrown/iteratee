@@ -5,11 +5,6 @@ import cats.{ Applicative, Comonad, FlatMap, Functor, Id, Monad, MonoidK, Show }
 import cats.arrow.NaturalTransformation
 import cats.functor.Contravariant
 
-abstract class IterateeFolder[E, F[_], A, B] extends StepFolder[E, F, A, F[B]] {
-  def onCont(k: Input[E] => Iteratee[E, F, A]): F[B]
-  def onDone(value: A, remainder: Input[E]): F[B]
-}
-
 /**
  * A data sink.
  *
@@ -37,22 +32,27 @@ sealed class Iteratee[E, F[_], A](val value: F[Step[E, F, A]]) {
   def flatMap[B](f: A => Iteratee[E, F, B])(implicit F: Monad[F]): Iteratee[E, F, B] = {
     def through(x: Iteratee[E, F, A]): Iteratee[E, F, B] =
       Iteratee.iteratee(
-        F.flatMap(x.value)((s: Step[E, F, A]) => s.foldWith[F[Step[E, F, B]]](
-          new StepFolder[E, F, A, F[Step[E, F, B]]] {
-            def onCont(f: Input[E] => Iteratee[E, F, A]): F[Step[E, F, B]] = F.pure(Step.cont(u => through(f(u))))
-            def onDone(value: A, remainder: Input[E]): F[Step[E, F, B]] = if (remainder.isEmpty)
-              f(value).value
-            else
-              F.flatMap(f(value).value)(
-                _.foldWith(
-                  new StepFolder[E, F, B, F[Step[E, F, B]]] {
-                    def onCont(ff: Input[E] => Iteratee[E, F, B]): F[Step[E, F, B]] = ff(remainder).value
-                    def onDone(aa: B, r: Input[E]): F[Step[E, F, B]] = F.pure(Step.done[E, F, B](aa, remainder))
-                  }
-                )
-              )
-          }
-        )))
+        F.flatMap(x.value)(
+          _.foldWith[F[Step[E, F, B]]](
+            new StepFolder[E, F, A, F[Step[E, F, B]]] {
+              def onCont(f: Input[E] => Iteratee[E, F, A]): F[Step[E, F, B]] =
+                F.pure(Step.cont(u => through(f(u))))
+              def onDone(value: A, remainder: Input[E]): F[Step[E, F, B]] =
+                if (remainder.isEmpty) f(value).value else
+                  F.flatMap(f(value).value)(
+                    _.foldWith(
+                      new StepFolder[E, F, B, F[Step[E, F, B]]] {
+                        def onCont(ff: Input[E] => Iteratee[E, F, B]): F[Step[E, F, B]] =
+                          ff(remainder).value
+                        def onDone(aa: B, r: Input[E]): F[Step[E, F, B]] =
+                          F.pure(Step.done[E, F, B](aa, remainder))
+                      }
+                    )
+                  )
+            }
+          )
+        )
+      )
     through(this)
   }
 
