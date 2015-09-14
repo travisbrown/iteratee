@@ -35,11 +35,11 @@ sealed abstract class Step[E, F[_], A] {
   def isCont: Boolean
   def isDone: Boolean
 
-  def cont: Option[Input[E] => Iteratee[E, F, A]]
-
   def mapContOr[Z](k: (Input[E] => Iteratee[E, F, A]) => Z, z: Z): Z
 
-  def mapCont(k: (Input[E] => Iteratee[E, F, A]) => Iteratee[E, F, A])(implicit F: Applicative[F]): Iteratee[E, F, A] =
+  def mapCont(
+    k: (Input[E] => Iteratee[E, F, A]) => Iteratee[E, F, A]
+  )(implicit F: Applicative[F]): Iteratee[E, F, A] =
     mapContOr[Iteratee[E, F, A]](k, pointI)
 
   def pointI(implicit F: Applicative[F]): Iteratee[E, F, A] = new Iteratee(F.pure(this))
@@ -53,7 +53,6 @@ object Step extends EnumeratorInstances {
       def isCont: Boolean = true
       def isDone: Boolean = false
       def foldWith[B](folder: StepFolder[E, F, A, B]): B = folder.onCont(c)
-      def cont: Option[Input[E] => Iteratee[E, F, A]] = Some(c)
       def mapContOr[Z](k: (Input[E] => Iteratee[E, F, A]) => Z, z: Z): Z = k(c)
     }
 
@@ -63,7 +62,6 @@ object Step extends EnumeratorInstances {
       def isCont: Boolean = false
       def isDone: Boolean = true
       def foldWith[B](folder: StepFolder[E, F, A, B]): B = folder.onDone(d, r)
-      def cont: Option[Input[E] => Iteratee[E, F, A]] = None
       def mapContOr[Z](k: (Input[E] => Iteratee[E, F, A]) => Z, z: Z): Z = z
     }
 }
