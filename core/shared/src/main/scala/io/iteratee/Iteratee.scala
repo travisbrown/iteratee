@@ -1,4 +1,4 @@
-package io.travisbrown.iteratee
+package io.iteratee
 
 import algebra.Monoid
 import cats.{ Applicative, Comonad, FlatMap, Functor, Id, Monad, MonoidK, Show }

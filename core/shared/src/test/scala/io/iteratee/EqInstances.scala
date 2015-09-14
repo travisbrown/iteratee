@@ -1,4 +1,4 @@
-package io.travisbrown.iteratee
+package io.iteratee
 
 import algebra.Eq
 import cats.Monad

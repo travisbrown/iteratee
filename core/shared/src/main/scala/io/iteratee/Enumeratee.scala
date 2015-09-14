@@ -1,4 +1,4 @@
-package io.travisbrown.iteratee
+package io.iteratee
 
 import algebra.{ Monoid, Order }
 import cats.{ Applicative, Monad }

@@ -1,4 +1,4 @@
-package io.travisbrown.iteratee
+package io.iteratee
 
 import cats.Applicative
 

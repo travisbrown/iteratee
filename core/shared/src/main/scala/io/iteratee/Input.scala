@@ -1,4 +1,4 @@
-package io.travisbrown.iteratee
+package io.iteratee
 
 import algebra.{ Eq, Semigroup }
 import cats.{ Applicative, Eval, Foldable, Monad, SemigroupK, Show, Traverse }

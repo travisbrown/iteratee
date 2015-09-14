@@ -1,4 +1,4 @@
-package io.travisbrown
+package io
 
 import cats.Id
 

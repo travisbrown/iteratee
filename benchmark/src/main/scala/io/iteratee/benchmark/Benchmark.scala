@@ -1,8 +1,7 @@
-package io.travisbrown.benchmark
+package io.iteratee.benchmark
 
-import cats.std.int._
 import cats.std.list.{ listAlgebra, listInstance => listInstanceC }
-import io.travisbrown.{ iteratee => i }
+import io.{ iteratee => i }
 import java.util.concurrent.TimeUnit
 import org.openjdk.jmh.annotations._
 import scalaz.{ iteratee => s }
