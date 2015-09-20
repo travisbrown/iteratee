@@ -13,10 +13,10 @@ abstract class InputFolder[E, A] {
 
 /**The input to an iteratee. **/
 sealed abstract class Input[E] { self =>
-  def foldX[Z](empty: => Z, el: (=> E) => Z, chunk: (=> Seq[E]) => Z, eof: => Z): Z = foldWith[Z](
+  def foldX[Z](chunk: (=> Seq[E]) => Z, eof: => Z): Z = foldWith[Z](
     new InputFolder[E, Z] {
-      def onEmpty: Z = empty
-      def onEl(e: E): Z = el(e)
+      def onEmpty: Z = chunk(Seq.empty)
+      def onEl(e: E): Z = chunk(Seq(e))
       def onChunk(es: Seq[E]): Z = chunk(es)
       def onEof: Z = eof
     }
@@ -24,9 +24,6 @@ sealed abstract class Input[E] { self =>
 
   def foldWith[A](folder: InputFolder[E, A]): A
   def normalize: Input[E] = self
-  def el: Option[E] = None
-  def els: Option[Seq[E]] = None
-  def elOr(e: => E) = el.getOrElse(e)
   def isEmpty: Boolean = false
   def isEl: Boolean = false
   def isChunk: Boolean = false
@@ -42,8 +39,8 @@ sealed abstract class Input[E] { self =>
   override final def toString = foldWith(
     new InputFolder[E, String] {
       def onEmpty: String = "Empty"
-      def onEl(e: E): String = el.toString
-      def onChunk(es: Seq[E]): String = el.map(_.toString).mkString(", ")
+      def onEl(e: E): String = e.toString
+      def onChunk(es: Seq[E]): String = es.map(_.toString).mkString(", ")
       def onEof: String = "EOF"
     }
   )
@@ -54,7 +51,6 @@ object Input extends InputInstances {
 
   def el[E](e: E): Input[E] = new Input[E] { self =>
     override def isEl: Boolean = true
-    override def el: Option[E] = Some(e)
     override def map[X](f: E => X): Input[X] = Input.el(f(e))
     override def flatMap[X](f: E => Input[X]): Input[X] = f(e)
     override def filter(f: E => Boolean): Input[E] = if (f(e)) self else Input.empty
@@ -71,7 +67,6 @@ object Input extends InputInstances {
       if (c < 0) Input.empty else if (c == 0) Input.el(es(0)) else self
     }
     override def isChunk: Boolean = true
-    override def els: Option[Seq[E]] = Some(es)
     override def isEmpty: Boolean = es.isEmpty
     override def map[X](f: E => X): Input[X] = Input.chunk(es.map(f(_)))
     override def flatMap[X](f: E => Input[X]): Input[X] =
@@ -142,6 +137,12 @@ sealed abstract class InputInstances extends VectorInstances {
             def onEof: Eval[B] = z
           }
         )
+
+      override def filter_[A](fa: Input[A])(p: A => Boolean): List[A] = fa.filter(p).values.toList
+      override def exists[A](fa: Input[A])(p: A => Boolean): Boolean = fa.exists(p)
+      override def forall[A](fa: Input[A])(p: A => Boolean): Boolean = fa.forall(p)
+      override def toList[A](fa: Input[A]): List[A] = fa.values.toList
+      override def isEmpty[A](fa: Input[A]): Boolean = fa.isEmpty || fa.isEof
 
       override def map[A, B](fa: Input[A])(f: A => B): Input[B] = fa.map(f)
       def flatMap[A, B](fa: Input[A])(f: A => Input[B]): Input[B] = fa.flatMap(f)

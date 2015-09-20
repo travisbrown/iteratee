@@ -5,9 +5,23 @@ import cats.free.Trampoline
 import cats.std.{ Function0Instances, IntInstances, ListInstances }
 import org.scalatest.FunSuite
 import org.scalatest.prop.Checkers
+import org.typelevel.discipline.scalatest.Discipline
 
-class IterateeSuite extends FunSuite with Checkers
+class IterateeSuite extends FunSuite with Checkers with Discipline
   with Function0Instances with IntInstances with ListInstances {
+
+  type EvalEIntIteratee[E] = Iteratee[E, Eval, Vector[Int]]
+
+  checkAll(
+    "Iteratee[Vector[Int], Eval, Vector[Int]]",
+    ContravariantTests[EvalEIntIteratee].contravariant[Vector[Int], Int, Vector[Int]]
+  )
+
+  checkAll(
+    "Iteratee[Vector[Int], Eval, Vector[Int]]",
+    ContravariantTests[EvalEIntIteratee].invariant[Vector[Int], Int, Vector[Int]]
+  )
+
   test("head") {
     check { (s: Stream[Int]) =>
       Iteratee.head[Int, Id].feedE(Enumerator.enumStream(s)).run === s.headOption
@@ -60,6 +74,18 @@ class IterateeSuite extends FunSuite with Checkers
       val len = Iteratee.length[Int, Eval]
       val result = (e.source.map(_.toInt).sum, e.source.size)
       sum.zip(len).feedE(e.enumerator.map(_.toInt)).run.value === result
+    }
+  }
+
+  test("zip different lengths") {
+    check { (e: SmallEnumerator[Short]) =>
+      val sum = Iteratee.sum[Int, Eval]
+      val head = Iteratee.head[Int, Eval]
+      val result0 = (e.source.map(_.toInt).sum, e.source.headOption)
+      val result1 = result0.swap
+
+      sum.zip(head).feedE(e.enumerator.map(_.toInt)).run.value === result0 &&
+      head.zip(sum).feedE(e.enumerator.map(_.toInt)).run.value === result1
     }
   }
 

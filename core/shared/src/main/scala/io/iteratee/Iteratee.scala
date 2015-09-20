@@ -21,9 +21,6 @@ sealed class Iteratee[E, F[_], A](val value: F[Step[E, F, A]]) {
   def foldWith[Z](folder: StepFolder[E, F, A, Z])(implicit F: Functor[F]): F[Z] =
     F.map(value)(_.foldWith(folder))
 
-  def foldWithM[Z](folder: StepFolder[E, F, A, F[Z]])(implicit F: FlatMap[F]): F[Z] =
-    F.flatMap(value)(_.foldWith(folder))
-
   /**
    * Run this iteratee
    */
@@ -205,6 +202,8 @@ object Iteratee extends IterateeInstances {
   def done[E, F[_]: Applicative, A](d: A, r: Input[E]): Iteratee[E, F, A] =
     Step.done(d, r).pointI
 
+  def identity[E, F[_]: Applicative]: Iteratee[E, F, Unit] = done[E, F, Unit]((), Input.empty)
+
   def joinI[E, F[_]: Monad, I, B](it: Iteratee[E, F, Step[I, F, B]]): Iteratee[E, F, B] = {
     val M0 = Iteratee.IterateeMonad[E, F]
 
@@ -273,13 +272,6 @@ object Iteratee extends IterateeInstances {
     cont(step)
   }
 
-  def headDoneOr[E, F[_] : Monad, B](b: => B, f: E => Iteratee[E, F, B]): Iteratee[E, F, B] = {
-    head[E, F] flatMap {
-      case None => done(b, Input.eof)
-      case Some(a) => f(a)
-    }
-  }
-
   /**An iteratee that returns the first element of the input **/
   def peek[E, F[_]: Applicative]: Iteratee[E, F, Option[E]] = {
     def step(s: Input[E]): Iteratee[E, F, Option[E]] = s.normalize.foldWith(
@@ -292,12 +284,6 @@ object Iteratee extends IterateeInstances {
     )
     cont(step)
   }
-
-  def peekDoneOr[E, F[_]: Monad, B](b: => B, f: E => Iteratee[E, F, B]): Iteratee[E, F, B] =
-    peek[E, F].flatMap {
-      case None => done(b, Input.eof)
-      case Some(a) => f(a)
-    }
 
   /**
    * Iteratee that collects all inputs in reverse with the given reducer.
@@ -389,21 +375,12 @@ object Iteratee extends IterateeInstances {
     cont(step)
   }
 
-  /**
-   * Produces chunked output split by the given predicate. Currently broken.
-   */
-  def groupBy[A, F[_]: Monad](p: (A, A) => Boolean): Iteratee[A, F, Vector[A]] =
-    Iteratee.peek[A, F].flatMap[Vector[A]] {
-      case None => Iteratee.done(Vector.empty, Input.empty)
-      case Some(h) => takeWhile[A, F](p(_, h))
-    }
-
   def fold[E, F[_]: Applicative, A](init: A)(f: (A, E) => A): Iteratee[E, F, A] = {
     def step(acc: A): Input[E] => Iteratee[E, F, A] = _.foldWith(
       new InputFolder[E, Iteratee[E, F, A]] {
         def onEmpty: Iteratee[E, F, A] = cont(step(acc))
         def onEl(e: E): Iteratee[E, F, A] = cont(step(f(acc, e)))
-        def onChunk(es: Seq[E]): Iteratee[E, F, A] = cont(step(es.foldLeft(init)(f)))
+        def onChunk(es: Seq[E]): Iteratee[E, F, A] = cont(step(es.foldLeft(acc)(f)))
         def onEof: Iteratee[E, F, A] = done(acc, Input.eof[E])
       }
     )
@@ -443,6 +420,7 @@ private trait IterateeMonad[E, F[_]] extends Monad[({ type L[x] = Iteratee[E, F,
   implicit def F: Monad[F]
 
   def pure[A](a: A): Iteratee[E, F, A] = Step.done(a, Input.empty).pointI
-  override def map[A, B](fa: Iteratee[E, F, A])(f: A => B): Iteratee[E, F, B] = fa map f
-  def flatMap[A, B](fa: Iteratee[E, F, A])(f: A => Iteratee[E, F, B]): Iteratee[E, F, B] = fa flatMap f
+  override def map[A, B](fa: Iteratee[E, F, A])(f: A => B): Iteratee[E, F, B] = fa.map(f)
+  def flatMap[A, B](fa: Iteratee[E, F, A])(f: A => Iteratee[E, F, B]): Iteratee[E, F, B] =
+    fa.flatMap(f)
 }

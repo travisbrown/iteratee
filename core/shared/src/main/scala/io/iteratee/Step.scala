@@ -45,8 +45,7 @@ sealed abstract class Step[E, F[_], A] {
   def pointI(implicit F: Applicative[F]): Iteratee[E, F, A] = new Iteratee(F.pure(this))
 }
 
-// object Step is in the implicit scope for Enumerator, so we mix in EnumeratorInstances here.
-object Step extends EnumeratorInstances {
+object Step {
   def cont[E, F[_], A](c: Input[E] => Iteratee[E, F, A]): Step[E, F, A] =
     new Step[E, F, A] {
       private[iteratee] def unsafeValue: A = sys.error("diverging iteratee")

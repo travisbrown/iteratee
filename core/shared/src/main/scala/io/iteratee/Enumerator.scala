@@ -19,6 +19,11 @@ abstract class Enumerator[E, F[_]] { self =>
     }
   }
 
+  def append(e2: Enumerator[E, F])(implicit F: FlatMap[F]): Enumerator[E, F] =
+    new Enumerator[E, F] {
+      def apply[A](step: Step[E, F, A]): Iteratee[E, F, A] = self(step).feedE(e2)
+    }
+
   def flatMap[B](f: E => Enumerator[B, F])(implicit M1: Monad[F]) =
     Enumeratee.flatMap(f).wrap(self)
 
@@ -69,7 +74,7 @@ abstract class Enumerator[E, F[_]] { self =>
             def onCont(k: Input[E] => Iteratee[E, F, B]): Iteratee[B, F, A] = k(Input.eof).feed {
               s => s.mapContOr(_ => sys.error("diverging iteratee"), check(s))
             }
-            def onDone(value: B, remainder: Input[E]): Iteratee[B, F, A] = step.mapCont(f => f(Input.el(value)))
+            def onDone(value: B, remainder: Input[E]): Iteratee[B, F, A] = step.mapCont(_(Input.el(value)))
           }
         )
 
@@ -84,16 +89,17 @@ abstract class Enumerator[E, F[_]] { self =>
 }
 
 trait EnumeratorInstances {
-  implicit def EnumeratorMonoid[E, F[_]](implicit F0: Monad[F]): Monoid[Enumerator[E, F]] =
-    new EnumeratorMonoid[E, F] {
-      implicit def F = F0
+  implicit def EnumeratorMonoid[E, F[_]: Monad]: Monoid[Enumerator[E, F]] =
+    new Monoid[Enumerator[E, F]] {
+      def combine(e1: Enumerator[E, F], e2: Enumerator[E, F]): Enumerator[E, F] = e1.append(e2)
+      def empty: Enumerator[E, F] = Enumerator.empty[E, F]
     }
 
   implicit def EnumeratorMonad[F[_]](implicit
     M0: Monad[F]
   ): Monad[({ type L[x] = Enumerator[x, F] })#L] =
     new EnumeratorMonad[F] {
-      implicit val M = M0
+      implicit val M: Monad[F] = M0
     }
 }
 
@@ -134,8 +140,7 @@ object Enumerator extends EnumeratorInstances {
 
   def enumOne[E, F[_]: Applicative](e: E): Enumerator[E, F] =
     new Enumerator[E, F] {
-      def apply[A](s: Step[E, F, A]): Iteratee[E, F, A] =
-        s.mapCont(_(Input.el(e)))
+      def apply[A](s: Step[E, F, A]): Iteratee[E, F, A] = s.mapCont(_(Input.el(e)))
     }
 
   def enumStream[E, F[_]: Monad](xs: Stream[E]): Enumerator[E, F] =
@@ -187,29 +192,6 @@ object Enumerator extends EnumeratorInstances {
     }
 }
 
-// Instances are mixed in with the [[Iteratee]] object
-
-//
-// Type class implementation traits
-//
-
-private trait EnumeratorSemigroup[E, F[_]] extends Semigroup[Enumerator[E, F]] {
-  implicit def F: FlatMap[F]
-
-  def combine(e1: Enumerator[E, F], e2: Enumerator[E, F]): Enumerator[E, F] =
-    new Enumerator[E, F] {
-      def apply[A](step: Step[E, F, A]): Iteratee[E, F, A] = e1(step).feedE(e2)
-    }
-}
-
-private trait EnumeratorMonoid[E, F[_]] extends Monoid[Enumerator[E, F]] with EnumeratorSemigroup[E, F] {
-  implicit def F: Monad[F]
-
-  def empty: Enumerator[E, F] = new Enumerator[E, F] {
-    def apply[A](s: Step[E, F, A]): Iteratee[E, F, A] = s.pointI
-  }
-}
-
 private trait EnumeratorFunctor[F[_]] extends Functor[({ type L[x] = Enumerator[x, F] })#L] {
   implicit def M: Monad[F]
   abstract override def map[A, B](fa: Enumerator[A, F])(f: A => B): Enumerator[B, F] = fa.map(f)
@@ -217,6 +199,7 @@ private trait EnumeratorFunctor[F[_]] extends Functor[({ type L[x] = Enumerator[
 
 private trait EnumeratorMonad[F[_]] extends Monad[({ type L[x] = Enumerator[x, F] })#L]
   with EnumeratorFunctor[F] {
-  def flatMap[A, B](fa: Enumerator[A, F])(f: A => Enumerator[B, F]) = fa.flatMap(f)
-  def pure[E](e: E) = Enumerator.enumOne[E, F](e)
+  def flatMap[A, B](fa: Enumerator[A, F])(f: A => Enumerator[B, F]): Enumerator[B, F] =
+    fa.flatMap(f)
+  def pure[E](e: E): Enumerator[E, F] = Enumerator.enumOne[E, F](e)
 }
