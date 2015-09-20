@@ -8,6 +8,7 @@ import org.scalatest.prop.Checkers
 import org.typelevel.discipline.scalatest.Discipline
 
 class IterateeSuite extends FunSuite with Checkers with Discipline
+  with ArbitraryInstances with EqInstances
   with Function0Instances with IntInstances with ListInstances {
 
   type EvalEIntIteratee[E] = Iteratee[E, Eval, Vector[Int]]
