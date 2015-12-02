@@ -15,7 +15,12 @@ abstract class Enumerator[E, F[_]] { self =>
   def #::(e: => E)(implicit F: Monad[F]): Enumerator[E, F] = {
     new Enumerator[E, F] {
       def apply[A](s: Step[E, F, A]): Iteratee[E, F, A] =
-        s.mapCont(_(Input.el(e))).feedE(self)
+        s.foldWith(
+          new StepFolder[E, F, A, Iteratee[E, F, A]] {
+            def onCont(k: Input[E] => Iteratee[E, F, A]): Iteratee[E, F, A] = k(Input.el(e))
+            def onDone(value: A, remaining: Input[E]): Iteratee[E, F, A] = s.pointI
+          }
+        ).feedE(self)
     }
   }
 
@@ -30,7 +35,10 @@ abstract class Enumerator[E, F[_]] { self =>
   def flatten[B](implicit ev: E =:= F[B], M: Monad[F]): Enumerator[B, F] =
     flatMap(e => Enumerator.liftM[F, B](ev(e)))
 
-  def bindM[B, G[_]](f: E => G[Enumerator[B, F]])(implicit F: Monad[F], G: Monad[G]): F[G[Enumerator[B, F]]] = {
+  def bindM[B, G[_]](f: E => G[Enumerator[B, F]])(implicit
+    F: Monad[F],
+    G: Monad[G]
+  ): F[G[Enumerator[B, F]]] = {
     val iteratee = Iteratee.fold[G[Enumerator[B, F]], F, G[Enumerator[B, F]]](
       G.pure(Enumerator.empty[B, F])
     ) {
@@ -60,10 +68,9 @@ abstract class Enumerator[E, F[_]] { self =>
   def splitOn(p: E => Boolean)(implicit F: Monad[F]): Enumerator[Vector[E], F] =
     Enumeratee.splitOn[E, F](p).wrap(self)
 
-  def drainTo(implicit F: Monad[F]): F[Vector[E]] =
-    Iteratee.consume[E, F].feedE(self).run
+  def drain(implicit F: Monad[F]): F[Vector[E]] = Iteratee.consume[E, F].feedE(self).run
 
-  def drainToF[M[_]](implicit M: Monad[F], P: MonoidK[M], Z: Applicative[M]): F[M[E]] =
+  def drainTo[M[_]](implicit M: Monad[F], P: MonoidK[M], Z: Applicative[M]): F[M[E]] =
     Iteratee.consumeIn[E, F, M].feedE(self).run
 
   def reduced[B](b: B)(f: (B, E) => B)(implicit M: Monad[F]): Enumerator[B, F] =
@@ -71,10 +78,19 @@ abstract class Enumerator[E, F[_]] { self =>
       def apply[A](step: Step[B, F, A]): Iteratee[B, F, A] = {
         def check(s: Step[E, F, B]): Iteratee[B, F, A] = s.foldWith(
           new StepFolder[E, F, B, Iteratee[B, F, A]] {
-            def onCont(k: Input[E] => Iteratee[E, F, B]): Iteratee[B, F, A] = k(Input.eof).feed {
-              s => s.mapContOr(_ => sys.error("diverging iteratee"), check(s))
+            def onCont(k: Input[E] => Iteratee[E, F, B]): Iteratee[B, F, A] = k(Input.end).feed {
+              s => s.foldWith(
+                new StepFolder[E, F, B, Iteratee[B, F, A]] {
+                  def onCont(k: Input[E] => Iteratee[E, F, B]): Iteratee[B, F, A] = Iteratee.diverge
+                  def onDone(value: B, remainder: Input[E]): Iteratee[B, F, A] = check(s)
+                }
+              )
             }
-            def onDone(value: B, remainder: Input[E]): Iteratee[B, F, A] = step.mapCont(_(Input.el(value)))
+            def onDone(value: B, remainder: Input[E]): Iteratee[B, F, A] = step.foldWith(
+              new MapContStepFolder[B, F, A](step) {
+                def onCont(k: Input[B] => Iteratee[B, F, A]): Iteratee[B, F, A] = k(Input.el(value))
+              }
+            )
           }
         )
 
@@ -107,9 +123,14 @@ object Enumerator extends EnumeratorInstances {
   def liftM[G[_]: Monad, E](ga: G[E]): Enumerator[E, G] =
     new Enumerator[E, G] {
       def apply[A](s: Step[E, G, A]): Iteratee[E, G, A] =
-        Iteratee.iteratee(
+        new Iteratee(
           Monad[G].flatMap(ga) { e =>
-            s.mapCont(k => k(Input.el(e))).value
+            s.foldWith(
+              new MapContStepFolder[E, G, A](s) {
+                def onCont(k: Input[E] => Iteratee[E, G, A]): Iteratee[E, G, A] =
+                  k(Input.el(e))
+              }
+            ).value
           }
         )
     }
@@ -124,72 +145,107 @@ object Enumerator extends EnumeratorInstances {
   /** 
    * An Enumerator that is at EOF
    */
-  def enumEof[E, F[_]: Applicative]: Enumerator[E, F] =
+  def enumEnd[E, F[_]: Applicative]: Enumerator[E, F] =
     new Enumerator[E, F] {
-      def apply[A](s: Step[E, F, A]): Iteratee[E, F, A] = s.mapCont(_(Input.eof))
-    }
-
-  /**
-   * An enumerator that forces the evaluation of an effect in the F monad when it is consumed.
-   */
-  def perform[E, F[_]: Monad, B](f: F[B]): Enumerator[E, F] =
-    new Enumerator[E, F] {
-      def apply[A](s: Step[E, F, A]): Iteratee[E, F, A] =
-        Iteratee.iteratee(Monad[F].flatMap(f) { _ => s.pointI.value })
-    }
-
-  def enumOne[E, F[_]: Applicative](e: E): Enumerator[E, F] =
-    new Enumerator[E, F] {
-      def apply[A](s: Step[E, F, A]): Iteratee[E, F, A] = s.mapCont(_(Input.el(e)))
-    }
-
-  def enumStream[E, F[_]: Monad](xs: Stream[E]): Enumerator[E, F] =
-    new Enumerator[E, F] {
-      def apply[A](s: Step[E, F, A]): Iteratee[E, F, A] = xs match {
-        case h #:: t => s.mapCont(_(Input.el(h)).feedE(enumStream[E, F](t)))
-        case _       => s.pointI
-      }
-    }
-
-  def enumList[E, F[_]: Monad](xs: List[E]): Enumerator[E, F] =
-    new Enumerator[E, F] {
-      def apply[A](s: Step[E, F, A]): Iteratee[E, F, A] =
-        if (xs.isEmpty) s.pointI else s.mapCont(_(Input.chunk(xs)))
-    }
-
-  def enumIndexedSeq[E, F[_]: Monad](a: IndexedSeq[E], min: Int = 0, max: Option[Int] = None): Enumerator[E, F] =
-    new Enumerator[E, F] {
-      private val limit = max.map(_.min(a.length)).getOrElse(a.length)
-      def apply[A](step: Step[E, F, A]): Iteratee[E, F, A] = {
-        def loop(pos: Int): Step[E, F, A] => Iteratee[E, F, A] = {
-          s => 
-            s.mapCont(
-              k => if (limit > pos) k(Input.el(a(pos))).feed(loop(pos + 1))
-                   else             s.pointI
-            )   
+      def apply[A](s: Step[E, F, A]): Iteratee[E, F, A] = s.foldWith(
+        new MapContStepFolder[E, F, A](s) {
+          def onCont(k: Input[E] => Iteratee[E, F, A]): Iteratee[E, F, A] = k(Input.end)
         }
-        loop(min)(step)
-      }
+      )
     }
 
   /**
-   * An enumerator that yields the elements of the specified array from index min (inclusive) to max (exclusive)
+   * An enumerator that forces the evaluation of an effect when it is consumed.
    */
-  def enumArray[E, F[_]: Monad](a: Array[E], min: Int = 0, max: Option[Int] = None): Enumerator[E, F] =
-    enumIndexedSeq(a, min, max)
+  def perform[E, F[_]: Monad, B](f: F[B]): Enumerator[E, F] = new Enumerator[E, F] {
+    def apply[A](s: Step[E, F, A]): Iteratee[E, F, A] =
+      new Iteratee(Monad[F].flatMap(f)(_ => s.pointI.value))
+  }
 
-  def repeat[E, F[_]: Monad](e: E): Enumerator[E, F] =
-    new Enumerator[E, F] {
-      def apply[A](s: Step[E, F, A]): Iteratee[E, F, A] = s.mapCont(_(Input.el(e)).feed(apply[A]))
+  /**
+   * An enumerator that produces a single value.
+   */
+  def enumOne[E, F[_]: Applicative](e: E): Enumerator[E, F] = new Enumerator[E, F] {
+    def apply[A](s: Step[E, F, A]): Iteratee[E, F, A] = s.foldWith(
+      new MapContStepFolder[E, F, A](s) {
+        def onCont(k: Input[E] => Iteratee[E, F, A]): Iteratee[E, F, A] = k(Input.el(e))
+      }
+    )
+  }
+
+  /**
+   * An enumerator that produces values from a stream.
+   */
+  def enumStream[E, F[_]: Monad](xs: Stream[E]): Enumerator[E, F] = new Enumerator[E, F] {
+    def apply[A](s: Step[E, F, A]): Iteratee[E, F, A] = xs match {
+      case h #:: t => s.foldWith(
+        new MapContStepFolder[E, F, A](s) {
+          def onCont(k: Input[E] => Iteratee[E, F, A]): Iteratee[E, F, A] =
+            k(Input.el(h)).feedE(enumStream[E, F](t))
+        }
+      )
+      case _ => s.pointI
     }
+  }
 
-  def iterate[E, F[_]: Monad](f: E => E, e: E): Enumerator[E, F] =
-    new Enumerator[E, F] {
-      private[this] def loop[A](s: Step[E, F, A], last: E): Iteratee[E, F, A] =
-        s.mapCont(_(Input.el(last)).feed(step => loop(step, f(last))))
+  /**
+   * An enumerator that produces values from a list.
+   */
+  def enumList[E, F[_]: Monad](xs: List[E]): Enumerator[E, F] = new Enumerator[E, F] {
+    def apply[A](s: Step[E, F, A]): Iteratee[E, F, A] =
+      if (xs.isEmpty) s.pointI else s.foldWith(
+        new MapContStepFolder[E, F, A](s) {
+          def onCont(k: Input[E] => Iteratee[E, F, A]): Iteratee[E, F, A] = k(Input.chunk(xs))
+        }
+      )
+  }
 
-      def apply[A](s: Step[E, F, A]): Iteratee[E, F, A] = loop(s, e)
-    }
+  /**
+   * An enumerator that produces values from a slice of an indexed sequence.
+   */
+  def enumIndexedSeq[E, F[_]: Monad](
+    xs: IndexedSeq[E],
+    min: Int = 0,
+    max: Int = Int.MaxValue
+  ): Enumerator[E, F] = new Enumerator[E, F] {
+    private val limit = math.min(xs.length, max)
+
+    private[this] def loop[A](pos: Int)(s: Step[E, F, A]): Iteratee[E, F, A] = s.foldWith(
+      new MapContStepFolder[E, F, A](s) {
+        def onCont(k: Input[E] => Iteratee[E, F, A]): Iteratee[E, F, A] =
+          if (limit > pos) k(Input.el(xs(pos))).feed(loop(pos + 1)) else s.pointI
+      }
+    )
+
+
+    def apply[A](step: Step[E, F, A]): Iteratee[E, F, A] = loop(min)(step)
+  }
+
+  /**
+   * An enumerator that repeats a given value indefinitely.
+   */
+  def repeat[E, F[_]: Monad](e: E): Enumerator[E, F] = new Enumerator[E, F] {
+    def apply[A](s: Step[E, F, A]): Iteratee[E, F, A] = s.foldWith(
+      new MapContStepFolder[E, F, A](s) {
+        def onCont(k: Input[E] => Iteratee[E, F, A]): Iteratee[E, F, A] =
+          k(Input.el(e)).feed(apply[A])
+      }
+    )
+  }
+
+  /**
+   * An enumerator that iteratively performs an operation.
+   */
+  def iterate[E, F[_]: Monad](f: E => E, e: E): Enumerator[E, F] = new Enumerator[E, F] {
+    private[this] def loop[A](s: Step[E, F, A], last: E): Iteratee[E, F, A] = s.foldWith(
+      new MapContStepFolder[E, F, A](s) {
+        def onCont(k: Input[E] => Iteratee[E, F, A]): Iteratee[E, F, A] =
+          k(Input.el(last)).feed(step => loop(step, f(last)))
+      }
+    )
+
+    def apply[A](s: Step[E, F, A]): Iteratee[E, F, A] = loop(s, e)
+  }
 }
 
 private trait EnumeratorFunctor[F[_]] extends Functor[({ type L[x] = Enumerator[x, F] })#L] {

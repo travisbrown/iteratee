@@ -5,14 +5,21 @@ import algebra.laws.GroupLaws
 import cats.{ Eval, Id }
 import cats.free.Trampoline
 import cats.laws.discipline.MonadTests
-import cats.std.{ Function0Instances, IntInstances, ListInstances, OptionInstances }
+import cats.std.{
+  Function0Instances,
+  IntInstances,
+  ListInstances,
+  OptionInstances,
+  VectorInstances
+}
 import org.scalacheck.{ Arbitrary, Gen }
 import org.scalatest.FunSuite
 import org.typelevel.discipline.scalatest.Discipline
 
 class EnumeratorSuite extends FunSuite with Discipline
-  with Function0Instances with IntInstances with ListInstances with OptionInstances
-  with ArbitraryKInstances with EqInstances {
+  with Function0Instances with IntInstances
+  with ListInstances with OptionInstances with VectorInstances
+  with ArbitraryInstances with EqInstances {
   type OptionEnumerator[E] = Enumerator[E, Option]
 
   checkAll("Enumerator[Int, Option]", GroupLaws[Enumerator[Int, Option]].monoid)
@@ -25,8 +32,8 @@ class EnumeratorSuite extends FunSuite with Discipline
       Arbitrary(Gen.containerOfN[List, A](10, A.arbitrary).map(ShortList(_)))
   }
 
-  test("eof") {
-    val enum = Enumerator.enumEof[Int, Id]
+  test("end") {
+    val enum = Enumerator.enumEnd[Int, Id]
     (Iteratee.consumeIn[Int, Id, List].feedE(enum)).run === Nil
   }
 
@@ -64,7 +71,7 @@ class EnumeratorSuite extends FunSuite with Discipline
         case i if p(i) => i
       }.toVector
 
-      enumerator.drainTo.value === result
+      enumerator.drain.value === result
     }
   }
 
@@ -75,7 +82,7 @@ class EnumeratorSuite extends FunSuite with Discipline
       val enumerator = e.enumerator.filter(p)
       val result = e.source.filter(p).toVector
 
-      enumerator.drainTo.value === result
+      enumerator.drain.value === result
     }
   }
 
@@ -89,7 +96,7 @@ class EnumeratorSuite extends FunSuite with Discipline
       val enumerator = e.enumerator.zipWithIndex
       val result = e.source.zipWithIndex.toVector
 
-      enumerator.drainTo.value === result
+      enumerator.drain.value === result
     }
   }
 
@@ -106,7 +113,7 @@ class EnumeratorSuite extends FunSuite with Discipline
       val enumerator = e.enumerator.grouped(size)
       val result = e.source.grouped(size).map(_.toVector).toVector
 
-      enumerator.drainTo.value === result
+      enumerator.drain.value === result
     }
   }
 
@@ -122,7 +129,7 @@ class EnumeratorSuite extends FunSuite with Discipline
       val enumerator = e.enumerator.splitOn(identity)
       val result = splitOnTrue(e.source, Vector.empty)
 
-      enumerator.drainTo.value === result
+      enumerator.drain.value === result
     }
   }
 
@@ -133,18 +140,18 @@ class EnumeratorSuite extends FunSuite with Discipline
 
   test("empty") {
     val enumerator = Enumerator.empty[Int, Id]
-    enumerator.drainTo === Vector.empty[Int]
+    enumerator.drain === Vector.empty[Int]
   }
 
-  test("enumerate an array") {
-    val enum = Enumerator.enumArray[Int, Id](Array(1, 2, 3, 4, 5), 0, Some(3))
+  test("enumerate an indexed sequence") {
+    val enum = Enumerator.enumIndexedSeq[Int, Id](Array(1, 2, 3, 4, 5), 0, 3)
     Iteratee.consumeIn[Int, Id, List].feedE(enum).run === List(1, 2, 3)
   }
 
   test("drain") {
     check { (s: Stream[Int]) =>
       val enum = Enumerator.enumStream[Int, Id](s)
-      enum.drainToF[List] === s.toList
+      enum.drainTo[List] === s.toList
     }
   }
 
@@ -153,7 +160,7 @@ class EnumeratorSuite extends FunSuite with Discipline
       val enumerator = s.enumerator.reduced(Vector.empty[Int])(_ :+ _)
       val result = Vector(s.source.toVector)
 
-      enumerator.drainTo.value === result
+      enumerator.drain.value === result
     }
   }
 
@@ -167,7 +174,7 @@ class EnumeratorSuite extends FunSuite with Discipline
         } yield (sv, tv)
       ).toVector
 
-      enumerator.drainTo.value === result
+      enumerator.drain.value === result
     }
   }
 
@@ -181,7 +188,7 @@ class EnumeratorSuite extends FunSuite with Discipline
         Enumerator.perform[Int, Eval, Unit](action)
       )
 
-      enumerator.drainTo.value
+      enumerator.drain.value
       
       marker === true
     }

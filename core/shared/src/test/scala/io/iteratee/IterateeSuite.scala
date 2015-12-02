@@ -2,14 +2,14 @@ package io.iteratee
 
 import cats.{ Eval, Id }
 import cats.free.Trampoline
-import cats.std.{ Function0Instances, IntInstances, ListInstances }
+import cats.std.{ Function0Instances, IntInstances, ListInstances, VectorInstances }
 import org.scalatest.FunSuite
 import org.scalatest.prop.Checkers
 import org.typelevel.discipline.scalatest.Discipline
 
 class IterateeSuite extends FunSuite with Checkers with Discipline
   with ArbitraryInstances with EqInstances
-  with Function0Instances with IntInstances with ListInstances {
+  with Function0Instances with IntInstances with ListInstances with VectorInstances {
 
   type EvalEIntIteratee[E] = Iteratee[E, Eval, Vector[Int]]
 

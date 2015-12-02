@@ -13,13 +13,24 @@ abstract class Enumeratee[O, I, F[_]] { self =>
       def apply[A](s: Step[I, F, A]): Iteratee[I, F, A] =
         new Iteratee((self(s).feedE(enum)).run)
     }
+
+  /**
+   * A convenience method that lets us lift a [[Step]] into a finished [[Iteratee]].
+   */
+  protected def toOuter[A](step: Step[I, F, A])(implicit F: Applicative[F]): Outer[A] =
+    Iteratee.done[O, F, Step[I, F, A]](step, Input.empty)
 }
 
 abstract class LoopingEnumeratee[O, I, F[_]: Applicative] extends Enumeratee[O, I, F] {
-  protected def loop[A]: (Input[I] => Iteratee[I, F, A]) => Outer[A]
+  protected def loop[A](k: Input[I] => Iteratee[I, F, A]): Outer[A]
 
   protected def doneOrLoop[A](step: Step[I, F, A]): Outer[A] =
-    step.mapContOr(loop, Iteratee.done(step, Input.empty))
+    step.foldWith(
+      new StepFolder[I, F, A, Outer[A]] {
+        def onCont(k: Input[I] => Iteratee[I, F, A]): Outer[A] = loop(k)
+        def onDone(value: A, remaining: Input[I]): Outer[A] = toOuter(step)
+      }
+    )
 
   def apply[A](step: Step[I, F, A]): Outer[A] = doneOrLoop[A](step)
 }
@@ -27,8 +38,8 @@ abstract class LoopingEnumeratee[O, I, F[_]: Applicative] extends Enumeratee[O, 
 abstract class FolderEnumeratee[O, I, F[_]: Applicative] extends LoopingEnumeratee[O, I, F] {
   protected def folder[A](k: Input[I] => Iteratee[I, F, A], in: Input[O]): InputFolder[O, Outer[A]]
 
-  protected def loop[A]: (Input[I] => Iteratee[I, F, A]) => Outer[A] =
-    k => Iteratee.cont[O, F, Step[I, F, A]](stepWith(k))
+  protected def loop[A](k: Input[I] => Iteratee[I, F, A]): Outer[A] =
+    Iteratee.cont[O, F, Step[I, F, A]](stepWith(k))
 
   protected def stepWith[A](k: Input[I] => Iteratee[I, F, A]): Input[O] => Outer[A] =
     in => in.foldWith(folder[A](k, in))
@@ -45,7 +56,7 @@ object Enumeratee {
           def onEmpty: Outer[A] = Iteratee.cont(stepWith(k))
           def onEl(e: O): Outer[A] = k(Input.el(f(e))).feed(doneOrLoop)
           def onChunk(es: Seq[O]): Outer[A] = k(Input.chunk(es.map(f))).feed(doneOrLoop)
-          def onEof: Outer[A] = Iteratee.done(Step.cont(k), in)
+          def onEnd: Outer[A] = Iteratee.done(Step.cont(k), in)
         }
     }
 
@@ -64,12 +75,12 @@ object Enumeratee {
                     def onEl(e: Enumerator[I, F]): Outer[A] = e(step).feed(loop)
                     def onChunk(es: Seq[Enumerator[I, F]]): Outer[A] =
                       monoid.combineAll(es).apply(step).feed(loop)
-                    def onEof: Outer[A] = Iteratee.done(step, Input.empty)
+                    def onEnd: Outer[A] = toOuter(step)
                   }
                 )
               }
             def onDone(value: A, remainder: Input[I]): Outer[A] =
-              Iteratee.done(Step.done(value, Input.empty), Input.empty)
+              toOuter(Step.done(value, Input.empty))
           }
         )
 
@@ -87,7 +98,7 @@ object Enumeratee {
             else
               Iteratee.cont(stepWith(k))
           def onChunk(es: Seq[O]): Outer[A] = k(Input.chunk(es.collect(pf))).feed(doneOrLoop)
-          def onEof: Outer[A] = Iteratee.done(Step.cont(k), in)
+          def onEnd: Outer[A] = Iteratee.done(Step.cont(k), in)
         }
     }
 
@@ -99,15 +110,15 @@ object Enumeratee {
           def onEl(e: E): Outer[A] =
             if (p(e)) k(in).feed(doneOrLoop) else Iteratee.cont(stepWith(k))
           def onChunk(es: Seq[E]): Outer[A] = k(Input.chunk(es.filter(p))).feed(doneOrLoop)
-          def onEof: Outer[A] = Iteratee.done(Step.cont(k), in)
+          def onEnd: Outer[A] = Iteratee.done(Step.cont(k), in)
         }
     }
 
   def sequenceI[O, I, F[_]: Monad](iteratee: Iteratee[O, F, I]): Enumeratee[O, I, F] =
     new LoopingEnumeratee[O, I, F] {
-      protected def loop[A]: (Input[I] => Iteratee[I, F, A]) => Outer[A] = k =>
-        Iteratee.isEof[O, F].flatMap { eof =>
-          if (eof) Iteratee.done(Step.cont(k), Input.eof) else stepWith(k)
+      protected def loop[A](k: Input[I] => Iteratee[I, F, A]): Outer[A] =
+        Iteratee.isEnd[O, F].flatMap { isEnd =>
+          if (isEnd) Iteratee.done(Step.cont(k), Input.end) else stepWith(k)
         }
 
       private[this] def stepWith[A](
@@ -120,13 +131,16 @@ object Enumeratee {
    */
   def uniq[E: Order, F[_]: Monad]: Enumeratee[E, E, F] =
     new Enumeratee[E, E, F] {
-      private[this] def stepWith[A](s: Step[E, F, A], last: Input[E]): Iteratee[E, F, A] =
-        s.mapCont { k => 
-          Iteratee.cont { in =>
-            val inr = in.filter(e => last.forall(l => Order[E].neqv(e, l)))
-            k(inr).feed(stepWith(_, in))
+      private[this] def stepWith[A](step: Step[E, F, A], last: Input[E]): Iteratee[E, F, A] =
+        step.foldWith(
+          new StepFolder[E, F, A, Iteratee[E, F, A]] {
+            def onCont(k: Input[E] => Iteratee[E, F, A]): Iteratee[E, F, A] = Iteratee.cont { in =>
+              val inr = in.filter(e => last.forall(l => Order[E].neqv(e, l)))
+              k(inr).feed(stepWith(_, in))
+            }
+            def onDone(value: A, remainder: Input[E]): Iteratee[E, F, A] = step.pointI
           }
-        }
+        )
 
       def apply[A](step: Step[E, F, A]): Outer[A] =
         stepWith(step, Input.empty).map(Step.done(_, Input.empty))
@@ -140,10 +154,15 @@ object Enumeratee {
       type StepEl[A] = Input[(E, Long)] => Iteratee[(E, Long), F, A]
 
       private[this] def doneOrLoop[A](i: Long)(step: Step[(E, Long), F, A]): Outer[A] =
-        step.mapContOr(loop(i), Iteratee.done(step, Input.empty))
+        step.foldWith(
+          new StepFolder[(E, Long), F, A, Outer[A]] {
+            def onCont(k: Input[(E, Long)] => Iteratee[(E, Long), F, A]): Outer[A] = loop(i, k)
+            def onDone(value: A, remaining: Input[(E, Long)]): Outer[A] = toOuter(step)
+          }
+        )
 
-      private[this] def loop[A](i: Long): StepEl[A] => Outer[A] =
-        s => Iteratee.cont(stepWith(s, i))
+      private[this] def loop[A](i: Long, k: StepEl[A]): Outer[A] =
+        Iteratee.cont(stepWith(k, i))
 
       def stepWith[A](k: StepEl[A], i: Long): (Input[E] => Outer[A]) = in =>
         in.foldWith(
@@ -154,7 +173,7 @@ object Enumeratee {
               k(
                 Input.chunk(es.zipWithIndex.map(p => (p._1, p._2 + i)))
               ).feed(doneOrLoop(i + es.size))
-            def onEof: Outer[A] = Iteratee.done(Step.cont(k), in)
+            def onEnd: Outer[A] = Iteratee.done(Step.cont(k), in)
           }
         )
 
@@ -180,7 +199,7 @@ object Enumeratee {
             val nextStep = pairingIteratee.feedE(e2).run
             Iteratee.iteratee(nextStep).feed(outerLoop)
 
-          case None => Iteratee.done(step, Input.eof[E1])
+          case None => Iteratee.done(step, Input.end[E1])
         }
 
       def apply[A](step: Step[(E1, E2), F, A]): Outer[A] = outerLoop(step)

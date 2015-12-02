@@ -4,7 +4,7 @@ import ReleaseTransformations._
 lazy val buildSettings = Seq(
   organization := "io.iteratee",
   scalaVersion := "2.11.7",
-  crossScalaVersions := Seq("2.10.5", "2.11.7")
+  crossScalaVersions := Seq("2.10.6", "2.11.7")
 )
 
 lazy val compilerOptions = Seq(
@@ -20,8 +20,8 @@ lazy val compilerOptions = Seq(
   "-Xfuture"
 )
 
-lazy val catsVersion = "0.2.0"
-lazy val scalaTestVersion = "3.0.0-M7"
+lazy val catsVersion = "0.3.0"
+lazy val scalaTestVersion = "3.0.0-M9"
 
 lazy val baseSettings = Seq(
   scalacOptions ++= compilerOptions ++ (
@@ -76,7 +76,7 @@ lazy val coreBase = crossProject.in(file("core"))
     libraryDependencies += "org.spire-math" %%% "cats-core" % catsVersion,
     libraryDependencies ++= Seq(
       "org.scalacheck" %% "scalacheck" % "1.12.5",
-      "org.scalatest" %% "scalatest" % "3.0.0-M7",
+      "org.scalatest" %% "scalatest" % scalaTestVersion,
       "org.spire-math" %% "cats-free" % catsVersion,
       "org.spire-math" %% "cats-laws" % catsVersion,
       "org.typelevel" %% "discipline" % "0.4"
@@ -94,7 +94,7 @@ lazy val benchmark = project
   .settings(allSettings)
   .settings(noPublishSettings)
   .settings(
-    libraryDependencies += "org.scalaz" %% "scalaz-iteratee" % "7.2.0-M3"
+    libraryDependencies += "org.scalaz" %% "scalaz-iteratee" % "7.2.0-M5"
   )
   .enablePlugins(JmhPlugin)
   .dependsOn(core)

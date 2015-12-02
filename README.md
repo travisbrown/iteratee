@@ -3,14 +3,14 @@
 [![Build status](https://img.shields.io/travis/travisbrown/iteratee/master.svg)](https://travis-ci.org/travisbrown/iteratee)
 [![Coverage status](https://img.shields.io/codecov/c/github/travisbrown/iteratee/master.svg)](https://codecov.io/github/travisbrown/iteratee)
 [![Gitter](https://img.shields.io/badge/gitter-join%20chat-green.svg)](https://gitter.im/travisbrown/iteratee)
-[![Maven Central](https://img.shields.io/maven-central/v/io.travisbrown/iteratee-core_2.11.svg)](https://maven-badges.herokuapp.com/maven-central/io.travisbrown/iteratee-core_2.11)
+[![Maven Central](https://img.shields.io/maven-central/v/io.travisbrown/iteratee-core_2.11.svg)](https://maven-badges.herokuapp.com/maven-central/io.iteratee/iteratee-core_2.11)
 
 This is a quick port of [Scalaz][scalaz]'s [iteratee implementation][scalaz-iteratee] to
 [cats][cats].
 
 ## License
 
-circe is licensed under the **[Apache License, Version 2.0][apache]** (the
+iteratee is licensed under the **[Apache License, Version 2.0][apache]** (the
 "License"); you may not use this software except in compliance with the License.
 
 Unless required by applicable law or agreed to in writing, software
