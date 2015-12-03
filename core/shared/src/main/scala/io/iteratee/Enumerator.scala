@@ -236,7 +236,7 @@ object Enumerator extends EnumeratorInstances {
   /**
    * An enumerator that iteratively performs an operation.
    */
-  def iterate[E, F[_]: Monad](f: E => E, e: E): Enumerator[E, F] = new Enumerator[E, F] {
+  def iterate[E, F[_]: Monad](init: E)(f: E => E): Enumerator[E, F] = new Enumerator[E, F] {
     private[this] def loop[A](s: Step[E, F, A], last: E): Iteratee[E, F, A] = s.foldWith(
       new MapContStepFolder[E, F, A](s) {
         def onCont(k: Input[E] => Iteratee[E, F, A]): Iteratee[E, F, A] =
@@ -244,7 +244,7 @@ object Enumerator extends EnumeratorInstances {
       }
     )
 
-    def apply[A](s: Step[E, F, A]): Iteratee[E, F, A] = loop(s, e)
+    def apply[A](s: Step[E, F, A]): Iteratee[E, F, A] = loop(s, init)
   }
 }
 
