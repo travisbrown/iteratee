@@ -55,7 +55,7 @@ object Enumeratee {
         new InputFolder[O, Outer[A]] {
           def onEmpty: Outer[A] = Iteratee.cont(stepWith(k))
           def onEl(e: O): Outer[A] = k(Input.el(f(e))).feed(doneOrLoop)
-          def onChunk(es: Seq[O]): Outer[A] = k(Input.chunk(es.map(f))).feed(doneOrLoop)
+          def onChunk(es: Vector[O]): Outer[A] = k(Input.chunk(es.map(f))).feed(doneOrLoop)
           def onEnd: Outer[A] = Iteratee.done(Step.cont(k), in)
         }
     }
@@ -73,7 +73,7 @@ object Enumeratee {
                   new InputFolder[Enumerator[I, F], Outer[A]] {
                     def onEmpty: Outer[A] = k(Input.empty).feed(loop)
                     def onEl(e: Enumerator[I, F]): Outer[A] = e(step).feed(loop)
-                    def onChunk(es: Seq[Enumerator[I, F]]): Outer[A] =
+                    def onChunk(es: Vector[Enumerator[I, F]]): Outer[A] =
                       monoid.combineAll(es).apply(step).feed(loop)
                     def onEnd: Outer[A] = toOuter(step)
                   }
@@ -97,7 +97,7 @@ object Enumeratee {
               k(Input.el(pf(e))).feed(doneOrLoop)
             else
               Iteratee.cont(stepWith(k))
-          def onChunk(es: Seq[O]): Outer[A] = k(Input.chunk(es.collect(pf))).feed(doneOrLoop)
+          def onChunk(es: Vector[O]): Outer[A] = k(Input.chunk(es.collect(pf))).feed(doneOrLoop)
           def onEnd: Outer[A] = Iteratee.done(Step.cont(k), in)
         }
     }
@@ -109,7 +109,7 @@ object Enumeratee {
           def onEmpty: Outer[A] = Iteratee.cont(stepWith(k))
           def onEl(e: E): Outer[A] =
             if (p(e)) k(in).feed(doneOrLoop) else Iteratee.cont(stepWith(k))
-          def onChunk(es: Seq[E]): Outer[A] = k(Input.chunk(es.filter(p))).feed(doneOrLoop)
+          def onChunk(es: Vector[E]): Outer[A] = k(Input.chunk(es.filter(p))).feed(doneOrLoop)
           def onEnd: Outer[A] = Iteratee.done(Step.cont(k), in)
         }
     }
@@ -169,7 +169,7 @@ object Enumeratee {
           new InputFolder[E, Outer[A]] {
             def onEmpty: Outer[A] = Iteratee.cont(stepWith(k, i))
             def onEl(e: E): Outer[A] = k(Input.el((e, i))).feed(doneOrLoop(i + 1))
-            def onChunk(es: Seq[E]): Outer[A] =
+            def onChunk(es: Vector[E]): Outer[A] =
               k(
                 Input.chunk(es.zipWithIndex.map(p => (p._1, p._2 + i)))
               ).feed(doneOrLoop(i + es.size))
