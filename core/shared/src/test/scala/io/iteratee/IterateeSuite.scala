@@ -3,6 +3,7 @@ package io.iteratee
 import cats.{ Eval, Id }
 import cats.free.Trampoline
 import cats.std.{ Function0Instances, IntInstances, ListInstances, VectorInstances }
+import org.scalacheck.{ Gen, Prop }
 import org.scalatest.FunSuite
 import org.scalatest.prop.Checkers
 import org.typelevel.discipline.scalatest.Discipline
@@ -75,6 +76,23 @@ class IterateeSuite extends FunSuite with Checkers with Discipline
       val len = Iteratee.length[Int, Eval]
       val result = (e.source.map(_.toInt).sum, e.source.size)
       sum.zip(len).feedE(e.enumerator.map(_.toInt)).run.value === result
+    }
+  }
+
+  test("zip with leftovers (scalaz/scalaz#1068)") {
+    check {
+      Prop.forAll(Gen.posNum[Int], Gen.posNum[Int]) { (x: Int, y: Int) =>
+        val takeX = Iteratee.take[Int, Eval](x)
+        val takeY = Iteratee.take[Int, Eval](y)
+        val size = x * y
+        val enum = Enumerator.enumStream[Int, Eval](Stream.from(0).take(size))
+
+        val expected = (0 until size).toVector.grouped(math.max(x, y)).map { vs =>
+          (vs.take(x), vs.take(y))
+        }.toVector
+
+        takeX.zip(takeY).sequenceI.wrap(enum).drain.value === expected
+      }
     }
   }
 
