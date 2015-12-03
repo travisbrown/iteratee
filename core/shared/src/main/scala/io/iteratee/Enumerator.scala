@@ -195,6 +195,19 @@ object Enumerator extends EnumeratorInstances {
     def apply[A](s: Step[E, F, A]): Iteratee[E, F, A] =
       if (xs.isEmpty) s.pointI else s.foldWith(
         new MapContStepFolder[E, F, A](s) {
+          def onCont(k: Input[E] => Iteratee[E, F, A]): Iteratee[E, F, A] =
+            k(Input.chunk(xs.toVector))
+        }
+      )
+  }
+
+  /**
+   * An enumerator that produces values from a vector.
+   */
+  def enumVector[E, F[_]: Monad](xs: Vector[E]): Enumerator[E, F] = new Enumerator[E, F] {
+    def apply[A](s: Step[E, F, A]): Iteratee[E, F, A] =
+      if (xs.isEmpty) s.pointI else s.foldWith(
+        new MapContStepFolder[E, F, A](s) {
           def onCont(k: Input[E] => Iteratee[E, F, A]): Iteratee[E, F, A] = k(Input.chunk(xs))
         }
       )

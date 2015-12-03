@@ -149,7 +149,7 @@ sealed class Iteratee[E, F[_], A](val value: F[Step[E, F, A]]) {
               }
           }
 
-          def onChunk(es: Seq[E]): Iteratee[E, F, (A, B)] = step(feedInput(itA, in)).flatMap {
+          def onChunk(es: Vector[E]): Iteratee[E, F, (A, B)] = step(feedInput(itA, in)).flatMap {
             case (pairA, nextItA) =>
               step(feedInput(itB, in)).flatMap {
                 case (pairB, nextItB) => (pairA, pairB) match {
@@ -249,7 +249,7 @@ object Iteratee extends IterateeInstances {
         def onEmpty: Iteratee[E, F, A[E]] = cont(step)
         def onEl(e: E): Iteratee[E, F, A[E]] =
           cont(step).map(a => MonoidK[A].combine[E](Applicative[A].pure(e), a))
-        def onChunk(es: Seq[E]): Iteratee[E, F, A[E]] =
+        def onChunk(es: Vector[E]): Iteratee[E, F, A[E]] =
           cont(step).map(a =>
             es.foldRight(a)((e, acc) => (MonoidK[A].combine[E](Applicative[A].pure(e), acc)))
           )
@@ -264,7 +264,7 @@ object Iteratee extends IterateeInstances {
       new InputFolder[E, Iteratee[E, F, Vector[E]]] {
         def onEmpty: Iteratee[E, F, Vector[E]] = cont(step)
         def onEl(e: E): Iteratee[E, F, Vector[E]] = cont(step).map(e +: _)
-        def onChunk(es: Seq[E]): Iteratee[E, F, Vector[E]] = cont(step).map(es ++: _)
+        def onChunk(es: Vector[E]): Iteratee[E, F, Vector[E]] = cont(step).map(es ++: _)
         def onEnd: Iteratee[E, F, Vector[E]] = done(Vector.empty[E], Input.end[E])
       }      
     )
@@ -282,7 +282,7 @@ object Iteratee extends IterateeInstances {
       new InputFolder[E, Iteratee[E, F, A[E]]] {
         def onEmpty: Iteratee[E, F, A[E]] = cont(step)
         def onEl(e: E): Iteratee[E, F, A[E]] = cont(step).map(a => Applicative[A].pure(e) |+| a)
-        def onChunk(es: Seq[E]): Iteratee[E, F, A[E]] =
+        def onChunk(es: Vector[E]): Iteratee[E, F, A[E]] =
           cont(step).map(a => es.foldRight(a)((e, acc) => Applicative[A].pure(e) |+| acc))
         def onEnd: Iteratee[E, F, A[E]] = done(Monoid[A[E]].empty, Input.end[E])
       }
@@ -299,7 +299,7 @@ object Iteratee extends IterateeInstances {
       new InputFolder[E, Iteratee[E, F, Option[E]]] {
         def onEmpty: Iteratee[E, F, Option[E]] = cont(step)
         def onEl(e: E): Iteratee[E, F, Option[E]] = done(Some(e), Input.empty[E])
-        def onChunk(es: Seq[E]): Iteratee[E, F, Option[E]] =
+        def onChunk(es: Vector[E]): Iteratee[E, F, Option[E]] =
           done(Some(es.head), Input.chunk(es.tail))
         def onEnd: Iteratee[E, F, Option[E]] = done(None, Input.end[E])
       }
@@ -315,7 +315,7 @@ object Iteratee extends IterateeInstances {
       new InputFolder[E, Iteratee[E, F, Option[E]]] {
         def onEmpty: Iteratee[E, F, Option[E]] = cont(step)
         def onEl(e: E): Iteratee[E, F, Option[E]] = done(Some(e), s)
-        def onChunk(es: Seq[E]): Iteratee[E, F, Option[E]] = done(Some(es.head), s)
+        def onChunk(es: Vector[E]): Iteratee[E, F, Option[E]] = done(Some(es.head), s)
         def onEnd: Iteratee[E, F, Option[E]] = done(None, Input.end[E])
       }
     )
@@ -339,7 +339,7 @@ object Iteratee extends IterateeInstances {
         def onEmpty: Iteratee[A, F, Vector[A]] = cont(loop(acc, n))
         def onEl(e: A): Iteratee[A, F, Vector[A]] =
           if (n < 1) done(acc, in) else cont(loop(acc :+ e, n - 1))
-        def onChunk(es: Seq[A]): Iteratee[A, F, Vector[A]] = {
+        def onChunk(es: Vector[A]): Iteratee[A, F, Vector[A]] = {
           val c = es.lengthCompare(n)
 
           if (c < 0) cont(loop(acc ++ es, n - es.size)) else
@@ -365,7 +365,7 @@ object Iteratee extends IterateeInstances {
         def onEl(e: A): Iteratee[A, F, Vector[A]] =
           if (p(e)) cont(loop(acc :+ e)) else done(acc, s)
 
-        def onChunk(es: Seq[A]): Iteratee[A, F, Vector[A]] = {
+        def onChunk(es: Vector[A]): Iteratee[A, F, Vector[A]] = {
           val (before, after) = es.span(p)
 
           if (after.isEmpty) cont(loop(acc ++ before)) else done(acc ++ before, Input.chunk(after))
@@ -384,7 +384,7 @@ object Iteratee extends IterateeInstances {
       new InputFolder[E, Iteratee[E, F, Unit]] {
         def onEmpty: Iteratee[E, F, Unit] = cont(step)
         def onEl(e: E): Iteratee[E, F, Unit] = drop(n - 1)
-        def onChunk(es: Seq[E]): Iteratee[E, F, Unit] = {
+        def onChunk(es: Vector[E]): Iteratee[E, F, Unit] = {
           val len = es.size
 
           if (len <= n) drop(n - len) else done((), Input.chunk(es.drop(n)))
@@ -404,7 +404,7 @@ object Iteratee extends IterateeInstances {
       new InputFolder[E, Iteratee[E, F, Unit]] {
         def onEmpty: Iteratee[E, F, Unit] = cont(step)
         def onEl(e: E): Iteratee[E, F, Unit] = if (p(e)) dropWhile(p) else done((), s)
-        def onChunk(es: Seq[E]): Iteratee[E, F, Unit] = {
+        def onChunk(es: Vector[E]): Iteratee[E, F, Unit] = {
           val after = es.dropWhile(p)
 
           if (after.isEmpty) dropWhile(p) else done((), Input.chunk(after))
@@ -420,7 +420,7 @@ object Iteratee extends IterateeInstances {
       new InputFolder[E, Iteratee[E, F, A]] {
         def onEmpty: Iteratee[E, F, A] = cont(step(acc))
         def onEl(e: E): Iteratee[E, F, A] = cont(step(f(acc, e)))
-        def onChunk(es: Seq[E]): Iteratee[E, F, A] = cont(step(es.foldLeft(acc)(f)))
+        def onChunk(es: Vector[E]): Iteratee[E, F, A] = cont(step(es.foldLeft(acc)(f)))
         def onEnd: Iteratee[E, F, A] = done(acc, Input.end[E])
       }
     )
@@ -432,7 +432,7 @@ object Iteratee extends IterateeInstances {
       new InputFolder[E, Iteratee[E, F, A]] {
         def onEmpty: Iteratee[E, F, A] = cont(step(acc))
         def onEl(e: E): Iteratee[E, F, A] = Iteratee.liftM(f(acc, e)).flatMap(a => cont(step(a)))
-        def onChunk(es: Seq[E]): Iteratee[E, F, A] =
+        def onChunk(es: Vector[E]): Iteratee[E, F, A] =
           Iteratee.liftM(
             es.foldLeft(F.pure(acc))((fa, e) => F.flatMap(fa)(a => f(a, e)))
           ).flatMap(a => cont(step(a)))

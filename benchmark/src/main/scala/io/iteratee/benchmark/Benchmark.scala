@@ -12,7 +12,7 @@ import scalaz.std.vector._
 
 class ExampleData {
   val maxSize = 10000
-  val intsI: i.Enumerator[Int, cats.Eval] = i.Enumerator.enumList((0 to maxSize).toList)
+  val intsI: i.Enumerator[Int, cats.Eval] = i.Enumerator.enumVector((0 to maxSize).toVector)
   val intsS: s.EnumeratorT[Int, scalaz.Free.Trampoline] =
     s.EnumeratorT.enumList((0 to maxSize).toList)
 

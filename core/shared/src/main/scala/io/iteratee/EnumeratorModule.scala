@@ -35,6 +35,12 @@ trait EnumeratorModule[F[_]] {
     Enumerator.enumList[E, F](es)
 
   /**
+   * An enumerator that produces values from a vector.
+   */
+  def enumVector[E](es: Vector[E])(implicit F: Monad[F]): Enumerator[E, F] =
+    Enumerator.enumVector[E, F](es)
+
+  /**
    * An enumerator that produces values from a slice of an indexed sequence.
    */
   def enumIndexedSeq[E](es: IndexedSeq[E], min: Int = 0, max: Int = Int.MaxValue)(implicit
