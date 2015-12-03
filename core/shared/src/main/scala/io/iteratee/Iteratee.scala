@@ -291,7 +291,9 @@ object Iteratee extends IterateeInstances {
     cont(step)
   }
 
-  /**An iteratee that consumes the head of the input **/
+  /**
+   * An iteratee that consumes the head of the input.
+   */
   def head[E, F[_] : Applicative]: Iteratee[E, F, Option[E]] = {
     def step(s: Input[E]): Iteratee[E, F, Option[E]] = s.normalize.foldWith(
       new InputFolder[E, Iteratee[E, F, Option[E]]] {
@@ -305,7 +307,9 @@ object Iteratee extends IterateeInstances {
     cont(step)
   }
 
-  /**An iteratee that returns the first element of the input **/
+  /**
+   * An iteratee that returns the first element of the input.
+   */
   def peek[E, F[_]: Applicative]: Iteratee[E, F, Option[E]] = {
     def step(s: Input[E]): Iteratee[E, F, Option[E]] = s.normalize.foldWith(
       new InputFolder[E, Iteratee[E, F, Option[E]]] {
@@ -321,13 +325,13 @@ object Iteratee extends IterateeInstances {
   /**
    * Iteratee that collects all inputs in reverse with the given reducer.
    *
-   * This iteratee is useful for F[_] with efficient cons, i.e. List.
+   * This iteratee is useful for `F[_]` with efficient cons, e.g. `List`.
    */
   def reversed[A, F[_]: Applicative]: Iteratee[A, F, List[A]] =
     Iteratee.fold[A, F, List[A]](Nil)((acc, e) => e :: acc)
 
   /**
-   * Iteratee that collects the first n inputs.
+   * Iteratee that collects the first `n` inputs.
    */
   def take[A, F[_]: Applicative](n: Int): Iteratee[A, F, Vector[A]] = {
     def loop(acc: Vector[A], n: Int)(in: Input[A]): Iteratee[A, F, Vector[A]] = in.foldWith(
@@ -372,7 +376,9 @@ object Iteratee extends IterateeInstances {
     cont(loop(Vector.empty))
   }
 
-  /**An iteratee that skips the first n elements of the input **/
+  /**
+   * An iteratee that skips the first `n` elements of the input.
+   */
   def drop[E, F[_]: Applicative](n: Int): Iteratee[E, F, Unit] = {
     def step(s: Input[E]): Iteratee[E, F, Unit] = s.foldWith(
       new InputFolder[E, Iteratee[E, F, Unit]] {
@@ -421,14 +427,14 @@ object Iteratee extends IterateeInstances {
     cont(step(init))
   }
 
-  def foldM[E, F[_], A](init: A)(f: (A, E) => F[A])(implicit m: Monad[F]): Iteratee[E, F, A] = {
+  def foldM[E, F[_], A](init: A)(f: (A, E) => F[A])(implicit F: Monad[F]): Iteratee[E, F, A] = {
     def step(acc: A): Input[E] => Iteratee[E, F, A] = _.foldWith(
       new InputFolder[E, Iteratee[E, F, A]] {
         def onEmpty: Iteratee[E, F, A] = cont(step(acc))
         def onEl(e: E): Iteratee[E, F, A] = Iteratee.liftM(f(acc, e)).flatMap(a => cont(step(a)))
         def onChunk(es: Seq[E]): Iteratee[E, F, A] =
           Iteratee.liftM(
-            es.foldLeft(m.pure(acc))((fa, e) => m.flatMap(fa)(a => f(a, e)))
+            es.foldLeft(F.pure(acc))((fa, e) => F.flatMap(fa)(a => f(a, e)))
           ).flatMap(a => cont(step(a)))
         def onEnd: Iteratee[E, F, A] = done(acc, Input.end[E])
       }

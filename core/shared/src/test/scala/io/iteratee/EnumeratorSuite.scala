@@ -205,7 +205,7 @@ class EnumeratorSuite extends FunSuite with Discipline
 
   test("iterate") {
     check { (i: Short, count: Short) =>
-      val enumerator = Enumerator.iterate[Int, Eval](_ + 1, i.toInt)
+      val enumerator = Enumerator.iterate[Int, Eval](i.toInt)(_ + 1)
       val result = Vector.iterate(i.toInt, count.toInt)(_ + 1)
 
       Iteratee.take[Int, Eval](count.toInt).feedE(enumerator).run.value === result

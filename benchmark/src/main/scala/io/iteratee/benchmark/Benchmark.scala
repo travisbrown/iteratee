@@ -16,7 +16,7 @@ class ExampleData {
   val intsS: s.EnumeratorT[Int, scalaz.Free.Trampoline] =
     s.EnumeratorT.enumList((0 to maxSize).toList)
 
-  val longsI: i.Enumerator[Long, cats.Eval] = i.Enumerator.iterate[Long, cats.Eval](_ + 1L, 0L)
+  val longsI: i.Enumerator[Long, cats.Eval] = i.Enumerator.iterate[Long, cats.Eval](0L)(_ + 1L)
   val longsS: s.EnumeratorT[Long, scalaz.Free.Trampoline] =
     s.EnumeratorT.iterate[Long, scalaz.Free.Trampoline](_ + 1L, 0L)
 }
