@@ -3,11 +3,16 @@ package io.iteratee
 import cats.{ Applicative, Monad }
 
 trait EnumeratorModule[F[_]] {
-  def liftM[E](fe: F[E])(implicit F: Monad[F]): Enumerator[E, F] = Enumerator.liftM[F, E](fe)
+  /**
+   * Lift an effectful value into an enumerator.
+   */
+  def liftToEnumerator[E](fe: F[E])(implicit F: Monad[F]): Enumerator[E, F] =
+    Enumerator.liftM[F, E](fe)
+
   def empty[E](implicit F: Applicative[F]): Enumerator[E, F] = Enumerator.empty[E, F]
 
   /** 
-   * An Enumerator that is at EOF
+   * An enumerator that is at EOF.
    */
   def enumEnd[E](implicit F: Applicative[F]): Enumerator[E, F] = Enumerator.enumEnd[E, F]
 
