@@ -26,7 +26,7 @@ class IterateeSuite extends FunSuite with Checkers with Discipline
 
   test("head") {
     check { (s: Stream[Int]) =>
-      Iteratee.head[Int, Id].feedE(Enumerator.enumStream(s)).run === s.headOption
+      Iteratee.head[Int, Id].process(Enumerator.enumStream(s)) === s.headOption
     }
   }
 
@@ -39,26 +39,26 @@ class IterateeSuite extends FunSuite with Checkers with Discipline
 
       val result = (s.headOption, s.toVector)
 
-      iteratee.feedE(Enumerator.enumStream(s)).run === result
+      iteratee.process(Enumerator.enumStream(s)) === result
     }
   }
 
   test("consume") {
     check { (s: Stream[Int]) =>
-      Iteratee.consumeIn[Int, Id, List].feedE(Enumerator.enumStream(s)).run === s.toList
+      Iteratee.consumeIn[Int, Id, List].process(Enumerator.enumStream(s)) === s.toList
     }
   }
 
   test("length") {
     check { (s: Stream[Int]) =>
-      Iteratee.length[Int, Id].feedE(Enumerator.enumStream(s)).run === s.size
+      Iteratee.length[Int, Id].process(Enumerator.enumStream(s)) === s.size
     }
   }
 
   test("contramap") {
     check { (s: Stream[Int]) =>
       val result = s.sum + s.size
-      Iteratee.sum[Int, Id].contramap((_: Int) + 1).feedE(Enumerator.enumStream(s)).run === result
+      Iteratee.sum[Int, Id].contramap((_: Int) + 1).process(Enumerator.enumStream(s)) === result
     }
   }
 
@@ -66,7 +66,7 @@ class IterateeSuite extends FunSuite with Checkers with Discipline
     check { (s: Stream[Int]) =>
       val result = s.sum + s.size
       val inc = Enumeratee.map[Int, Int, Id]((_: Int) + 1)
-      Iteratee.sum[Int, Id].through(inc).feedE(Enumerator.enumStream(s)).run === result
+      Iteratee.sum[Int, Id].through(inc).process(Enumerator.enumStream(s)) === result
     }
   }
 
@@ -75,7 +75,7 @@ class IterateeSuite extends FunSuite with Checkers with Discipline
       val sum = Iteratee.sum[Int, Eval]
       val len = Iteratee.length[Int, Eval]
       val result = (e.source.map(_.toInt).sum, e.source.size)
-      sum.zip(len).feedE(e.enumerator.map(_.toInt)).run.value === result
+      sum.zip(len).process(e.enumerator.map(_.toInt)).value === result
     }
   }
 
@@ -103,8 +103,8 @@ class IterateeSuite extends FunSuite with Checkers with Discipline
       val result0 = (e.source.map(_.toInt).sum, e.source.headOption)
       val result1 = result0.swap
 
-      sum.zip(head).feedE(e.enumerator.map(_.toInt)).run.value === result0 &&
-      head.zip(sum).feedE(e.enumerator.map(_.toInt)).run.value === result1
+      sum.zip(head).process(e.enumerator.map(_.toInt)).value === result0 &&
+      head.zip(sum).process(e.enumerator.map(_.toInt)).value === result1
     }
   }
 
@@ -112,7 +112,7 @@ class IterateeSuite extends FunSuite with Checkers with Discipline
     check { (e: LargeEnumerator[Int]) =>
       val iteratee = Iteratee.reversed[Int, Eval]
       val result = e.source.reverse.toVector
-      iteratee.feedE(e.enumerator).run.value === result
+      iteratee.process(e.enumerator).value === result
     }
   }
 
@@ -120,7 +120,7 @@ class IterateeSuite extends FunSuite with Checkers with Discipline
     check { (e: LargeEnumerator[Int], n: Int) =>
       val iteratee = Iteratee.take[Int, Eval](n)
       val result = e.source.take(n).toVector
-      iteratee.feedE(e.enumerator).run.value === result
+      iteratee.process(e.enumerator).value === result
     }
   }
 
@@ -130,8 +130,8 @@ class IterateeSuite extends FunSuite with Checkers with Discipline
       val s = Stream.from(0)
       val iteratee = Iteratee.takeWhile[Int, Id](_ < n)
       val result = s.takeWhile(_ < n).toVector
-      iteratee.feedE(Enumerator.enumStream(s)).run === result &&
-      iteratee.feedE(Enumerator.enumList(s.takeWhile(_ < n).toList)).run === result
+      iteratee.process(Enumerator.enumStream(s)) === result &&
+      iteratee.process(Enumerator.enumList(s.takeWhile(_ < n).toList)) === result
     }
   }
 
@@ -139,7 +139,7 @@ class IterateeSuite extends FunSuite with Checkers with Discipline
     check { (e: LargeEnumerator[Int], n: Int) =>
       val remainder = Iteratee.drop[Int, Eval](n).flatMap(_ => Iteratee.consume[Int, Eval])
       val result = e.source.drop(n).toVector
-      remainder.feedE(e.enumerator).run.value === result
+      remainder.process(e.enumerator).value === result
     }
   }
 
@@ -149,14 +149,14 @@ class IterateeSuite extends FunSuite with Checkers with Discipline
       val s = Stream.from(0).take(1000)
       val remainder = Iteratee.dropWhile[Int, Eval](_ < n).flatMap(_ => Iteratee.consume[Int, Eval])
       val result = s.dropWhile(_ < n).toVector
-      remainder.feedE(Enumerator.enumStream(s)).run.value === result &&
-      remainder.feedE(Enumerator.enumList(s.dropWhile(_ < n).toList)).run.value === result
+      remainder.process(Enumerator.enumStream(s)).value === result &&
+      remainder.process(Enumerator.enumList(s.dropWhile(_ < n).toList)).value === result
     }
   }
 
   test("fold in constant stack space") {
     val iter = Iteratee.fold[Int, Id, Int](0) { case (a, v) => a + v }.up[Trampoline]
     val enum = Enumerator.enumStream[Int, Trampoline](Stream.fill(10000)(1))
-    iter.feedE(enum).run.run === 10000
+    iter.process(enum).run === 10000
   }
 }
