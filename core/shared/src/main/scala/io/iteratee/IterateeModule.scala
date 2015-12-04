@@ -7,7 +7,8 @@ trait IterateeModule[F[_]] {
   /**
    * Lift an effectful value into an iteratee.
    */
-  def liftM[E, A](fa: F[A])(implicit F: Monad[F]): Iteratee[E, F, A] = Iteratee.liftM[E, F, A](fa)
+  def liftToIteratee[E, A](fa: F[A])(implicit F: Monad[F]): Iteratee[E, F, A] =
+    Iteratee.liftM[E, F, A](fa)
 
   def identity[E](implicit F: Applicative[F]): Iteratee[E, F, Unit] = Iteratee.identity[E, F]
 

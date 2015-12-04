@@ -143,7 +143,7 @@ object Enumerator extends EnumeratorInstances {
     }
 
   /** 
-   * An Enumerator that is at EOF
+   * An enumerator that is at EOF.
    */
   def enumEnd[E, F[_]: Applicative]: Enumerator[E, F] =
     new Enumerator[E, F] {
