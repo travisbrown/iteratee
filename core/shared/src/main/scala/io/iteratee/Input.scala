@@ -49,7 +49,7 @@ sealed abstract class Input[E] { self =>
    */
   private[iteratee] def toVector: Vector[E] = Vector.empty
 
-  private[iteratee] def shorter(that: Input[E]): Input[E] =
+  private[iteratee] final def shorter(that: Input[E]): Input[E] =
     if (isEnd || that.isEnd) Input.end
       else if (isEmpty || that.isEmpty) Input.empty
       else if (toVector.lengthCompare(that.toVector.size) < 0) this else that
@@ -59,17 +59,17 @@ object Input extends InputInstances {
   /**
    * An empty input value.
    */
-  def empty[E]: Input[E] = emptyValue.asInstanceOf[Input[E]]
+  final def empty[E]: Input[E] = emptyValue.asInstanceOf[Input[E]]
 
   /**
    * An input value representing the end of a stream.
    */
-  def end[E]: Input[E] = endValue.asInstanceOf[Input[E]]
+  final def end[E]: Input[E] = endValue.asInstanceOf[Input[E]]
 
   /**
    * An input value containing a single element.
    */
-  def el[E](e: E): Input[E] = new Input[E] { self =>
+  final def el[E](e: E): Input[E] = new Input[E] { self =>
     override def map[X](f: E => X): Input[X] = Input.el(f(e))
     override def flatMap[X](f: E => Input[X]): Input[X] = f(e)
     override def filter(f: E => Boolean): Input[E] = if (f(e)) self else empty
@@ -83,7 +83,7 @@ object Input extends InputInstances {
   /**
    * An input value containing zero or more elements.
    */
-  def chunk[E](es: Vector[E]): Input[E] = new Input[E] { self =>
+  final def chunk[E](es: Vector[E]): Input[E] = new Input[E] { self =>
     override def isEmpty: Boolean = es.isEmpty
     override def map[X](f: E => X): Input[X] = chunk(es.map(f(_)))
     override def flatMap[X](f: E => Input[X]): Input[X] = es.foldLeft(empty[X]) {
@@ -106,14 +106,14 @@ object Input extends InputInstances {
     override private[iteratee] def toVector: Vector[E] = es
   }
 
-  private[this] val emptyValue: Input[Nothing] = new Input[Nothing] {
+  private[this] final val emptyValue: Input[Nothing] = new Input[Nothing] {
     def map[X](f: Nothing => X): Input[X] = this.asInstanceOf[Input[X]]
     def flatMap[X](f: Nothing => Input[X]): Input[X] = this.asInstanceOf[Input[X]]
     override def isEmpty: Boolean = true
     def foldWith[A](folder: InputFolder[Nothing, A]): A = folder.onEmpty
   }
 
-  private[this] val endValue: Input[Nothing] = new Input[Nothing] {
+  private[this] final val endValue: Input[Nothing] = new Input[Nothing] {
     def map[X](f: Nothing => X): Input[X] = this.asInstanceOf[Input[X]]
     def flatMap[X](f: Nothing => Input[X]): Input[X] = this.asInstanceOf[Input[X]]
     override def isEnd: Boolean = true
