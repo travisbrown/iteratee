@@ -34,13 +34,13 @@ class EnumeratorSuite extends FunSuite with Discipline
 
   test("end") {
     val enum = Enumerator.enumEnd[Int, Id]
-    (Iteratee.consumeIn[Int, Id, List].feedE(enum)).run === Nil
+    (Iteratee.consumeIn[Int, Id, List].process(enum)) === Nil
   }
 
   test("map") {
     check { (s: Stream[Int], i: Int) =>
       val enum = Enumerator.enumStream[Int, Id](s)
-      Iteratee.consumeIn[Int, Id, List].feedE(enum.map(_ * i)).run === s.map(_ * i)
+      Iteratee.consumeIn[Int, Id, List].process(enum.map(_ * i)) === s.map(_ * i)
     }
   }
 
@@ -48,14 +48,14 @@ class EnumeratorSuite extends FunSuite with Discipline
     check { (s: ShortList[Int]) =>
       val enum = Enumerator.enumList[Int, Id](s.xs)
       val result = s.xs.flatMap(i => s.xs.map(_ + i))
-      Iteratee.consumeIn[Int, Id, List].feedE(enum.flatMap(i => enum.map(_ + i))).run === result
+      Iteratee.consumeIn[Int, Id, List].process(enum.flatMap(i => enum.map(_ + i))) === result
     }
   }
 
   test("flatten in a generalized fashion") {
     check { (s: List[Int]) =>
       val enum = Enumerator.enumOne[List[Int], List](s)
-      Iteratee.consumeIn[Int, List, List].feedE(enum.flatten).run.flatten === s
+      Iteratee.consumeIn[Int, List, List].process(enum.flatten).flatten === s
     }
   }
 
@@ -88,7 +88,7 @@ class EnumeratorSuite extends FunSuite with Discipline
 
   test("uniq") {
     val enum = Enumerator.enumStream[Int, Id](Stream(1, 1, 2, 2, 2, 3, 3))
-    Iteratee.consumeIn[Int, Id, List].feedE(enum.uniq).run === List(1, 2, 3)
+    Iteratee.consumeIn[Int, Id, List].process(enum.uniq) === List(1, 2, 3)
   }
 
   test("zipWithIndex") {
@@ -103,7 +103,7 @@ class EnumeratorSuite extends FunSuite with Discipline
   test("zipWithIndex in combination with another function") {
     val enum = Enumerator.enumStream[Int, Id](Stream(3, 4, 4, 5))
     val result = List((3, 0L), (4, 1L), (5, 2L))
-    Iteratee.consumeIn[(Int, Long), Id, List].feedE(enum.uniq.zipWithIndex).run === result
+    Iteratee.consumeIn[(Int, Long), Id, List].process(enum.uniq.zipWithIndex) === result
   }
 
   test("grouped") {
@@ -135,7 +135,7 @@ class EnumeratorSuite extends FunSuite with Discipline
 
   test("liftM") {
     val enum = Enumerator.liftM(List(1, 2, 3))
-    Iteratee.collectT[Int, List, Id].feedE(enum.map(_ * 2)).run === List(2, 4, 6)
+    Iteratee.collectT[Int, List, Id].process(enum.map(_ * 2)) === List(2, 4, 6)
   }
 
   test("empty") {
@@ -145,7 +145,7 @@ class EnumeratorSuite extends FunSuite with Discipline
 
   test("enumerate an indexed sequence") {
     val enum = Enumerator.enumIndexedSeq[Int, Id](Array(1, 2, 3, 4, 5), 0, 3)
-    Iteratee.consumeIn[Int, Id, List].feedE(enum).run === List(1, 2, 3)
+    Iteratee.consumeIn[Int, Id, List].process(enum) === List(1, 2, 3)
   }
 
   test("drain") {
@@ -199,7 +199,7 @@ class EnumeratorSuite extends FunSuite with Discipline
       val enumerator = Enumerator.repeat[Int, Eval](i)
       val result = Vector.fill(count.toInt)(i)
 
-      Iteratee.take[Int, Eval](count.toInt).feedE(enumerator).run.value === result
+      Iteratee.take[Int, Eval](count.toInt).process(enumerator).value === result
     }
   }
 
@@ -208,7 +208,7 @@ class EnumeratorSuite extends FunSuite with Discipline
       val enumerator = Enumerator.iterate[Int, Eval](i.toInt)(_ + 1)
       val result = Vector.iterate(i.toInt, count.toInt)(_ + 1)
 
-      Iteratee.take[Int, Eval](count.toInt).feedE(enumerator).run.value === result
+      Iteratee.take[Int, Eval](count.toInt).process(enumerator).value === result
     }
   }
 }

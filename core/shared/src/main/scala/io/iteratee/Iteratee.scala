@@ -6,43 +6,48 @@ import cats.arrow.NaturalTransformation
 import cats.functor.Contravariant
 
 /**
- * A data sink that represents a value of type `F[Step[E, F, A]]`.
+ * An iteratee processes a stream of elements of type `E` and may produce a value of type `F[A]`.
  *
  * @see [[Step]]
  *
+ * @tparam F A type constructor representing a context for effects
  * @tparam E The type of the input data
- * @tparam F The type constructor representing an effect
  * @tparam A The type of the calculated result
  */
-sealed class Iteratee[E, F[_], A](val value: F[Step[E, F, A]]) {
-  def foldWith[Z](folder: StepFolder[E, F, A, Z])(implicit F: Functor[F]): F[Z] =
-    F.map(value)(_.foldWith(folder))
+sealed class Iteratee[E, F[_], A] private(final val step: F[Step[E, F, A]]) extends Serializable {
+  /**
+   * Collapse this iteratee to an effectful value using the provided functions.
+   */
+  final def foldWith[Z](folder: StepFolder[E, F, A, Z])(implicit F: Functor[F]): F[Z] =
+    F.map(step)(_.foldWith(folder))
 
   /**
-   * Run this iteratee.
+   * Run this iteratee and close the stream so that it must produce an effectful value.
+   *
+   * @note A well-behaved iteratee will always be in the completed state after processing an
+   *       end-of-stream [[Input]] value.
    */
-  def run(implicit F: Monad[F]): F[A] = F.map(feedE(Enumerator.enumEnd[E, F]).value)(_.unsafeValue)
+  final def run(implicit F: Monad[F]): F[A] =
+    F.map(feed(Enumerator.enumEnd[E, F]).step)(_.unsafeValue)
 
-  def flatMap[B](f: A => Iteratee[E, F, B])(implicit F: Monad[F]): Iteratee[E, F, B] = {
-    def through(x: Iteratee[E, F, A]): Iteratee[E, F, B] =
-      Iteratee.iteratee(
-        F.flatMap(x.value)(
-          _.foldWith[F[Step[E, F, B]]](
-            new StepFolder[E, F, A, F[Step[E, F, B]]] {
-              def onCont(f: Input[E] => Iteratee[E, F, A]): F[Step[E, F, B]] =
-                F.pure(Step.cont(u => through(f(u))))
-              def onDone(value: A, remainder: Input[E]): F[Step[E, F, B]] =
-                if (remainder.isEmpty) f(value).value else
-                  F.flatMap(f(value).value)(
-                    _.foldWith(
-                      new StepFolder[E, F, B, F[Step[E, F, B]]] {
-                        def onCont(ff: Input[E] => Iteratee[E, F, B]): F[Step[E, F, B]] =
-                          ff(remainder).value
-                        def onDone(aa: B, r: Input[E]): F[Step[E, F, B]] =
-                          F.pure(Step.done[E, F, B](aa, remainder))
-                      }
-                    )
-                  )
+  final def flatMap[B](f: A => Iteratee[E, F, B])(implicit F: Monad[F]): Iteratee[E, F, B] = {
+    def through(it: Iteratee[E, F, A]): Iteratee[E, F, B] = Iteratee.iteratee(
+      F.flatMap(it.step)(
+        _.foldWith[F[Step[E, F, B]]](
+          new StepFolder[E, F, A, F[Step[E, F, B]]] {
+            def onCont(k: Input[E] => Iteratee[E, F, A]): F[Step[E, F, B]] =
+              F.pure(Step.cont(u => through(k(u))))
+            def onDone(value: A, remainder: Input[E]): F[Step[E, F, B]] =
+              if (remainder.isEmpty) f(value).step else F.flatMap(f(value).step)(
+                _.foldWith(
+                  new StepFolder[E, F, B, F[Step[E, F, B]]] {
+                    def onCont(ff: Input[E] => Iteratee[E, F, B]): F[Step[E, F, B]] =
+                      ff(remainder).step
+                    def onDone(aa: B, r: Input[E]): F[Step[E, F, B]] =
+                      F.pure(Step.done[E, F, B](aa, remainder))
+                  }
+                )
+              )
             }
           )
         )
@@ -58,34 +63,46 @@ sealed class Iteratee[E, F[_], A](val value: F[Step[E, F, A]]) {
     def step(s: Step[E, F, A]): Iteratee[EE, F, A] = s.foldWith(
       new StepFolder[E, F, A, Iteratee[EE, F, A]] {
         def onCont(k: Input[E] => Iteratee[E, F, A]): Iteratee[EE, F, A] =
-          Iteratee.cont((in: Input[EE]) => k(in.map(i => f(i))).feed(step))
+          Iteratee.cont((in: Input[EE]) => k(in.map(i => f(i))).advance(step))
         def onDone(value: A, remainder: Input[E]): Iteratee[EE, F, A] =
           Iteratee.done(value, if (remainder.isEnd) Input.end else Input.empty)
       }
     )
 
-    this.feed(step)
+    this.advance(step)
   }
 
   /**
-   * Combine this Iteratee with an Enumerator-like function.
+   * Advance this iteratee using a function that transforms a step into an iteratee.
    *
-   * @param f An Enumerator-like function. If the type parameters `EE` and `BB` are chosen to be
-   *          `E` and `B` respectively, the type of `f` is equivalent to `Enumerator[E, F, A]`.
+   * @param f An enumerator-like function that may change the types of the input and result.
    */
-  def feed[EE, AA](f: Step[E, F, A] => Iteratee[EE, F, AA])(implicit
+  final def advance[E2, A2](f: Step[E, F, A] => Iteratee[E2, F, A2])(implicit
     F: FlatMap[F]
-  ): Iteratee[EE, F, AA] =
-    new Iteratee(F.flatMap(value)(step => f(step).value))
+  ): Iteratee[E2, F, A2] =
+    Iteratee.iteratee(F.flatMap(step)(s => f(s).step))
 
-  def feedE(enum: Enumerator[E, F])(implicit F: FlatMap[F]): Iteratee[E, F, A] =
-    new Iteratee(F.flatMap(value)(step => enum(step).value))
+  /**
+   * Feed an enumerator to this iteratee.
+   */
+  final def feed(enumerator: Enumerator[E, F])(implicit F: FlatMap[F]): Iteratee[E, F, A] =
+    Iteratee.iteratee(F.flatMap(step)(s => enumerator(s).step))
 
-  def through[O](enumeratee: Enumeratee[O, E, F])(implicit F: Monad[F]): Iteratee[O, F, A] =
-    Iteratee.joinI(new Iteratee(F.flatMap(value)(step => enumeratee(step).value)))
+  /**
+   * Feed an enumerator to this iteratee and run it to return an effectful value.
+   */
+  final def process(enumerator: Enumerator[E, F])(implicit F: Monad[F]): F[A] = feed(enumerator).run
 
-  def mapI[G[_]](f: NaturalTransformation[F, G])(implicit F: Functor[F]): Iteratee[E, G, A] = {
-    def step: Step[E, F, A] => Step[E, G, A] = _.foldWith(
+  /**
+   * 
+   */
+  final def through[O](enumeratee: Enumeratee[O, E, F])(implicit F: Monad[F]): Iteratee[O, F, A] =
+    Iteratee.joinI(Iteratee.iteratee(F.flatMap(step)(s => enumeratee(s).step)))
+
+  final def mapI[G[_]](f: NaturalTransformation[F, G])(implicit
+    F: Functor[F]
+  ): Iteratee[E, G, A] = {
+    def transform: Step[E, F, A] => Step[E, G, A] = _.foldWith(
       new StepFolder[E, F, A, Step[E, G, A]] {
         def onCont(k: Input[E] => Iteratee[E, F, A]): Step[E, G, A] =
           Step.cont[E, G, A](in => loop(k(in)))
@@ -93,13 +110,14 @@ sealed class Iteratee[E, F[_], A](val value: F[Step[E, F, A]]) {
           Step.done[E, G, A](value, remainder)
       }
     )
-    def loop: Iteratee[E, F, A] => Iteratee[E, G, A] = i =>
-      Iteratee.iteratee(f(F.map(i.value)(step)))
+
+    def loop: Iteratee[E, F, A] => Iteratee[E, G, A] =
+      i => Iteratee.iteratee(f(F.map(i.step)(transform)))
 
     loop(this)
   }
 
-  def up[G[_]](implicit G: Applicative[G], F: Comonad[F]): Iteratee[E, G, A] = mapI(
+  final def up[G[_]](implicit G: Applicative[G], F: Comonad[F]): Iteratee[E, G, A] = mapI(
     new NaturalTransformation[F, G] {
       def apply[A](a: F[A]): G[A] = G.pure(F.extract(a))
     }
@@ -109,9 +127,9 @@ sealed class Iteratee[E, F[_], A](val value: F[Step[E, F, A]]) {
    * Feeds input elements to this iteratee until it is done, feeds the produced value to the 
    * inner iteratee. Then this iteratee will start over, looping until the inner iteratee is done.
    */
-  def sequenceI(implicit m: Monad[F]): Enumeratee[E, A, F] = Enumeratee.sequenceI(this)
+  final def sequenceI(implicit m: Monad[F]): Enumeratee[E, A, F] = Enumeratee.sequenceI(this)
 
-  def zip[B](other: Iteratee[E, F, B])(implicit F: Monad[F]): Iteratee[E, F, (A, B)] = {
+  final def zip[B](other: Iteratee[E, F, B])(implicit F: Monad[F]): Iteratee[E, F, (A, B)] = {
     type Pair[Z] = (Option[(Z, Input[E])], Iteratee[E, F, Z])
 
     def step[Z](i: Iteratee[E, F, Z]): Iteratee[E, F, Pair[Z]] = Iteratee.liftM(
@@ -124,7 +142,7 @@ sealed class Iteratee[E, F[_], A](val value: F[Step[E, F, A]]) {
       )
     )
 
-    def feedInput[Z](i: Iteratee[E, F, Z], in: Input[E]): Iteratee[E, F, Z] = i.feed(s =>
+    def feedInput[Z](i: Iteratee[E, F, Z], in: Input[E]): Iteratee[E, F, Z] = i.advance(s =>
       s.foldWith(
         new MapContStepFolder[E, F, Z](s) {
           def onCont(k: Input[E] => Iteratee[E, F, Z]): Iteratee[E, F, Z] = k(in)
@@ -163,8 +181,8 @@ sealed class Iteratee[E, F[_], A](val value: F[Step[E, F, A]]) {
           }
 
           def onEnd: Iteratee[E, F, (A, B)] =
-            itA.feedE(Enumerator.enumEnd[E, F]).flatMap(a =>
-              itB.feedE(Enumerator.enumEnd[E, F]).map((a, _))
+            itA.feed(Enumerator.enumEnd[E, F]).flatMap(a =>
+              itB.feed(Enumerator.enumEnd[E, F]).map((a, _))
             )
       }
     )
@@ -185,14 +203,14 @@ sealed class Iteratee[E, F[_], A](val value: F[Step[E, F, A]]) {
 }
 
 sealed abstract class IterateeInstances0 {
-  implicit def IterateeMonad[E, F[_]](implicit
+  implicit final def IterateeMonad[E, F[_]](implicit
     F0: Monad[F]
   ): Monad[({ type L[x] = Iteratee[E, F, x] })#L] =
     new IterateeMonad[E, F] {
       implicit val F = F0
     }
 
-  implicit def PureIterateeMonad[E]: Monad[({ type L[x] = PureIteratee[E, x] })#L] =
+  implicit final def PureIterateeMonad[E]: Monad[({ type L[x] = PureIteratee[E, x] })#L] =
     IterateeMonad[E, Id]
 }
 
@@ -207,30 +225,30 @@ sealed abstract class IterateeInstances extends IterateeInstances0 {
 }
 
 object Iteratee extends IterateeInstances {
-  private[iteratee] def diverge[A]: A = sys.error("Divergent iteratee")
+  private[iteratee] final def diverge[A]: A = sys.error("Divergent iteratee")
 
   /**
    * Lift an effectful value into an iteratee.
    */
-  def liftM[E, F[_]: Monad, A](fa: F[A]): Iteratee[E, F, A] =
+  final def liftM[E, F[_]: Monad, A](fa: F[A]): Iteratee[E, F, A] =
     iteratee(Monad[F].map(fa)(a => Step.done(a, Input.empty)))
 
-  def iteratee[E, F[_], A](s: F[Step[E, F, A]]): Iteratee[E, F, A] = new Iteratee[E, F, A](s)
+  final def iteratee[E, F[_], A](s: F[Step[E, F, A]]): Iteratee[E, F, A] = new Iteratee[E, F, A](s)
 
-  def cont[E, F[_]: Applicative, A](c: Input[E] => Iteratee[E, F, A]): Iteratee[E, F, A] =
+  final def cont[E, F[_]: Applicative, A](c: Input[E] => Iteratee[E, F, A]): Iteratee[E, F, A] =
     Step.cont(c).pointI
 
-  def done[E, F[_]: Applicative, A](d: A, r: Input[E]): Iteratee[E, F, A] =
+  final def done[E, F[_]: Applicative, A](d: A, r: Input[E]): Iteratee[E, F, A] =
     Step.done(d, r).pointI
 
-  def identity[E, F[_]: Applicative]: Iteratee[E, F, Unit] = done[E, F, Unit]((), Input.empty)
+  final def identity[E, F[_]: Applicative]: Iteratee[E, F, Unit] = done[E, F, Unit]((), Input.empty)
 
-  def joinI[E, F[_]: Monad, I, B](it: Iteratee[E, F, Step[I, F, B]]): Iteratee[E, F, B] = {
+  final def joinI[E, F[_]: Monad, I, B](it: Iteratee[E, F, Step[I, F, B]]): Iteratee[E, F, B] = {
     val M0 = Iteratee.IterateeMonad[E, F]
 
     def check: Step[I, F, B] => Iteratee[E, F, B] = _.foldWith(
       new StepFolder[I, F, B, Iteratee[E, F, B]] {
-        def onCont(k: Input[I] => Iteratee[I, F, B]): Iteratee[E, F, B] = k(Input.end).feed(
+        def onCont(k: Input[I] => Iteratee[I, F, B]): Iteratee[E, F, B] = k(Input.end).advance(
           s => if (s.isDone) check(s) else diverge
         )
         def onDone(value: B, remainder: Input[I]): Iteratee[E, F, B] = M0.pure(value)
@@ -243,7 +261,7 @@ object Iteratee extends IterateeInstances {
   /**
    * An iteratee that consumes all of the input into something that is MonoidK and Applicative.
    */
-  def consumeIn[E, F[_]: Monad, A[_]: MonoidK: Applicative]: Iteratee[E, F, A[E]] = {
+  final def consumeIn[E, F[_]: Monad, A[_]: MonoidK: Applicative]: Iteratee[E, F, A[E]] = {
     def step(s: Input[E]): Iteratee[E, F, A[E]] = s.foldWith(
       new InputFolder[E, Iteratee[E, F, A[E]]] {
         def onEmpty: Iteratee[E, F, A[E]] = cont(step)
@@ -259,7 +277,7 @@ object Iteratee extends IterateeInstances {
     cont(step)
   }
 
-  def consume[E, F[_]: Monad]: Iteratee[E, F, Vector[E]] = {
+  final def consume[E, F[_]: Monad]: Iteratee[E, F, Vector[E]] = {
     def step(s: Input[E]): Iteratee[E, F, Vector[E]] = s.foldWith(
       new InputFolder[E, Iteratee[E, F, Vector[E]]] {
         def onEmpty: Iteratee[E, F, Vector[E]] = cont(step)
@@ -271,7 +289,7 @@ object Iteratee extends IterateeInstances {
     cont(step)
   }
 
-  def collectT[E, F[_], A[_]](implicit
+  final def collectT[E, F[_], A[_]](implicit
     M: Monad[F],
     mae: Monoid[A[E]],
     pointed: Applicative[A]
@@ -294,7 +312,7 @@ object Iteratee extends IterateeInstances {
   /**
    * An iteratee that consumes the head of the input.
    */
-  def head[E, F[_] : Applicative]: Iteratee[E, F, Option[E]] = {
+  final def head[E, F[_] : Applicative]: Iteratee[E, F, Option[E]] = {
     def step(s: Input[E]): Iteratee[E, F, Option[E]] = s.normalize.foldWith(
       new InputFolder[E, Iteratee[E, F, Option[E]]] {
         def onEmpty: Iteratee[E, F, Option[E]] = cont(step)
@@ -310,7 +328,7 @@ object Iteratee extends IterateeInstances {
   /**
    * An iteratee that returns the first element of the input.
    */
-  def peek[E, F[_]: Applicative]: Iteratee[E, F, Option[E]] = {
+  final def peek[E, F[_]: Applicative]: Iteratee[E, F, Option[E]] = {
     def step(s: Input[E]): Iteratee[E, F, Option[E]] = s.normalize.foldWith(
       new InputFolder[E, Iteratee[E, F, Option[E]]] {
         def onEmpty: Iteratee[E, F, Option[E]] = cont(step)
@@ -327,13 +345,13 @@ object Iteratee extends IterateeInstances {
    *
    * This iteratee is useful for `F[_]` with efficient cons, e.g. `List`.
    */
-  def reversed[A, F[_]: Applicative]: Iteratee[A, F, List[A]] =
+  final def reversed[A, F[_]: Applicative]: Iteratee[A, F, List[A]] =
     Iteratee.fold[A, F, List[A]](Nil)((acc, e) => e :: acc)
 
   /**
    * Iteratee that collects the first `n` inputs.
    */
-  def take[A, F[_]: Applicative](n: Int): Iteratee[A, F, Vector[A]] = {
+  final def take[A, F[_]: Applicative](n: Int): Iteratee[A, F, Vector[A]] = {
     def loop(acc: Vector[A], n: Int)(in: Input[A]): Iteratee[A, F, Vector[A]] = in.foldWith(
       new InputFolder[A, Iteratee[A, F, Vector[A]]] {
         def onEmpty: Iteratee[A, F, Vector[A]] = cont(loop(acc, n))
@@ -352,13 +370,14 @@ object Iteratee extends IterateeInstances {
         def onEnd: Iteratee[A, F, Vector[A]] = done(acc, in)
       }
     )
+
     cont(loop(Vector.empty[A], n))
   }
 
   /**
    * Iteratee that collects inputs until the input element fails a test.
    */
-  def takeWhile[A, F[_]: Applicative](p: A => Boolean): Iteratee[A, F, Vector[A]] = {
+  final def takeWhile[A, F[_]: Applicative](p: A => Boolean): Iteratee[A, F, Vector[A]] = {
     def loop(acc: Vector[A])(s: Input[A]): Iteratee[A, F, Vector[A]] = s.foldWith(
       new InputFolder[A, Iteratee[A, F, Vector[A]]] {
         def onEmpty: Iteratee[A, F, Vector[A]] = cont(loop(acc))
@@ -373,13 +392,14 @@ object Iteratee extends IterateeInstances {
         def onEnd: Iteratee[A, F, Vector[A]] = done(acc, Input.end)
       }
     )
+
     cont(loop(Vector.empty))
   }
 
   /**
    * An iteratee that skips the first `n` elements of the input.
    */
-  def drop[E, F[_]: Applicative](n: Int): Iteratee[E, F, Unit] = {
+  final def drop[E, F[_]: Applicative](n: Int): Iteratee[E, F, Unit] = {
     def step(s: Input[E]): Iteratee[E, F, Unit] = s.foldWith(
       new InputFolder[E, Iteratee[E, F, Unit]] {
         def onEmpty: Iteratee[E, F, Unit] = cont(step)
@@ -399,7 +419,7 @@ object Iteratee extends IterateeInstances {
   /**
    * An iteratee that skips elements while the predicate evaluates to true.
    */
-  def dropWhile[E, F[_] : Applicative](p: E => Boolean): Iteratee[E, F, Unit] = {
+  final def dropWhile[E, F[_] : Applicative](p: E => Boolean): Iteratee[E, F, Unit] = {
     def step(s: Input[E]): Iteratee[E, F, Unit] = s.foldWith(
       new InputFolder[E, Iteratee[E, F, Unit]] {
         def onEmpty: Iteratee[E, F, Unit] = cont(step)
@@ -412,10 +432,11 @@ object Iteratee extends IterateeInstances {
         def onEnd: Iteratee[E, F, Unit] = done((), Input.end[E])
       }
     )
+
     cont(step)
   }
 
-  def fold[E, F[_]: Applicative, A](init: A)(f: (A, E) => A): Iteratee[E, F, A] = {
+  final def fold[E, F[_]: Applicative, A](init: A)(f: (A, E) => A): Iteratee[E, F, A] = {
     def step(acc: A): Input[E] => Iteratee[E, F, A] = _.foldWith(
       new InputFolder[E, Iteratee[E, F, A]] {
         def onEmpty: Iteratee[E, F, A] = cont(step(acc))
@@ -424,10 +445,13 @@ object Iteratee extends IterateeInstances {
         def onEnd: Iteratee[E, F, A] = done(acc, Input.end[E])
       }
     )
+
     cont(step(init))
   }
 
-  def foldM[E, F[_], A](init: A)(f: (A, E) => F[A])(implicit F: Monad[F]): Iteratee[E, F, A] = {
+  final def foldM[E, F[_], A](init: A)(f: (A, E) => F[A])(implicit
+    F: Monad[F]
+  ): Iteratee[E, F, A] = {
     def step(acc: A): Input[E] => Iteratee[E, F, A] = _.foldWith(
       new InputFolder[E, Iteratee[E, F, A]] {
         def onEmpty: Iteratee[E, F, A] = cont(step(acc))
@@ -445,22 +469,22 @@ object Iteratee extends IterateeInstances {
   /**
    * An iteratee that counts and consumes the elements of the input
    */
-  def length[E, F[_]: Applicative]: Iteratee[E, F, Int] = fold(0)((a, _) => a + 1)
+  final def length[E, F[_]: Applicative]: Iteratee[E, F, Int] = fold(0)((a, _) => a + 1)
 
   /**
    * An iteratee that checks if the input is EOF.
    */
-  def isEnd[E, F[_]: Applicative]: Iteratee[E, F, Boolean] = cont(in => done(in.isEnd, in))
+  final def isEnd[E, F[_]: Applicative]: Iteratee[E, F, Boolean] = cont(in => done(in.isEnd, in))
 
-  def sum[E: Monoid, F[_]: Monad]: Iteratee[E, F, E] =
+  final def sum[E: Monoid, F[_]: Monad]: Iteratee[E, F, E] =
     foldM[E, F, E](Monoid[E].empty)((a, e) => Applicative[F].pure(Monoid[E].combine(a, e)))
 }
 
 private trait IterateeMonad[E, F[_]] extends Monad[({ type L[x] = Iteratee[E, F, x] })#L] {
   implicit def F: Monad[F]
 
-  def pure[A](a: A): Iteratee[E, F, A] = Step.done(a, Input.empty).pointI
-  override def map[A, B](fa: Iteratee[E, F, A])(f: A => B): Iteratee[E, F, B] = fa.map(f)
-  def flatMap[A, B](fa: Iteratee[E, F, A])(f: A => Iteratee[E, F, B]): Iteratee[E, F, B] =
+  final def pure[A](a: A): Iteratee[E, F, A] = Step.done(a, Input.empty).pointI
+  override final def map[A, B](fa: Iteratee[E, F, A])(f: A => B): Iteratee[E, F, B] = fa.map(f)
+  final def flatMap[A, B](fa: Iteratee[E, F, A])(f: A => Iteratee[E, F, B]): Iteratee[E, F, B] =
     fa.flatMap(f)
 }

@@ -33,13 +33,13 @@ class ExampleData {
 @OutputTimeUnit(TimeUnit.SECONDS)
 class IterateeBenchmark extends ExampleData {
   @Benchmark
-  def sumIntsI: Int = i.Iteratee.sum[Int, cats.Eval].feedE(intsI).run.value
+  def sumIntsI: Int = i.Iteratee.sum[Int, cats.Eval].process(intsI).value
 
   @Benchmark
   def sumIntsS: Int = (s.IterateeT.sum[Int, scalaz.Free.Trampoline] &= intsS).run.run
 
   @Benchmark
-  def takeLongsI: Vector[Long] = i.Iteratee.take[Long, cats.Eval](10000).feedE(longsI).run.value
+  def takeLongsI: Vector[Long] = i.Iteratee.take[Long, cats.Eval](10000).process(longsI).value
 
   @Benchmark
   def takeLongsS: Vector[Long] =

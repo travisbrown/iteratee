@@ -12,14 +12,14 @@ import cats.Applicative
  * @tparam A The type of the result calculated by the [[Iteratee]]
  * @tparam B The type of the result of the fold
  */
-abstract class StepFolder[E, F[_], A, B] {
+abstract class StepFolder[E, F[_], A, B] extends Serializable {
   def onCont(k: Input[E] => Iteratee[E, F, A]): B
   def onDone(value: A, remainder: Input[E]): B
 }
 
 abstract class MapContStepFolder[E, F[_]: Applicative, A](step: Step[E, F, A])
   extends StepFolder[E, F, A, Iteratee[E, F, A]] {
-    def onDone(value: A, remainder: Input[E]): Iteratee[E, F, A] = step.pointI
+    final def onDone(value: A, remainder: Input[E]): Iteratee[E, F, A] = step.pointI
   }
 
 /**
@@ -32,7 +32,7 @@ abstract class MapContStepFolder[E, F[_]: Applicative, A](step: Step[E, F, A])
  * @tparam F The effect type constructor
  * @tparam A The type of the result calculated by the [[Iteratee]]
  */
-sealed abstract class Step[E, F[_], A] {
+sealed abstract class Step[E, F[_], A] extends Serializable {
   /**
    * The [[Iteratee]]'s result.
    *
@@ -52,27 +52,25 @@ sealed abstract class Step[E, F[_], A] {
   /**
    * Create an [[Iteratee]] with this [[Step]] as its state.
    */
-  def pointI(implicit F: Applicative[F]): Iteratee[E, F, A] = new Iteratee(F.pure(this))
+  final def pointI(implicit F: Applicative[F]): Iteratee[E, F, A] = Iteratee.iteratee(F.pure(this))
 }
 
-object Step {
+final object Step {
   /**
    * Create an incomplete state that will use the given function to process the next input.
    */
-  def cont[E, F[_], A](k: Input[E] => Iteratee[E, F, A]): Step[E, F, A] =
-    new Step[E, F, A] {
-      private[iteratee] def unsafeValue: A = Iteratee.diverge[A]
-      def isDone: Boolean = false
-      def foldWith[B](folder: StepFolder[E, F, A, B]): B = folder.onCont(k)
-    }
+  final def cont[E, F[_], A](k: Input[E] => Iteratee[E, F, A]): Step[E, F, A] = new Step[E, F, A] {
+    private[iteratee] final def unsafeValue: A = Iteratee.diverge[A]
+    final def isDone: Boolean = false
+    final def foldWith[B](folder: StepFolder[E, F, A, B]): B = folder.onCont(k)
+  }
 
   /**
    * Create a new completed state with the given result and leftover input.
    */
-  def done[E, F[_], A](value: A, remaining: Input[E]): Step[E, F, A] =
-    new Step[E, F, A] {
-      private[iteratee] def unsafeValue: A = value
-      def isDone: Boolean = true
-      def foldWith[B](folder: StepFolder[E, F, A, B]): B = folder.onDone(value, remaining)
-    }
+  final def done[E, F[_], A](value: A, remaining: Input[E]): Step[E, F, A] = new Step[E, F, A] {
+    private[iteratee] final def unsafeValue: A = value
+    final def isDone: Boolean = true
+    final def foldWith[B](folder: StepFolder[E, F, A, B]): B = folder.onDone(value, remaining)
+  }
 }
