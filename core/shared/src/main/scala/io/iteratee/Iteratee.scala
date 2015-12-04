@@ -338,39 +338,40 @@ object Iteratee extends IterateeInstances {
       new InputFolder[A, Iteratee[A, F, Vector[A]]] {
         def onEmpty: Iteratee[A, F, Vector[A]] = cont(loop(acc, n))
         def onEl(e: A): Iteratee[A, F, Vector[A]] =
-          if (n < 1) done(acc, in) else cont(loop(acc :+ e, n - 1))
+          if (n == 1) done(acc :+ e, Input.empty) else cont(loop(acc :+ e, n - 1))
         def onChunk(es: Vector[A]): Iteratee[A, F, Vector[A]] = {
-          val c = es.lengthCompare(n)
+          val diff = n - es.size
 
-          if (c < 0) cont(loop(acc ++ es, n - es.size)) else
-          if (c == 0) done(acc ++ es, Input.empty) else {
-            val (taken, left) = es.splitAt(n)
+          if (diff > 0) cont(loop(acc ++ es, diff)) else
+            if (diff == 0) done(acc ++ es, Input.empty) else {
+              val (taken, left) = es.splitAt(n)
 
-            done(acc ++ taken, Input.chunk(left))
-          }
+              done(acc ++ taken, Input.chunk(left))
+            }
         }
         def onEnd: Iteratee[A, F, Vector[A]] = done(acc, in)
       }
     )
-    cont(loop(Vector.empty[A], n))
+
+    if (n <= 0) done(Vector.empty, Input.empty) else cont(loop(Vector.empty, n))
   }
 
   /**
    * Iteratee that collects inputs until the input element fails a test.
    */
   def takeWhile[A, F[_]: Applicative](p: A => Boolean): Iteratee[A, F, Vector[A]] = {
-    def loop(acc: Vector[A])(s: Input[A]): Iteratee[A, F, Vector[A]] = s.foldWith(
+    def loop(acc: Vector[A])(in: Input[A]): Iteratee[A, F, Vector[A]] = in.foldWith(
       new InputFolder[A, Iteratee[A, F, Vector[A]]] {
         def onEmpty: Iteratee[A, F, Vector[A]] = cont(loop(acc))
         def onEl(e: A): Iteratee[A, F, Vector[A]] =
-          if (p(e)) cont(loop(acc :+ e)) else done(acc, s)
+          if (p(e)) cont(loop(acc :+ e)) else done(acc, in)
 
         def onChunk(es: Vector[A]): Iteratee[A, F, Vector[A]] = {
           val (before, after) = es.span(p)
 
           if (after.isEmpty) cont(loop(acc ++ before)) else done(acc ++ before, Input.chunk(after))
         }
-        def onEnd: Iteratee[A, F, Vector[A]] = done(acc, Input.end)
+        def onEnd: Iteratee[A, F, Vector[A]] = done(acc, in)
       }
     )
     cont(loop(Vector.empty))
@@ -380,7 +381,7 @@ object Iteratee extends IterateeInstances {
    * An iteratee that skips the first `n` elements of the input.
    */
   def drop[E, F[_]: Applicative](n: Int): Iteratee[E, F, Unit] = {
-    def step(s: Input[E]): Iteratee[E, F, Unit] = s.foldWith(
+    def step(in: Input[E]): Iteratee[E, F, Unit] = in.foldWith(
       new InputFolder[E, Iteratee[E, F, Unit]] {
         def onEmpty: Iteratee[E, F, Unit] = cont(step)
         def onEl(e: E): Iteratee[E, F, Unit] = drop(n - 1)
@@ -389,11 +390,11 @@ object Iteratee extends IterateeInstances {
 
           if (len <= n) drop(n - len) else done((), Input.chunk(es.drop(n)))
         }
-        def onEnd: Iteratee[E, F, Unit] = done((), Input.end[E])
+        def onEnd: Iteratee[E, F, Unit] = done((), in)
       }
     )
 
-    if (n <= 0) done((), Input.empty[E]) else cont(step)
+    if (n <= 0) done((), Input.empty) else cont(step)
   }
 
   /**
