@@ -14,17 +14,20 @@ import scalaz.std.list.{ listInstance => listInstanceS, listMonoid }
 import scalaz.std.vector._
 import scalaz.stream.Process
 
-class ExampleData {
-  val maxSize = 10000
-  val intsC: Stream[Int] = Stream.from(0).take(maxSize)
-  val intsI: i.Enumerator[Int, Eval] = i.Enumerator.enumStream(Stream.from(0).take(maxSize))
-  val intsZ: z.EnumeratorT[Int, Trampoline] = z.EnumeratorT.enumStream(Stream.from(0).take(maxSize))
-  val intsS: Process[Task, Int] = Process.range(0, maxSize)
+class InMemoryExampleData {
+  val size = 10000
+  val intsC: Vector[Int] = (0 until size).toVector
+  val intsI: i.Enumerator[Int, Eval] = i.Enumerator.enumVector(intsC)
+  val intsS: Process[Task, Int] = Process.emitAll(intsC)
+  val intsZ: z.EnumeratorT[Int, Trampoline] = z.EnumeratorT.enumIndexedSeq(intsC)
+}
 
-  val longsC: Stream[Long] = Stream.iterate(0L)(_ + 1L)
-  val longsI: i.Enumerator[Long, Eval] = i.Enumerator.iterate[Long, Eval](0L)(_ + 1L)
-  val longsZ: z.EnumeratorT[Long, Trampoline] = z.EnumeratorT.iterate[Long, Trampoline](_ + 1L, 0L)
-  val longsS: Process[Task, Long] = Process.iterate(0L)(_ + 1L)
+class StreamingExampleData {
+  val longStreamC: Stream[Long] = Stream.iterate(0L)(_ + 1L)
+  val longStreamI: i.Enumerator[Long, Eval] = i.Enumerator.iterate[Long, Eval](0L)(_ + 1L)
+  val longStreamS: Process[Task, Long] = Process.iterate(0L)(_ + 1L)
+  val longStreamZ: z.EnumeratorT[Long, Trampoline] =
+    z.EnumeratorT.iterate[Long, Trampoline](_ + 1L, 0L)
 }
 
 /**
@@ -32,34 +35,48 @@ class ExampleData {
  *
  * The following command will run the benchmarks with reasonable settings:
  *
- * > sbt "benchmark/run -i 10 -wi 10 -f 2 -t 1 io.iteratee.benchmark.IterateeBenchmark"
+ * > sbt "benchmark/run -i 10 -wi 10 -f 2 -t 1 io.iteratee.benchmark.InMemoryBenchmark"
  */
 @State(Scope.Thread)
 @BenchmarkMode(Array(Mode.Throughput))
 @OutputTimeUnit(TimeUnit.SECONDS)
-class IterateeBenchmark extends ExampleData {
-  @Benchmark
-  def sumIntsI: Int = i.Iteratee.sum[Int, Eval].process(intsI).value
-
+class InMemoryBenchmark extends InMemoryExampleData {
   @Benchmark
   def sumIntsC: Int = intsC.sum
 
   @Benchmark
-  def sumIntsZ: Int = (z.IterateeT.sum[Int, Trampoline] &= intsZ).run.run
+  def sumIntsI: Int = i.Iteratee.sum[Int, Eval].process(intsI).value
 
   @Benchmark
   def sumIntsS: Int = intsS.sum.runLastOr(sys.error("Impossible")).run
 
   @Benchmark
-  def takeLongsI: Vector[Long] = i.Iteratee.take[Long, Eval](10000).process(longsI).value
+  def sumIntsZ: Int = (z.IterateeT.sum[Int, Trampoline] &= intsZ).run.run
+}
+
+/**
+ * Compare the performance of iteratee operations.
+ *
+ * The following command will run the benchmarks with reasonable settings:
+ *
+ * > sbt "benchmark/run -i 10 -wi 10 -f 2 -t 1 io.iteratee.benchmark.StreamingBenchmark"
+ */
+@State(Scope.Thread)
+@BenchmarkMode(Array(Mode.Throughput))
+@OutputTimeUnit(TimeUnit.SECONDS)
+class StreamingBenchmark extends StreamingExampleData {
+  val size = 10000
 
   @Benchmark
-  def takeLongsC: Vector[Long] = longsC.take(maxSize).toVector
+  def takeLongsC: Vector[Long] = longStreamC.take(size).toVector
+
+  @Benchmark
+  def takeLongsI: Vector[Long] = i.Iteratee.take[Long, Eval](size).process(longStreamI).value
+
+  @Benchmark
+  def takeLongsS: Vector[Long] = longStreamS.take(size).runLog.run
 
   @Benchmark
   def takeLongsZ: Vector[Long] =
-    (z.Iteratee.take[Long, Vector](maxSize).up[Trampoline] &= longsZ).run.run
-
-  @Benchmark
-  def takeLongsS: Vector[Long] = longsS.take(maxSize).runLog.run
+    (z.Iteratee.take[Long, Vector](size).up[Trampoline] &= longStreamZ).run.run
 }

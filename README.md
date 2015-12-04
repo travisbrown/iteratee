@@ -13,21 +13,37 @@ more consistent API, better performance, and better documentation.
 
 So far I've made two major optimizations: I've added chunking for input and `InputFolder` and
 `StepFolder` classes that combine "functions" for folds into a single object. The initial results
-look promising:
+look promising. For example, here are the throughput results for summing a sequence a numbers for
+the collections library (`C`), this library (`I`), scalaz-stream (`S`), and Scalaz iteratees (`Z`).
+Higher numbers are better.
 
 ```
-Benchmark                      Mode  Cnt     Score    Error  Units
-IterateeBenchmark.sumIntsI    thrpt   20  2161.012 ± 76.171  ops/s
-IterateeBenchmark.sumIntsS    thrpt   20   529.520 ± 15.892  ops/s
-IterateeBenchmark.takeLongsI  thrpt   20   953.304 ±  7.715  ops/s
-IterateeBenchmark.takeLongsS  thrpt   20   369.583 ±  2.474  ops/s
+Benchmark                    Mode  Cnt      Score     Error  Units
+InMemoryBenchmark.sumIntsC  thrpt   20  12747.660 ± 472.606  ops/s
+InMemoryBenchmark.sumIntsI  thrpt   20   2185.291 ±  30.460  ops/s
+InMemoryBenchmark.sumIntsS  thrpt   20     71.360 ±   0.503  ops/s
+InMemoryBenchmark.sumIntsZ  thrpt   20    302.672 ±   7.204  ops/s
 ```
 
+And the results for collecting the first 10,000 values from an infinite stream of non-negative
+numbers into a `Vector`:
+
 ```
-IterateeBenchmark.sumIntsI:gc.alloc.rate.norm   thrpt   20   1760856.770 ±       1.491    B/op
-IterateeBenchmark.sumIntsS:gc.alloc.rate.norm   thrpt   20   8001675.187 ±      34.398    B/op
-IterateeBenchmark.takeLongsI:gc.alloc.rate.norm thrpt   20   4724417.873 ±       3.656    B/op
-IterateeBenchmark.takeLongsS:gc.alloc.rate.norm thrpt   20  11685721.549 ±  356398.849    B/op
+Benchmark                       Mode  Cnt     Score    Error  Units
+StreamingBenchmark.takeLongsC  thrpt   20  3138.873 ± 12.785  ops/s
+StreamingBenchmark.takeLongsI  thrpt   20   929.396 ± 51.928  ops/s
+StreamingBenchmark.takeLongsS  thrpt   20    59.810 ±  0.310  ops/s
+StreamingBenchmark.takeLongsZ  thrpt   20   328.380 ±  2.254  ops/s
+```
+
+And allocation rates (lower is better):
+
+```
+Benchmark                                         Mode Cnt        Score        Error Units
+StreamingBenchmark.takeLongsC:gc.alloc.rate.norm thrpt  20   526752.627 ±      1.223  B/op
+StreamingBenchmark.takeLongsI:gc.alloc.rate.norm thrpt  20  4724169.862 ±      3.414  B/op
+StreamingBenchmark.takeLongsS:gc.alloc.rate.norm thrpt  20 69766838.125 ±     57.503  B/op
+StreamingBenchmark.takeLongsZ:gc.alloc.rate.norm thrpt  20 13445946.932 ± 356356.118  B/op
 ```
 
 ## License
