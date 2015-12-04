@@ -120,6 +120,8 @@ trait EnumeratorInstances {
 }
 
 final object Enumerator extends EnumeratorInstances {
+  private[this] final val defaultChunkSize: Int = 1024
+
   final def liftM[F[_], E](fa: F[E])(implicit F: Monad[F]): Enumerator[E, F] =
     new Enumerator[E, F] {
       def apply[A](s: Step[E, F, A]): Iteratee[E, F, A] = Iteratee.iteratee(
@@ -172,20 +174,25 @@ final object Enumerator extends EnumeratorInstances {
     )
   }
 
+  private[this] final def enumChunks[E, F[_]: Monad](
+    chunks: Stream[Vector[E]]
+  ): Enumerator[E, F] = new Enumerator[E, F] {
+    def apply[A](s: Step[E, F, A]): Iteratee[E, F, A] = if (chunks.isEmpty) s.pointI else
+      s.foldWith(
+        new MapContStepFolder[E, F, A](s) {
+          def onCont(k: Input[E] => Iteratee[E, F, A]): Iteratee[E, F, A] =
+            k(Input.chunk(chunks.head)).feed(enumChunks[E, F](chunks.tail))
+        }
+      )
+  }
+
   /**
    * An enumerator that produces values from a stream.
    */
-  final def enumStream[E, F[_]: Monad](xs: Stream[E]): Enumerator[E, F] = new Enumerator[E, F] {
-    def apply[A](s: Step[E, F, A]): Iteratee[E, F, A] = xs match {
-      case h #:: t => s.foldWith(
-        new MapContStepFolder[E, F, A](s) {
-          def onCont(k: Input[E] => Iteratee[E, F, A]): Iteratee[E, F, A] =
-            k(Input.el(h)).feed(enumStream[E, F](t))
-        }
-      )
-      case _ => s.pointI
-    }
-  }
+  final def enumStream[E, F[_]: Monad](
+    xs: Stream[E],
+    chunkSize: Int = defaultChunkSize
+  ): Enumerator[E, F] = enumChunks(xs.grouped(chunkSize).map(_.toVector).toStream)
 
   /**
    * An enumerator that produces values from a list.
