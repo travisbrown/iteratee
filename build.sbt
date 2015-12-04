@@ -94,7 +94,10 @@ lazy val benchmark = project
   .settings(allSettings)
   .settings(noPublishSettings)
   .settings(
-    libraryDependencies += "org.scalaz" %% "scalaz-iteratee" % "7.2.0-M5"
+    libraryDependencies ++= Seq(
+      "org.scalaz" %% "scalaz-iteratee" % "7.1.5",
+      "org.scalaz.stream" %% "scalaz-stream" % "0.8"
+    )
   )
   .enablePlugins(JmhPlugin)
   .dependsOn(core)
