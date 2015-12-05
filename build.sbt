@@ -96,7 +96,8 @@ lazy val benchmark = project
   .settings(
     libraryDependencies ++= Seq(
       "org.scalaz" %% "scalaz-iteratee" % "7.1.5",
-      "org.scalaz.stream" %% "scalaz-stream" % "0.8"
+      "org.scalaz.stream" %% "scalaz-stream" % "0.8",
+      "org.spire-math" %% "cats-free" % catsVersion
     )
   )
   .enablePlugins(JmhPlugin)
