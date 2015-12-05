@@ -17,14 +17,14 @@ import scalaz.stream.Process
 class InMemoryExampleData {
   val size = 10000
   val intsC: Vector[Int] = (0 until size).toVector
-  val intsI: i.Enumerator[Int, Eval] = i.Enumerator.enumVector(intsC)
+  val intsI: i.Enumerator[Eval, Int] = i.Enumerator.enumVector(intsC)
   val intsS: Process[Task, Int] = Process.emitAll(intsC)
   val intsZ: z.EnumeratorT[Int, Trampoline] = z.EnumeratorT.enumIndexedSeq(intsC)
 }
 
 class StreamingExampleData {
   val longStreamC: Stream[Long] = Stream.iterate(0L)(_ + 1L)
-  val longStreamI: i.Enumerator[Long, Eval] = i.Enumerator.iterate[Long, Eval](0L)(_ + 1L)
+  val longStreamI: i.Enumerator[Eval, Long] = i.Enumerator.iterate[Eval, Long](0L)(_ + 1L)
   val longStreamS: Process[Task, Long] = Process.iterate(0L)(_ + 1L)
   val longStreamZ: z.EnumeratorT[Long, Trampoline] =
     z.EnumeratorT.iterate[Long, Trampoline](_ + 1L, 0L)
@@ -45,7 +45,7 @@ class InMemoryBenchmark extends InMemoryExampleData {
   def sumIntsC: Int = intsC.sum
 
   @Benchmark
-  def sumIntsI: Int = i.Iteratee.sum[Int, Eval].process(intsI).value
+  def sumIntsI: Int = i.Iteratee.sum[Eval, Int].process(intsI).value
 
   @Benchmark
   def sumIntsS: Int = intsS.sum.runLastOr(sys.error("Impossible")).run
@@ -71,7 +71,7 @@ class StreamingBenchmark extends StreamingExampleData {
   def takeLongsC: Vector[Long] = longStreamC.take(size).toVector
 
   @Benchmark
-  def takeLongsI: Vector[Long] = i.Iteratee.take[Long, Eval](size).process(longStreamI).value
+  def takeLongsI: Vector[Long] = i.Iteratee.take[Eval, Long](size).process(longStreamI).value
 
   @Benchmark
   def takeLongsS: Vector[Long] = longStreamS.take(size).runLog.run
