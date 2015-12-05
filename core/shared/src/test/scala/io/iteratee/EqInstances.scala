@@ -17,9 +17,9 @@ trait EqInstances {
     val e2 = Enumerator.enumStream[Vector[A], F](Arbitrary.arbitrary[Stream[Vector[A]]].sample.get)
 
     Eq.instance { (i, j) =>
-      eq.eqv(i.feedE(e0).run , j.feedE(e0).run) &&
-      eq.eqv(i.feedE(e1).run , j.feedE(e1).run) &&
-      eq.eqv(i.feedE(e2).run , j.feedE(e2).run)
+      eq.eqv(i.process(e0), j.process(e0)) &&
+      eq.eqv(i.process(e1), j.process(e1)) &&
+      eq.eqv(i.process(e2), j.process(e2))
     }
   }
 }
