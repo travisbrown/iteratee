@@ -26,25 +26,41 @@ trait ArbitraryInstances {
       )
     )
 
-  implicit def arbitraryIteratee[F[_]: Monad, A](implicit
+  implicit def arbitraryVectorIteratee[F[_]: Monad, A](implicit
     A: Arbitrary[A]
   ): Arbitrary[Iteratee[F, Vector[A], Vector[A]]] = {
-    val m: Monad[({ type L[x] = Iteratee[F, Vector[A], x] })#L] = implicitly
-    val f = Iteratee.fold[F, Vector[A], Vector[A]](Vector.empty)(_ ++ _)
+    val M: Monad[({ type L[x] = Iteratee[F, Vector[A], x] })#L] = implicitly
+    val F = Iteratee.fold[F, Vector[A], Vector[A]](Vector.empty)(_ ++ _)
 
     Arbitrary(
       for {
         n <- Gen.chooseNum(0, 16)
         xs <- Gen.containerOfN[Vector, A](128, A.arbitrary)
         it <- Gen.oneOf(
-          Iteratee.drop[F, Vector[A]](n).flatMap(_ => f),
-          Iteratee.drop[F, Vector[A]](n).flatMap(_ => m.pure(xs)),
-          Iteratee.peek[F, Vector[A]].flatMap(_ => f),
-          Iteratee.peek[F, Vector[A]].flatMap(_ => m.pure(xs)),
-          Iteratee.identity[F, Vector[A]].flatMap(_ => f),
-          Iteratee.identity[F, Vector[A]].flatMap(_ => m.pure(xs))
+          Iteratee.drop[F, Vector[A]](n).flatMap(_ => F),
+          Iteratee.drop[F, Vector[A]](n).flatMap(_ => M.pure(xs)),
+          Iteratee.peek[F, Vector[A]].flatMap(_ => F),
+          Iteratee.peek[F, Vector[A]].flatMap(_ => M.pure(xs)),
+          Iteratee.identity[F, Vector[A]].flatMap(_ => F),
+          Iteratee.identity[F, Vector[A]].flatMap(_ => M.pure(xs))
         )
       } yield it
+    )
+  }
+
+  implicit def arbitraryFunctionIteratee[
+    F[_]: Monad,
+    A
+  ]: Arbitrary[Iteratee[F, A, Vector[Int] => Vector[Int]]] = {
+    val M: Monad[({ type L[x] = Iteratee[F, A, x] })#L] = implicitly
+
+    Arbitrary(
+      Gen.oneOf(
+        (xs: Vector[Int]) => Vector(xs.size),
+        (xs: Vector[Int]) => xs,
+        (xs: Vector[Int]) => xs.drop(2),
+        (xs: Vector[Int]) => xs.map(_ * 2)
+      ).map(M.pure(_))
     )
   }
 }

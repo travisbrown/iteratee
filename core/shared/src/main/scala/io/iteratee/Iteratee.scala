@@ -262,8 +262,7 @@ object Iteratee extends IterateeInstances {
     def step(in: Input[E]): Iteratee[F, E, A[E]] = in.foldWith(
       new InputFolder[E, Iteratee[F, E, A[E]]] {
         def onEmpty: Iteratee[F, E, A[E]] = cont(step)
-        def onEl(e: E): Iteratee[F, E, A[E]] =
-          cont(step).map(a => MonoidK[A].combine[E](A.pure(e), a))
+        def onEl(e: E): Iteratee[F, E, A[E]] = cont(step).map(a => M.combine[E](A.pure(e), a))
         def onChunk(es: Vector[E]): Iteratee[F, E, A[E]] =
           cont(step).map(a =>
             es.foldRight(a)((e, acc) => (M.combine(A.pure(e), acc)))
@@ -283,24 +282,6 @@ object Iteratee extends IterateeInstances {
         def onChunk(es: Vector[E]): Iteratee[F, E, Vector[E]] = cont(step).map(es ++: _)
         def onEnd: Iteratee[F, E, Vector[E]] = done(Vector.empty, in)
       }      
-    )
-
-    cont(step)
-  }
-
-  final def collectT[F[_], E, A[_]](implicit
-    F: Monad[F],
-    M: Monoid[A[E]],
-    A: Applicative[A]
-  ): Iteratee[F, E, A[E]] = {
-    def step(in: Input[E]): Iteratee[F, E, A[E]] = in.foldWith(
-      new InputFolder[E, Iteratee[F, E, A[E]]] {
-        def onEmpty: Iteratee[F, E, A[E]] = cont(step)
-        def onEl(e: E): Iteratee[F, E, A[E]] = cont(step).map(a => M.combine(A.pure(e), a))
-        def onChunk(es: Vector[E]): Iteratee[F, E, A[E]] =
-          cont(step).map(a => es.foldRight(a)((e, acc) => M.combine(A.pure(e), acc)))
-        def onEnd: Iteratee[F, E, A[E]] = done(M.empty, in)
-      }
     )
 
     cont(step)

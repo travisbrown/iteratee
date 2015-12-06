@@ -12,19 +12,13 @@ trait IterateeModule[F[_]] {
 
   final def identity[E](implicit F: Applicative[F]): Iteratee[F, E, Unit] = Iteratee.identity
 
+  final def consume[E](implicit F: Monad[F]): Iteratee[F, E, Vector[E]] = Iteratee.consume
+
   /**
    * An iteratee that consumes all of the input into something that is MonoidK and Applicative.
    */
   final def consumeIn[E, A[_]: MonoidK: Applicative](implicit F: Monad[F]): Iteratee[F, E, A[E]] =
     Iteratee.consumeIn
-
-  final def consume[E](implicit F: Monad[F]): Iteratee[F, E, Vector[E]] = Iteratee.consume
-
-  final def collectT[E, A[_]](implicit
-    F: Monad[F],
-    M: Monoid[A[E]],
-    A: Applicative[A]
-  ): Iteratee[F, E, A[E]] = Iteratee.collectT
 
   /**
    * An iteratee that consumes the head of the input.
@@ -77,10 +71,10 @@ trait IterateeModule[F[_]] {
    */
   final def length[E](implicit F: Applicative[F]): Iteratee[F, E, Int] = Iteratee.length
 
+  final def sum[E: Monoid](implicit F: Monad[F]): Iteratee[F, E, E] = Iteratee.sum
+
   /**
    * An iteratee that checks if the input is EOF.
    */
   final def isEnd[E](implicit F: Applicative[F]): Iteratee[F, E, Boolean] = Iteratee.isEnd
-
-  final def sum[E: Monoid](implicit F: Monad[F]): Iteratee[F, E, E] = Iteratee.sum
 }

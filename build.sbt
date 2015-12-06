@@ -31,7 +31,12 @@ lazy val baseSettings = Seq(
     }
   ),
   scalacOptions in (Compile, console) := compilerOptions,
-  scalacOptions in (Compile, test) := compilerOptions,
+  scalacOptions in (Compile, test) := compilerOptions ++ (
+    CrossVersion.partialVersion(scalaVersion.value) match {
+      case Some((2, 11)) => Seq("-Ywarn-unused-import")
+      case _ => Nil
+    }
+  ),
   resolvers ++= Seq(
     Resolver.sonatypeRepo("releases"),
     Resolver.sonatypeRepo("snapshots")

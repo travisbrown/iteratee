@@ -16,10 +16,14 @@ trait EnumeratorModule[F[_]] {
    */
   final def enumEnd[E](implicit F: Applicative[F]): Enumerator[F, E] = Enumerator.enumEnd
 
+  class PerformPartiallyApplied[E] {
+    def apply[A](fa: F[A])(implicit F: Monad[F]): Enumerator[F, E] = Enumerator.perform(fa)
+  }
+
   /**
    * An enumerator that forces the evaluation of an effect when it is consumed.
    */
-  final def perform[E, A](f: F[A])(implicit F: Monad[F]): Enumerator[F, E] = Enumerator.perform(f)
+  final def perform[E]: PerformPartiallyApplied[E] = new PerformPartiallyApplied[E]
 
   /**
    * An enumerator that produces a single value.
