@@ -14,7 +14,7 @@ abstract class Enumerator[F[_], E] extends Serializable { self =>
 
   final def map[B](f: E => B)(implicit F: Monad[F]): Enumerator[F, B] = mapE(Enumeratee.map(f))
 
-  final def #::(e: => E)(implicit F: Monad[F]): Enumerator[F, E] = {
+  final def prepend(e: E)(implicit F: Monad[F]): Enumerator[F, E] = {
     new Enumerator[F, E] {
       def apply[A](s: Step[F, E, A]): Iteratee[F, E, A] =
         s.foldWith(
@@ -34,10 +34,10 @@ abstract class Enumerator[F[_], E] extends Serializable { self =>
   final def flatMap[B](f: E => Enumerator[F, B])(implicit F: Monad[F]) =
     mapE(Enumeratee.flatMap(f))
 
-  final def flatten[B](implicit ev: E =:= F[B], M: Monad[F]): Enumerator[F, B] =
+  final def flatten[B](implicit M: Monad[F], ev: E =:= F[B]): Enumerator[F, B] =
     flatMap(e => Enumerator.liftM(ev(e)))
 
-  final def bindM[B, G[_]](f: E => G[Enumerator[F, B]])(implicit
+  final def bindM[G[_], B](f: E => G[Enumerator[F, B]])(implicit
     F: Monad[F],
     G: Monad[G]
   ): F[G[Enumerator[F, B]]] = {
@@ -57,6 +57,9 @@ abstract class Enumerator[F[_], E] extends Serializable { self =>
 
   final def filter(p: E => Boolean)(implicit F: Monad[F]): Enumerator[F, E] =
     mapE(Enumeratee.filter(p))
+
+  final def sequenceI[I](iteratee: Iteratee[F, E, I])(implicit F: Monad[F]): Enumerator[F, I] =
+    mapE(Enumeratee.sequenceI(iteratee))
 
   final def uniq(implicit F: Monad[F], E: Order[E]): Enumerator[F, E] = mapE(Enumeratee.uniq)
 
@@ -243,7 +246,7 @@ final object Enumerator extends EnumeratorInstances {
     )
 
 
-    def apply[A](step: Step[F, E, A]): Iteratee[F, E, A] = loop(min)(step)
+    def apply[A](step: Step[F, E, A]): Iteratee[F, E, A] = loop(math.max(min, 0))(step)
   }
 
   /**

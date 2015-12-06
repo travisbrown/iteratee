@@ -1,162 +1,218 @@
 package io.iteratee
 
-import cats.{ Eval, Id }
-import cats.free.Trampoline
-import cats.std.{ Function0Instances, IntInstances, ListInstances, VectorInstances }
-import org.scalacheck.{ Gen, Prop }
-import org.scalatest.FunSuite
-import org.scalatest.prop.Checkers
-import org.typelevel.discipline.scalatest.Discipline
+import cats.{ Eval, Id, Monad }
+import cats.arrow.NaturalTransformation
+import cats.laws.discipline.{ ContravariantTests, MonadTests }
+import org.scalacheck.Prop.BooleanOperators
 
-class IterateeSuite extends FunSuite with Checkers with Discipline
-  with ArbitraryInstances with EqInstances
-  with Function0Instances with IntInstances with ListInstances with VectorInstances {
+abstract class IterateeSuite[F[_]: Monad] extends ModuleSuite[F] {
+  implicit override val generatorDrivenConfig: PropertyCheckConfiguration = PropertyCheckConfig(
+    minSize = 0,
+    maxSize = 10000
+  )
 
-  type EvalEIntIteratee[E] = Iteratee[Eval, E, Vector[Int]]
+  type VectorIntProducingIteratee[E] = Iteratee[F, E, Vector[Int]]
+  type VectorIntFoldingIteratee[A] = Iteratee[F, Vector[Int], A]
 
   checkAll(
-    "Iteratee[Vector[Int], Eval, Vector[Int]]",
-    ContravariantTests[EvalEIntIteratee].contravariant[Vector[Int], Int, Vector[Int]]
+    s"Iteratee[$monadName, Vector[Int], Vector[Int]]",
+    MonadTests[VectorIntFoldingIteratee].monad[Vector[Int], Vector[Int], Vector[Int]]
   )
 
   checkAll(
-    "Iteratee[Vector[Int], Eval, Vector[Int]]",
-    ContravariantTests[EvalEIntIteratee].invariant[Vector[Int], Int, Vector[Int]]
+    s"Iteratee[$monadName, Int, Vector[Int]]",
+    ContravariantTests[VectorIntProducingIteratee].contravariant[Vector[Int], Int, Vector[Int]]
   )
 
-  test("head") {
-    check { (s: Stream[Int]) =>
-      Iteratee.head[Id, Int].process(Enumerator.enumStream(s)) === s.headOption
+  checkAll(
+    s"Iteratee[$monadName, Int, Vector[Int]]",
+    ContravariantTests[VectorIntProducingIteratee].invariant[Vector[Int], Int, Vector[Int]]
+  )
+
+  test("liftM") {
+    check { (i: Int) =>
+      liftToIteratee(F.pure(i)).run === F.pure(i)
     }
   }
 
-  test("peek") {
-    check { (s: Stream[Int]) =>
-      val iteratee = for {
-        head <- Iteratee.peek[Id, Int]
-        all <- Iteratee.consume[Id, Int]
-      } yield (head, all)
-
-      val result = (s.headOption, s.toVector)
-
-      iteratee.process(Enumerator.enumStream(s)) === result
+  test("identity") {
+    check { (eav: EnumeratorAndValues[Int]) =>
+      eav.resultWithLeftovers(identity) === F.pure(((), eav.values))
     }
   }
 
   test("consume") {
-    check { (s: Stream[Int]) =>
-      Iteratee.consumeIn[Id, Int, List].process(Enumerator.enumStream(s)) === s.toList
+    check { (eav: EnumeratorAndValues[Int]) =>
+      eav.resultWithLeftovers(consume) === F.pure((eav.values, Vector.empty))
     }
   }
 
-  test("length") {
-    check { (s: Stream[Int]) =>
-      Iteratee.length[Id, Int].process(Enumerator.enumStream(s)) === s.size
+  test("consumeIn") {
+    check { (eav: EnumeratorAndValues[Int]) =>
+      eav.resultWithLeftovers(consumeIn[Int, List]) === F.pure((eav.values.toList, Vector.empty))
     }
   }
 
-  test("contramap") {
-    check { (s: Stream[Int]) =>
-      val result = s.sum + s.size
-      Iteratee.sum[Id, Int].contramap((_: Int) + 1).process(Enumerator.enumStream(s)) === result
+  test("reversed") {
+    check { (eav: EnumeratorAndValues[Int]) =>
+      eav.resultWithLeftovers(reversed) === F.pure((eav.values.toList.reverse, Vector.empty))
     }
   }
 
-  test("through") {
-    check { (s: Stream[Int]) =>
-      val result = s.sum + s.size
-      val inc = Enumeratee.map[Id, Int, Int]((_: Int) + 1)
-      Iteratee.sum[Id, Int].through(inc).process(Enumerator.enumStream(s)) === result
+  test("head") {
+    check { (eav: EnumeratorAndValues[Int]) =>
+      val result = (eav.values.headOption, eav.values.drop(1))
+
+      eav.resultWithLeftovers(head[Int]) === F.pure(result)
     }
   }
 
-  test("zip") {
-    check { (e: SmallEnumerator[Short]) =>
-      val sum = Iteratee.sum[Eval, Int]
-      val len = Iteratee.length[Eval, Int]
-      val result = (e.source.map(_.toInt).sum, e.source.size)
-      sum.zip(len).process(e.enumerator.map(_.toInt)).value === result
-    }
-  }
+  test("peek") {
+    check { (eav: EnumeratorAndValues[Int]) =>
+      val result = (eav.values.headOption, eav.values)
 
-  test("zip with leftovers (scalaz/scalaz#1068)") {
-    check {
-      Prop.forAll(Gen.posNum[Int], Gen.posNum[Int]) { (x: Int, y: Int) =>
-        val takeX = Iteratee.take[Eval, Int](x)
-        val takeY = Iteratee.take[Eval, Int](y)
-        val size = x * y
-        val enum = Enumerator.enumStream[Eval, Int](Stream.from(0).take(size))
-
-        val expected = (0 until size).toVector.grouped(math.max(x, y)).map { vs =>
-          (vs.take(x), vs.take(y))
-        }.toVector
-
-        takeX.zip(takeY).sequenceI.wrap(enum).drain.value === expected
-      }
-    }
-  }
-
-  test("zip different lengths") {
-    check { (e: SmallEnumerator[Short]) =>
-      val sum = Iteratee.sum[Eval, Int]
-      val head = Iteratee.head[Eval, Int]
-      val result0 = (e.source.map(_.toInt).sum, e.source.headOption)
-      val result1 = result0.swap
-
-      sum.zip(head).process(e.enumerator.map(_.toInt)).value === result0 &&
-      head.zip(sum).process(e.enumerator.map(_.toInt)).value === result1
-    }
-  }
-
-  test("reverse") {
-    check { (e: LargeEnumerator[Int]) =>
-      val iteratee = Iteratee.reversed[Eval, Int]
-      val result = e.source.reverse.toVector
-      iteratee.process(e.enumerator).value === result
+      eav.resultWithLeftovers(peek[Int]) === F.pure(result)
     }
   }
 
   test("take") {
-    check { (e: LargeEnumerator[Int], n: Int) =>
-      val iteratee = Iteratee.take[Eval, Int](n)
-      val result = e.source.take(n).toVector
-      iteratee.process(e.enumerator).value === result
+    check { (eav: EnumeratorAndValues[Int], n: Int) =>
+      /**
+       * This isn't a comprehensive way to avoid SI-9581, but it seems to keep clear of the cases
+       * ScalaCheck is likely to run into.
+       */
+      (n != Int.MaxValue) ==> {
+        eav.resultWithLeftovers(take[Int](n)) === F.pure((eav.values.take(n), eav.values.drop(n)))
+      }
     }
   }
 
   test("takeWhile") {
-    check { (b: Byte) =>
-      val n = b.toInt
-      val s = Stream.from(0)
-      val iteratee = Iteratee.takeWhile[Id, Int](_ < n)
-      val result = s.takeWhile(_ < n).toVector
-      iteratee.process(Enumerator.enumStream(s)) === result &&
-      iteratee.process(Enumerator.enumList(s.takeWhile(_ < n).toList)) === result
+    check { (eav: EnumeratorAndValues[Int], n: Int) =>
+      eav.resultWithLeftovers(takeWhile(_ < n)) === F.pure(eav.values.span(_ < n))
     }
   }
 
   test("drop") {
-    check { (e: LargeEnumerator[Int], n: Int) =>
-      val remainder = Iteratee.drop[Eval, Int](n).flatMap(_ => Iteratee.consume[Eval, Int])
-      val result = e.source.drop(n).toVector
-      remainder.process(e.enumerator).value === result
+    check { (eav: EnumeratorAndValues[Int], n: Int) =>
+      /**
+       * This isn't a comprehensive way to avoid SI-9581, but it seems to keep clear of the cases
+       * ScalaCheck is likely to run into.
+       */
+      (n != Int.MaxValue) ==> {
+        eav.resultWithLeftovers(drop[Int](n)) === F.pure(((), eav.values.drop(n)))
+      }
     }
   }
 
   test("dropWhile") {
-    check { (b: Byte) =>
-      val n = b.toInt
-      val s = Stream.from(0).take(1000)
-      val remainder = Iteratee.dropWhile[Eval, Int](_ < n).flatMap(_ => Iteratee.consume[Eval, Int])
-      val result = s.dropWhile(_ < n).toVector
-      remainder.process(Enumerator.enumStream(s)).value === result &&
-      remainder.process(Enumerator.enumList(s.dropWhile(_ < n).toList)).value === result
+    check { (eav: EnumeratorAndValues[Int], n: Int) =>
+      eav.resultWithLeftovers(dropWhile(_ < n)) === F.pure(((), eav.values.dropWhile(_ < n)))
     }
   }
 
-  test("fold in constant stack space") {
-    val iter = Iteratee.fold[Id, Int, Int](0) { case (a, v) => a + v }.up[Trampoline]
-    val enum = Enumerator.enumStream[Trampoline, Int](Stream.fill(10000)(1))
-    iter.process(enum).run === 10000
+  test("fold") {
+    check { (eav: EnumeratorAndValues[Int]) =>
+      eav.resultWithLeftovers(fold[Int, Int](0)(_ + _)) === F.pure((eav.values.sum, Vector.empty))
+    }
+  }
+
+  test("foldM") {
+    check { (eav: EnumeratorAndValues[Int]) =>
+      val result = (eav.values.sum, Vector.empty)
+
+      eav.resultWithLeftovers(foldM[Int, Int](0)((acc, i) => F.pure(acc + i))) === F.pure(result)
+    }
+  }
+
+  test("length") {
+    check { (eav: EnumeratorAndValues[Int]) =>
+      eav.resultWithLeftovers(length) === F.pure((eav.values.size, Vector.empty))
+    }
+  }
+
+  test("sum") {
+    check { (eav: EnumeratorAndValues[Int]) =>
+      eav.resultWithLeftovers(sum) === F.pure((eav.values.sum, Vector.empty))
+    }
+  }
+
+  test("isEnd") {
+    check { (eav: EnumeratorAndValues[Int]) =>
+      eav.resultWithLeftovers(isEnd) === F.pure((eav.values.isEmpty, eav.values)) &&
+      eav.resultWithLeftovers(consume.flatMap(_ => isEnd)) === F.pure((true, Vector.empty))
+    }
+  }
+
+  test("contramap") {
+    check { (eav: EnumeratorAndValues[Int]) =>
+      val result = (eav.values.sum + eav.values.size, Vector.empty)
+
+      eav.resultWithLeftovers(sum[Int].contramap((_: Int) + 1)) === F.pure(result)
+    }
+  }
+
+  test("through") {
+    check { (eav: EnumeratorAndValues[Int]) =>
+      val result = (eav.values.sum + eav.values.size, Vector.empty)
+
+      eav.resultWithLeftovers(sum[Int].through(map(_ + 1))) === F.pure(result)
+    }
+  }
+
+  test("zip") {
+    check { (eav: EnumeratorAndValues[Int]) =>
+      val result = ((eav.values.sum, eav.values.size), Vector.empty)
+
+      eav.resultWithLeftovers(sum[Int].zip(length)) === F.pure(result)
+    }
+  }
+
+  test("zip with leftovers (scalaz/scalaz#1068)") {
+    check { (eav: EnumeratorAndValues[Int], m: Int, n: Int) =>
+      /**
+       * This isn't a comprehensive way to avoid SI-9581, but it seems to keep clear of the cases
+       * ScalaCheck is likely to run into.
+       */
+      (m != Int.MaxValue && n != Int.MaxValue) ==> {
+        val result = ((eav.values.take(m), eav.values.take(n)), eav.values.drop(math.max(m, n)))
+
+        eav.resultWithLeftovers(take[Int](m).zip(take[Int](n))) === F.pure(result)
+      }
+    }
+  }
+
+  test("intoIteratee") {
+    import syntax._
+
+    check { (i: Int) =>
+      F.pure(i).intoIteratee.run === F.pure(i)
+    }
+  }
+}
+
+class EvalIterateeTests extends IterateeSuite[Eval] with EvalSuite {
+  test("mapI") {
+    check { (eav: EnumeratorAndValues[Int], n: Int) =>
+      val iteratee = Iteratee.take[Id, Int](n).mapI(
+        new NaturalTransformation[Id, Eval] {
+          def apply[A](a: A): Eval[A] = F.pure(a)
+        }
+      )
+
+      val result = (eav.values.take(n), eav.values.drop(n))
+
+      eav.resultWithLeftovers(iteratee) === F.pure(result)
+    }
+  }
+
+
+  test("up") {
+    check { (eav: EnumeratorAndValues[Int], n: Int) =>
+      val iteratee = Iteratee.take[Id, Int](n).up[Eval]
+      val result = (eav.values.take(n), eav.values.drop(n))
+
+      eav.resultWithLeftovers(iteratee) === F.pure(result)
+    }
   }
 }

@@ -1,6 +1,6 @@
 package io.iteratee
 
-import algebra.{ Monoid, Order }
+import algebra.{ Eq, Monoid }
 import cats.{ Applicative, Monad }
 
 abstract class Enumeratee[F[_], O, I] extends Serializable { self =>
@@ -129,21 +129,40 @@ final object Enumeratee {
   /**
    * Uniqueness filter. Assumes that the input enumerator is already sorted.
    */
-  final def uniq[F[_]: Monad, E](implicit E: Order[E]): Enumeratee[F, E, E] =
+  final def uniq[F[_]: Monad, E](implicit E: Eq[E]): Enumeratee[F, E, E] =
     new Enumeratee[F, E, E] {
-      private[this] def stepWith[A](step: Step[F, E, A], last: Input[E]): Iteratee[F, E, A] =
+      private[this] def stepWith[A](step: Step[F, E, A], last: Option[E]): Iteratee[F, E, A] =
         step.foldWith(
           new StepFolder[F, E, A, Iteratee[F, E, A]] {
             def onCont(k: Input[E] => Iteratee[F, E, A]): Iteratee[F, E, A] = Iteratee.cont { in =>
-              val inr = in.filter(e => last.forall(l => E.neqv(e, l)))
-              k(inr).advance(stepWith(_, in))
+              in.foldWith(
+                new InputFolder[E, Iteratee[F, E, A]] {
+                  def onEmpty: Iteratee[F, E, A] = k(in).advance(stepWith(_, last))
+                  def onEl(e: E): Iteratee[F, E, A] =
+                    last match {
+                      case Some(v) if E.eqv(e, v) => k(Input.empty).advance(stepWith(_, last))
+                      case _ => k(in).advance(stepWith(_, Some(e)))
+                    }
+                  def onChunk(es: Vector[E]): Iteratee[F, E, A] =
+                    if (es.isEmpty) k(in).advance(stepWith(_, last)) else {
+                      val (newEs, newLast) = es.foldLeft((Vector.empty[E], last)) {
+                        case ((acc, Some(lastValue)), e) if E.eqv(lastValue, e) =>
+                          (acc, Some(lastValue))
+                        case ((acc, _), e) => (acc :+ e, Some(e))
+                      }
+
+                      k(Input.chunk(newEs)).advance(stepWith(_, newLast))
+                    }
+                  def onEnd: Iteratee[F, E, A] = k(in).advance(stepWith(_, last))
+                }
+              )
             }
             def onDone(value: A, remainder: Input[E]): Iteratee[F, E, A] = step.pointI
           }
         )
 
       def apply[A](step: Step[F, E, A]): Outer[A] =
-        stepWith(step, Input.empty).map(Step.done(_, Input.empty))
+        stepWith(step, None).map(Step.done(_, Input.empty))
     }
     
   /**

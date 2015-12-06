@@ -31,7 +31,12 @@ lazy val baseSettings = Seq(
     }
   ),
   scalacOptions in (Compile, console) := compilerOptions,
-  scalacOptions in (Compile, test) := compilerOptions,
+  scalacOptions in (Compile, test) := compilerOptions ++ (
+    CrossVersion.partialVersion(scalaVersion.value) match {
+      case Some((2, 11)) => Seq("-Ywarn-unused-import")
+      case _ => Nil
+    }
+  ),
   resolvers ++= Seq(
     Resolver.sonatypeRepo("releases"),
     Resolver.sonatypeRepo("snapshots")
@@ -69,7 +74,13 @@ lazy val root = project.in(file("."))
 lazy val coreBase = crossProject.in(file("core"))
   .settings(
     moduleName := "iteratee-core",
-    name := "core"
+    name := "core",
+    testOptions in Test ++= (
+      CrossVersion.partialVersion(scalaVersion.value) match {
+        case Some((2, 10)) => Seq(Tests.Argument("-l", "io.iteratee.NoScala210Test"))
+        case _ => Nil
+      }
+    )
   )
   .settings(allSettings: _*)
   .settings(

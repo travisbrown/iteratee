@@ -1,6 +1,6 @@
 package io.iteratee
 
-import algebra.Order
+import algebra.Eq
 import cats.Monad
 
 trait EnumerateeModule[F[_]] {
@@ -25,7 +25,7 @@ trait EnumerateeModule[F[_]] {
   /**
    * Uniqueness filter. Assumes that the input enumerator is already sorted.
    */
-  final def uniq[E: Order](implicit F: Monad[F]): Enumeratee[F, E, E] = Enumeratee.uniq
+  final def uniq[E: Eq](implicit F: Monad[F]): Enumeratee[F, E, E] = Enumeratee.uniq
     
   /**
    * Zip with the count of elements that have been encountered.
