@@ -18,7 +18,11 @@ abstract class EnumerateeSuite[F[_]: Monad] extends ModuleSuite[F] {
     }
   }
 
-  test("collect") {
+  /**
+   * We skip this test on Scala 2.10 because of weird "Bad invokespecial instruction" exceptions
+   * that I wasn't able to reproduce in other contexts.
+   */
+  test("collect", NoScala210Test) {
     check { (eav: EnumeratorAndValues[Int]) =>
       val pf: PartialFunction[Int, Int] = {
         case v if v % 2 == 0 => v + 1

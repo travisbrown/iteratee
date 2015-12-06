@@ -74,7 +74,13 @@ lazy val root = project.in(file("."))
 lazy val coreBase = crossProject.in(file("core"))
   .settings(
     moduleName := "iteratee-core",
-    name := "core"
+    name := "core",
+    testOptions in Test ++= (
+      CrossVersion.partialVersion(scalaVersion.value) match {
+        case Some((2, 10)) => Seq(Tests.Argument("-l", "io.iteratee.NoScala210Test"))
+        case _ => Nil
+      }
+    )
   )
   .settings(allSettings: _*)
   .settings(
