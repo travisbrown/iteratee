@@ -4,11 +4,15 @@ import algebra.Monoid
 import cats.{ Applicative, Monad, MonoidK }
 
 trait IterateeModule[F[_]] {
+  class LiftToIterateePartiallyApplied[E] {
+    def apply[A](fa: F[A])(implicit F: Monad[F]): Iteratee[F, E, A] = Iteratee.liftM(fa)
+  }
+
   /**
    * Lift an effectful value into an iteratee.
    */
-  final def liftToIteratee[E, A](fa: F[A])(implicit F: Monad[F]): Iteratee[F, E, A] =
-    Iteratee.liftM(fa)
+  final def liftToIteratee[E]: LiftToIterateePartiallyApplied[E] =
+    new LiftToIterateePartiallyApplied[E]
 
   final def identity[E](implicit F: Applicative[F]): Iteratee[F, E, Unit] = Iteratee.identity
 
