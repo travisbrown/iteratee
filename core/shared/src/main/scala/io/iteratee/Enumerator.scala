@@ -9,8 +9,10 @@ abstract class Enumerator[F[_], E] extends Serializable { self =>
   final def mapE[I](enumeratee: Enumeratee[F, E, I])(implicit M: Monad[F]): Enumerator[F, I] =
     enumeratee.wrap(self)
 
-  final def map[B](f: E => B)(implicit ev: Monad[F]): Enumerator[F, B] =
-    Enumeratee.map[F, E, B](f).wrap(self)
+  final def fold[A](iteratee: Iteratee[F, E, A])(implicit F: Monad[F]): F[A] =
+    iteratee.process(self)
+
+  final def map[B](f: E => B)(implicit F: Monad[F]): Enumerator[F, B] = mapE(Enumeratee.map(f))
 
   final def #::(e: => E)(implicit F: Monad[F]): Enumerator[F, E] = {
     new Enumerator[F, E] {
@@ -29,49 +31,48 @@ abstract class Enumerator[F[_], E] extends Serializable { self =>
       final def apply[A](step: Step[F, E, A]): Iteratee[F, E, A] = self(step).feed(e2)
     }
 
-  final def flatMap[B](f: E => Enumerator[F, B])(implicit M1: Monad[F]) =
-    Enumeratee.flatMap(f).wrap(self)
+  final def flatMap[B](f: E => Enumerator[F, B])(implicit F: Monad[F]) =
+    mapE(Enumeratee.flatMap(f))
 
   final def flatten[B](implicit ev: E =:= F[B], M: Monad[F]): Enumerator[F, B] =
-    flatMap(e => Enumerator.liftM[F, B](ev(e)))
+    flatMap(e => Enumerator.liftM(ev(e)))
 
   final def bindM[B, G[_]](f: E => G[Enumerator[F, B]])(implicit
     F: Monad[F],
     G: Monad[G]
   ): F[G[Enumerator[F, B]]] = {
     val iteratee = Iteratee.fold[F, G[Enumerator[F, B]], G[Enumerator[F, B]]](
-      G.pure(Enumerator.empty[F, B])
+      G.pure(Enumerator.empty)
     ) {
-      case (acc, concat) => G.flatMap(acc) { en =>
-        G.map(concat) { append => Semigroup[Enumerator[F, B]].combine(en, append) }
-      }
+      case (acc, concat) => G.flatMap(acc)(en =>
+        G.map(concat)(append => Semigroup[Enumerator[F, B]].combine(en, append))
+      )
     }   
 
-    iteratee.feed(self.map(f)).run
+    map(f).fold(iteratee)
   }
 
   final def collect[B](pf: PartialFunction[E, B])(implicit F: Monad[F]): Enumerator[F, B] =
-    Enumeratee.collect[F, E, B](pf).wrap(self)
+    mapE(Enumeratee.collect(pf))
 
   final def filter(p: E => Boolean)(implicit F: Monad[F]): Enumerator[F, E] =
-    Enumeratee.filter[F, E](p).wrap(self)
+    mapE(Enumeratee.filter(p))
 
-  final def uniq(implicit ord: Order[E], F: Monad[F]): Enumerator[F, E] =
-    Enumeratee.uniq[F, E].wrap(self)
+  final def uniq(implicit F: Monad[F], E: Order[E]): Enumerator[F, E] = mapE(Enumeratee.uniq)
 
   final def zipWithIndex(implicit F: Monad[F]): Enumerator[F, (E, Long)] =
-    Enumeratee.zipWithIndex[F, E].wrap(self)
+    mapE(Enumeratee.zipWithIndex)
 
   final def grouped(n: Int)(implicit F: Monad[F]): Enumerator[F, Vector[E]] =
-    Enumeratee.grouped[F, E](n).wrap(self)
+    mapE(Enumeratee.grouped(n))
 
   final def splitOn(p: E => Boolean)(implicit F: Monad[F]): Enumerator[F, Vector[E]] =
-    Enumeratee.splitOn[F, E](p).wrap(self)
+    mapE(Enumeratee.splitOn(p))
 
-  final def drain(implicit F: Monad[F]): F[Vector[E]] = Iteratee.consume[F, E].process(self)
+  final def drain(implicit F: Monad[F]): F[Vector[E]] = fold(Iteratee.consume)
 
   final def drainTo[M[_]](implicit M: Monad[F], P: MonoidK[M], Z: Applicative[M]): F[M[E]] =
-    Iteratee.consumeIn[F, E, M].process(self)
+    fold(Iteratee.consumeIn)
 
   final def reduced[B](b: B)(f: (B, E) => B)(implicit M: Monad[F]): Enumerator[F, B] =
     new Enumerator[F, B] {
@@ -101,14 +102,14 @@ abstract class Enumerator[F[_], E] extends Serializable { self =>
     }
     
   final def cross[E2](e2: Enumerator[F, E2])(implicit M: Monad[F]): Enumerator[F, (E, E2)] =
-    Enumeratee.cross[F, E, E2](e2).wrap(self)
+    mapE(Enumeratee.cross(e2))
 }
 
 trait EnumeratorInstances {
   implicit final def EnumeratorMonoid[F[_]: Monad, E]: Monoid[Enumerator[F, E]] =
     new Monoid[Enumerator[F, E]] {
       def combine(e1: Enumerator[F, E], e2: Enumerator[F, E]): Enumerator[F, E] = e1.append(e2)
-      def empty: Enumerator[F, E] = Enumerator.empty[F, E]
+      def empty: Enumerator[F, E] = Enumerator.empty
     }
 
   implicit final def EnumeratorMonad[F[_]](implicit

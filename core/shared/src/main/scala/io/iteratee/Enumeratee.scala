@@ -18,7 +18,7 @@ abstract class Enumeratee[F[_], O, I] extends Serializable { self =>
    * A convenience method that lets us lift a [[Step]] into a finished [[Iteratee]].
    */
   protected final def toOuter[A](step: Step[F, I, A])(implicit F: Applicative[F]): Outer[A] =
-    Iteratee.done[F, O, Step[F, I, A]](step, Input.empty)
+    Iteratee.done(step, Input.empty)
 }
 
 abstract class LoopingEnumeratee[F[_]: Applicative, O, I] extends Enumeratee[F, O, I] {
@@ -32,17 +32,17 @@ abstract class LoopingEnumeratee[F[_]: Applicative, O, I] extends Enumeratee[F, 
       }
     )
 
-  final def apply[A](step: Step[F, I, A]): Outer[A] = doneOrLoop[A](step)
+  final def apply[A](step: Step[F, I, A]): Outer[A] = doneOrLoop(step)
 }
 
 abstract class FolderEnumeratee[F[_]: Applicative, O, I] extends LoopingEnumeratee[F, O, I] {
   protected def folder[A](k: Input[I] => Iteratee[F, I, A], in: Input[O]): InputFolder[O, Outer[A]]
 
   protected final def loop[A](k: Input[I] => Iteratee[F, I, A]): Outer[A] =
-    Iteratee.cont[F, O, Step[F, I, A]](stepWith(k))
+    Iteratee.cont(stepWith(k))
 
   protected final def stepWith[A](k: Input[I] => Iteratee[F, I, A]): Input[O] => Outer[A] =
-    in => in.foldWith(folder[A](k, in))
+    in => in.foldWith(folder(k, in))
 }
 
 final object Enumeratee {
@@ -129,13 +129,13 @@ final object Enumeratee {
   /**
    * Uniqueness filter. Assumes that the input enumerator is already sorted.
    */
-  final def uniq[F[_]: Monad, E: Order]: Enumeratee[F, E, E] =
+  final def uniq[F[_]: Monad, E](implicit E: Order[E]): Enumeratee[F, E, E] =
     new Enumeratee[F, E, E] {
       private[this] def stepWith[A](step: Step[F, E, A], last: Input[E]): Iteratee[F, E, A] =
         step.foldWith(
           new StepFolder[F, E, A, Iteratee[F, E, A]] {
             def onCont(k: Input[E] => Iteratee[F, E, A]): Iteratee[F, E, A] = Iteratee.cont { in =>
-              val inr = in.filter(e => last.forall(l => Order[E].neqv(e, l)))
+              val inr = in.filter(e => last.forall(l => E.neqv(e, l)))
               k(inr).advance(stepWith(_, in))
             }
             def onDone(value: A, remainder: Input[E]): Iteratee[F, E, A] = step.pointI
@@ -198,7 +198,7 @@ final object Enumeratee {
             val nextStep = pairingIteratee.process(e2)
             Iteratee.iteratee(nextStep).advance(outerLoop)
 
-          case None => Iteratee.done(step, Input.end[E1])
+          case None => Iteratee.done(step, Input.end)
         }
 
       def apply[A](step: Step[F, (E1, E2), A]): Outer[A] = outerLoop(step)
