@@ -194,25 +194,29 @@ abstract class IterateeSuite[F[_]: Monad] extends ModuleSuite[F] {
 class EvalIterateeTests extends IterateeSuite[Eval] with EvalSuite {
   test("mapI") {
     check { (eav: EnumeratorAndValues[Int], n: Int) =>
-      val iteratee = Iteratee.take[Id, Int](n).mapI(
-        new NaturalTransformation[Id, Eval] {
-          def apply[A](a: A): Eval[A] = F.pure(a)
-        }
-      )
+      (n != Int.MaxValue) ==> {
+        val iteratee = Iteratee.take[Id, Int](n).mapI(
+          new NaturalTransformation[Id, Eval] {
+            def apply[A](a: A): Eval[A] = F.pure(a)
+          }
+        )
 
-      val result = (eav.values.take(n), eav.values.drop(n))
+        val result = (eav.values.take(n), eav.values.drop(n))
 
-      eav.resultWithLeftovers(iteratee) === F.pure(result)
+        eav.resultWithLeftovers(iteratee) === F.pure(result)
+      }
     }
   }
 
 
   test("up") {
     check { (eav: EnumeratorAndValues[Int], n: Int) =>
-      val iteratee = Iteratee.take[Id, Int](n).up[Eval]
-      val result = (eav.values.take(n), eav.values.drop(n))
+      (n != Int.MaxValue) ==> {
+        val iteratee = Iteratee.take[Id, Int](n).up[Eval]
+        val result = (eav.values.take(n), eav.values.drop(n))
 
-      eav.resultWithLeftovers(iteratee) === F.pure(result)
+        eav.resultWithLeftovers(iteratee) === F.pure(result)
+      }
     }
   }
 }
