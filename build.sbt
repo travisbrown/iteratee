@@ -68,7 +68,7 @@ lazy val root = project.in(file("."))
   .settings(allSettings)
   .settings(docSettings)
   .settings(noPublishSettings)
-  .aggregate(core, coreJS)
+  .aggregate(core, coreJS, benchmark, io, demo)
   .dependsOn(core)
 
 lazy val coreBase = crossProject.in(file("core"))
@@ -99,6 +99,27 @@ lazy val coreBase = crossProject.in(file("core"))
 
 lazy val core = coreBase.jvm
 lazy val coreJS = coreBase.js
+
+lazy val io = project
+  .settings(moduleName := "iteratee-io")
+  .settings(allSettings)
+  .settings(noPublishSettings)
+  .settings(
+    libraryDependencies += "org.scalaz" %% "scalaz-concurrent" % "7.1.5"
+  )
+  .dependsOn(core)
+
+lazy val demo = project
+  .settings(moduleName := "iteratee-demo")
+  .settings(allSettings)
+  .settings(noPublishSettings)
+  .settings(
+    libraryDependencies ++= Seq(
+      "io.circe" %% "circe-generic" % "0.3.0-SNAPSHOT",
+      "io.circe" %% "circe-jawn" % "0.3.0-SNAPSHOT"
+    )
+  )
+  .dependsOn(io)
 
 lazy val benchmark = project
   .settings(moduleName := "iteratee-benchmark")
