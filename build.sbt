@@ -20,7 +20,7 @@ lazy val compilerOptions = Seq(
   "-Xfuture"
 )
 
-lazy val catsVersion = "0.3.0"
+lazy val catsVersion = "0.4.0-SNAPSHOT"
 lazy val scalaTestVersion = "3.0.0-M9"
 
 lazy val baseSettings = Seq(

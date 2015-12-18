@@ -9,13 +9,13 @@ trait EqInstances {
     eq: Eq[F[Vector[A]]]
   ): Eq[Enumerator[F, A]] = eq.on[Enumerator[F, A]](_.drain)
 
-  implicit def eqIteratee[F[_]: Monad, A: Eq: Arbitrary](implicit
-    eq: Eq[F[Vector[A]]]
-  ): Eq[Iteratee[F, Vector[A], Vector[A]]] = {
-    val e0 = Enumerator.empty[F, Vector[A]]
-    val e1 = Enumerator.enumList[F, Vector[A]](Arbitrary.arbitrary[List[Vector[A]]].sample.get)
-    val e2 = Enumerator.enumStream[F, Vector[A]](Arbitrary.arbitrary[Stream[Vector[A]]].sample.get)
-    val e3 = Enumerator.enumVector[F, Vector[A]](Arbitrary.arbitrary[Vector[Vector[A]]].sample.get)
+  implicit def eqIteratee[F[_]: Monad, A: Eq: Arbitrary, B: Eq: Arbitrary](implicit
+    eq: Eq[F[B]]
+  ): Eq[Iteratee[F, A, B]] = {
+    val e0 = Enumerator.empty[F, A]
+    val e1 = Enumerator.enumList[F, A](Arbitrary.arbitrary[List[A]].sample.get)
+    val e2 = Enumerator.enumStream[F, A](Arbitrary.arbitrary[Stream[A]].sample.get)
+    val e3 = Enumerator.enumVector[F, A](Arbitrary.arbitrary[Vector[A]].sample.get)
 
     Eq.instance { (i, j) =>
       eq.eqv(i.process(e0), j.process(e0)) &&

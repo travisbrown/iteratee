@@ -4,11 +4,14 @@ import algebra.Eq
 import algebra.laws.GroupLaws
 import cats.{ Eval, Monad }
 import cats.data.XorT
-import cats.laws.discipline.MonadTests
+import cats.laws.discipline.{ MonadTests, MonoidalTests }
 import org.scalacheck.{ Gen, Prop }
 
 abstract class EnumeratorSuite[F[_]: Monad] extends ModuleSuite[F] {
   type EnumeratorF[E] = Enumerator[F, E]
+
+  implicit val isomorphisms: MonoidalTests.Isomorphisms[EnumeratorF] =
+    MonoidalTests.Isomorphisms.invariant[EnumeratorF]
 
   checkAll(s"Enumerator[$monadName, Int]", GroupLaws[Enumerator[F, Int]].monoid)
   checkAll(s"Enumerator[$monadName, Int]", MonadTests[EnumeratorF].monad[Int, Int, Int])
