@@ -140,7 +140,7 @@ object Input extends InputInstances {
   }
 }
 
-trait InputInstances extends VectorInstances {
+private[iteratee] sealed abstract class InputInstances extends VectorInstances {
   implicit final val input: Traverse[Input] with Monad[Input] =
     new Traverse[Input] with Monad[Input] {
       final def pure[A](a: A): Input[A] = Input.el(a)

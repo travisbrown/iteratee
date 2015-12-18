@@ -198,7 +198,7 @@ sealed class Iteratee[F[_], E, A] private(final val step: F[Step[F, E, A]]) exte
   }
 }
 
-sealed abstract class IterateeInstances0 {
+private[iteratee] sealed abstract class IterateeInstances0 {
   implicit final def IterateeMonad[F[_], E](implicit
     F0: Monad[F]
   ): Monad[({ type L[x] = Iteratee[F, E, x] })#L] =
@@ -207,8 +207,8 @@ sealed abstract class IterateeInstances0 {
     }
 }
 
-sealed abstract class IterateeInstances extends IterateeInstances0 {
-  implicit def IterateeContravariant[
+private[iteratee] sealed abstract class IterateeInstances extends IterateeInstances0 {
+  implicit final def IterateeContravariant[
     F[_]: Monad,
     A
   ]: Contravariant[({ type L[x] = Iteratee[F, x, A] })#L] =
