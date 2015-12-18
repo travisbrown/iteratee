@@ -1,7 +1,7 @@
 package io.iteratee
 
 import algebra.{ Monoid, Order, Semigroup }
-import cats.{ Applicative, FlatMap, Functor, Id, Monad, MonoidK }
+import cats.{ Applicative, FlatMap, Functor, Id, Monad, MonadError, MonoidK }
 
 abstract class Enumerator[F[_], E] extends Serializable { self =>
   def apply[A](s: Step[F, E, A]): Iteratee[F, E, A]
@@ -61,6 +61,18 @@ abstract class Enumerator[F[_], E] extends Serializable { self =>
   final def sequenceI[I](iteratee: Iteratee[F, E, I])(implicit F: Monad[F]): Enumerator[F, I] =
     mapE(Enumeratee.sequenceI(iteratee))
 
+  final def ensure[T](action: F[Unit])(implicit F: MonadError[F, T]): Enumerator[F, E] =
+    new Enumerator[F, E] {
+      final def apply[A](step: Step[F, E, A]): Iteratee[F, E, A] =
+        Iteratee.iteratee(
+          F.flatMap(
+            F.handleErrorWith(
+              self(step).step)(e => F.flatMap(action)(_ => F.raiseError(e))
+            )
+          )(result => F.map(action)(_ => result))
+        )
+    }
+
   final def uniq(implicit F: Monad[F], E: Order[E]): Enumerator[F, E] = mapE(Enumeratee.uniq)
 
   final def zipWithIndex(implicit F: Monad[F]): Enumerator[F, (E, Long)] =
@@ -108,7 +120,7 @@ abstract class Enumerator[F[_], E] extends Serializable { self =>
     mapE(Enumeratee.cross(e2))
 }
 
-trait EnumeratorInstances {
+private[iteratee] trait EnumeratorInstances {
   implicit final def EnumeratorMonoid[F[_]: Monad, E]: Monoid[Enumerator[F, E]] =
     new Monoid[Enumerator[F, E]] {
       def combine(e1: Enumerator[F, E], e2: Enumerator[F, E]): Enumerator[F, E] = e1.append(e2)
