@@ -2,6 +2,7 @@ package io.iteratee
 
 import algebra.Eq
 import cats.{ Eval, Monad }
+import cats.data.{ Xor, XorT }
 import cats.std.AllInstances
 import cats.syntax.AllSyntax
 import org.scalatest.FunSuite
@@ -25,4 +26,13 @@ trait EvalSuite { this: ModuleSuite[Eval] =>
   def monadName: String = "Eval"
 
   implicit def eqF[A: Eq]: Eq[Eval[A]] = Eval.evalEq
+}
+
+trait XorSuite { this: ModuleSuite[({ type L[x] = XorT[Eval, Throwable, x] })#L] =>
+  def monadName: String = "XorT[Eval, Throwable, ?]"
+
+  implicit def eqEval[A](implicit A: Eq[A]): Eq[Eval[Xor[Throwable, A]]] =
+    Eval.evalEq(Xor.xorEq(Eq.fromUniversalEquals, A))
+
+  implicit def eqF[A](implicit A: Eq[A]): Eq[XorT[Eval, Throwable, A]] = XorT.xorTEq(eqEval(A))
 }

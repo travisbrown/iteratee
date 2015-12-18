@@ -3,6 +3,7 @@ package io.iteratee
 import algebra.Eq
 import algebra.laws.GroupLaws
 import cats.{ Eval, Monad }
+import cats.data.XorT
 import cats.laws.discipline.MonadTests
 import org.scalacheck.{ Gen, Prop }
 
@@ -226,6 +227,30 @@ class EvalEnumeratorTests extends EnumeratorSuite[Eval] with EvalSuite {
       val enumerator = action.append(eav.enumerator).append(action)
 
       counter === 0 && enumerator.drain === F.pure(eav.values) && counter === 2
+    }
+  }
+}
+
+class XorEnumeratorTests extends EnumeratorSuite[({ type L[x] = XorT[Eval, Throwable, x] })#L]
+  with XorSuite {
+  test("ensure") {
+    check { (eav: EnumeratorAndValues[Int]) =>
+      var counter = 0
+      val action = XorT.right[Eval, Throwable, Unit](Eval.always(counter += 1))
+      val enumerator = eav.enumerator.ensure(action)
+
+      counter == 0 && enumerator.drain === F.pure(eav.values) && counter === 1
+    }
+  }
+
+  test("ensure without necessarily consuming all elements") {
+    check { (eav: EnumeratorAndValues[Int]) =>
+      var counter = 0
+      val action = XorT.right[Eval, Throwable, Unit](Eval.always(counter += 1))
+      val enumerator = eav.enumerator.ensure(action)
+      val n = math.max(0, eav.values.size - 2)
+
+      counter == 0 && enumerator.fold(take(n)) === F.pure(eav.values.take(n)) && counter === 1
     }
   }
 }
