@@ -2,7 +2,7 @@ package io.iteratee
 
 import cats.{ Eval, Id, Monad }
 import cats.arrow.NaturalTransformation
-import cats.laws.discipline.{ ContravariantTests, MonadTests }
+import cats.laws.discipline.{ ContravariantTests, MonadTests, MonoidalTests }
 import org.scalacheck.Prop.BooleanOperators
 
 abstract class IterateeSuite[F[_]: Monad] extends ModuleSuite[F] {
@@ -13,6 +13,9 @@ abstract class IterateeSuite[F[_]: Monad] extends ModuleSuite[F] {
 
   type VectorIntProducingIteratee[E] = Iteratee[F, E, Vector[Int]]
   type VectorIntFoldingIteratee[A] = Iteratee[F, Vector[Int], A]
+
+  implicit val isomorphisms: MonoidalTests.Isomorphisms[VectorIntFoldingIteratee] =
+    MonoidalTests.Isomorphisms.invariant[VectorIntFoldingIteratee]
 
   checkAll(
     s"Iteratee[$monadName, Vector[Int], Vector[Int]]",
