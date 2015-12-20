@@ -1,7 +1,7 @@
 package io.iteratee
 
 import algebra.Monoid
-import cats.{ Applicative, Comonad, FlatMap, Functor, Id, Monad, MonoidK, Show }
+import cats.{ Applicative, Comonad, FlatMap, Functor, Id, Monad, MonadError, MonoidK, Show }
 import cats.arrow.NaturalTransformation
 import cats.functor.Contravariant
 
@@ -199,22 +199,22 @@ sealed class Iteratee[F[_], E, A] private(final val step: F[Step[F, E, A]]) exte
 }
 
 private[iteratee] sealed abstract class IterateeInstances0 {
-  implicit final def IterateeMonad[F[_], E](implicit
-    F0: Monad[F]
-  ): Monad[({ type L[x] = Iteratee[F, E, x] })#L] =
-    new IterateeMonad[F, E] {
-      implicit val F = F0
-    }
+  implicit final def iterateeMonad[F[_], E](implicit F: Monad[F]): Monad[
+    ({ type L[x] = Iteratee[F, E, x] })#L
+  ] = new IterateeMonad[F, E](F)
 }
 
 private[iteratee] sealed abstract class IterateeInstances extends IterateeInstances0 {
-  implicit final def IterateeContravariant[
-    F[_]: Monad,
-    A
-  ]: Contravariant[({ type L[x] = Iteratee[F, x, A] })#L] =
-    new Contravariant[({ type L[x] = Iteratee[F, x, A] })#L] {
-      def contramap[E, E2](r: Iteratee[F, E, A])(f: E2 => E) = r.contramap(f)
-    }
+  implicit final def iterateeContravariant[F[_]: Monad, A]: Contravariant[
+    ({ type L[x] = Iteratee[F, x, A] })#L
+  ] = new Contravariant[({ type L[x] = Iteratee[F, x, A] })#L] {
+    def contramap[E, E2](r: Iteratee[F, E, A])(f: E2 => E) = r.contramap(f)
+  }
+
+  implicit final def iterateeMonadError[F[_], T, E](implicit F: MonadError[F, T]): MonadError[
+    ({ type L[x] = Iteratee[F, E, x] })#L,
+    T
+  ] = new IterateeMonadError[F, T, E](F)
 }
 
 object Iteratee extends IterateeInstances {
@@ -237,7 +237,7 @@ object Iteratee extends IterateeInstances {
   final def identity[F[_]: Applicative, E]: Iteratee[F, E, Unit] = done[F, E, Unit]((), Input.empty)
 
   final def joinI[F[_]: Monad, E, I, B](it: Iteratee[F, E, Step[F, I, B]]): Iteratee[F, E, B] = {
-    val IM = IterateeMonad[F, E]
+    val IM = iterateeMonad[F, E]
 
     def check: Step[F, I, B] => Iteratee[F, E, B] = _.foldWith(
       new StepFolder[F, I, B, Iteratee[F, E, B]] {
@@ -461,11 +461,19 @@ object Iteratee extends IterateeInstances {
     foldM(E.empty)((a, e) => F.pure(E.combine(a, e)))
 }
 
-private trait IterateeMonad[F[_], E] extends Monad[({ type L[x] = Iteratee[F, E, x] })#L] {
-  implicit def F: Monad[F]
-
-  final def pure[A](a: A): Iteratee[F, E, A] = Step.done(a, Input.empty).pointI
-  override final def map[A, B](fa: Iteratee[F, E, A])(f: A => B): Iteratee[F, E, B] = fa.map(f)
+private class IterateeMonad[F[_], E](F: Monad[F])
+  extends Monad[({ type L[x] = Iteratee[F, E, x] })#L] {
+  final def pure[A](a: A): Iteratee[F, E, A] = Step.done(a, Input.empty).pointI(F)
+  override final def map[A, B](fa: Iteratee[F, E, A])(f: A => B): Iteratee[F, E, B] =
+    fa.map(f)(F)
   final def flatMap[A, B](fa: Iteratee[F, E, A])(f: A => Iteratee[F, E, B]): Iteratee[F, E, B] =
-    fa.flatMap(f)
+    fa.flatMap(f)(F)
+}
+
+private class IterateeMonadError[F[_], T, E](F: MonadError[F, T]) extends IterateeMonad[F, E](F)
+  with MonadError[({ type L[x] = Iteratee[F, E, x] })#L, T] {
+  final def raiseError[A](e: T): Iteratee[F, E, A] = Iteratee.liftM(F.raiseError[A](e))(F)
+  final def handleErrorWith[A](fa: Iteratee[F, E, A])(
+    f: T => Iteratee[F, E, A]
+  ): Iteratee[F, E, A] = Iteratee.iteratee(F.handleErrorWith(fa.step)(e => f(e).step))
 }
