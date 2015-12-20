@@ -196,6 +196,10 @@ sealed class Iteratee[F[_], E, A] private(final val step: F[Step[F, E, A]]) exte
         }
     }
   }
+
+  final def handleErrorWith[T](f: T => Iteratee[F, E, A])(implicit
+    F: MonadError[F, T]
+  ): Iteratee[F, E, A] = Iteratee.iteratee(F.handleErrorWith(step)(e => f(e).step))
 }
 
 private[iteratee] sealed abstract class IterateeInstances0 {
@@ -227,6 +231,9 @@ object Iteratee extends IterateeInstances {
     iteratee(Monad[F].map(fa)(a => Step.done(a, Input.empty)))
 
   final def iteratee[F[_], E, A](s: F[Step[F, E, A]]): Iteratee[F, E, A] = new Iteratee(s)
+
+  final def fail[F[_], T, E, A](e: T)(implicit F: MonadError[F, T]): Iteratee[F, E, A] =
+    Iteratee.liftM(F.raiseError[A](e))
 
   final def cont[F[_]: Applicative, E, A](c: Input[E] => Iteratee[F, E, A]): Iteratee[F, E, A] =
     Step.cont(c).pointI
@@ -472,8 +479,8 @@ private class IterateeMonad[F[_], E](F: Monad[F])
 
 private class IterateeMonadError[F[_], T, E](F: MonadError[F, T]) extends IterateeMonad[F, E](F)
   with MonadError[({ type L[x] = Iteratee[F, E, x] })#L, T] {
-  final def raiseError[A](e: T): Iteratee[F, E, A] = Iteratee.liftM(F.raiseError[A](e))(F)
+  final def raiseError[A](e: T): Iteratee[F, E, A] = Iteratee.fail(e)(F)
   final def handleErrorWith[A](fa: Iteratee[F, E, A])(
     f: T => Iteratee[F, E, A]
-  ): Iteratee[F, E, A] = Iteratee.iteratee(F.handleErrorWith(fa.step)(e => f(e).step))
+  ): Iteratee[F, E, A] = fa.handleErrorWith(f)(F)
 }
