@@ -1,8 +1,11 @@
 package io.iteratee
 
-import cats.{ Eval, Id, Monad }
+import algebra.Eq
+import cats.{ Eval, Id, Monad, MonadError }
 import cats.arrow.NaturalTransformation
-import cats.laws.discipline.{ ContravariantTests, MonadTests, MonoidalTests }
+import cats.data.{ Xor, XorT }
+import cats.laws.discipline.{ ContravariantTests, MonadErrorTests, MonadTests, MonoidalTests }
+import org.scalacheck.Arbitrary
 import org.scalacheck.Prop.BooleanOperators
 
 abstract class IterateeSuite[F[_]: Monad] extends ModuleSuite[F] {
@@ -222,4 +225,54 @@ class EvalIterateeTests extends IterateeSuite[Eval] with EvalSuite {
       }
     }
   }
+}
+
+class XorIterateeTests extends IterateeSuite[({ type L[x] = XorT[Eval, Throwable, x] })#L]
+  with XorSuite {
+
+  type XTE[A] = XorT[Eval, Throwable, A]
+
+  implicit val monadError: MonadError[VectorIntFoldingIteratee, Throwable] =
+    Iteratee.iterateeMonadError[
+    ({ type L[x] = XorT[Eval, Throwable, x] })#L,
+    Throwable,
+    Vector[Int]
+  ]
+
+  implicit val arbitraryVectorIntFoldingIteratee: Arbitrary[
+    VectorIntFoldingIteratee[Vector[Int]]
+  ] = arbitraryVectorIteratee[({ type L[x] = XorT[Eval, Throwable, x] })#L, Int]
+
+  implicit val eqVectorIntIteratee: Eq[
+    VectorIntFoldingIteratee[Vector[Int]]
+  ] = eqIteratee[XTE, Vector[Int], Vector[Int]]
+
+  implicit val eqXorUnitIteratee: Eq[
+    VectorIntFoldingIteratee[Xor[Throwable, Unit]]
+  ] = eqIteratee[XTE, Vector[Int], Xor[Throwable, Unit]]
+
+  implicit val eqXorVectorIntIteratee: Eq[
+    VectorIntFoldingIteratee[Xor[Throwable, Vector[Int]]]
+  ] = eqIteratee[XTE, Vector[Int], Xor[Throwable, Vector[Int]]]
+
+  implicit val eqXorTVectorInt3Iteratee: Eq[
+    VectorIntFoldingIteratee[(Vector[Int], Vector[Int], Vector[Int])]
+  ] = eqIteratee[XTE, Vector[Int], (Vector[Int], Vector[Int], Vector[Int])]
+
+  implicit val eqXorTVectorInt: Eq[
+    XorT[({ type L[x] = Iteratee[XTE, Vector[Int], x] })#L, Throwable, Vector[Int]]
+  ] = XorT.xorTEq(eqXorVectorIntIteratee)
+
+  implicit val arbitraryVectorIntFunctionIteratee: Arbitrary[
+    VectorIntFoldingIteratee[Vector[Int] => Vector[Int]]
+  ] = arbitraryFunctionIteratee[XTE, Vector[Int]]
+
+  checkAll(
+    s"Iteratee[$monadName, Vector[Int], Vector[Int]]",
+    MonadErrorTests[VectorIntFoldingIteratee, Throwable].monadError[
+      Vector[Int],
+      Vector[Int],
+      Vector[Int]
+    ]
+  )
 }

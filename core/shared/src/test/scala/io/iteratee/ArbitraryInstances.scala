@@ -1,9 +1,15 @@
 package io.iteratee
 
 import cats.Monad
+import cats.data.Xor
 import org.scalacheck.{ Arbitrary, Gen }
 
 trait ArbitraryInstances {
+  implicit def arbitraryXor[A, B](implicit A: Arbitrary[A], B: Arbitrary[B]): Arbitrary[Xor[A, B]] =
+    Arbitrary(
+      Arbitrary.arbitrary[Either[A, B]].map(Xor.fromEither)
+    )
+
   implicit def arbitraryInput[A](implicit A: Arbitrary[A]): Arbitrary[Input[A]] =
     Arbitrary(
       Gen.oneOf(

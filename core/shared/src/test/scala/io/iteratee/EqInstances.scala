@@ -5,6 +5,8 @@ import cats.Monad
 import org.scalacheck.Arbitrary
 
 trait EqInstances {
+  implicit val eqThrowable: Eq[Throwable] = Eq.fromUniversalEquals
+
   implicit def eqEnumerator[F[_]: Monad, A: Eq](implicit
     eq: Eq[F[Vector[A]]]
   ): Eq[Enumerator[F, A]] = eq.on[Enumerator[F, A]](_.drain)

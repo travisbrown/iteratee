@@ -1,7 +1,7 @@
 package io.iteratee
 
 import algebra.Monoid
-import cats.{ Applicative, Monad, MonoidK }
+import cats.{ Applicative, Monad, MonadError, MonoidK }
 
 trait IterateeModule[F[_]] {
   class LiftToIterateePartiallyApplied[E] {
@@ -13,6 +13,12 @@ trait IterateeModule[F[_]] {
    */
   final def liftToIteratee[E]: LiftToIterateePartiallyApplied[E] =
     new LiftToIterateePartiallyApplied[E]
+
+  class FailPartiallyApplied[E, A] {
+    def apply[T](e: T)(implicit F: MonadError[F, T]): Iteratee[F, E, A] = Iteratee.fail(e)
+  }
+
+  final def fail[E, A]: FailPartiallyApplied[E, A] = new FailPartiallyApplied[E, A]
 
   final def identity[E](implicit F: Applicative[F]): Iteratee[F, E, Unit] = Iteratee.identity
 
