@@ -68,7 +68,7 @@ lazy val root = project.in(file("."))
   .settings(allSettings)
   .settings(docSettings)
   .settings(noPublishSettings)
-  .aggregate(core, coreJS)
+  .aggregate(core, coreJS, task)
   .dependsOn(core)
 
 lazy val coreBase = crossProject.in(file("core"))
@@ -99,6 +99,15 @@ lazy val coreBase = crossProject.in(file("core"))
 
 lazy val core = coreBase.jvm
 lazy val coreJS = coreBase.js
+
+lazy val task = project
+  .settings(
+    moduleName := "iteratee-task"
+  )
+  .settings(allSettings)
+  .settings(
+    libraryDependencies += "org.scalaz" %% "scalaz-concurrent" % "7.1.5"
+  ).dependsOn(core)
 
 lazy val benchmark = project
   .settings(moduleName := "iteratee-benchmark")
@@ -184,7 +193,8 @@ credentials ++= (
 ).toSeq
 
 val jvmProjects = Seq(
-  "core"
+  "core",
+  "task"
 )
 
 val jsProjects = Seq(
@@ -192,7 +202,7 @@ val jsProjects = Seq(
 )
 
 addCommandAlias("buildJVM", jvmProjects.map(";" + _ + "/compile").mkString)
-addCommandAlias("validateJVM", ";buildJVM;core/test;scalastyle;unidoc")
+addCommandAlias("validateJVM", ";buildJVM;core/test;task/test;scalastyle;unidoc")
 addCommandAlias("buildJS", jsProjects.map(";" + _ + "/compile").mkString)
 addCommandAlias("validateJS", ";buildJS;coreJS/test;scalastyle")
 addCommandAlias("validate", ";validateJVM;validateJS")
