@@ -1,7 +1,7 @@
 package io.iteratee
 
 import algebra.Monoid
-import cats.{ Applicative, Comonad, FlatMap, Functor, Id, Monad, MonadError, MonoidK, Show }
+import cats.{ Applicative, Comonad, Eval, FlatMap, Functor, Id, Monad, MonadError, MonoidK, Show }
 import cats.arrow.NaturalTransformation
 import cats.functor.Contravariant
 
@@ -35,7 +35,7 @@ sealed class Iteratee[F[_], E, A] private(final val step: F[Step[F, E, A]]) exte
         _.foldWith(
           new StepFolder[F, E, A, F[Step[F, E, B]]] {
             def onCont(k: Input[E] => Iteratee[F, E, A]): F[Step[F, E, B]] =
-              F.pure(Step.cont(u => through(k(u))))
+              F.pureEval(Eval.always(Step.cont(u => through(k(u)))))
             def onDone(value: A, remainder: Input[E]): F[Step[F, E, B]] =
               if (remainder.isEmpty) f(value).step else F.flatMap(f(value).step)(
                 _.foldWith(
