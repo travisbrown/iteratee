@@ -106,7 +106,7 @@ lazy val task = project
   )
   .settings(allSettings)
   .settings(
-    libraryDependencies += "org.scalaz" %% "scalaz-concurrent" % "7.1.5"
+    libraryDependencies += "org.scalaz" %% "scalaz-concurrent" % "7.2.0"
   ).dependsOn(core)
 
 lazy val benchmark = project
