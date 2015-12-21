@@ -1,6 +1,6 @@
 package io.iteratee
 
-import cats.{ Applicative, Monad }
+import cats.{ Applicative, Monad, MonadError }
 
 trait EnumeratorModule[F[_]] {
   /**
@@ -8,6 +8,13 @@ trait EnumeratorModule[F[_]] {
    */
   final def liftToEnumerator[E](fe: F[E])(implicit F: Monad[F]): Enumerator[F, E] =
     Enumerator.liftM(fe)
+
+  class FailEnumeratorPartiallyApplied[E] {
+    def apply[T](e: T)(implicit F: MonadError[F, T]): Enumerator[F, E] = Enumerator.fail(e)
+  }
+
+  final def failEnumerator[E]: FailEnumeratorPartiallyApplied[E] =
+    new FailEnumeratorPartiallyApplied[E]
 
   final def empty[E](implicit F: Applicative[F]): Enumerator[F, E] = Enumerator.empty
 

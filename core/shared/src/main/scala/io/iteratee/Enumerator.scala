@@ -151,6 +151,9 @@ final object Enumerator extends EnumeratorInstances {
       )
     }
 
+  final def fail[F[_], T, E](e: T)(implicit F: MonadError[F, T]): Enumerator[F, E] =
+    Enumerator.liftM(F.raiseError[E](e))
+
   final def empty[F[_]: Applicative, E]: Enumerator[F, E] =
     new Enumerator[F, E] {
       def apply[A](s: Step[F, E, A]): Iteratee[F, E, A] = s.pointI
