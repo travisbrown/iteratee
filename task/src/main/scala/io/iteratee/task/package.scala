@@ -1,6 +1,6 @@
 package io.iteratee
 
-import cats.MonadError
+import cats.{ Eval, MonadError }
 import java.io.{ BufferedReader, File, FileReader }
 import scalaz.concurrent.Task
 
@@ -26,6 +26,7 @@ final object task extends Module[Task] {
 
   implicit final val taskMonadError: MonadError[Task, Throwable] = new MonadError[Task, Throwable] {
     def pure[A](x: A): Task[A] = Task.taskInstance.point(x)
+    override def pureEval[A](x: Eval[A]): Task[A] = Task.taskInstance.point(x.value)
     def flatMap[A, B](fa: Task[A])(f: A => Task[B]): Task[B] = fa.flatMap(f)
     override def map[A, B](fa: Task[A])(f: A => B): Task[B] = fa.map(f)
 

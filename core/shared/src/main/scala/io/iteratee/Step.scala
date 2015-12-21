@@ -1,6 +1,6 @@
 package io.iteratee
 
-import cats.Applicative
+import cats.{ Applicative, Functor }
 
 /**
  * Represents a pair of functions that can be used to reduce a [[Step]] to a value.
@@ -53,6 +53,8 @@ sealed abstract class Step[F[_], E, A] extends Serializable {
    * Create an [[Iteratee]] with this [[Step]] as its state.
    */
   final def pointI(implicit F: Applicative[F]): Iteratee[F, E, A] = Iteratee.iteratee(F.pure(this))
+
+  def map[B](f: A => B)(implicit F: Functor[F]): Step[F, E, B]
 }
 
 final object Step {
@@ -63,6 +65,7 @@ final object Step {
     private[iteratee] final def unsafeValue: A = Iteratee.diverge[A]
     final def isDone: Boolean = false
     final def foldWith[B](folder: StepFolder[F, E, A, B]): B = folder.onCont(k)
+    final def map[B](f: A => B)(implicit F: Functor[F]): Step[F, E, B] = cont(in => k(in).map(f))
   }
 
   /**
@@ -72,5 +75,6 @@ final object Step {
     private[iteratee] final def unsafeValue: A = value
     final def isDone: Boolean = true
     final def foldWith[B](folder: StepFolder[F, E, A, B]): B = folder.onDone(value, remaining)
+    final def map[B](f: A => B)(implicit F: Functor[F]): Step[F, E, B] = done(f(value), remaining)
   }
 }
