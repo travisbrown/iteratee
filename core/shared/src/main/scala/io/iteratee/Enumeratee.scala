@@ -2,6 +2,7 @@ package io.iteratee
 
 import algebra.{ Eq, Monoid }
 import cats.{ Applicative, Monad }
+import cats.arrow.j
 
 abstract class Enumeratee[F[_], O, I] extends Serializable { self =>
   type Outer[A] = Iteratee[F, O, Step[F, I, A]]
@@ -221,5 +222,22 @@ final object Enumeratee {
         }
 
       def apply[A](step: Step[F, (E1, E2), A]): Outer[A] = outerLoop(step)
+    }
+
+  final def enumerateeArrow[F[_]](implicit
+    F: Monad[F]
+  ): Arrow[({ type L[x, y] = Enumeratee[F, x, y]})#L] =
+    new Arrow[({ type L[x, y] = Enumeratee[F, x, y]})#L] {
+      def lift[A, B](f: A => B): Enumeratee[F, A, B] = Enumeratee.map(f)
+      def id[A]: Enumeratee[F, A, A] = Enumeratee.map(identity)
+      def compose[A, B, C](f: Enumeratee[F, B, C], g: Enumeratee[F, A, B]): Enumeratee[F, A, C] =
+        f.compose(g)
+      def first[A, B, C](fa: Enumeratee[F, A, B]): Enumeratee[F, (A, C), (B, C)] =
+        new Enumeratee[F, (A, C), (B, C)] {
+          //type Outer[A] = Iteratee[F, (A, C), Step[F, (B, C), A]]
+
+          def apply[D](step: Step[F, (B, C), D]): Outer[D] = fa(step)
+
+        }
     }
 }
