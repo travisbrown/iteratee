@@ -7,7 +7,7 @@ trait ArbitraryEnumerators[F[_]] { this: Module[F] =>
   implicit val F: Monad[F]
 
   case class EnumeratorAndValues[A](enumerator: Enumerator[F, A], values: Vector[A]) {
-    def resultWithLeftovers[Z](iteratee: Iteratee[F, A, Z]): F[(Z, Vector[A])] = enumerator.fold(
+    def resultWithLeftovers[Z](iteratee: Iteratee[F, A, Z]): F[(Z, Vector[A])] = enumerator.run(
       for {
         result <- iteratee
         leftovers <- consume[A]

@@ -64,13 +64,13 @@ abstract class EnumeratorSuite[F[_]: Monad] extends ModuleSuite[F] {
 
   test("repeat") {
     check { (i: Int, count: Short) =>
-      repeat(i).fold(take(count.toInt)) === F.pure(Vector.fill(count.toInt)(i))
+      repeat(i).run(take(count.toInt)) === F.pure(Vector.fill(count.toInt)(i))
     }
   }
 
   test("iterate") {
     check { (i: Int, count: Short) =>
-      iterate(i)(_ + 1).fold(take(count.toInt)) === F.pure(Vector.iterate(i, count.toInt)(_ + 1))
+      iterate(i)(_ + 1).run(take(count.toInt)) === F.pure(Vector.iterate(i, count.toInt)(_ + 1))
     }
   }
 
@@ -253,7 +253,7 @@ class XorEnumeratorTests extends EnumeratorSuite[({ type L[x] = XorT[Eval, Throw
       val enumerator = eav.enumerator.ensure(action)
       val n = math.max(0, eav.values.size - 2)
 
-      counter == 0 && enumerator.fold(take(n)) === F.pure(eav.values.take(n)) && counter === 1
+      counter == 0 && enumerator.run(take(n)) === F.pure(eav.values.take(n)) && counter === 1
     }
   }
 }
