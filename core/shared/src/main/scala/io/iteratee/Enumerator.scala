@@ -9,7 +9,7 @@ abstract class Enumerator[F[_], E] extends Serializable { self =>
   final def mapE[I](enumeratee: Enumeratee[F, E, I])(implicit M: Monad[F]): Enumerator[F, I] =
     enumeratee.wrap(self)
 
-  final def fold[A](iteratee: Iteratee[F, E, A])(implicit F: Monad[F]): F[A] =
+  final def run[A](iteratee: Iteratee[F, E, A])(implicit F: Monad[F]): F[A] =
     iteratee.process(self)
 
   final def map[B](f: E => B)(implicit F: Monad[F]): Enumerator[F, B] = mapE(Enumeratee.map(f))
@@ -49,7 +49,7 @@ abstract class Enumerator[F[_], E] extends Serializable { self =>
       )
     }   
 
-    map(f).fold(iteratee)
+    map(f).run(iteratee)
   }
 
   final def collect[B](pf: PartialFunction[E, B])(implicit F: Monad[F]): Enumerator[F, B] =
@@ -84,10 +84,10 @@ abstract class Enumerator[F[_], E] extends Serializable { self =>
   final def splitOn(p: E => Boolean)(implicit F: Monad[F]): Enumerator[F, Vector[E]] =
     mapE(Enumeratee.splitOn(p))
 
-  final def drain(implicit F: Monad[F]): F[Vector[E]] = fold(Iteratee.consume)
+  final def drain(implicit F: Monad[F]): F[Vector[E]] = run(Iteratee.consume)
 
   final def drainTo[M[_]](implicit M: Monad[F], P: MonoidK[M], Z: Applicative[M]): F[M[E]] =
-    fold(Iteratee.consumeIn)
+    run(Iteratee.consumeIn)
 
   final def reduced[B](b: B)(f: (B, E) => B)(implicit M: Monad[F]): Enumerator[F, B] =
     new Enumerator[F, B] {
@@ -121,13 +121,13 @@ abstract class Enumerator[F[_], E] extends Serializable { self =>
 }
 
 private[iteratee] trait EnumeratorInstances {
-  implicit final def EnumeratorMonoid[F[_]: Monad, E]: Monoid[Enumerator[F, E]] =
+  implicit final def enumeratorMonoid[F[_]: Monad, E]: Monoid[Enumerator[F, E]] =
     new Monoid[Enumerator[F, E]] {
       def combine(e1: Enumerator[F, E], e2: Enumerator[F, E]): Enumerator[F, E] = e1.append(e2)
       def empty: Enumerator[F, E] = Enumerator.empty
     }
 
-  implicit final def EnumeratorMonad[F[_]](implicit
+  implicit final def enumeratorMonad[F[_]](implicit
     M0: Monad[F]
   ): Monad[({ type L[x] = Enumerator[F, x] })#L] =
     new EnumeratorMonad[F] {
