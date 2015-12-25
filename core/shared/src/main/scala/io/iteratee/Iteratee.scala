@@ -32,44 +32,22 @@ sealed abstract class Iteratee[F[_], E, A] extends Serializable { self =>
   final def run(implicit F: Monad[F]): F[A] = F.map(feed(Enumerator.enumEnd).step)(_.unsafeValue)
 
   final def flatMap[B](f: A => Iteratee[F, E, B])(implicit F: Monad[F]): Iteratee[F, E, B] =
-    new Iteratee[F, E, B] {
-      final val step: F[Step[F, E, B]] = F.flatMap(self.step)(_.foldWith(folder))
+    Iteratee.iteratee(F.flatMap(step)(_.into(a => f(a).step)))
 
-      val folder: StepFolder[F, E, A, F[Step[F, E, B]]] =
-        new StepFolder[F, E, A, F[Step[F, E, B]]] {
-          def onCont(k: Input[E] => Iteratee[F, E, A]): F[Step[F, E, B]] = F.pure(
-            Step.cont(u => Iteratee.iteratee(F.flatMap(k(u).step)(_.foldWith(folder))))
-          )
-         
-          def onDone(value: A, remainder: Input[E]): F[Step[F, E, B]] =
-            if (remainder.isEmpty) f(value).step else F.flatMap(f(value).step)(
-              _.foldWith(
-                new StepFolder[F, E, B, F[Step[F, E, B]]] {
-                  def onCont(ff: Input[E] => Iteratee[F, E, B]): F[Step[F, E, B]] =
-                    ff(remainder).step
-                  def onDone(aa: B, r: Input[E]): F[Step[F, E, B]] =
-                    F.pure(Step.done(aa, remainder))
-                }
-              )
-            )
-        }
-    }
-
-  def map[B](f: A => B)(implicit F: Functor[F]): Iteratee[F, E, B] = new Iteratee[F, E, B] {
-    final val step: F[Step[F, E, B]] = F.map(self.step)(_.map(f))
-  }
+  def map[B](f: A => B)(implicit F: Functor[F]): Iteratee[F, E, B] =
+    Iteratee.iteratee(F.map(self.step)(_.map(f)))
 
   def contramap[E2](f: E2 => E)(implicit F: Monad[F]): Iteratee[F, E2, A] = {
-    def step(s: Step[F, E, A]): Iteratee[F, E2, A] = s.foldWith(
-      new StepFolder[F, E, A, Iteratee[F, E2, A]] {
-        def onCont(k: Input[E] => Iteratee[F, E, A]): Iteratee[F, E2, A] =
-          Iteratee.cont((in: Input[E2]) => k(in.map(f)).advance(step))
-        def onDone(value: A, remainder: Input[E]): Iteratee[F, E2, A] =
-          Iteratee.done(value, if (remainder.isEnd) Input.end else Input.empty)
+    def next(s: Step[F, E, A]): F[Step[F, E2, A]] = s.foldWith(
+      new StepFolder[F, E, A, F[Step[F, E2, A]]] {
+        def onCont(k: Input[E] => F[Step[F, E, A]]): F[Step[F, E2, A]] =
+          F.pure(Step.cont((in: Input[E2]) => F.flatMap(k(in.map(f)))(next)))
+        def onDone(value: A, remainder: Input[E]): F[Step[F, E2, A]] =
+          F.pure(Step.done(value, if (remainder.isEnd) Input.end else Input.empty))
       }
     )
 
-    this.advance(step)
+    Iteratee.iteratee(F.flatMap(step)(next))
   }
 
   /**
@@ -103,15 +81,16 @@ sealed abstract class Iteratee[F[_], E, A] extends Serializable { self =>
   ): Iteratee[G, E, A] = {
     def transform: Step[F, E, A] => Step[G, E, A] = _.foldWith(
       new StepFolder[F, E, A, Step[G, E, A]] {
-        def onCont(k: Input[E] => Iteratee[F, E, A]): Step[G, E, A] = Step.cont(in => loop(k(in)))
+        def onCont(k: Input[E] => F[Step[F, E, A]]): Step[G, E, A] =
+          Step.cont(in => loop(k(in)))
         def onDone(value: A, remainder: Input[E]): Step[G, E, A] = Step.done(value, remainder)
       }
     )
 
-    def loop: Iteratee[F, E, A] => Iteratee[G, E, A] =
-      i => Iteratee.iteratee(f(F.map(i.step)(transform)))
+    def loop: F[Step[F, E, A]] => G[Step[G, E, A]] =
+      i => f(F.map(i)(transform))
 
-    loop(this)
+    Iteratee.iteratee(loop(step))
   }
 
   final def up[G[_]](implicit G: Applicative[G], F: Comonad[F]): Iteratee[G, E, A] = mapI(
@@ -132,7 +111,8 @@ sealed abstract class Iteratee[F[_], E, A] extends Serializable { self =>
     def step[Z](i: Iteratee[F, E, Z]): Iteratee[F, E, Pair[Z]] = Iteratee.liftM(
       i.foldWith(
         new StepFolder[F, E, Z, Pair[Z]] {
-          def onCont(k: Input[E] => Iteratee[F, E, Z]): Pair[Z] = (None, Iteratee.cont(k))
+          def onCont(k: Input[E] => F[Step[F, E, Z]]): Pair[Z] =
+            (None, Iteratee.cont(k.andThen(Iteratee.iteratee)))
           def onDone(value: Z, remainder: Input[E]): Pair[Z] =
             (Some((value, remainder)), Iteratee.done(value, remainder))
         }
@@ -140,10 +120,12 @@ sealed abstract class Iteratee[F[_], E, A] extends Serializable { self =>
     )
 
     def feedInput[Z](i: Iteratee[F, E, Z], in: Input[E]): Iteratee[F, E, Z] = i.advance(s =>
-      s.foldWith(
-        new MapContStepFolder[F, E, Z](s) {
-          def onCont(k: Input[E] => Iteratee[F, E, Z]): Iteratee[F, E, Z] = k(in)
-        }
+      Iteratee.iteratee(
+        s.foldWith(
+          new MapContStepFolder[F, E, Z](s) {
+            def onCont(k: Input[E] => F[Step[F, E, Z]]): F[Step[F, E, Z]] = k(in)
+          }
+        )
       )
     )
 
@@ -239,26 +221,27 @@ object Iteratee extends IterateeInstances {
     Iteratee.liftM(F.raiseError[A](e))
 
   final def cont[F[_]: Applicative, E, A](c: Input[E] => Iteratee[F, E, A]): Iteratee[F, E, A] =
-    Step.cont(c).pointI
+    Step.cont(c.andThen(_.step)).pointI
 
   final def done[F[_]: Applicative, E, A](d: A, r: Input[E]): Iteratee[F, E, A] =
     Step.done(d, r).pointI
 
   final def identity[F[_]: Applicative, E]: Iteratee[F, E, Unit] = done[F, E, Unit]((), Input.empty)
 
-  final def joinI[F[_]: Monad, E, I, B](it: Iteratee[F, E, Step[F, I, B]]): Iteratee[F, E, B] = {
-    val IM = iterateeMonad[F, E]
-
-    def check: Step[F, I, B] => Iteratee[F, E, B] = _.foldWith(
-      new StepFolder[F, I, B, Iteratee[F, E, B]] {
-        def onCont(k: Input[I] => Iteratee[F, I, B]): Iteratee[F, E, B] = k(Input.end).advance(
+  final def joinI[F[_], E, I, B](it: Iteratee[F, E, Step[F, I, B]])(implicit
+    F: Monad[F]
+  ): Iteratee[F, E, B] = {
+    def check: Step[F, I, B] => F[Step[F, E, B]] = _.foldWith(
+      new StepFolder[F, I, B, F[Step[F, E, B]]] {
+        def onCont(k: Input[I] => F[Step[F, I, B]]): F[Step[F, E, B]] = F.flatMap(k(Input.end))(
           s => if (s.isDone) check(s) else diverge
         )
-        def onDone(value: B, remainder: Input[I]): Iteratee[F, E, B] = IM.pure(value)
+        def onDone(value: B, remainder: Input[I]): F[Step[F, E, B]] =
+          F.pure(Step.done(value, Input.empty))
       }
     )
 
-    it.flatMap(check)
+    Iteratee.iteratee(F.flatMap(it.step)(s => s.into(check)))
   }
 
   /**

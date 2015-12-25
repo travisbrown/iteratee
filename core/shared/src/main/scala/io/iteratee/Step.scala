@@ -1,6 +1,6 @@
 package io.iteratee
 
-import cats.{ Applicative, Functor }
+import cats.{ Applicative, Functor, Monad }
 
 /**
  * Represents a pair of functions that can be used to reduce a [[Step]] to a value.
@@ -13,13 +13,13 @@ import cats.{ Applicative, Functor }
  * @tparam B The type of the result of the fold
  */
 abstract class StepFolder[F[_], E, A, B] extends Serializable {
-  def onCont(k: Input[E] => Iteratee[F, E, A]): B
+  def onCont(k: Input[E] => F[Step[F, E, A]]): B
   def onDone(value: A, remainder: Input[E]): B
 }
 
-abstract class MapContStepFolder[F[_]: Applicative, E, A](step: Step[F, E, A])
-  extends StepFolder[F, E, A, Iteratee[F, E, A]] {
-    final def onDone(value: A, remainder: Input[E]): Iteratee[F, E, A] = step.pointI
+abstract class MapContStepFolder[F[_], E, A](step: Step[F, E, A])(implicit F: Applicative[F])
+  extends StepFolder[F, E, A, F[Step[F, E, A]]] {
+    final def onDone(value: A, remainder: Input[E]): F[Step[F, E, A]] = F.pure(step)
   }
 
 /**
@@ -55,17 +55,23 @@ sealed abstract class Step[F[_], E, A] extends Serializable {
   final def pointI(implicit F: Applicative[F]): Iteratee[F, E, A] = Iteratee.iteratee(F.pure(this))
 
   def map[B](f: A => B)(implicit F: Functor[F]): Step[F, E, B]
+  def into[B](f: A => F[Step[F, E, B]])(implicit F: Monad[F]): F[Step[F, E, B]]
 }
 
 final object Step {
   /**
    * Create an incomplete state that will use the given function to process the next input.
    */
-  final def cont[F[_], E, A](k: Input[E] => Iteratee[F, E, A]): Step[F, E, A] = new Step[F, E, A] {
+  final def cont[F[_], E, A](k: Input[E] => F[Step[F, E, A]]): Step[F, E, A] = new Step[F, E, A] {
     private[iteratee] final def unsafeValue: A = Iteratee.diverge[A]
     final def isDone: Boolean = false
     final def foldWith[B](folder: StepFolder[F, E, A, B]): B = folder.onCont(k)
-    final def map[B](f: A => B)(implicit F: Functor[F]): Step[F, E, B] = cont(in => k(in).map(f))
+    final def map[B](f: A => B)(implicit F: Functor[F]): Step[F, E, B] = cont(in =>
+      F.map(k(in))(_.map(f))
+    )
+    final def into[B](f: A => F[Step[F, E, B]])(implicit F: Monad[F]): F[Step[F, E, B]] = F.pure(
+      Step.cont(u => F.flatMap(k(u))(_.into(f)))
+    )
   }
 
   /**
@@ -76,5 +82,19 @@ final object Step {
     final def isDone: Boolean = true
     final def foldWith[B](folder: StepFolder[F, E, A, B]): B = folder.onDone(value, remaining)
     final def map[B](f: A => B)(implicit F: Functor[F]): Step[F, E, B] = done(f(value), remaining)
+
+    final def into[B](f: A => F[Step[F, E, B]])(implicit F: Monad[F]): F[Step[F, E, B]] =
+      if (remaining.isEmpty) f(value) else F.flatMap(f(value))(
+        _.foldWith(
+          new StepFolder[F, E, B, F[Step[F, E, B]]] {
+            def onCont(ff: Input[E] => F[Step[F, E, B]]): F[Step[F, E, B]] = ff(remaining)
+            def onDone(aa: B, r: Input[E]): F[Step[F, E, B]] = F.pure(Step.done(aa, remaining))
+          }
+        )
+      )
   }
+
+  final def isEnd[F[_], E](implicit F: Applicative[F]): Step[F, E, Boolean] = cont(in =>
+    F.pure(done(in.isEnd, in))
+  )
 }
