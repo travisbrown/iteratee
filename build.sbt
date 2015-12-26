@@ -106,7 +106,7 @@ lazy val task = project
   )
   .settings(allSettings)
   .settings(
-    libraryDependencies += "org.scalaz" %% "scalaz-concurrent" % "7.2.0"
+    libraryDependencies += "org.scalaz" %% "scalaz-concurrent" % "7.1.5"
   ).dependsOn(core)
 
 lazy val benchmark = project
@@ -121,7 +121,7 @@ lazy val benchmark = project
     )
   )
   .enablePlugins(JmhPlugin)
-  .dependsOn(core)
+  .dependsOn(core, task)
 
 lazy val publishSettings = Seq(
   releaseCrossBuild := true,
