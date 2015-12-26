@@ -70,7 +70,21 @@ final object Step {
       F.map(k(in))(_.map(f))
     )
     final def into[B](f: A => F[Step[F, E, B]])(implicit F: Monad[F]): F[Step[F, E, B]] = F.pure(
-      Step.cont(u => F.flatMap(k(u))(_.into(f)))
+      cont(u => F.flatMap(k(u))(_.into(f)))
+    )
+  }
+
+  final def pureCont[F[_], E, A](k: Input[E] => Step[F, E, A])(implicit
+    F0: Applicative[F]
+  ): Step[F, E, A] = new Step[F, E, A] {
+    private[iteratee] final def unsafeValue: A = Iteratee.diverge[A]
+    final def isDone: Boolean = false
+    final def foldWith[B](folder: StepFolder[F, E, A, B]): B = folder.onCont(in => F0.pure(k(in)))
+    final def map[B](f: A => B)(implicit F: Functor[F]): Step[F, E, B] = pureCont(in =>
+      k(in).map(f)
+    )
+    final def into[B](f: A => F[Step[F, E, B]])(implicit F: Monad[F]): F[Step[F, E, B]] = F.pure(
+      cont(in => k(in).into(f))
     )
   }
 
@@ -88,7 +102,7 @@ final object Step {
         _.foldWith(
           new StepFolder[F, E, B, F[Step[F, E, B]]] {
             def onCont(ff: Input[E] => F[Step[F, E, B]]): F[Step[F, E, B]] = ff(remaining)
-            def onDone(aa: B, r: Input[E]): F[Step[F, E, B]] = F.pure(Step.done(aa, remaining))
+            def onDone(aa: B, r: Input[E]): F[Step[F, E, B]] = F.pure(done(aa, remaining))
           }
         )
       )

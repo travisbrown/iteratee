@@ -7,12 +7,12 @@ import scalaz.concurrent.Task
 final object task extends Module[Task] {
   private[this] final class LineEnumerator(reader: BufferedReader)
     extends Enumerator[Task, String] {
-    final def step[A](s: Step[Task, String, A]): Task[Step[Task, String, A]] = s.foldWith(
+    final def advance[A](s: Step[Task, String, A]): Task[Step[Task, String, A]] = s.foldWith(
       new MapContStepFolder[Task, String, A](s) {
         def onCont(k: Input[String] => Task[Step[Task, String, A]]): Task[Step[Task, String, A]] = {
           Task(reader.readLine()).flatMap {
-            case null => Task.point(s)
-            case line => k(Input.el(line)).flatMap(step)
+            case null => Task.taskInstance.point(s)
+            case line => k(Input.el(line)).flatMap(advance)
           }
         }
       }

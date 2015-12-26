@@ -48,7 +48,7 @@ class InMemoryBenchmark extends InMemoryExampleData {
   def sumIntsC: Int = intsC.sum
 
   @Benchmark
-  def sumIntsI: Int = i.Iteratee.sum[cTrampoline, Int].process(intsI).run
+  def sumIntsI: Int = intsI.run(i.Iteratee.sum[cTrampoline, Int]).run
 
   @Benchmark
   def sumIntsS: Int = intsS.sum.runLastOr(sys.error("Impossible")).run
@@ -74,7 +74,7 @@ class StreamingBenchmark extends StreamingExampleData {
   def takeLongsC: Vector[Long] = longStreamC.take(size).toVector
 
   @Benchmark
-  def takeLongsI: Vector[Long] = i.Iteratee.take[cTrampoline, Long](size).process(longStreamI).run
+  def takeLongsI: Vector[Long] = longStreamI.run(i.Iteratee.take[cTrampoline, Long](size)).run
 
   @Benchmark
   def takeLongsS: Vector[Long] = longStreamS.take(size).runLog.run

@@ -29,7 +29,7 @@ sealed abstract class Iteratee[F[_], E, A] extends Serializable { self =>
    * @note A well-behaved iteratee will always be in the completed state after processing an
    *       end-of-stream [[Input]] value.
    */
-  final def run(implicit F: Monad[F]): F[A] = F.map(feed(Enumerator.enumEnd).step)(_.unsafeValue)
+  final def run(implicit F: Monad[F]): F[A] = runWith(Enumerator.enumEnd)
 
   final def flatMap[B](f: A => Iteratee[F, E, B])(implicit F: Monad[F]): Iteratee[F, E, B] =
     Iteratee.iteratee(F.flatMap(step)(_.into(a => f(a).step)))
@@ -63,12 +63,12 @@ sealed abstract class Iteratee[F[_], E, A] extends Serializable { self =>
    * Feed an enumerator to this iteratee.
    */
   final def feed(enumerator: Enumerator[F, E])(implicit F: FlatMap[F]): Iteratee[F, E, A] =
-    Iteratee.iteratee(F.flatMap(step)(s => enumerator(s).step))
+    Iteratee.iteratee(F.flatMap(step)(enumerator.advance))
 
   /**
    * Feed an enumerator to this iteratee and run it to return an effectful value.
    */
-  final def process(enumerator: Enumerator[F, E])(implicit F: Monad[F]): F[A] = feed(enumerator).run
+  final def runWith(enumerator: Enumerator[F, E])(implicit F: Monad[F]): F[A] = enumerator.run(self)
 
   /**
    * Create a new iteratee that first processes values with the given enumeratee.
@@ -266,17 +266,18 @@ object Iteratee extends IterateeInstances {
     cont(loop(M.empty))
   }
 
-  final def consume[F[_]: Monad, A]: Iteratee[F, A, Vector[A]] = {
-    def loop(acc: Vector[A])(in: Input[A]): Iteratee[F, A, Vector[A]] = in.foldWith(
-      new InputFolder[A, Iteratee[F, A, Vector[A]]] {
-        def onEmpty: Iteratee[F, A, Vector[A]] = cont(loop(acc))
-        def onEl(e: A): Iteratee[F, A, Vector[A]] = cont(loop(acc :+ e))
-        def onChunk(es: Vector[A]): Iteratee[F, A, Vector[A]] = cont(loop(acc ++ es))
-        def onEnd: Iteratee[F, A, Vector[A]] = done(acc, in)
+  final def consume[F[_], A](implicit F: Applicative[F]): Iteratee[F, A, Vector[A]] = {
+    def loop(acc: Vector[A])(in: Input[A]): Step[F, A, Vector[A]] = in.foldWith(
+      new InputFolder[A, Step[F, A, Vector[A]]] {
+        def onEmpty: Step[F, A, Vector[A]] = Step.pureCont(a => loop(acc)(a))
+        def onEl(e: A): Step[F, A, Vector[A]] = Step.pureCont(a => loop(acc :+ e)(a))
+        def onChunk(es: Vector[A]): Step[F, A, Vector[A]] =
+          Step.pureCont(a => loop(acc ++ es)(a))
+        def onEnd: Step[F, A, Vector[A]] = Step.done(acc, in)
       }
     )
 
-    cont(loop(Vector.empty))
+    Step.pureCont((a: Input[A]) => loop(Vector.empty)(a)).pointI
   }
 
   /**
@@ -324,26 +325,31 @@ object Iteratee extends IterateeInstances {
    * Iteratee that collects the first `n` inputs.
    */
   final def take[F[_]: Applicative, A](n: Int): Iteratee[F, A, Vector[A]] = {
-    def loop(acc: Vector[A], n: Int)(in: Input[A]): Iteratee[F, A, Vector[A]] = in.foldWith(
-      new InputFolder[A, Iteratee[F, A, Vector[A]]] {
-        def onEmpty: Iteratee[F, A, Vector[A]] = cont(loop(acc, n))
-        def onEl(e: A): Iteratee[F, A, Vector[A]] =
-          if (n == 1) done(acc :+ e, Input.empty) else cont(loop(acc :+ e, n - 1))
-        def onChunk(es: Vector[A]): Iteratee[F, A, Vector[A]] = {
+    def loop(acc: Vector[A], n: Int)(in: Input[A]): Step[F, A, Vector[A]] = in.foldWith(
+      new InputFolder[A, Step[F, A, Vector[A]]] {
+        def onEmpty: Step[F, A, Vector[A]] = Step.pureCont(loop(acc, n))
+        def onEl(e: A): Step[F, A, Vector[A]] =
+          if (n == 1) Step.done(acc :+ e, Input.empty) else Step.pureCont(loop(acc :+ e, n - 1))
+        def onChunk(es: Vector[A]): Step[F, A, Vector[A]] = {
           val diff = n - es.size
 
-          if (diff > 0) cont(loop(acc ++ es, diff)) else
-            if (diff == 0) done(acc ++ es, Input.empty) else {
+          if (diff > 0) Step.pureCont(loop(acc ++ es, diff)) else {
+            if (diff == 0) Step.done(acc ++ es, Input.empty) else {
               val (taken, left) = es.splitAt(n)
 
-              done(acc ++ taken, Input.chunk(left))
+              Step.done(acc ++ taken, Input.chunk(left))
             }
+          }
         }
-        def onEnd: Iteratee[F, A, Vector[A]] = done(acc, in)
+        def onEnd: Step[F, A, Vector[A]] = Step.done(acc, in)
       }
     )
 
-    if (n <= 0) done(Vector.empty, Input.empty) else cont(loop(Vector.empty, n))
+    if (n <= 0) {
+      Step.done[F, A, Vector[A]](Vector.empty, Input.empty).pointI
+    } else {
+      Step.pureCont(loop(Vector.empty, n)).pointI
+    }
   }
 
   /**
