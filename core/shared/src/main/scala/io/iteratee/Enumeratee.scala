@@ -2,27 +2,36 @@ package io.iteratee
 
 import algebra.{ Eq, Monoid }
 import cats.{ Applicative, Monad }
+import cats.arrow.Category
+import cats.functor.Profunctor
 
 abstract class Enumeratee[F[_], O, I] extends Serializable { self =>
   type OuterS[A] = Step[F, O, Step[F, I, A]]
   type OuterF[A] = F[OuterS[A]]
   type OuterI[A] = Iteratee[F, O, Step[F, I, A]]
 
-  def advance[A](step: Step[F, I, A]): OuterF[A]
-
-  final def apply[A](step: Step[F, I, A]): OuterI[A] = Iteratee.iteratee(advance(step))
+  def apply[A](step: Step[F, I, A]): F[Step[F, O, Step[F, I, A]]]
 
   final def wrap(enum: Enumerator[F, O])(implicit F: Monad[F]): Enumerator[F, I] =
     new Enumerator[F, I] {
-      final def advance[A](s: Step[F, I, A]): F[Step[F, I, A]] =
-        F.flatMap(self.advance(s))(enum.runStep)
+      final def apply[A](s: Step[F, I, A]): F[Step[F, I, A]] =
+        F.flatMap(self(s))(enum.runStep)
     }
 
-  /**
-   * A convenience method that lets us lift a [[Step]] into a finished [[Iteratee]].
-   */
-  protected final def toOuterI[A](step: Step[F, I, A])(implicit F: Applicative[F]): OuterI[A] =
-    Iteratee.done(step, Input.empty)
+  final def andThen[J](other: Enumeratee[F, I, J])(implicit F: Monad[F]): Enumeratee[F, O, J] =
+    new Enumeratee[F, O, J] {
+      def apply[A](step: Step[F, J, A]): F[Step[F, O, Step[F, J, A]]] =
+        F.flatMap(other(step))(next => F.flatMap(self(next))(Step.joinI(_)))
+    }
+
+  final def compose[J](other: Enumeratee[F, J, O])(implicit F: Monad[F]): Enumeratee[F, J, I] =
+    other.andThen(self)
+
+  final def map[J](f: I => J)(implicit F: Monad[F]): Enumeratee[F, O, J] =
+    andThen(Enumeratee.map(f))
+
+  final def contramap[J](f: J => O)(implicit F: Monad[F]): Enumeratee[F, J, I] =
+    Enumeratee.map(f).andThen(self)
 
   protected final def toOuterF[A](step: Step[F, I, A])(implicit F: Applicative[F]): OuterF[A] =
     F.pure(Step.done(step, Input.empty))
@@ -40,7 +49,7 @@ abstract class LoopingEnumeratee[F[_], O, I](implicit F: Applicative[F])
       }
     )
 
-  final def advance[A](step: Step[F, I, A]): OuterF[A] = doneOrLoop(step)
+  final def apply[A](step: Step[F, I, A]): OuterF[A] = doneOrLoop(step)
 }
 
 abstract class FolderEnumeratee[F[_], O, I](implicit F: Applicative[F])
@@ -94,9 +103,9 @@ final object Enumeratee {
                 (_: Input[O]).map(e => f(e)).foldWith(
                   new InputFolder[Enumerator[F, I], OuterF[A]] {
                     def onEmpty: OuterF[A] = F.flatMap(k(Input.empty))(loop)
-                    def onEl(e: Enumerator[F, I]): OuterF[A] = F.flatMap(e.advance(step))(loop)
+                    def onEl(e: Enumerator[F, I]): OuterF[A] = F.flatMap(e(step))(loop)
                     def onChunk(es: Vector[Enumerator[F, I]]): OuterF[A] =
-                      F.flatMap(monoid.combineAll(es).apply(step).step)(loop)
+                      F.flatMap(monoid.combineAll(es)(step))(loop)
                     def onEnd: OuterF[A] = toOuterF(step)
                   }
                 )
@@ -107,7 +116,7 @@ final object Enumeratee {
           }
         )
 
-      def advance[A](step: Step[F, I, A]): OuterF[A] = loop(step)
+      def apply[A](step: Step[F, I, A]): OuterF[A] = loop(step)
     }
 
   final def collect[F[_], O, I](pf: PartialFunction[O, I])(implicit
@@ -146,7 +155,7 @@ final object Enumeratee {
   ): Enumeratee[F, O, I] =
     new LoopingEnumeratee[F, O, I] {
       protected def loop[A](k: Input[I] => F[Step[F, I, A]]): OuterF[A] =
-        Step.isEnd[F, O].into { isEnd =>
+        Step.cont[F, O, Boolean](in => F.pure(Step.done(in.isEnd, in))).intoF { isEnd =>
           if (isEnd) F.pure[OuterS[A]](Step.done(Step.cont(k), Input.end)) else stepWith(k)
         }
 
@@ -154,7 +163,7 @@ final object Enumeratee {
         k: Input[I] => F[Step[F, I, A]]
       ): OuterF[A] =
         F.flatMap(iteratee.step)(
-          _.into(a => F.flatMap[Step[F, I, A], OuterS[A]](k(Input.el(a)))(doneOrLoop))
+          _.intoF(a => F.flatMap[Step[F, I, A], OuterS[A]](k(Input.el(a)))(doneOrLoop))
         )
     }
 
@@ -192,7 +201,7 @@ final object Enumeratee {
           }
         )
 
-      def advance[A](step: Step[F, E, A]): OuterF[A] =
+      def apply[A](step: Step[F, E, A]): OuterF[A] =
         F.pure(stepWith(step, None).map(Step.done[F, E, A](_, Input.empty)))
     }
     
@@ -229,7 +238,7 @@ final object Enumeratee {
           }
         )
 
-      final def advance[A](step: Step[F, (E, Long), A]): OuterF[A] = doneOrLoop(0)(step)
+      final def apply[A](step: Step[F, (E, Long), A]): OuterF[A] = doneOrLoop(0)(step)
     }
 
   final def grouped[F[_]: Monad, E](n: Int): Enumeratee[F, E, Vector[E]] =
@@ -247,9 +256,9 @@ final object Enumeratee {
         step: Step[F, (E1, E2), A]
       ): OuterF[A] =
         F.flatMap(Iteratee.head[F, E1].step)(
-          _.into {
+          _.intoF {
             case Some(e) => 
-              val pairingIteratee = Enumeratee.map[F, E2, (E1, E2)]((e, _)).advance(step)
+              val pairingIteratee = Enumeratee.map[F, E2, (E1, E2)]((e, _)).apply (step)
               val nextStep = F.flatMap(pairingIteratee)(e2.runStep)
               F.flatMap(nextStep)(outerLoop)
 
@@ -257,6 +266,21 @@ final object Enumeratee {
           }
         )
 
-      def advance[A](step: Step[F, (E1, E2), A]): OuterF[A] = outerLoop(step)
+      def apply[A](step: Step[F, (E1, E2), A]): OuterF[A] = outerLoop(step)
+    }
+
+  implicit final def enumerateeInstance[F[_]](implicit F: Monad[F]):
+    Category[({ type L[x, y] = Enumeratee[F, x, y]})#L] with
+    Profunctor[({ type L[x, y] = Enumeratee[F, x, y]})#L] =
+    new Category[({ type L[x, y] = Enumeratee[F, x, y]})#L] with
+      Profunctor[({ type L[x, y] = Enumeratee[F, x, y]})#L] {
+      final def id[A]: Enumeratee[F, A, A] = map[F, A, A](identity)
+      final def compose[A, B, C](
+        f: Enumeratee[F, B, C],
+        g: Enumeratee[F, A, B]
+      ): Enumeratee[F, A, C] = g.andThen(f)
+
+      def dimap[A, B, C, D](fab: Enumeratee[F, A, B])(f: C => A)(g: B => D): Enumeratee[F, C, D] =
+        fab.map(g).contramap(f)
     }
 }

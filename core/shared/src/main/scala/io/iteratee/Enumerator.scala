@@ -4,15 +4,13 @@ import algebra.{ Monoid, Order, Semigroup }
 import cats.{ Applicative, FlatMap, Functor, Id, Monad, MonadError, MonoidK }
 
 abstract class Enumerator[F[_], E] extends Serializable { self =>
-  def advance[A](s: Step[F, E, A]): F[Step[F, E, A]]
-
-  final def apply[A](s: Step[F, E, A]): Iteratee[F, E, A] = Iteratee.iteratee(advance(s))
+  def apply[A](s: Step[F, E, A]): F[Step[F, E, A]]
 
   final def mapE[I](enumeratee: Enumeratee[F, E, I])(implicit M: Monad[F]): Enumerator[F, I] =
     enumeratee.wrap(self)
 
   final def runStep[A](s: Step[F, E, A])(implicit F: Monad[F]): F[A] =
-    F.map(F.flatMap(advance(s))(Enumerator.enumEnd[F, E].advance))(_.unsafeValue)
+    F.map(F.flatMap(self(s))(Enumerator.enumEnd[F, E].apply))(_.unsafeValue)
 
   final def run[A](iteratee: Iteratee[F, E, A])(implicit F: Monad[F]): F[A] =
     F.flatMap(iteratee.step)(runStep)
@@ -21,21 +19,20 @@ abstract class Enumerator[F[_], E] extends Serializable { self =>
 
   final def prepend(e: E)(implicit F: Monad[F]): Enumerator[F, E] = {
     new Enumerator[F, E] {
-      def advance[A](s: Step[F, E, A]): F[Step[F, E, A]] = F.flatMap(
+      def apply[A](s: Step[F, E, A]): F[Step[F, E, A]] = F.flatMap(
         s.foldWith(
           new StepFolder[F, E, A, F[Step[F, E, A]]] {
             def onCont(k: Input[E] => F[Step[F, E, A]]): F[Step[F, E, A]] = k(Input.el(e))
             def onDone(value: A, remaining: Input[E]): F[Step[F, E, A]] = F.pure(s)
           }
         )
-      )(self.advance(_))
+      )(self(_))
     }
   }
 
   final def append(e2: Enumerator[F, E])(implicit F: FlatMap[F]): Enumerator[F, E] =
     new Enumerator[F, E] {
-      final def advance[A](s: Step[F, E, A]): F[Step[F, E, A]] =
-        F.flatMap(self.advance(s))(e2.advance)
+      final def apply[A](s: Step[F, E, A]): F[Step[F, E, A]] = F.flatMap(self(s))(e2(_))
     }
 
   final def flatMap[B](f: E => Enumerator[F, B])(implicit F: Monad[F]) =
@@ -70,10 +67,8 @@ abstract class Enumerator[F[_], E] extends Serializable { self =>
 
   final def ensure[T](action: F[Unit])(implicit F: MonadError[F, T]): Enumerator[F, E] =
     new Enumerator[F, E] {
-      final def advance[A](s: Step[F, E, A]): F[Step[F, E, A]] = F.flatMap(
-        F.handleErrorWith(
-          self.advance(s))(e => F.flatMap(action)(_ => F.raiseError(e))
-        )
+      final def apply[A](s: Step[F, E, A]): F[Step[F, E, A]] = F.flatMap(
+        F.handleErrorWith(self(s))(e => F.flatMap(action)(_ => F.raiseError(e)))
       )(result => F.map(action)(_ => result))
     }
 
@@ -95,7 +90,7 @@ abstract class Enumerator[F[_], E] extends Serializable { self =>
 
   final def reduced[B](b: B)(f: (B, E) => B)(implicit F: Monad[F]): Enumerator[F, B] =
     new Enumerator[F, B] {
-      final def advance[A](step: Step[F, B, A]): F[Step[F, B, A]] = {
+      final def apply[A](step: Step[F, B, A]): F[Step[F, B, A]] = {
         def check(s: Step[F, E, B]): F[Step[F, B, A]] = s.foldWith(
           new StepFolder[F, E, B, F[Step[F, B, A]]] {
             def onCont(k: Input[E] => F[Step[F, E, B]]): F[Step[F, B, A]] =
@@ -107,11 +102,7 @@ abstract class Enumerator[F[_], E] extends Serializable { self =>
                   }
                 )
               }
-            def onDone(value: B, remainder: Input[E]): F[Step[F, B, A]] = step.foldWith(
-              new MapContStepFolder[F, B, A](step) {
-                def onCont(k: Input[B] => F[Step[F, B, A]]): F[Step[F, B, A]] = k(Input.el(value))
-              }
-            )
+            def onDone(value: B, remainder: Input[E]): F[Step[F, B, A]] = step.feed(Input.el(value))
           }
         )
 
@@ -143,14 +134,8 @@ final object Enumerator extends EnumeratorInstances {
 
   final def liftM[F[_], E](fa: F[E])(implicit F: Monad[F]): Enumerator[F, E] =
     new Enumerator[F, E] {
-      def advance[A](s: Step[F, E, A]): F[Step[F, E, A]] =
-        F.flatMap(fa) { e =>
-          s.foldWith(
-            new MapContStepFolder[F, E, A](s) {
-              def onCont(k: Input[E] => F[Step[F, E, A]]): F[Step[F, E, A]] = k(Input.el(e))
-            }
-          )
-        }
+      final def apply[A](s: Step[F, E, A]): F[Step[F, E, A]] =
+        F.flatMap(fa)(e => s.feed(Input.el(e)))
     }
 
   final def fail[F[_], T, E](e: T)(implicit F: MonadError[F, T]): Enumerator[F, E] =
@@ -158,7 +143,7 @@ final object Enumerator extends EnumeratorInstances {
 
   final def empty[F[_], E](implicit F: Applicative[F]): Enumerator[F, E] =
     new Enumerator[F, E] {
-      final def advance[A](s: Step[F, E, A]): F[Step[F, E, A]] = F.pure(s)
+      final def apply[A](s: Step[F, E, A]): F[Step[F, E, A]] = F.pure(s)
     }
 
   /** 
@@ -166,11 +151,7 @@ final object Enumerator extends EnumeratorInstances {
    */
   final def enumEnd[F[_]: Applicative, E]: Enumerator[F, E] =
     new Enumerator[F, E] {
-      final def advance[A](s: Step[F, E, A]): F[Step[F, E, A]] = s.foldWith(
-        new MapContStepFolder[F, E, A](s) {
-          def onCont(k: Input[E] => F[Step[F, E, A]]): F[Step[F, E, A]] = k(Input.end)
-        }
-      )
+      final def apply[A](s: Step[F, E, A]): F[Step[F, E, A]] = s.feed(Input.end)
     }
 
   /**
@@ -178,18 +159,14 @@ final object Enumerator extends EnumeratorInstances {
    */
   final def perform[F[_], E, B](f: F[B])(implicit F: Monad[F]): Enumerator[F, E] =
     new Enumerator[F, E] {
-      final def advance[A](s: Step[F, E, A]): F[Step[F, E, A]] = F.flatMap(f)(_ => F.pure(s))
+      final def apply[A](s: Step[F, E, A]): F[Step[F, E, A]] = F.flatMap(f)(_ => F.pure(s))
     }
 
   /**
    * An enumerator that produces a single value.
    */
   final def enumOne[F[_]: Applicative, E](e: E): Enumerator[F, E] = new Enumerator[F, E] {
-    final def advance[A](s: Step[F, E, A]): F[Step[F, E, A]] = s.foldWith(
-      new MapContStepFolder[F, E, A](s) {
-        def onCont(k: Input[E] => F[Step[F, E, A]]): F[Step[F, E, A]] = k(Input.el(e))
-      }
-    )
+    final def apply[A](s: Step[F, E, A]): F[Step[F, E, A]] = s.feed(Input.el(e))
   }
 
   private[this] abstract class ChunkedIteratorEnumerator[F[_], E](implicit F: Monad[F])
@@ -207,7 +184,7 @@ final object Enumerator extends EnumeratorInstances {
         }
       )
 
-    final def advance[A](s: Step[F, E, A]): F[Step[F, E, A]] = go(chunks, s)
+    final def apply[A](s: Step[F, E, A]): F[Step[F, E, A]] = go(chunks, s)
   }
 
   /**
@@ -225,13 +202,8 @@ final object Enumerator extends EnumeratorInstances {
    */
   final def enumList[F[_], E](xs: List[E])(implicit F: Applicative[F]): Enumerator[F, E] =
     new Enumerator[F, E] {
-      def advance[A](s: Step[F, E, A]): F[Step[F, E, A]] =
-        if (xs.isEmpty) F.pure(s) else s.foldWith(
-          new MapContStepFolder[F, E, A](s) {
-            def onCont(k: Input[E] => F[Step[F, E, A]]): F[Step[F, E, A]] =
-              k(Input.chunk(xs.toVector))
-          }
-        )
+      def apply[A](s: Step[F, E, A]): F[Step[F, E, A]] =
+        if (xs.isEmpty) F.pure(s) else s.feed(Input.chunk(xs.toVector))
     }
 
   /**
@@ -239,12 +211,8 @@ final object Enumerator extends EnumeratorInstances {
    */
   final def enumVector[F[_], E](xs: Vector[E])(implicit F: Applicative[F]): Enumerator[F, E] =
     new Enumerator[F, E] {
-      def advance[A](s: Step[F, E, A]): F[Step[F, E, A]] =
-        if (xs.isEmpty) F.pure(s) else s.foldWith(
-          new MapContStepFolder[F, E, A](s) {
-            def onCont(k: Input[E] => F[Step[F, E, A]]): F[Step[F, E, A]] = k(Input.chunk(xs))
-          }
-        )
+      def apply[A](s: Step[F, E, A]): F[Step[F, E, A]] =
+        if (xs.isEmpty) F.pure(s) else s.feed(Input.chunk(xs))
     }
 
   /**
@@ -265,17 +233,17 @@ final object Enumerator extends EnumeratorInstances {
     )
 
 
-    def advance[A](step: Step[F, E, A]): F[Step[F, E, A]] = loop(math.max(min, 0))(step)
+    def apply[A](step: Step[F, E, A]): F[Step[F, E, A]] = loop(math.max(min, 0))(step)
   }
 
   /**
    * An enumerator that repeats a given value indefinitely.
    */
   final def repeat[F[_], E](e: E)(implicit F: Monad[F]): Enumerator[F, E] = new Enumerator[F, E] {
-    def advance[A](s: Step[F, E, A]): F[Step[F, E, A]] = s.foldWith(
+    def apply[A](s: Step[F, E, A]): F[Step[F, E, A]] = s.foldWith(
       new MapContStepFolder[F, E, A](s) {
         def onCont(k: Input[E] => F[Step[F, E, A]]): F[Step[F, E, A]] =
-          F.flatMap(k(Input.el(e)))(advance[A])
+          F.flatMap(k(Input.el(e)))(apply[A])
       }
     )
   }
@@ -292,7 +260,7 @@ final object Enumerator extends EnumeratorInstances {
         }
       )
 
-      def advance[A](s: Step[F, E, A]): F[Step[F, E, A]] = loop(s, init)
+      def apply[A](s: Step[F, E, A]): F[Step[F, E, A]] = loop(s, init)
     }
 }
 
