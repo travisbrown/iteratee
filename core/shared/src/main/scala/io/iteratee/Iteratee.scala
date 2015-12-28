@@ -32,7 +32,7 @@ sealed abstract class Iteratee[F[_], E, A] extends Serializable { self =>
   final def run(implicit F: Monad[F]): F[A] = runWith(Enumerator.enumEnd)
 
   final def flatMap[B](f: A => Iteratee[F, E, B])(implicit F: Monad[F]): Iteratee[F, E, B] =
-    Iteratee.iteratee(F.flatMap(step)(_.into(a => f(a).step)))
+    Iteratee.iteratee(F.flatMap(step)(_.intoF(a => f(a).step)))
 
   def map[B](f: A => B)(implicit F: Functor[F]): Iteratee[F, E, B] =
     Iteratee.iteratee(F.map(self.step)(_.map(f)))
@@ -63,7 +63,7 @@ sealed abstract class Iteratee[F[_], E, A] extends Serializable { self =>
    * Feed an enumerator to this iteratee.
    */
   final def feed(enumerator: Enumerator[F, E])(implicit F: FlatMap[F]): Iteratee[F, E, A] =
-    Iteratee.iteratee(F.flatMap(step)(enumerator.advance))
+    Iteratee.iteratee(F.flatMap(step)(enumerator(_)))
 
   /**
    * Feed an enumerator to this iteratee and run it to return an effectful value.
@@ -74,7 +74,7 @@ sealed abstract class Iteratee[F[_], E, A] extends Serializable { self =>
    * Create a new iteratee that first processes values with the given enumeratee.
    */
   final def through[O](enumeratee: Enumeratee[F, O, E])(implicit F: Monad[F]): Iteratee[F, O, A] =
-    Iteratee.joinI(Iteratee.iteratee(F.flatMap(step)(s => enumeratee(s).step)))
+    Iteratee.joinI(Iteratee.iteratee(F.flatMap(step)(enumeratee(_))))
 
   final def mapI[G[_]](f: NaturalTransformation[F, G])(implicit
     F: Functor[F]
@@ -105,80 +105,12 @@ sealed abstract class Iteratee[F[_], E, A] extends Serializable { self =>
    */
   final def sequenceI(implicit m: Monad[F]): Enumeratee[F, E, A] = Enumeratee.sequenceI(this)
 
-  final def zip[B](other: Iteratee[F, E, B])(implicit F: Monad[F]): Iteratee[F, E, (A, B)] = {
-    type Pair[Z] = (Option[(Z, Input[E])], Iteratee[F, E, Z])
-
-    def step[Z](i: Iteratee[F, E, Z]): Iteratee[F, E, Pair[Z]] = Iteratee.liftM(
-      i.foldWith(
-        new StepFolder[F, E, Z, Pair[Z]] {
-          def onCont(k: Input[E] => F[Step[F, E, Z]]): Pair[Z] =
-            (None, Iteratee.cont(k.andThen(Iteratee.iteratee)))
-          def onDone(value: Z, remainder: Input[E]): Pair[Z] =
-            (Some((value, remainder)), Iteratee.done(value, remainder))
-        }
-      )
-    )
-
-    def feedInput[Z](i: Iteratee[F, E, Z], in: Input[E]): Iteratee[F, E, Z] = i.advance(s =>
-      Iteratee.iteratee(
-        s.foldWith(
-          new MapContStepFolder[F, E, Z](s) {
-            def onCont(k: Input[E] => F[Step[F, E, Z]]): F[Step[F, E, Z]] = k(in)
-          }
-        )
-      )
-    )
-
-    def loop(itA: Iteratee[F, E, A], itB: Iteratee[F, E, B])(in: Input[E]): Iteratee[F, E, (A, B)] =
-      in.foldWith(
-        new InputFolder[E, Iteratee[F, E, (A, B)]] {
-          def onEmpty: Iteratee[F, E, (A, B)] = Iteratee.cont(loop(itA, itB))
-          def onEl(e: E): Iteratee[F, E, (A, B)] = step(feedInput(itA, in)).flatMap {
-            case (pairA, nextItA) =>
-              step(feedInput(itB, in)).flatMap {
-                case (pairB, nextItB) => (pairA, pairB) match {
-                  case (Some((resA, remA)), Some((resB, remB))) =>
-                    Iteratee.done((resA, resB), remA.shorter(remB))
-                  case (Some((resA, _)), None) => nextItB.map((resA, _))
-                  case (None, Some((resB, _))) => nextItA.map((_, resB))
-                  case _ => Iteratee.cont(loop(nextItA, nextItB))
-                }
-              }
-          }
-
-          def onChunk(es: Vector[E]): Iteratee[F, E, (A, B)] = step(feedInput(itA, in)).flatMap {
-            case (pairA, nextItA) =>
-              step(feedInput(itB, in)).flatMap {
-                case (pairB, nextItB) => (pairA, pairB) match {
-                  case (Some((resA, remA)), Some((resB, remB))) =>
-                    Iteratee.done((resA, resB), remA.shorter(remB))
-                  case (Some((resA, _)), None) => nextItB.map((resA, _))
-                  case (None, Some((resB, _))) => nextItA.map((_, resB))
-                  case _ => Iteratee.cont(loop(nextItA, nextItB))
-                }
-              }
-          }
-
-          def onEnd: Iteratee[F, E, (A, B)] =
-            itA.feed(Enumerator.enumEnd[F, E]).flatMap(a =>
-              itB.feed(Enumerator.enumEnd[F, E]).map((a, _))
-            )
+  final def zip[B](other: Iteratee[F, E, B])(implicit F: Monad[F]): Iteratee[F, E, (A, B)] =
+    Iteratee.iteratee(
+      F.flatMap(F.product(self.step, other.step)) {
+        case (sA, sB) => sA.zip(sB)
       }
     )
-
-    step(this).flatMap {
-      case (pairA, nextItA) =>
-        step(other).flatMap {
-          case (pairB, nextItB) => (pairA, pairB) match {
-            case (Some((resA, remA)), Some((resB, remB))) =>
-              Iteratee.done((resA, resB), remA.shorter(remB))
-            case (Some((resA, _)), None) => nextItB.map((resA, _))
-            case (None, Some((resB, _))) => nextItA.map((_, resB))
-            case _ => Iteratee.cont(loop(nextItA, nextItB))
-          }
-        }
-    }
-  }
 
   final def handleErrorWith[T](f: T => Iteratee[F, E, A])(implicit
     F: MonadError[F, T]
@@ -210,8 +142,8 @@ object Iteratee extends IterateeInstances {
   /**
    * Lift an effectful value into an iteratee.
    */
-  final def liftM[F[_]: Monad, E, A](fa: F[A]): Iteratee[F, E, A] =
-    iteratee(Monad[F].map(fa)(a => Step.done(a, Input.empty)))
+  final def liftM[F[_], E, A](fa: F[A])(implicit F: Monad[F]): Iteratee[F, E, A] =
+    iteratee(Step.liftM(fa))
 
   final def iteratee[F[_], E, A](s: F[Step[F, E, A]]): Iteratee[F, E, A] = new Iteratee[F, E, A] {
     final val step: F[Step[F, E, A]] = s
@@ -230,19 +162,7 @@ object Iteratee extends IterateeInstances {
 
   final def joinI[F[_], E, I, B](it: Iteratee[F, E, Step[F, I, B]])(implicit
     F: Monad[F]
-  ): Iteratee[F, E, B] = {
-    def check: Step[F, I, B] => F[Step[F, E, B]] = _.foldWith(
-      new StepFolder[F, I, B, F[Step[F, E, B]]] {
-        def onCont(k: Input[I] => F[Step[F, I, B]]): F[Step[F, E, B]] = F.flatMap(k(Input.end))(
-          s => if (s.isDone) check(s) else diverge
-        )
-        def onDone(value: B, remainder: Input[I]): F[Step[F, E, B]] =
-          F.pure(Step.done(value, Input.empty))
-      }
-    )
-
-    Iteratee.iteratee(F.flatMap(it.step)(s => s.into(check)))
-  }
+  ): Iteratee[F, E, B] = iteratee(F.flatMap(it.step)(Step.joinI(_)))
 
   /**
    * An iteratee that consumes all of the input into something that is MonoidK and Applicative.
