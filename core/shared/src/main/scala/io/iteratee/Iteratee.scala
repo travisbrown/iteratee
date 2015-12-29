@@ -33,10 +33,10 @@ sealed class Iteratee[F[_], E, A] private[iteratee] (final val step: F[Step[F, E
   final def flatMap[B](f: A => Iteratee[F, E, B])(implicit F: Monad[F]): Iteratee[F, E, B] =
     Iteratee.iteratee(F.flatMap(step)(_.intoF(a => f(a).step)))
 
-  def map[B](f: A => B)(implicit F: Functor[F]): Iteratee[F, E, B] =
+  final def map[B](f: A => B)(implicit F: Functor[F]): Iteratee[F, E, B] =
     Iteratee.iteratee(F.map(self.step)(_.map(f)))
 
-  def contramap[E2](f: E2 => E)(implicit F: Monad[F]): Iteratee[F, E2, A] = {
+  final def contramap[E2](f: E2 => E)(implicit F: Monad[F]): Iteratee[F, E2, A] = {
     def next(s: Step[F, E, A]): F[Step[F, E2, A]] = s.foldWith(
       new StepFolder[F, E, A, F[Step[F, E2, A]]] {
         def onCont(k: Input[E] => F[Step[F, E, A]]): F[Step[F, E2, A]] =
@@ -48,21 +48,6 @@ sealed class Iteratee[F[_], E, A] private[iteratee] (final val step: F[Step[F, E
 
     Iteratee.iteratee(F.flatMap(step)(next))
   }
-
-  /**
-   * Advance this iteratee using a function that transforms a step into an iteratee.
-   *
-   * @param f An enumerator-like function that may change the types of the input and result.
-   */
-  final def advance[E2, A2](f: Step[F, E, A] => Iteratee[F, E2, A2])(implicit
-    F: FlatMap[F]
-  ): Iteratee[F, E2, A2] = Iteratee.iteratee(F.flatMap(step)(s => f(s).step))
-
-  /**
-   * Feed an enumerator to this iteratee.
-   */
-  final def feed(enumerator: Enumerator[F, E])(implicit F: FlatMap[F]): Iteratee[F, E, A] =
-    Iteratee.iteratee(F.flatMap(step)(enumerator(_)))
 
   /**
    * Feed an enumerator to this iteratee and run it to return an effectful value.

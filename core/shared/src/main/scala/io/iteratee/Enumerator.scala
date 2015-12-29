@@ -106,7 +106,7 @@ abstract class Enumerator[F[_], E] extends Serializable { self =>
           }
         )
 
-        F.flatMap(Iteratee.fold[F, E, B](b)(f).feed(self).step)(check(_))
+        F.flatMap(self(Step.fold[F, E, B](b)(f)))(check(_))
       }
     }
     
@@ -208,7 +208,7 @@ final object Enumerator extends EnumeratorInstances {
     min: Int = 0,
     max: Int = Int.MaxValue
   )(implicit F: Monad[F]): Enumerator[F, E] = new Enumerator[F, E] {
-    private val limit = math.min(xs.length, max)
+    private[this] val limit = math.min(xs.length, max)
 
     private[this] def loop[A](pos: Int)(s: Step[F, E, A]): F[Step[F, E, A]] =
       if (limit > pos) F.flatMap(s.feed(Input.el(xs(pos))))(loop(pos + 1)) else F.pure(s)

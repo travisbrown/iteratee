@@ -4,7 +4,7 @@ package io.iteratee
  * Represents four functions that can be used to reduce an [[Input]] to a value.
  *
  * Combining two "functions" into a single class allows us to save allocations. `onEmpty` and `onEl`
- * may be overriden to avoid unnecessary allocations, but should be consistent with `onChunk`.
+ * must be consistent with `onChunk`.
  */
 abstract class InputFolder[@specialized E, A] extends Serializable {
   def onChunk(es: Vector[E]): A
@@ -41,14 +41,21 @@ sealed abstract class Input[@specialized E] extends Serializable { self =>
   private[iteratee] def normalize: Input[E]
 
   /**
-   * Convert this [[Input]] value into a list of elements.
+   * Convert this [[Input]] value into a sequence of elements.
    */
   private[iteratee] def toVector: Vector[E]
 
+  /**
+   * Returns the [[Input]] that contains fewer elements.
+   *
+   * `Input.end` is defined to be shorter than any other value.
+   */
   private[iteratee] final def shorter(that: Input[E]): Input[E] =
-    if (isEnd || that.isEnd) Input.end
-      else if (isEmpty || that.isEmpty) Input.empty
-      else if (toVector.lengthCompare(that.toVector.size) < 0) this else that
+    if (isEnd || that.isEnd) Input.end else {
+      if (isEmpty || that.isEmpty) Input.empty else {
+        if (toVector.lengthCompare(that.toVector.size) < 0) this else that
+      }
+    }
 }
 
 object Input extends InputInstances {
@@ -77,7 +84,6 @@ object Input extends InputInstances {
     final def exists(p: E => Boolean): Boolean = p(e)
     private[iteratee] final def normalize: Input[E] = self
     private[iteratee] final def toVector: Vector[E] = Vector(e)
-
   }
 
   /**
@@ -107,6 +113,10 @@ object Input extends InputInstances {
     private[iteratee] final def toVector: Vector[E] = es
   }
 
+  /**
+   * We define a single empty value and cast it to the appropriate type in `empty` in order to avoid
+   * allocations.
+   */
   private[this] final val emptyValue: Input[Nothing] = new Input[Nothing] {
     def foldWith[A](folder: InputFolder[Nothing, A]): A = folder.onEmpty
     final val isEmpty: Boolean = true
@@ -121,6 +131,10 @@ object Input extends InputInstances {
     private[iteratee] final val toVector: Vector[Nothing] = Vector.empty
   }
 
+  /**
+   * We define a single end-of-stream value and cast it to the appropriate type in `end` in order to
+   * avoid allocations.
+   */
   private[this] final val endValue: Input[Nothing] = new Input[Nothing] {
     final def foldWith[A](folder: InputFolder[Nothing, A]): A = folder.onEnd
     final val isEmpty: Boolean = false
