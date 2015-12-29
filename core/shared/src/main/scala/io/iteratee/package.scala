@@ -3,7 +3,9 @@ package io
 import cats.{ Eval, Id }
 import cats.data.XorT
 
-package object iteratee
+package object iteratee {
+  private[iteratee] final def diverge[A]: A = sys.error("Divergent iteratee")
+}
 
 package iteratee {
   final object pure extends Module[Id]
