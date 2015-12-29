@@ -3,7 +3,6 @@ package io.iteratee
 import algebra.Monoid
 import cats.{ Applicative, Comonad, FlatMap, Functor, Id, Monad, MonadError, MonoidK, Show }
 import cats.arrow.NaturalTransformation
-import cats.functor.Contravariant
 
 /**
  * An iteratee processes a stream of elements of type `E` and may produce a value of type `F[A]`.
@@ -14,8 +13,8 @@ import cats.functor.Contravariant
  * @tparam E The type of the input data
  * @tparam A The type of the calculated result
  */
-sealed abstract class Iteratee[F[_], E, A] extends Serializable { self =>
-  def step: F[Step[F, E, A]]
+sealed class Iteratee[F[_], E, A] private[iteratee] (final val step: F[Step[F, E, A]])
+  extends Serializable { self =>
 
   /**
    * Collapse this iteratee to an effectful value using the provided functions.
@@ -117,27 +116,8 @@ sealed abstract class Iteratee[F[_], E, A] extends Serializable { self =>
   ): Iteratee[F, E, A] = Iteratee.iteratee(F.handleErrorWith(step)(e => f(e).step))
 }
 
-private[iteratee] sealed abstract class IterateeInstances0 {
-  implicit final def iterateeMonad[F[_], E](implicit F: Monad[F]): Monad[
-    ({ type L[x] = Iteratee[F, E, x] })#L
-  ] = new IterateeMonad[F, E](F)
-}
-
-private[iteratee] sealed abstract class IterateeInstances extends IterateeInstances0 {
-  implicit final def iterateeContravariant[F[_]: Monad, A]: Contravariant[
-    ({ type L[x] = Iteratee[F, x, A] })#L
-  ] = new Contravariant[({ type L[x] = Iteratee[F, x, A] })#L] {
-    def contramap[E, E2](r: Iteratee[F, E, A])(f: E2 => E) = r.contramap(f)
-  }
-
-  implicit final def iterateeMonadError[F[_], T, E](implicit F: MonadError[F, T]): MonadError[
-    ({ type L[x] = Iteratee[F, E, x] })#L,
-    T
-  ] = new IterateeMonadError[F, T, E](F)
-}
-
-object Iteratee extends IterateeInstances {
-  private[iteratee] final def diverge[A]: A = sys.error("Divergent iteratee")
+object Iteratee extends IterateeInstances with CollectionIteratees {
+  final def iteratee[F[_], E, A](s: F[Step[F, E, A]]): Iteratee[F, E, A] = new Iteratee[F, E, A](s)
 
   /**
    * Lift an effectful value into an iteratee.
@@ -145,9 +125,6 @@ object Iteratee extends IterateeInstances {
   final def liftM[F[_], E, A](fa: F[A])(implicit F: Monad[F]): Iteratee[F, E, A] =
     iteratee(Step.liftM(fa))
 
-  final def iteratee[F[_], E, A](s: F[Step[F, E, A]]): Iteratee[F, E, A] = new Iteratee[F, E, A] {
-    final val step: F[Step[F, E, A]] = s
-  }
 
   final def fail[F[_], T, E, A](e: T)(implicit F: MonadError[F, T]): Iteratee[F, E, A] =
     Iteratee.liftM(F.raiseError[A](e))
@@ -163,235 +140,4 @@ object Iteratee extends IterateeInstances {
   final def joinI[F[_], E, I, B](it: Iteratee[F, E, Step[F, I, B]])(implicit
     F: Monad[F]
   ): Iteratee[F, E, B] = iteratee(F.flatMap(it.step)(Step.joinI(_)))
-
-  /**
-   * An iteratee that consumes all of the input into something that is MonoidK and Applicative.
-   */
-  final def consumeIn[F[_], A, C[_]](implicit
-    F: Monad[F],
-    M: MonoidK[C],
-    C: Applicative[C]
-  ): Iteratee[F, A, C[A]] = {
-    def loop(acc: C[A])(in: Input[A]): Iteratee[F, A, C[A]] = in.foldWith(
-      new InputFolder[A, Iteratee[F, A, C[A]]] {
-        def onEmpty: Iteratee[F, A, C[A]] = cont(loop(acc))
-        def onEl(e: A): Iteratee[F, A, C[A]] = cont(loop(M.combine(acc, C.pure(e))))
-        def onChunk(es: Vector[A]): Iteratee[F, A, C[A]] = cont(
-          loop(es.foldLeft(acc)((newAcc, e) => M.combine(newAcc, C.pure(e))))
-        )
-        def onEnd: Iteratee[F, A, C[A]] = done(acc, in)
-      }
-    )
-
-    cont(loop(M.empty))
-  }
-
-  final def consume[F[_], A](implicit F: Applicative[F]): Iteratee[F, A, Vector[A]] = {
-    def loop(acc: Vector[A])(in: Input[A]): Step[F, A, Vector[A]] = in.foldWith(
-      new InputFolder[A, Step[F, A, Vector[A]]] {
-        def onEmpty: Step[F, A, Vector[A]] = Step.pureCont(a => loop(acc)(a))
-        def onEl(e: A): Step[F, A, Vector[A]] = Step.pureCont(a => loop(acc :+ e)(a))
-        def onChunk(es: Vector[A]): Step[F, A, Vector[A]] =
-          Step.pureCont(a => loop(acc ++ es)(a))
-        def onEnd: Step[F, A, Vector[A]] = Step.done(acc, in)
-      }
-    )
-
-    Step.pureCont((a: Input[A]) => loop(Vector.empty)(a)).pointI
-  }
-
-  /**
-   * An iteratee that consumes the head of the input.
-   */
-  final def head[F[_]: Applicative, E]: Iteratee[F, E, Option[E]] = {
-    def step(in: Input[E]): Iteratee[F, E, Option[E]] = in.normalize.foldWith(
-      new InputFolder[E, Iteratee[F, E, Option[E]]] {
-        def onEmpty: Iteratee[F, E, Option[E]] = cont(step)
-        def onEl(e: E): Iteratee[F, E, Option[E]] = done(Some(e), Input.empty)
-        def onChunk(es: Vector[E]): Iteratee[F, E, Option[E]] =
-          done(Some(es.head), Input.chunk(es.tail))
-        def onEnd: Iteratee[F, E, Option[E]] = done(None, in)
-      }
-    )
-
-    cont(step)
-  }
-
-  /**
-   * An iteratee that returns the first element of the input.
-   */
-  final def peek[F[_]: Applicative, E]: Iteratee[F, E, Option[E]] = {
-    def step(in: Input[E]): Iteratee[F, E, Option[E]] = in.normalize.foldWith(
-      new InputFolder[E, Iteratee[F, E, Option[E]]] {
-        def onEmpty: Iteratee[F, E, Option[E]] = cont(step)
-        def onEl(e: E): Iteratee[F, E, Option[E]] = done(Some(e), in)
-        def onChunk(es: Vector[E]): Iteratee[F, E, Option[E]] = done(Some(es.head), in)
-        def onEnd: Iteratee[F, E, Option[E]] = done(None, in)
-      }
-    )
-
-    cont(step)
-  }
-
-  /**
-   * Iteratee that collects all inputs in reverse with the given reducer.
-   *
-   * This iteratee is useful for `F[_]` with efficient cons, e.g. `List`.
-   */
-  final def reversed[F[_]: Applicative, A]: Iteratee[F, A, List[A]] =
-    Iteratee.fold[F, A, List[A]](Nil)((acc, e) => e :: acc)
-
-  /**
-   * Iteratee that collects the first `n` inputs.
-   */
-  final def take[F[_]: Applicative, A](n: Int): Iteratee[F, A, Vector[A]] = {
-    def loop(acc: Vector[A], n: Int)(in: Input[A]): Step[F, A, Vector[A]] = in.foldWith(
-      new InputFolder[A, Step[F, A, Vector[A]]] {
-        def onEmpty: Step[F, A, Vector[A]] = Step.pureCont(loop(acc, n))
-        def onEl(e: A): Step[F, A, Vector[A]] =
-          if (n == 1) Step.done(acc :+ e, Input.empty) else Step.pureCont(loop(acc :+ e, n - 1))
-        def onChunk(es: Vector[A]): Step[F, A, Vector[A]] = {
-          val diff = n - es.size
-
-          if (diff > 0) Step.pureCont(loop(acc ++ es, diff)) else {
-            if (diff == 0) Step.done(acc ++ es, Input.empty) else {
-              val (taken, left) = es.splitAt(n)
-
-              Step.done(acc ++ taken, Input.chunk(left))
-            }
-          }
-        }
-        def onEnd: Step[F, A, Vector[A]] = Step.done(acc, in)
-      }
-    )
-
-    if (n <= 0) {
-      Step.done[F, A, Vector[A]](Vector.empty, Input.empty).pointI
-    } else {
-      Step.pureCont(loop(Vector.empty, n)).pointI
-    }
-  }
-
-  /**
-   * Iteratee that collects inputs until the input element fails a test.
-   */
-  final def takeWhile[F[_]: Applicative, A](p: A => Boolean): Iteratee[F, A, Vector[A]] = {
-    def loop(acc: Vector[A])(in: Input[A]): Iteratee[F, A, Vector[A]] = in.foldWith(
-      new InputFolder[A, Iteratee[F, A, Vector[A]]] {
-        def onEmpty: Iteratee[F, A, Vector[A]] = cont(loop(acc))
-        def onEl(e: A): Iteratee[F, A, Vector[A]] =
-          if (p(e)) cont(loop(acc :+ e)) else done(acc, in)
-
-        def onChunk(es: Vector[A]): Iteratee[F, A, Vector[A]] = {
-          val (before, after) = es.span(p)
-
-          if (after.isEmpty) cont(loop(acc ++ before)) else done(acc ++ before, Input.chunk(after))
-        }
-        def onEnd: Iteratee[F, A, Vector[A]] = done(acc, in)
-      }
-    )
-
-    cont(loop(Vector.empty))
-  }
-
-  /**
-   * An iteratee that skips the first `n` elements of the input.
-   */
-  final def drop[F[_]: Applicative, E](n: Int): Iteratee[F, E, Unit] = {
-    def step(in: Input[E]): Iteratee[F, E, Unit] = in.foldWith(
-      new InputFolder[E, Iteratee[F, E, Unit]] {
-        def onEmpty: Iteratee[F, E, Unit] = cont(step)
-        def onEl(e: E): Iteratee[F, E, Unit] = drop(n - 1)
-        def onChunk(es: Vector[E]): Iteratee[F, E, Unit] = {
-          val len = es.size
-
-          if (len <= n) drop(n - len) else done((), Input.chunk(es.drop(n)))
-        }
-        def onEnd: Iteratee[F, E, Unit] = done((), in)
-      }
-    )
-
-    if (n <= 0) done((), Input.empty) else cont(step)
-  }
-
-  /**
-   * An iteratee that skips elements while the predicate evaluates to true.
-   */
-  final def dropWhile[F[_]: Applicative, E](p: E => Boolean): Iteratee[F, E, Unit] = {
-    def step(in: Input[E]): Iteratee[F, E, Unit] = in.foldWith(
-      new InputFolder[E, Iteratee[F, E, Unit]] {
-        def onEmpty: Iteratee[F, E, Unit] = cont(step)
-        def onEl(e: E): Iteratee[F, E, Unit] = if (p(e)) dropWhile(p) else done((), in)
-        def onChunk(es: Vector[E]): Iteratee[F, E, Unit] = {
-          val after = es.dropWhile(p)
-
-          if (after.isEmpty) dropWhile(p) else done((), Input.chunk(after))
-        }
-        def onEnd: Iteratee[F, E, Unit] = done((), in)
-      }
-    )
-
-    cont(step)
-  }
-
-  final def fold[F[_]: Applicative, E, A](init: A)(f: (A, E) => A): Iteratee[F, E, A] = {
-    def step(acc: A): Input[E] => Iteratee[F, E, A] = _.foldWith(
-      new InputFolder[E, Iteratee[F, E, A]] {
-        def onEmpty: Iteratee[F, E, A] = cont(step(acc))
-        def onEl(e: E): Iteratee[F, E, A] = cont(step(f(acc, e)))
-        def onChunk(es: Vector[E]): Iteratee[F, E, A] = cont(step(es.foldLeft(acc)(f)))
-        def onEnd: Iteratee[F, E, A] = done(acc, Input.end)
-      }
-    )
-
-    cont(step(init))
-  }
-
-  final def foldM[F[_], E, A](init: A)(f: (A, E) => F[A])(implicit
-    F: Monad[F]
-  ): Iteratee[F, E, A] = {
-    def step(acc: A): Input[E] => Iteratee[F, E, A] = _.foldWith(
-      new InputFolder[E, Iteratee[F, E, A]] {
-        def onEmpty: Iteratee[F, E, A] = cont(step(acc))
-        def onEl(e: E): Iteratee[F, E, A] = Iteratee.liftM(f(acc, e)).flatMap(a => cont(step(a)))
-        def onChunk(es: Vector[E]): Iteratee[F, E, A] =
-          Iteratee.liftM(
-            es.foldLeft(F.pure(acc))((fa, e) => F.flatMap(fa)(a => f(a, e)))
-          ).flatMap(a => cont(step(a)))
-        def onEnd: Iteratee[F, E, A] = done(acc, Input.end)
-      }
-    )
-
-    cont(step(init))
-  }
-
-  /**
-   * An iteratee that counts and consumes the elements of the input
-   */
-  final def length[F[_]: Applicative, E]: Iteratee[F, E, Int] = fold(0)((a, _) => a + 1)
-
-  /**
-   * An iteratee that checks if the input is EOF.
-   */
-  final def isEnd[F[_]: Applicative, E]: Iteratee[F, E, Boolean] = cont(in => done(in.isEnd, in))
-
-  final def sum[F[_], E](implicit F: Monad[F], E: Monoid[E]): Iteratee[F, E, E] =
-    foldM(E.empty)((a, e) => F.pure(E.combine(a, e)))
-}
-
-private class IterateeMonad[F[_], E](F: Monad[F])
-  extends Monad[({ type L[x] = Iteratee[F, E, x] })#L] {
-  final def pure[A](a: A): Iteratee[F, E, A] = Step.done(a, Input.empty).pointI(F)
-  override final def map[A, B](fa: Iteratee[F, E, A])(f: A => B): Iteratee[F, E, B] =
-    fa.map(f)(F)
-  final def flatMap[A, B](fa: Iteratee[F, E, A])(f: A => Iteratee[F, E, B]): Iteratee[F, E, B] =
-    fa.flatMap(f)(F)
-}
-
-private class IterateeMonadError[F[_], T, E](F: MonadError[F, T]) extends IterateeMonad[F, E](F)
-  with MonadError[({ type L[x] = Iteratee[F, E, x] })#L, T] {
-  final def raiseError[A](e: T): Iteratee[F, E, A] = Iteratee.fail(e)(F)
-  final def handleErrorWith[A](fa: Iteratee[F, E, A])(
-    f: T => Iteratee[F, E, A]
-  ): Iteratee[F, E, A] = fa.handleErrorWith(f)(F)
 }

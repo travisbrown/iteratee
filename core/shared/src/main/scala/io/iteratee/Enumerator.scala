@@ -1,7 +1,8 @@
 package io.iteratee
 
 import algebra.{ Monoid, Order, Semigroup }
-import cats.{ Applicative, FlatMap, Functor, Id, Monad, MonadError, MonoidK }
+import cats.{ Applicative, FlatMap, Id, Monad, MonadError, MonoidK }
+import scala.collection.generic.CanBuildFrom
 
 abstract class Enumerator[F[_], E] extends Serializable { self =>
   def apply[A](s: Step[F, E, A]): F[Step[F, E, A]]
@@ -85,7 +86,7 @@ abstract class Enumerator[F[_], E] extends Serializable { self =>
 
   final def drain(implicit F: Monad[F]): F[Vector[E]] = run(Iteratee.consume)
 
-  final def drainTo[M[_]](implicit M: Monad[F], P: MonoidK[M], Z: Applicative[M]): F[M[E]] =
+  final def drainTo[C[_]](implicit F: Monad[F], cbf: CanBuildFrom[Nothing, E, C[E]]): F[C[E]] =
     run(Iteratee.consumeIn)
 
   final def reduced[B](b: B)(f: (B, E) => B)(implicit F: Monad[F]): Enumerator[F, B] =
@@ -97,7 +98,7 @@ abstract class Enumerator[F[_], E] extends Serializable { self =>
               F.flatMap(k(Input.end)) { s =>
                 s.foldWith(
                   new StepFolder[F, E, B, F[Step[F, B, A]]] {
-                    def onCont(k: Input[E] => F[Step[F, E, B]]): F[Step[F, B, A]] = Iteratee.diverge
+                    def onCont(k: Input[E] => F[Step[F, E, B]]): F[Step[F, B, A]] = diverge
                     def onDone(value: B, remainder: Input[E]): F[Step[F, B, A]] = check(s)
                   }
                 )
@@ -112,21 +113,6 @@ abstract class Enumerator[F[_], E] extends Serializable { self =>
     
   final def cross[E2](e2: Enumerator[F, E2])(implicit M: Monad[F]): Enumerator[F, (E, E2)] =
     mapE(Enumeratee.cross(e2))
-}
-
-private[iteratee] trait EnumeratorInstances {
-  implicit final def enumeratorMonoid[F[_]: Monad, E]: Monoid[Enumerator[F, E]] =
-    new Monoid[Enumerator[F, E]] {
-      def combine(e1: Enumerator[F, E], e2: Enumerator[F, E]): Enumerator[F, E] = e1.append(e2)
-      def empty: Enumerator[F, E] = Enumerator.empty
-    }
-
-  implicit final def enumeratorMonad[F[_]](implicit
-    M0: Monad[F]
-  ): Monad[({ type L[x] = Enumerator[F, x] })#L] =
-    new EnumeratorMonad[F] {
-      implicit val M: Monad[F] = M0
-    }
 }
 
 final object Enumerator extends EnumeratorInstances {
@@ -225,13 +211,8 @@ final object Enumerator extends EnumeratorInstances {
   )(implicit F: Monad[F]): Enumerator[F, E] = new Enumerator[F, E] {
     private val limit = math.min(xs.length, max)
 
-    private[this] def loop[A](pos: Int)(s: Step[F, E, A]): F[Step[F, E, A]] = s.foldWith(
-      new MapContStepFolder[F, E, A](s) {
-        def onCont(k: Input[E] => F[Step[F, E, A]]): F[Step[F, E, A]] =
-          if (limit > pos) F.flatMap(k(Input.el(xs(pos))))(loop(pos + 1)) else F.pure(s)
-      }
-    )
-
+    private[this] def loop[A](pos: Int)(s: Step[F, E, A]): F[Step[F, E, A]] =
+      if (limit > pos) F.flatMap(s.feed(Input.el(xs(pos))))(loop(pos + 1)) else F.pure(s)
 
     def apply[A](step: Step[F, E, A]): F[Step[F, E, A]] = loop(math.max(min, 0))(step)
   }
@@ -262,16 +243,4 @@ final object Enumerator extends EnumeratorInstances {
 
       def apply[A](s: Step[F, E, A]): F[Step[F, E, A]] = loop(s, init)
     }
-}
-
-private trait EnumeratorFunctor[F[_]] extends Functor[({ type L[x] = Enumerator[F, x] })#L] {
-  implicit def M: Monad[F]
-  abstract override def map[A, B](fa: Enumerator[F, A])(f: A => B): Enumerator[F, B] = fa.map(f)
-}
-
-private trait EnumeratorMonad[F[_]] extends Monad[({ type L[x] = Enumerator[F, x] })#L]
-  with EnumeratorFunctor[F] {
-  final def flatMap[A, B](fa: Enumerator[F, A])(f: A => Enumerator[F, B]): Enumerator[F, B] =
-    fa.flatMap(f)
-  final def pure[E](e: E): Enumerator[F, E] = Enumerator.enumOne[F, E](e)
 }

@@ -63,18 +63,7 @@ abstract class FolderEnumeratee[F[_], O, I](implicit F: Applicative[F])
     _.foldWith(folder(k))
 }
 
-/*abstract class PureFolderEnumeratee[F[_], O, I](implicit F: Applicative[F])
-  extends LoopingEnumeratee[F, O, I] {
-  protected def folder[A](k: Input[I] => F[Step[F, I, A]]): InputFolder[O, OuterF[A]]
-
-  protected final def loop[A](k: Input[I] => F[Step[F, I, A]]): OuterS[A] =
-    F.pure(Step.cont(stepWith(k)))
-
-  protected final def stepWith[A](k: Input[I] => F[Step[F, I, A]]): Input[O] => OuterS[A] =
-    _.foldWith(folder(k))
-}*/
-
-final object Enumeratee {
+final object Enumeratee extends EnumerateeInstances {
   /**
    * Applies a function to each input element and feeds the resulting outputs to the inner iteratee.
    */
@@ -267,20 +256,5 @@ final object Enumeratee {
         )
 
       def apply[A](step: Step[F, (E1, E2), A]): OuterF[A] = outerLoop(step)
-    }
-
-  implicit final def enumerateeInstance[F[_]](implicit F: Monad[F]):
-    Category[({ type L[x, y] = Enumeratee[F, x, y]})#L] with
-    Profunctor[({ type L[x, y] = Enumeratee[F, x, y]})#L] =
-    new Category[({ type L[x, y] = Enumeratee[F, x, y]})#L] with
-      Profunctor[({ type L[x, y] = Enumeratee[F, x, y]})#L] {
-      final def id[A]: Enumeratee[F, A, A] = map[F, A, A](identity)
-      final def compose[A, B, C](
-        f: Enumeratee[F, B, C],
-        g: Enumeratee[F, A, B]
-      ): Enumeratee[F, A, C] = g.andThen(f)
-
-      def dimap[A, B, C, D](fab: Enumeratee[F, A, B])(f: C => A)(g: B => D): Enumeratee[F, C, D] =
-        fab.map(g).contramap(f)
     }
 }

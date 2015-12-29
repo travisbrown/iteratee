@@ -139,12 +139,12 @@ sealed abstract class Step[F[_], E, A] extends Serializable {
   }
 }
 
-final object Step {
+final object Step extends CollectionSteps {
   /**
    * Create an incomplete state that will use the given function to process the next input.
    */
   final def cont[F[_], E, A](k: Input[E] => F[Step[F, E, A]]): Step[F, E, A] = new Step[F, E, A] {
-    private[iteratee] final def unsafeValue: A = Iteratee.diverge[A]
+    private[iteratee] final def unsafeValue: A = diverge[A]
     final def isDone: Boolean = false
     final def foldWith[B](folder: StepFolder[F, E, A, B]): B = folder.onCont(k)
     final def map[B](f: A => B)(implicit F: Functor[F]): Step[F, E, B] = cont(in =>
@@ -163,7 +163,7 @@ final object Step {
   final def pureCont[F[_], E, A](k: Input[E] => Step[F, E, A])(implicit
     F0: Applicative[F]
   ): Step[F, E, A] = new Step[F, E, A] {
-    private[iteratee] final def unsafeValue: A = Iteratee.diverge[A]
+    private[iteratee] final def unsafeValue: A = diverge[A]
     final def isDone: Boolean = false
     final def foldWith[B](folder: StepFolder[F, E, A, B]): B = folder.onCont(in => F0.pure(k(in)))
     final def map[B](f: A => B)(implicit F: Functor[F]): Step[F, E, B] = pureCont(in =>
@@ -214,7 +214,7 @@ final object Step {
     def check: Step[F, B, C] => F[Step[F, A, C]] = _.foldWith(
       new StepFolder[F, B, C, F[Step[F, A, C]]] {
         def onCont(k: Input[B] => F[Step[F, B, C]]): F[Step[F, A, C]] = F.flatMap(k(Input.end))(
-          s => if (s.isDone) check(s) else Iteratee.diverge
+          s => if (s.isDone) check(s) else diverge
         )
         def onDone(value: C, remainder: Input[B]): F[Step[F, A, C]] =
           F.pure(Step.done(value, Input.empty))

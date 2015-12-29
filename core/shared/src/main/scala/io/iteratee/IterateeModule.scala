@@ -2,6 +2,7 @@ package io.iteratee
 
 import algebra.Monoid
 import cats.{ Applicative, Monad, MonadError, MonoidK }
+import scala.collection.generic.CanBuildFrom
 
 trait IterateeModule[F[_]] {
   class LiftToIterateePartiallyApplied[E] {
@@ -28,8 +29,10 @@ trait IterateeModule[F[_]] {
   /**
    * An iteratee that consumes all of the input into something that is MonoidK and Applicative.
    */
-  final def consumeIn[E, A[_]: MonoidK: Applicative](implicit F: Monad[F]): Iteratee[F, E, A[E]] =
-    Iteratee.consumeIn
+  final def consumeIn[E, C[_]](implicit
+    F: Monad[F],
+    cbf: CanBuildFrom[Nothing, E, C[E]]
+  ): Iteratee[F, E, C[E]] = Iteratee.consumeIn
 
   /**
    * An iteratee that consumes the head of the input.
@@ -83,6 +86,9 @@ trait IterateeModule[F[_]] {
   final def length[E](implicit F: Applicative[F]): Iteratee[F, E, Int] = Iteratee.length
 
   final def sum[E: Monoid](implicit F: Monad[F]): Iteratee[F, E, E] = Iteratee.sum
+
+  final def foldMap[E, A](f: E => A)(implicit F: Monad[F], A: Monoid[A]): Iteratee[F, E, A] =
+    Iteratee.foldMap(f)
 
   /**
    * An iteratee that checks if the input is EOF.
