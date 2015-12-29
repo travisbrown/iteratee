@@ -24,15 +24,13 @@ trait IterateeModule[F[_]] {
 
   final def identity[E](implicit F: Applicative[F]): Iteratee[F, E, Unit] = Iteratee.identity
 
-  final def consume[E](implicit F: Monad[F]): Iteratee[F, E, Vector[E]] = Iteratee.consume
+  final def drain[E](implicit F: Monad[F]): Iteratee[F, E, Vector[E]] = Iteratee.drain
 
   /**
    * An iteratee that consumes all of the input into something that is MonoidK and Applicative.
    */
-  final def consumeIn[E, C[_]](implicit
-    F: Monad[F],
-    cbf: CanBuildFrom[Nothing, E, C[E]]
-  ): Iteratee[F, E, C[E]] = Iteratee.consumeIn
+  final def drainTo[E, C[_]: Applicative: MonoidK](implicit F: Monad[F]): Iteratee[F, E, C[E]] =
+    Iteratee.drainTo
 
   /**
    * An iteratee that consumes the head of the input.

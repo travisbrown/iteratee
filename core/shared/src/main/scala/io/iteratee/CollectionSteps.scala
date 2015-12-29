@@ -1,9 +1,7 @@
 package io.iteratee
 
 import algebra.Monoid
-import cats.{ Applicative, Monad }
-import scala.collection.generic.CanBuildFrom
-import scala.collection.mutable.Builder
+import cats.{ Applicative, Monad, MonoidK }
 
 private[iteratee] trait CollectionSteps {
   final def fold[F[_]: Applicative, E, A](init: A)(f: (A, E) => A): Step[F, E, A] = {
@@ -35,7 +33,7 @@ private[iteratee] trait CollectionSteps {
     Step.cont(step(init))
   }
 
-  final def consume[F[_], A](implicit F: Applicative[F]): Step[F, A, Vector[A]] = {
+  final def drain[F[_], A](implicit F: Applicative[F]): Step[F, A, Vector[A]] = {
     def loop(acc: Vector[A])(in: Input[A]): Step[F, A, Vector[A]] = in.foldWith(
       new InputFolder[A, Step[F, A, Vector[A]]] {
         def onEmpty: Step[F, A, Vector[A]] = Step.pureCont(a => loop(acc)(a))
@@ -49,20 +47,23 @@ private[iteratee] trait CollectionSteps {
     Step.pureCont(a => loop(Vector.empty)(a))
   }
 
-  final def consumeIn[F[_], A, C[_]](implicit
+  final def drainTo[F[_], A, C[_]](implicit
     F: Monad[F],
-    cbf: CanBuildFrom[Nothing, A, C[A]]
+    M: MonoidK[C],
+    C: Applicative[C]
   ): Step[F, A, C[A]] = {
-    def loop(acc: Builder[A, C[A]])(in: Input[A]): Step[F, A, C[A]] = in.foldWith(
+    def loop(acc: C[A])(in: Input[A]): Step[F, A, C[A]] = in.foldWith(
       new InputFolder[A, Step[F, A, C[A]]] {
         def onEmpty: Step[F, A, C[A]] = Step.pureCont(loop(acc))
-        def onEl(e: A): Step[F, A, C[A]] = Step.pureCont(loop(acc += e))
-        def onChunk(es: Vector[A]): Step[F, A, C[A]] = Step.pureCont(loop(acc ++= es))
-        def onEnd: Step[F, A, C[A]] = Step.done(acc.result(), in)
+        def onEl(e: A): Step[F, A, C[A]] = Step.pureCont(loop(M.combine(acc, C.pure(e))))
+        def onChunk(es: Vector[A]): Step[F, A, C[A]] = Step.pureCont(
+          loop(es.foldLeft(acc)((a, e) => M.combine(a, C.pure(e))))
+        )
+        def onEnd: Step[F, A, C[A]] = Step.done(acc, in)
       }
     )
 
-    Step.pureCont(loop(cbf()))
+    Step.pureCont(loop(M.empty))
   }
 
   final def head[F[_]: Applicative, E]: Step[F, E, Option[E]] = {

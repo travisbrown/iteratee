@@ -1,9 +1,7 @@
 package io.iteratee
 
 import algebra.Monoid
-import cats.{ Applicative, Monad }
-import scala.collection.generic.CanBuildFrom
-import scala.collection.mutable.Builder
+import cats.{ Applicative, Monad, MonoidK }
 
 private[iteratee] trait CollectionIteratees {
   final def fold[F[_]: Applicative, E, A](init: A)(f: (A, E) => A): Iteratee[F, E, A] =
@@ -12,13 +10,11 @@ private[iteratee] trait CollectionIteratees {
   final def foldM[F[_], E, A](init: A)(f: (A, E) => F[A])(implicit F: Monad[F]): Iteratee[F, E, A] =
     Step.foldM[F, E, A](init)(f).pointI
 
-  final def consumeIn[F[_], A, C[_]](implicit
-    F: Monad[F],
-    cbf: CanBuildFrom[Nothing, A, C[A]]
-  ): Iteratee[F, A, C[A]] = Step.consumeIn[F, A, C].pointI
+  final def drain[F[_], A](implicit F: Applicative[F]): Iteratee[F, A, Vector[A]] =
+    Step.drain[F, A].pointI
 
-  final def consume[F[_], A](implicit F: Applicative[F]): Iteratee[F, A, Vector[A]] =
-    Step.consume[F, A].pointI
+  final def drainTo[F[_]: Monad, A, C[_]: Applicative: MonoidK]: Iteratee[F, A, C[A]] =
+    Step.drainTo[F, A, C].pointI
 
   /**
    * An iteratee that consumes the head of the input.

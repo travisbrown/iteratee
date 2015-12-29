@@ -10,7 +10,7 @@ trait ArbitraryEnumerators[F[_]] { this: Module[F] =>
     def resultWithLeftovers[Z](iteratee: Iteratee[F, A, Z]): F[(Z, Vector[A])] = enumerator.run(
       for {
         result <- iteratee
-        leftovers <- consume[A]
+        leftovers <- drain[A]
       } yield (result, leftovers)
     )
   }

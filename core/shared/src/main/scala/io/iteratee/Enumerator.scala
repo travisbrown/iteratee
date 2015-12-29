@@ -2,7 +2,6 @@ package io.iteratee
 
 import algebra.{ Monoid, Order, Semigroup }
 import cats.{ Applicative, FlatMap, Id, Monad, MonadError, MonoidK }
-import scala.collection.generic.CanBuildFrom
 
 abstract class Enumerator[F[_], E] extends Serializable { self =>
   def apply[A](s: Step[F, E, A]): F[Step[F, E, A]]
@@ -84,10 +83,10 @@ abstract class Enumerator[F[_], E] extends Serializable { self =>
   final def splitOn(p: E => Boolean)(implicit F: Monad[F]): Enumerator[F, Vector[E]] =
     mapE(Enumeratee.splitOn(p))
 
-  final def drain(implicit F: Monad[F]): F[Vector[E]] = run(Iteratee.consume)
+  final def drain(implicit F: Monad[F]): F[Vector[E]] = run(Iteratee.drain)
 
-  final def drainTo[C[_]](implicit F: Monad[F], cbf: CanBuildFrom[Nothing, E, C[E]]): F[C[E]] =
-    run(Iteratee.consumeIn)
+  final def drainTo[C[_]: Applicative: MonoidK](implicit F: Monad[F]): F[C[E]] =
+    run(Iteratee.drainTo)
 
   final def reduced[B](b: B)(f: (B, E) => B)(implicit F: Monad[F]): Enumerator[F, B] =
     new Enumerator[F, B] {
