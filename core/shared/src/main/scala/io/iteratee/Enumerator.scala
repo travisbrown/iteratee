@@ -2,7 +2,7 @@ package io.iteratee
 
 import algebra.{ Monoid, Order, Semigroup }
 import cats.{ Applicative, FlatMap, Id, Monad, MonadError, MonoidK }
-import io.iteratee.internal.{ Input, MapContStepFolder, Step, StepFolder, diverge }
+import io.iteratee.internal.{ Input, MapContStepFolder, Step, diverge }
 
 abstract class Enumerator[F[_], E] extends Serializable { self =>
   def apply[A](s: Step[F, E, A]): F[Step[F, E, A]]
@@ -22,7 +22,7 @@ abstract class Enumerator[F[_], E] extends Serializable { self =>
     new Enumerator[F, E] {
       def apply[A](s: Step[F, E, A]): F[Step[F, E, A]] = F.flatMap(
         s.foldWith(
-          new StepFolder[F, E, A, F[Step[F, E, A]]] {
+          new Step.Folder[F, E, A, F[Step[F, E, A]]] {
             def onCont(k: Input[E] => F[Step[F, E, A]]): F[Step[F, E, A]] = k(Input.el(e))
             def onDone(value: A, remaining: Input[E]): F[Step[F, E, A]] = F.pure(s)
           }
@@ -93,11 +93,11 @@ abstract class Enumerator[F[_], E] extends Serializable { self =>
     new Enumerator[F, B] {
       final def apply[A](step: Step[F, B, A]): F[Step[F, B, A]] = {
         def check(s: Step[F, E, B]): F[Step[F, B, A]] = s.foldWith(
-          new StepFolder[F, E, B, F[Step[F, B, A]]] {
+          new Step.Folder[F, E, B, F[Step[F, B, A]]] {
             def onCont(k: Input[E] => F[Step[F, E, B]]): F[Step[F, B, A]] =
               F.flatMap(k(Input.end)) { s =>
                 s.foldWith(
-                  new StepFolder[F, E, B, F[Step[F, B, A]]] {
+                  new Step.Folder[F, E, B, F[Step[F, B, A]]] {
                     def onCont(k: Input[E] => F[Step[F, E, B]]): F[Step[F, B, A]] = diverge
                     def onDone(value: B, remainder: Input[E]): F[Step[F, B, A]] = check(s)
                   }

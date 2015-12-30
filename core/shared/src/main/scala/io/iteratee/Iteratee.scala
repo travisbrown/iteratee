@@ -3,7 +3,7 @@ package io.iteratee
 import algebra.Monoid
 import cats.{ Applicative, Comonad, FlatMap, Functor, Id, Monad, MonadError, MonoidK, Show }
 import cats.arrow.NaturalTransformation
-import io.iteratee.internal.{ Input, Step, StepFolder }
+import io.iteratee.internal.{ Input, Step }
 
 /**
  * An iteratee processes a stream of elements of type `E` and may produce a value of type `F[A]`.
@@ -20,7 +20,7 @@ sealed class Iteratee[F[_], E, A] private[iteratee] (final val state: F[Step[F, 
   /**
    * Collapse this iteratee to an effectful value using the provided functions.
    */
-  final def foldWith[Z](folder: StepFolder[F, E, A, Z])(implicit F: Functor[F]): F[Z] =
+  final def foldWith[Z](folder: Step.Folder[F, E, A, Z])(implicit F: Functor[F]): F[Z] =
     F.map(state)(_.foldWith(folder))
 
   /**
@@ -39,7 +39,7 @@ sealed class Iteratee[F[_], E, A] private[iteratee] (final val state: F[Step[F, 
 
   final def contramap[E2](f: E2 => E)(implicit F: Monad[F]): Iteratee[F, E2, A] = {
     def next(s: Step[F, E, A]): F[Step[F, E2, A]] = s.foldWith(
-      new StepFolder[F, E, A, F[Step[F, E2, A]]] {
+      new Step.Folder[F, E, A, F[Step[F, E2, A]]] {
         def onCont(k: Input[E] => F[Step[F, E, A]]): F[Step[F, E2, A]] =
           F.pure(Step.cont((in: Input[E2]) => F.flatMap(k(in.map(f)))(next)))
         def onDone(value: A, remainder: Input[E]): F[Step[F, E2, A]] =
@@ -65,7 +65,7 @@ sealed class Iteratee[F[_], E, A] private[iteratee] (final val state: F[Step[F, 
     F: Functor[F]
   ): Iteratee[G, E, A] = {
     def transform: Step[F, E, A] => Step[G, E, A] = _.foldWith(
-      new StepFolder[F, E, A, Step[G, E, A]] {
+      new Step.Folder[F, E, A, Step[G, E, A]] {
         def onCont(k: Input[E] => F[Step[F, E, A]]): Step[G, E, A] =
           Step.cont(in => loop(k(in)))
         def onDone(value: A, remainder: Input[E]): Step[G, E, A] = Step.done(value, remainder)

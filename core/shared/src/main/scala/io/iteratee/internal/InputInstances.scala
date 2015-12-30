@@ -11,7 +11,7 @@ trait InputInstances extends VectorInstances {
       final def traverse[G[_], A, B](fa: Input[A])(f: A => G[B])(implicit
         G: Applicative[G]
       ): G[Input[B]] = fa.foldWith(
-        new InputFolder[A, G[Input[B]]] {
+        new Input.Folder[A, G[Input[B]]] {
           def onEmpty: G[Input[B]] = G.pure(Input.empty[B])
           def onEl(e: A): G[Input[B]] = G.map(f(e))(Input.el)
           def onChunk(es: Vector[A]): G[Input[B]] =
@@ -22,7 +22,7 @@ trait InputInstances extends VectorInstances {
 
       final def foldLeft[A, B](fa: Input[A], b: B)(f: (B, A) => B): B =
         fa.foldWith(
-          new InputFolder[A, B] {
+          new Input.Folder[A, B] {
             def onEmpty: B = b
             def onEl(e: A): B = f(b, e)
             def onChunk(es: Vector[A]): B = Foldable[Vector].foldLeft(es, b)(f)
@@ -32,7 +32,7 @@ trait InputInstances extends VectorInstances {
 
       final def foldRight[A, B](fa: Input[A], b: Eval[B])(f: (A, Eval[B]) => Eval[B]): Eval[B] =
         fa.foldWith(
-          new InputFolder[A, Eval[B]] {
+          new Input.Folder[A, Eval[B]] {
             def onEmpty: Eval[B] = b
             def onEl(e: A): Eval[B] = f(e, b)
             def onChunk(es: Vector[A]): Eval[B] = Foldable[Vector].foldRight(es, b)(f)
@@ -53,9 +53,9 @@ trait InputInstances extends VectorInstances {
   implicit final def inputSemigroup[A](implicit A: Semigroup[A]): Semigroup[Input[A]] =
     new Semigroup[Input[A]] {
       final def combine(a1: Input[A], a2: Input[A]): Input[A] = a1.normalize.foldWith(
-        new InputFolder[A, Input[A]] {
+        new Input.Folder[A, Input[A]] {
           final def onEmpty: Input[A] = a2.normalize.foldWith(
-            new InputFolder[A, Input[A]] {
+            new Input.Folder[A, Input[A]] {
               final def onEmpty: Input[A] = a2
               final def onEl(e: A): Input[A] = a2
               final def onChunk(es: Vector[A]): Input[A] = Input.el(es.reduceLeft(A.combine))
@@ -63,7 +63,7 @@ trait InputInstances extends VectorInstances {
             }
           )
           final def onEl(e: A): Input[A] = a2.foldWith(
-            new InputFolder[A, Input[A]] {
+            new Input.Folder[A, Input[A]] {
               final def onEmpty: Input[A] = Input.el(e)
               final def onEl(f: A): Input[A] = Input.el(A.combine(e, f))
               final def onChunk(fs: Vector[A]): Input[A] = Input.el(fs.foldLeft(e)(A.combine))
@@ -71,7 +71,7 @@ trait InputInstances extends VectorInstances {
             }
           )
           final def onChunk(es: Vector[A]): Input[A] = a2.foldWith(
-            new InputFolder[A, Input[A]] {
+            new Input.Folder[A, Input[A]] {
               final def onEmpty: Input[A] = Input.el(es.reduceLeft(A.combine))
               final def onEl(e: A): Input[A] = Input.el((es :+ e).reduceLeft(A.combine))
               final def onChunk(fs: Vector[A]): Input[A] =
@@ -89,11 +89,11 @@ trait InputInstances extends VectorInstances {
       private[this] final lazy val eqVectorA: Eq[Vector[A]] = Eq[Vector[A]]
 
       final def eqv(a1: Input[A], a2: Input[A]): Boolean = a1.normalize.foldWith(
-        new InputFolder[A, Boolean] {
+        new Input.Folder[A, Boolean] {
           final def onEmpty: Boolean = a2.isEmpty
           final def onEl(e: A): Boolean = a2.exists(f => A.eqv(e, f))
           final def onChunk(es: Vector[A]): Boolean = a2.foldWith(
-            new InputFolder[A, Boolean] {
+            new Input.Folder[A, Boolean] {
               final def onEmpty: Boolean = false
               final def onEl(e: A): Boolean = false
               final def onChunk(fs: Vector[A]): Boolean = eqVectorA.eqv(es, fs)
@@ -108,7 +108,7 @@ trait InputInstances extends VectorInstances {
   implicit final def inputShow[A](implicit A: Show[A]): Show[Input[A]] = 
     new Show[Input[A]] { self =>
       override final def show(f: Input[A]): String = f.foldWith(
-        new InputFolder[A, String] {
+        new Input.Folder[A, String] {
           final def onEmpty: String = "empty"
           final def onEl(e: A): String = s"el(${ A.show(e) })"
           final def onChunk(es: Vector[A]): String =

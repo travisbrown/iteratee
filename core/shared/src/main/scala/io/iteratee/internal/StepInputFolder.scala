@@ -3,7 +3,7 @@ package io.iteratee.internal
 import cats.Applicative
 
 private[iteratee] abstract class StepInputFolder[F[_], E, A](implicit F: Applicative[F])
-  extends InputFolder[E, Step[F, E, A]] {
+  extends Input.Folder[E, Step[F, E, A]] {
   final def next(in: Input[E]): Step[F, E, A] = in.foldWith(this)
 
   final def onEmpty: Step[F, E, A] = Step.pureCont(next)

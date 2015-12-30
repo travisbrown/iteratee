@@ -16,7 +16,7 @@ sealed abstract class Input[@specialized E] extends Serializable {
    * Reduce this [[Input]] to a value using the given two functions.
    */
   final def fold[Z](onEndOfStream: => Z, onValues: Vector[E] => Z): Z = foldWith(
-    new InputFolder[E, Z] {
+    new Input.Folder[E, Z] {
       final def onEnd: Z = onEndOfStream
       final def onEmpty: Z = onValues(Vector.empty)
       final def onEl(e: E): Z = onValues(Vector(e))
@@ -31,7 +31,7 @@ sealed abstract class Input[@specialized E] extends Serializable {
    * expense of allocating multiple function objects and collection instances is
    * known to be too high. In most cases [[fold]] should be preferred.
    */
-  def foldWith[A](folder: InputFolder[E, A]): A
+  def foldWith[A](folder: Input.Folder[E, A]): A
 
   def isEmpty: Boolean
   def isEnd: Boolean
@@ -97,6 +97,23 @@ sealed abstract class Input[@specialized E] extends Serializable {
 
 object Input extends InputInstances {
   /**
+   * Represents four functions that can be used to reduce an [[Input]] to a
+   * value.
+   *
+   * Combining four "functions" into a single class allows us to save
+   * allocations. `onEmpty` and `onEl` must be consistent with `onChunk`.
+   *
+   * @tparam E The element type
+   * @tparam Z The result type
+   */
+  abstract class Folder[@specialized E, Z] extends Serializable {
+    def onEnd: Z
+    def onEmpty: Z
+    def onEl(e: E): Z
+    def onChunk(es: Vector[E]): Z
+  }
+
+  /**
    * An empty input value.
    */
   final def empty[E]: Input[E] = emptyValue.asInstanceOf[Input[E]]
@@ -110,7 +127,7 @@ object Input extends InputInstances {
    * An input value containing a single element.
    */
   final def el[E](e: E): Input[E] = new Input[E] { self =>
-    final def foldWith[A](folder: InputFolder[E, A]): A = folder.onEl(e)
+    final def foldWith[A](folder: Folder[E, A]): A = folder.onEl(e)
     final def isEmpty: Boolean = false
     final def isEnd: Boolean = false
     final def map[X](f: E => X): Input[X] = Input.el(f(e))
@@ -127,7 +144,7 @@ object Input extends InputInstances {
    * An input value containing zero or more elements.
    */
   final def chunk[E](es: Vector[E]): Input[E] = new Input[E] { self =>
-    final def foldWith[A](folder: InputFolder[E, A]): A = folder.onChunk(es)
+    final def foldWith[A](folder: Folder[E, A]): A = folder.onChunk(es)
     final def isEmpty: Boolean = es.isEmpty
     final def isEnd: Boolean = false
     final def map[X](f: E => X): Input[X] = chunk(es.map(f(_)))
@@ -155,7 +172,7 @@ object Input extends InputInstances {
    * allocations.
    */
   private[this] final val emptyValue: Input[Nothing] = new Input[Nothing] {
-    def foldWith[A](folder: InputFolder[Nothing, A]): A = folder.onEmpty
+    def foldWith[A](folder: Folder[Nothing, A]): A = folder.onEmpty
     final val isEmpty: Boolean = true
     final val isEnd: Boolean = false
     final def map[X](f: Nothing => X): Input[X] = this.asInstanceOf[Input[X]]
@@ -173,7 +190,7 @@ object Input extends InputInstances {
    * avoid allocations.
    */
   private[this] final val endValue: Input[Nothing] = new Input[Nothing] {
-    final def foldWith[A](folder: InputFolder[Nothing, A]): A = folder.onEnd
+    final def foldWith[A](folder: Folder[Nothing, A]): A = folder.onEnd
     final val isEmpty: Boolean = false
     final val isEnd: Boolean = true
     final def map[X](f: Nothing => X): Input[X] = this.asInstanceOf[Input[X]]
