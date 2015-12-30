@@ -32,88 +32,10 @@ sealed abstract class Step[F[_], E, A] extends Serializable {
   def isDone: Boolean
 
   def map[B](f: A => B)(implicit F: Functor[F]): Step[F, E, B]
+
   def into[B](f: A => Step[F, E, B])(implicit F: Monad[F]): F[Step[F, E, B]]
   def intoF[B](f: A => F[Step[F, E, B]])(implicit F: Monad[F]): F[Step[F, E, B]]
   def feed(in: Input[E])(implicit F: Applicative[F]): F[Step[F, E, A]]
-
-  def zip[B](other: Step[F, E, B])(implicit F: Monad[F]): F[Step[F, E, (A, B)]] = {
-    type Pair[Z] = (Option[(Z, Input[E])], Step[F, E, Z])
-
-    def paired[Z](s: Step[F, E, Z]): Step[F, E, Pair[Z]] = Step.done(
-      s.foldWith(
-        new Step.Folder[F, E, Z, Pair[Z]] {
-          def onCont(k: Input[E] => F[Step[F, E, Z]]): Pair[Z] = (None, Step.cont(k))
-          def onDone(value: Z, remainder: Input[E]): Pair[Z] = (Some((value, remainder)), Step.done(value, remainder))
-        }
-      ),
-      Input.empty
-    )
-
-    def loop(stepA: Step[F, E, A], stepB: Step[F, E, B])(in: Input[E]): F[Step[F, E, (A, B)]] =
-      in.foldWith(
-        new Input.Folder[E, F[Step[F, E, (A, B)]]] {
-          def onEmpty: F[Step[F, E, (A, B)]] = F.pure(Step.cont(loop(stepA, stepB)))
-          def onEl(e: E): F[Step[F, E, (A, B)]] = F.flatMap(stepA.feed(in))(fsA =>
-            paired(fsA).intoF {
-              case (pairA, nextA) =>
-                F.flatMap(stepB.feed(in))(fsB =>
-                  paired(fsB).intoF {
-                    case (pairB, nextB) => F.pure(
-                      (pairA, pairB) match {
-                        case (Some((resA, remA)), Some((resB, remB))) =>
-                          Step.done[F, E, (A, B)]((resA, resB), remA.shorter(remB))
-                        case (Some((resA, _)), None) => nextB.map((resA, _))
-                        case (None, Some((resB, _))) => nextA.map((_, resB))
-                        case _ => Step.cont(loop(nextA, nextB))
-                      }
-                    )
-                  }
-                )
-            }
-          )
-
-          def onChunk(es: Vector[E]): F[Step[F, E, (A, B)]] = F.flatMap(stepA.feed(in))(fsA =>
-            paired(fsA).intoF {
-              case (pairA, nextA) =>
-                F.flatMap(stepB.feed(in))(fsB =>
-                  paired(fsB).intoF {
-                    case (pairB, nextB) => F.pure(
-                      (pairA, pairB) match {
-                        case (Some((resA, remA)), Some((resB, remB))) =>
-                          Step.done[F, E, (A, B)]((resA, resB), remA.shorter(remB))
-                        case (Some((resA, _)), None) => nextB.map((resA, _))
-                        case (None, Some((resB, _))) => nextA.map((_, resB))
-                        case _ => Step.cont(loop(nextA, nextB))
-                      }
-                    )
-                  }
-                )
-            }
-          )
-
-          def onEnd: F[Step[F, E, (A, B)]] = F.flatMap(stepA.feed(Input.end))(
-            _.intoF(a => F.map(stepB.feed(Input.end))(_.map((a, _))))
-          )
-        }
-      )
-
-    paired(this).intoF {
-      case (pairA, nextA) =>
-        paired(other).intoF {
-          case (pairB, nextB) =>
-            F.pure[Step[F, E, (A, B)]](
-              (pairA, pairB) match {
-                case (Some((resA, remA)), Some((resB, remB))) =>
-                  Step.done((resA, resB), remA.shorter(remB))
-
-                case (Some((resA, _)), None) => nextB.map((resA, _))
-                case (None, Some((resB, _))) => nextA.map((_, resB))
-                case _ => Step.cont(loop(nextA, nextB))
-              }
-            )
-        }
-    }
-  }
 }
 
 final object Step {
@@ -387,4 +309,83 @@ final object Step {
         if (after.isEmpty) dropWhile(p) else Step.done((), Input.chunk(after))
       }
     }.onEmpty
+
+  def zip[F[_], E, A, B](stepA: Step[F, E, A], stepB: Step[F, E, B])(implicit F: Monad[F]): F[Step[F, E, (A, B)]] = {
+    type Pair[Z] = (Option[(Z, Input[E])], Step[F, E, Z])
+
+    def paired[Z](s: Step[F, E, Z]): Step[F, E, Pair[Z]] = Step.done(
+      s.foldWith(
+        new Step.Folder[F, E, Z, Pair[Z]] {
+          def onCont(k: Input[E] => F[Step[F, E, Z]]): Pair[Z] = (None, Step.cont(k))
+          def onDone(value: Z, remainder: Input[E]): Pair[Z] = (Some((value, remainder)), Step.done(value, remainder))
+        }
+      ),
+      Input.empty
+    )
+
+    def loop(stepA: Step[F, E, A], stepB: Step[F, E, B])(in: Input[E]): F[Step[F, E, (A, B)]] =
+      in.foldWith(
+        new Input.Folder[E, F[Step[F, E, (A, B)]]] {
+          def onEmpty: F[Step[F, E, (A, B)]] = F.pure(Step.cont(loop(stepA, stepB)))
+          def onEl(e: E): F[Step[F, E, (A, B)]] = F.flatMap(stepA.feed(in))(fsA =>
+            paired(fsA).intoF {
+              case (pairA, nextA) =>
+                F.flatMap(stepB.feed(in))(fsB =>
+                  paired(fsB).intoF {
+                    case (pairB, nextB) => F.pure(
+                      (pairA, pairB) match {
+                        case (Some((resA, remA)), Some((resB, remB))) =>
+                          Step.done[F, E, (A, B)]((resA, resB), remA.shorter(remB))
+                        case (Some((resA, _)), None) => nextB.map((resA, _))
+                        case (None, Some((resB, _))) => nextA.map((_, resB))
+                        case _ => Step.cont(loop(nextA, nextB))
+                      }
+                    )
+                  }
+                )
+            }
+          )
+
+          def onChunk(es: Vector[E]): F[Step[F, E, (A, B)]] = F.flatMap(stepA.feed(in))(fsA =>
+            paired(fsA).intoF {
+              case (pairA, nextA) =>
+                F.flatMap(stepB.feed(in))(fsB =>
+                  paired(fsB).intoF {
+                    case (pairB, nextB) => F.pure(
+                      (pairA, pairB) match {
+                        case (Some((resA, remA)), Some((resB, remB))) =>
+                          Step.done[F, E, (A, B)]((resA, resB), remA.shorter(remB))
+                        case (Some((resA, _)), None) => nextB.map((resA, _))
+                        case (None, Some((resB, _))) => nextA.map((_, resB))
+                        case _ => Step.cont(loop(nextA, nextB))
+                      }
+                    )
+                  }
+                )
+            }
+          )
+
+          def onEnd: F[Step[F, E, (A, B)]] = F.flatMap(stepA.feed(Input.end))(
+            _.intoF(a => F.map(stepB.feed(Input.end))(_.map((a, _))))
+          )
+        }
+      )
+
+    paired(stepA).intoF {
+      case (pairA, nextA) =>
+        paired(stepB).intoF {
+          case (pairB, nextB) =>
+            F.pure[Step[F, E, (A, B)]](
+              (pairA, pairB) match {
+                case (Some((resA, remA)), Some((resB, remB))) =>
+                  Step.done((resA, resB), remA.shorter(remB))
+
+                case (Some((resA, _)), None) => nextB.map((resA, _))
+                case (None, Some((resB, _))) => nextA.map((_, resB))
+                case _ => Step.cont(loop(nextA, nextB))
+              }
+            )
+        }
+    }
+  }
 }

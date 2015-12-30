@@ -93,7 +93,7 @@ sealed class Iteratee[F[_], E, A] private[iteratee] (final val state: F[Step[F, 
   final def zip[B](other: Iteratee[F, E, B])(implicit F: Monad[F]): Iteratee[F, E, (A, B)] =
     Iteratee.iteratee(
       F.flatMap(F.product(self.state, other.state)) {
-        case (sA, sB) => sA.zip(sB)
+        case (sA, sB) => Step.zip(sA, sB)
       }
     )
 
