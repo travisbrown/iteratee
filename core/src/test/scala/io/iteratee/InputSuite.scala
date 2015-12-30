@@ -5,6 +5,7 @@ import algebra.laws.GroupLaws
 import cats.Show
 import cats.std.{ IntInstances, OptionInstances }
 import cats.laws.discipline.{ MonadTests, SemigroupKTests, TraverseTests }
+import io.iteratee.internal.Input
 import org.scalatest.FunSuite
 import org.typelevel.discipline.scalatest.Discipline
 

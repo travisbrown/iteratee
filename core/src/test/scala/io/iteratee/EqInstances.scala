@@ -20,10 +20,10 @@ trait EqInstances {
     val e3 = Enumerator.enumVector[F, A](Arbitrary.arbitrary[Vector[A]].sample.get)
 
     Eq.instance { (i, j) =>
-      eq.eqv(i.process(e0), j.process(e0)) &&
-      eq.eqv(i.process(e1), j.process(e1)) &&
-      eq.eqv(i.process(e2), j.process(e2)) &&
-      eq.eqv(i.process(e3), j.process(e3))
+      eq.eqv(e0.run(i), e0.run(j)) &&
+      eq.eqv(e1.run(i), e1.run(j)) &&
+      eq.eqv(e2.run(i), e2.run(j)) &&
+      eq.eqv(e3.run(i), e3.run(j))
     }
   }
 }

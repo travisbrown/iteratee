@@ -46,9 +46,9 @@ lazy val baseSettings = Seq(
       case Some((2, 10)) => false
       case _ => true
     }
-  )
+  ),
+  (scalastyleSources in Compile) <++= sourceDirectories in Compile
 )
-
 lazy val allSettings = buildSettings ++ baseSettings ++ publishSettings
 
 lazy val commonJsSettings = Seq(
@@ -61,7 +61,7 @@ lazy val docSettings = site.settings ++ ghpages.settings ++ unidocSettings ++ Se
   scalacOptions in (ScalaUnidoc, unidoc) ++= Seq("-groups", "-implicits"),
   git.remoteRepo := "git@github.com:travisbrown/iteratee.git",
   unidocProjectFilter in (ScalaUnidoc, unidoc) :=
-    inAnyProject -- inProjects(coreJS)
+    inAnyProject -- inProjects(coreJS, benchmark)
 )
 
 lazy val root = project.in(file("."))
@@ -71,7 +71,7 @@ lazy val root = project.in(file("."))
   .aggregate(core, coreJS, task)
   .dependsOn(core)
 
-lazy val coreBase = crossProject.in(file("core"))
+lazy val coreBase = crossProject.crossType(CrossType.Pure).in(file("core"))
   .settings(
     moduleName := "iteratee-core",
     name := "core",
@@ -106,7 +106,7 @@ lazy val task = project
   )
   .settings(allSettings)
   .settings(
-    libraryDependencies += "org.scalaz" %% "scalaz-concurrent" % "7.2.0"
+    libraryDependencies += "org.scalaz" %% "scalaz-concurrent" % "7.1.5"
   ).dependsOn(core)
 
 lazy val benchmark = project
@@ -121,7 +121,7 @@ lazy val benchmark = project
     )
   )
   .enablePlugins(JmhPlugin)
-  .dependsOn(core)
+  .dependsOn(core, task)
 
 lazy val publishSettings = Seq(
   releaseCrossBuild := true,

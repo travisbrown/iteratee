@@ -47,15 +47,15 @@ abstract class IterateeSuite[F[_]: Monad] extends ModuleSuite[F] {
     }
   }
 
-  test("consume") {
+  test("drain") {
     check { (eav: EnumeratorAndValues[Int]) =>
-      eav.resultWithLeftovers(consume) === F.pure((eav.values, Vector.empty))
+      eav.resultWithLeftovers(drain) === F.pure((eav.values, Vector.empty))
     }
   }
 
-  test("consumeIn") {
+  test("drainTo") {
     check { (eav: EnumeratorAndValues[Int]) =>
-      eav.resultWithLeftovers(consumeIn[Int, List]) === F.pure((eav.values.toList, Vector.empty))
+      eav.resultWithLeftovers(drainTo[Int, List]) === F.pure((eav.values.toList, Vector.empty))
     }
   }
 
@@ -146,7 +146,7 @@ abstract class IterateeSuite[F[_]: Monad] extends ModuleSuite[F] {
   test("isEnd") {
     check { (eav: EnumeratorAndValues[Int]) =>
       eav.resultWithLeftovers(isEnd) === F.pure((eav.values.isEmpty, eav.values)) &&
-      eav.resultWithLeftovers(consume.flatMap(_ => isEnd)) === F.pure((true, Vector.empty))
+      eav.resultWithLeftovers(drain.flatMap(_ => isEnd)) === F.pure((true, Vector.empty))
     }
   }
 
