@@ -2,18 +2,19 @@ package io.iteratee
 
 import algebra.{ Monoid, Order, Semigroup }
 import cats.{ Applicative, FlatMap, Id, Monad, MonadError, MonoidK }
+import io.iteratee.internal.{ Input, MapContStepFolder, Step, StepFolder, diverge }
 
 abstract class Enumerator[F[_], E] extends Serializable { self =>
   def apply[A](s: Step[F, E, A]): F[Step[F, E, A]]
 
   final def mapE[I](enumeratee: Enumeratee[F, E, I])(implicit M: Monad[F]): Enumerator[F, I] =
-    enumeratee.wrap(self)
+    enumeratee.wrap(this)
 
   final def runStep[A](s: Step[F, E, A])(implicit F: Monad[F]): F[A] =
-    F.map(F.flatMap(self(s))(Enumerator.enumEnd[F, E].apply))(_.unsafeValue)
+    F.map(F.flatMap(this(s))(Enumerator.enumEnd[F, E].apply))(_.unsafeValue)
 
   final def run[A](iteratee: Iteratee[F, E, A])(implicit F: Monad[F]): F[A] =
-    F.flatMap(iteratee.step)(runStep)
+    F.flatMap(iteratee.state)(runStep)
 
   final def map[B](f: E => B)(implicit F: Monad[F]): Enumerator[F, B] = mapE(Enumeratee.map(f))
 

@@ -2,6 +2,7 @@ package io.iteratee
 
 import cats.Monad
 import cats.data.Xor
+import io.iteratee.internal.Input
 import org.scalacheck.{ Arbitrary, Gen }
 
 trait ArbitraryInstances {

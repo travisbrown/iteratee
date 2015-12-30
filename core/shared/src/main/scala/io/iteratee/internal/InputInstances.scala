@@ -1,4 +1,4 @@
-package io.iteratee
+package io.iteratee.internal
 
 import algebra.{ Eq, Semigroup }
 import cats.{ Applicative, Eval, Foldable, Monad, SemigroupK, Show, Traverse }

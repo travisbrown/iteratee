@@ -3,7 +3,7 @@ package io.iteratee
 import algebra.Monoid
 import cats.{ Functor, Monad }
 
-trait EnumeratorInstances {
+private[iteratee] trait EnumeratorInstances {
   implicit final def enumeratorMonoid[F[_]: Monad, E]: Monoid[Enumerator[F, E]] =
     new Monoid[Enumerator[F, E]] {
       def combine(e1: Enumerator[F, E], e2: Enumerator[F, E]): Enumerator[F, E] = e1.append(e2)

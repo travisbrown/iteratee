@@ -4,7 +4,7 @@ import cats.Monad
 import cats.arrow.Category
 import cats.functor.Profunctor
 
-trait EnumerateeInstances {
+private[iteratee] trait EnumerateeInstances {
   implicit final def enumerateeInstance[F[_]](implicit F: Monad[F]):
     Category[({ type L[x, y] = Enumeratee[F, x, y]})#L] with
     Profunctor[({ type L[x, y] = Enumeratee[F, x, y]})#L] =

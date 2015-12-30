@@ -2,8 +2,7 @@ package io.iteratee
 
 import algebra.{ Eq, Monoid }
 import cats.{ Applicative, Monad }
-import cats.arrow.Category
-import cats.functor.Profunctor
+import io.iteratee.internal.{ Input, InputFolder, Step, StepFolder }
 
 abstract class Enumeratee[F[_], O, I] extends Serializable { self =>
   type OuterS[A] = Step[F, O, Step[F, I, A]]
@@ -151,7 +150,7 @@ final object Enumeratee extends EnumerateeInstances {
       private[this] def stepWith[A](
         k: Input[I] => F[Step[F, I, A]]
       ): OuterF[A] =
-        F.flatMap(iteratee.step)(
+        F.flatMap(iteratee.state)(
           _.intoF(a => F.flatMap[Step[F, I, A], OuterS[A]](k(Input.el(a)))(doneOrLoop))
         )
     }
@@ -244,7 +243,7 @@ final object Enumeratee extends EnumerateeInstances {
       private[this] def outerLoop[A](
         step: Step[F, (E1, E2), A]
       ): OuterF[A] =
-        F.flatMap(Iteratee.head[F, E1].step)(
+        F.flatMap(Iteratee.head[F, E1].state)(
           _.intoF {
             case Some(e) => 
               val pairingIteratee = Enumeratee.map[F, E2, (E1, E2)]((e, _)).apply (step)

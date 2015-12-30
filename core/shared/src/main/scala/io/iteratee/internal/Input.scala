@@ -1,42 +1,79 @@
-package io.iteratee
+package io.iteratee.internal
 
 /**
- * Represents four functions that can be used to reduce an [[Input]] to a value.
+ * An input to an [[Iteratee]].
  *
- * Combining two "functions" into a single class allows us to save allocations. `onEmpty` and `onEl`
- * must be consistent with `onChunk`.
+ * An input value can signal the end of a stream ([[Input.end]]) or it can
+ * contain one or more values of the element type. Non-end-of-stream inputs
+ * could in principle be represented by a collection of elements, but for the
+ * sake of performance we provide special constructors for inputs that are empty
+ * ([[Input.empty]]) or contain a single element ([[Input.el]]).
+ *
+ * @tparam E The element type
  */
-abstract class InputFolder[@specialized E, A] extends Serializable {
-  def onChunk(es: Vector[E]): A
-  def onEnd: A
-  def onEmpty: A
-  def onEl(e: E): A
-}
+sealed abstract class Input[@specialized E] extends Serializable {
+  /**
+   * Reduce this [[Input]] to a value using the given two functions.
+   */
+  final def fold[Z](onEndOfStream: => Z, onValues: Vector[E] => Z): Z = foldWith(
+    new InputFolder[E, Z] {
+      final def onEnd: Z = onEndOfStream
+      final def onEmpty: Z = onValues(Vector.empty)
+      final def onEl(e: E): Z = onValues(Vector(e))
+      final def onChunk(es: Vector[E]): Z = onValues(es)
+    }
+  )
 
-/**
- * Input to an [[Iteratee]].
- */
-sealed abstract class Input[@specialized E] extends Serializable { self =>
   /**
    * Reduce this [[Input]] to a value using the given four functions.
+   *
+   * This method is provided primarily for internal use and for cases where the
+   * expense of allocating multiple function objects and collection instances is
+   * known to be too high. In most cases [[fold]] should be preferred.
    */
   def foldWith[A](folder: InputFolder[E, A]): A
 
   def isEmpty: Boolean
   def isEnd: Boolean
 
+  /**
+   * Map a function over all values (if any) in this input.
+   */
   def map[X](f: E => X): Input[X]
+
+  /**
+   * Map a function that returns an input over all values (if any) in this
+   * input and flatten the result.
+   */
   def flatMap[X](f: E => Input[X]): Input[X]
-  def filter(f: E => Boolean): Input[E]
+
+  /**
+   * Perform an operation for every value in this input.
+   */
   def foreach(f: E => Unit): Unit
+
+  /**
+   * Return an input that contains all values in this input that satisfy the
+   * given predicate.
+   */
+  def filter(p: E => Boolean): Input[E]
+
+  /**
+   * Check whether all values in this input satisfy the given predicate.
+   */
   def forall(p: E => Boolean): Boolean
+
+  /**
+   * Check whether any values in this input satisfy the given predicate.
+   */
   def exists(p: E => Boolean): Boolean
 
   /**
    * Normalize the [[Input]] so that representations do not overlap.
    *
-   * If this [[Input]] is a chunk with no values, an empty input will be returned, and if it's a
-   * chunk with a single value, and element input will be returned.
+   * If this [[Input]] is a chunk with no values, an empty input will be
+   * returned, and if it's a chunk with a single value, and element input will
+   * be returned.
    */
   private[iteratee] def normalize: Input[E]
 
@@ -46,7 +83,7 @@ sealed abstract class Input[@specialized E] extends Serializable { self =>
   private[iteratee] def toVector: Vector[E]
 
   /**
-   * Returns the [[Input]] that contains fewer elements.
+   * Return the [[Input]] that contains fewer elements.
    *
    * `Input.end` is defined to be shorter than any other value.
    */

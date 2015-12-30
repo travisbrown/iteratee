@@ -1,6 +1,7 @@
 package io.iteratee
 
 import cats.{ Eval, MonadError }
+import io.iteratee.internal.{ Input, MapContStepFolder, Step }
 import java.io.{ BufferedReader, File, FileReader }
 import scalaz.concurrent.Task
 
