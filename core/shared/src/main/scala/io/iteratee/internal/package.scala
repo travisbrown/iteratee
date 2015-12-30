@@ -1,7 +1,7 @@
 package io.iteratee
 
 /**
- * Internal types and utilities
+ * Internal types and utilities.
  *
  * While some of these types and utilities are part of the public API and are
  * used in the implementation of [[io.iteratee]], they are not designed for

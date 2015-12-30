@@ -31,21 +31,21 @@ sealed abstract class Input[@specialized E] extends Serializable {
    * expense of allocating multiple function objects and collection instances is
    * known to be too high. In most cases [[fold]] should be preferred.
    */
-  def foldWith[A](folder: Input.Folder[E, A]): A
+  def foldWith[Z](folder: Input.Folder[E, Z]): Z
 
-  def isEmpty: Boolean
   def isEnd: Boolean
+  def isEmpty: Boolean
 
   /**
    * Map a function over all values (if any) in this input.
    */
-  def map[X](f: E => X): Input[X]
+  def map[B](f: E => B): Input[B]
 
   /**
    * Map a function that returns an input over all values (if any) in this
    * input and flatten the result.
    */
-  def flatMap[X](f: E => Input[X]): Input[X]
+  def flatMap[B](f: E => Input[B]): Input[B]
 
   /**
    * Perform an operation for every value in this input.
@@ -95,7 +95,7 @@ sealed abstract class Input[@specialized E] extends Serializable {
     }
 }
 
-object Input extends InputInstances {
+final object Input extends InputInstances {
   /**
    * Represents four functions that can be used to reduce an [[Input]] to a
    * value.
@@ -126,59 +126,59 @@ object Input extends InputInstances {
   /**
    * An input value containing a single element.
    */
-  final def el[E](e: E): Input[E] = new Input[E] { self =>
-    final def foldWith[A](folder: Folder[E, A]): A = folder.onEl(e)
-    final def isEmpty: Boolean = false
+  final def el[E](e: E): Input[E] = new Input[E] {
+    final def foldWith[Z](folder: Folder[E, Z]): Z = folder.onEl(e)
     final def isEnd: Boolean = false
-    final def map[X](f: E => X): Input[X] = Input.el(f(e))
-    final def flatMap[X](f: E => Input[X]): Input[X] = f(e)
-    final def filter(f: E => Boolean): Input[E] = if (f(e)) self else empty
+    final def isEmpty: Boolean = false
+    final def map[B](f: E => B): Input[B] = Input.el(f(e))
+    final def flatMap[B](f: E => Input[B]): Input[B] = f(e)
     final def foreach(f: E => Unit): Unit = f(e)
+    final def filter(p: E => Boolean): Input[E] = if (p(e)) this else empty
     final def forall(p: E => Boolean): Boolean = p(e)
     final def exists(p: E => Boolean): Boolean = p(e)
-    private[iteratee] final def normalize: Input[E] = self
+    private[iteratee] final def normalize: Input[E] = this
     private[iteratee] final def toVector: Vector[E] = Vector(e)
   }
 
   /**
    * An input value containing zero or more elements.
    */
-  final def chunk[E](es: Vector[E]): Input[E] = new Input[E] { self =>
-    final def foldWith[A](folder: Folder[E, A]): A = folder.onChunk(es)
-    final def isEmpty: Boolean = es.isEmpty
+  final def chunk[E](es: Vector[E]): Input[E] = new Input[E] {
+    final def foldWith[Z](folder: Folder[E, Z]): Z = folder.onChunk(es)
     final def isEnd: Boolean = false
-    final def map[X](f: E => X): Input[X] = chunk(es.map(f(_)))
-    final def flatMap[X](f: E => Input[X]): Input[X] = es.foldLeft(empty[X]) {
+    final def isEmpty: Boolean = es.isEmpty
+    final def map[B](f: E => B): Input[B] = chunk(es.map(f(_)))
+    final def flatMap[B](f: E => Input[B]): Input[B] = es.foldLeft(empty[B]) {
       case (acc, _) if acc.isEnd => end
       case (acc, e) =>
         val ei = f(e)
         if (ei.isEnd) end else chunk(acc.toVector ++ ei.toVector)
     }
-    final def filter(f: E => Boolean): Input[E] = Input.chunk(es.filter(f))
     final def foreach(f: E => Unit): Unit = es.foreach(f(_))
+    final def filter(p: E => Boolean): Input[E] = Input.chunk(es.filter(p))
     final def forall(p: E => Boolean): Boolean = es.forall(p(_))
     final def exists(p: E => Boolean): Boolean = es.exists(p(_))
 
     private[iteratee] final def normalize: Input[E] = {
       val c = es.lengthCompare(1)
-      if (c < 0) empty else if (c == 0) el(es.head) else self
+      if (c < 0) empty else if (c == 0) el(es.head) else this
     }
 
     private[iteratee] final def toVector: Vector[E] = es
   }
 
   /**
-   * We define a single empty value and cast it to the appropriate type in `empty` in order to avoid
-   * allocations.
+   * We define a single empty value and cast it to the appropriate type in
+   * `empty` in order to avoid allocations.
    */
   private[this] final val emptyValue: Input[Nothing] = new Input[Nothing] {
-    def foldWith[A](folder: Folder[Nothing, A]): A = folder.onEmpty
-    final val isEmpty: Boolean = true
+    def foldWith[Z](folder: Folder[Nothing, Z]): Z = folder.onEmpty
     final val isEnd: Boolean = false
-    final def map[X](f: Nothing => X): Input[X] = this.asInstanceOf[Input[X]]
-    final def flatMap[X](f: Nothing => Input[X]): Input[X] = this.asInstanceOf[Input[X]]
-    final def filter(f: Nothing => Boolean): Input[Nothing] = this
+    final val isEmpty: Boolean = true
+    final def map[B](f: Nothing => B): Input[B] = this.asInstanceOf[Input[B]]
+    final def flatMap[B](f: Nothing => Input[B]): Input[B] = this.asInstanceOf[Input[B]]
     final def foreach(f: Nothing => Unit): Unit = ()
+    final def filter(p: Nothing => Boolean): Input[Nothing] = this
     final def forall(p: Nothing => Boolean): Boolean = true
     final def exists(p: Nothing => Boolean): Boolean = false
     private[iteratee] final val normalize: Input[Nothing] = this
@@ -186,17 +186,17 @@ object Input extends InputInstances {
   }
 
   /**
-   * We define a single end-of-stream value and cast it to the appropriate type in `end` in order to
-   * avoid allocations.
+   * We define a single end-of-stream value and cast it to the appropriate type
+   * in `end` in order to avoid allocations.
    */
   private[this] final val endValue: Input[Nothing] = new Input[Nothing] {
     final def foldWith[A](folder: Folder[Nothing, A]): A = folder.onEnd
-    final val isEmpty: Boolean = false
     final val isEnd: Boolean = true
-    final def map[X](f: Nothing => X): Input[X] = this.asInstanceOf[Input[X]]
-    final def flatMap[X](f: Nothing => Input[X]): Input[X] = this.asInstanceOf[Input[X]]
-    final def filter(f: Nothing => Boolean): Input[Nothing] = this
+    final val isEmpty: Boolean = false
+    final def map[B](f: Nothing => B): Input[B] = this.asInstanceOf[Input[B]]
+    final def flatMap[B](f: Nothing => Input[B]): Input[B] = this.asInstanceOf[Input[B]]
     final def foreach(f: Nothing => Unit): Unit = ()
+    final def filter(p: Nothing => Boolean): Input[Nothing] = this
     final def forall(p: Nothing => Boolean): Boolean = true
     final def exists(p: Nothing => Boolean): Boolean = false
     private[iteratee] final val normalize: Input[Nothing] = this
