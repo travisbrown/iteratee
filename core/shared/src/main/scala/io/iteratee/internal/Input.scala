@@ -13,14 +13,14 @@ package io.iteratee.internal
  */
 sealed abstract class Input[@specialized E] extends Serializable {
   /**
-   * Reduce this [[Input]] to a value using the given two functions.
+   * Reduce this [[Input]] to a value using the given pair of functions.
    */
-  final def fold[Z](onEndOfStream: => Z, onValues: Vector[E] => Z): Z = foldWith(
+  final def fold[Z](end: => Z, values: Vector[E] => Z): Z = foldWith(
     new Input.Folder[E, Z] {
-      final def onEnd: Z = onEndOfStream
-      final def onEmpty: Z = onValues(Vector.empty)
-      final def onEl(e: E): Z = onValues(Vector(e))
-      final def onChunk(es: Vector[E]): Z = onValues(es)
+      final def onEnd: Z = end
+      final def onEmpty: Z = values(Vector.empty)
+      final def onEl(e: E): Z = values(Vector(e))
+      final def onChunk(es: Vector[E]): Z = values(es)
     }
   )
 
