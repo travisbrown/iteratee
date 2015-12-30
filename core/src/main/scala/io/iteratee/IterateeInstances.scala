@@ -5,22 +5,19 @@ import cats.functor.Contravariant
 import io.iteratee.internal.{ Input, Step }
 
 private[iteratee] trait IterateeInstances extends IterateeInstances0 {
-  implicit final def iterateeContravariant[F[_]: Monad, A]: Contravariant[
-    ({ type L[x] = Iteratee[F, x, A] })#L
-  ] = new Contravariant[({ type L[x] = Iteratee[F, x, A] })#L] {
-    def contramap[E, E2](r: Iteratee[F, E, A])(f: E2 => E) = r.contramap(f)
-  }
+  implicit final def iterateeContravariant[F[_]: Monad, A]: Contravariant[({ type L[x] = Iteratee[F, x, A] })#L] =
+    new Contravariant[({ type L[x] = Iteratee[F, x, A] })#L] {
+      def contramap[E, E2](r: Iteratee[F, E, A])(f: E2 => E) = r.contramap(f)
+    }
 
-  implicit final def iterateeMonadError[F[_], T, E](implicit F: MonadError[F, T]): MonadError[
-    ({ type L[x] = Iteratee[F, E, x] })#L,
-    T
-  ] = new IterateeMonadError[F, T, E](F)
+  implicit final def iterateeMonadError[F[_], T, E]
+    (implicit F: MonadError[F, T]): MonadError[({ type L[x] = Iteratee[F, E, x] })#L, T] =
+      new IterateeMonadError[F, T, E](F)
 }
 
 private[iteratee] trait IterateeInstances0 {
-  implicit final def iterateeMonad[F[_], E](implicit F: Monad[F]): Monad[
-    ({ type L[x] = Iteratee[F, E, x] })#L
-  ] = new IterateeMonad[F, E](F)
+  implicit final def iterateeMonad[F[_], E](implicit F: Monad[F]): Monad[({ type L[x] = Iteratee[F, E, x] })#L] =
+    new IterateeMonad[F, E](F)
 }
 
 private class IterateeMonad[F[_], E](F: Monad[F]) extends Monad[({ type L[x] = Iteratee[F, E, x] })#L] {

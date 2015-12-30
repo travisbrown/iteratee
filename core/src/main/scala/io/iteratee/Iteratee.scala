@@ -202,7 +202,7 @@ final object Iteratee extends IterateeInstances {
    *
    * @group Utilities
    */
-  final def fail[F[_], T, E, A](e: T)(implicit F: MonadError[F, T]): Iteratee[F, E, A] = Iteratee.liftM(F.raiseError[A](e))
+  final def fail[F[_], T, E, A](e: T)(implicit F: MonadError[F, T]): Iteratee[F, E, A] = liftM(F.raiseError[A](e))
 
   /**
    * An iteratee that reads nothing from a stream.

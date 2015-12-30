@@ -18,6 +18,9 @@ abstract class Enumerator[F[_], E] extends Serializable { self =>
 
   final def map[B](f: E => B)(implicit F: Monad[F]): Enumerator[F, B] = mapE(Enumeratee.map(f))
 
+  final def flatMap[B](f: E => Enumerator[F, B])(implicit F: Monad[F]): Enumerator[F, B] =
+    mapE(Enumeratee.flatMap(f))
+
   final def prepend(e: E)(implicit F: Monad[F]): Enumerator[F, E] = {
     new Enumerator[F, E] {
       def apply[A](s: Step[F, E, A]): F[Step[F, E, A]] = F.flatMap(
@@ -35,9 +38,6 @@ abstract class Enumerator[F[_], E] extends Serializable { self =>
     new Enumerator[F, E] {
       final def apply[A](s: Step[F, E, A]): F[Step[F, E, A]] = F.flatMap(self(s))(e2(_))
     }
-
-  final def flatMap[B](f: E => Enumerator[F, B])(implicit F: Monad[F]) =
-    mapE(Enumeratee.flatMap(f))
 
   final def flatten[B](implicit M: Monad[F], ev: E =:= F[B]): Enumerator[F, B] =
     flatMap(e => Enumerator.liftM(ev(e)))

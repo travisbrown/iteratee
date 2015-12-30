@@ -46,9 +46,9 @@ lazy val baseSettings = Seq(
       case Some((2, 10)) => false
       case _ => true
     }
-  )
+  ),
+  (scalastyleSources in Compile) <++= sourceDirectories in Compile
 )
-
 lazy val allSettings = buildSettings ++ baseSettings ++ publishSettings
 
 lazy val commonJsSettings = Seq(
@@ -71,7 +71,7 @@ lazy val root = project.in(file("."))
   .aggregate(core, coreJS, task)
   .dependsOn(core)
 
-lazy val coreBase = crossProject.in(file("core"))
+lazy val coreBase = crossProject.crossType(CrossType.Pure).in(file("core"))
   .settings(
     moduleName := "iteratee-core",
     name := "core",
