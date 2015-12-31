@@ -52,12 +52,6 @@ sealed abstract class Step[F[_], E, A] extends Serializable {
   def map[B](f: A => B)(implicit F: Functor[F]): Step[F, E, B]
 
   /**
-   * Map a function returning a [[Step]] over the value of this [[Step]] and
-   * flatten the result.
-   */
-  def bindS[B](f: A => Step[F, E, B])(implicit F: Monad[F]): F[Step[F, E, B]]
-
-  /**
    * Map a function returning a [[Step]] in a monadic context over the value of
    * this [[Step]] and flatten the result.
    */
@@ -111,10 +105,6 @@ final object Step {
     final def map[B](f: A => B)(implicit F: Functor[F]): Step[F, E, B] = cont(in =>
       F.map(k(in))(_.map(f))
     )
-    final def bindS[B](f: A => Step[F, E, B])(implicit F: Monad[F]): F[Step[F, E, B]] = F.pure(
-      cont(u => F.flatMap(k(u))(_.bindS(f)))
-    )
-
     final def bindF[B](f: A => F[Step[F, E, B]])(implicit F: Monad[F]): F[Step[F, E, B]] = F.pure(
       cont(u => F.flatMap(k(u))(_.bindF(f)))
     )
@@ -135,9 +125,6 @@ final object Step {
     final def map[B](f: A => B)(implicit F: Functor[F]): Step[F, E, B] = pureCont(in =>
       k(in).map(f)
     )
-    final def bindS[B](f: A => Step[F, E, B])(implicit F: Monad[F]): F[Step[F, E, B]] = F.pure(
-      cont(in => k(in).bindS(f))
-    )
     final def bindF[B](f: A => F[Step[F, E, B]])(implicit F: Monad[F]): F[Step[F, E, B]] = F.pure(
       cont(in => k(in).bindF(f))
     )
@@ -154,14 +141,6 @@ final object Step {
     final def isDone: Boolean = true
     final def foldWith[B](folder: Folder[F, E, A, B]): B = folder.onDone(value, remaining)
     final def map[B](f: A => B)(implicit F: Functor[F]): Step[F, E, B] = done(f(value), remaining)
-
-    final def bindS[B](f: A => Step[F, E, B])(implicit F: Monad[F]): F[Step[F, E, B]] =
-      if (remaining.isEmpty) F.pure(f(value)) else f(value).foldWith(
-        new Folder[F, E, B, F[Step[F, E, B]]] {
-          final def onCont(k: Input[E] => F[Step[F, E, B]]): F[Step[F, E, B]] = k(remaining)
-          final def onDone(aa: B, r: Input[E]): F[Step[F, E, B]] = F.pure(done(aa, remaining))
-        }
-      )
 
     final def bindF[B](f: A => F[Step[F, E, B]])(implicit F: Monad[F]): F[Step[F, E, B]] =
       if (remaining.isEmpty) f(value) else F.flatMap(f(value))(

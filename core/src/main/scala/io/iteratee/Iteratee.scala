@@ -17,30 +17,6 @@ import io.iteratee.internal.{ Input, Step }
  */
 sealed class Iteratee[F[_], E, A] private[iteratee] (final val state: F[Step[F, E, A]]) extends Serializable { self =>
   /**
-   * Reduce this [[Iteratee]] to an effectful value using the given pair of
-   * functions.
-   */
-  final def fold[Z](cont: (Input[E] => Iteratee[F, E, A]) => Z, done: (A, Input[E]) => Z)
-    (implicit F: Functor[F]): F[Z] =
-      foldWith(
-        new Step.Folder[F, E, A, Z] {
-          final def onCont(k: Input[E] => F[Step[F, E, A]]): Z = cont(in => Iteratee.iteratee(k(in)))
-          final def onDone(value: A, remainder: Input[E]): Z = done(value, remainder)
-        }
-      )
-
-  /**
-   * Reduce this [[Iteratee]] to an effectful value using the given pair of
-   * functions.
-   *
-   * This method is provided primarily for internal use and for cases where the
-   * expense of allocating multiple function objects and collection instances is
-   * known to be too high. In most cases [[fold]] should be preferred.
-   */
-  final def foldWith[Z](folder: Step.Folder[F, E, A, Z])(implicit F: Functor[F]): F[Z] =
-    F.map(state)(_.foldWith(folder))
-
-  /**
    * Run this iteratee and close the stream so that it must produce an effectful
    * value.
    *

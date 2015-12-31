@@ -115,4 +115,13 @@ trait EnumeratorModule[F[_]] {
    */
   final def iterate[E](init: E)(f: E => E)(implicit F: Monad[F]): Enumerator[F, E] =
     Enumerator.iterate(init)(f)
+
+  /**
+   * An enumerator that iteratively performs an effectful operation and returns
+   * the results.
+   *
+   * @group Enumerators
+   */
+  final def iterateM[E](init: E)(f: E => F[E])(implicit F: Monad[F]): Enumerator[F, E] =
+    Enumerator.iterateM(init)(f)
 }

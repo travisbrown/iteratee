@@ -33,6 +33,28 @@ trait ArbitraryInstances {
       )
     )
 
+  implicit def arbitraryIntIteratee[F[_]: Monad, A]: Arbitrary[Iteratee[F, Int, Int]] = {
+    val M: Monad[({ type L[x] = Iteratee[F, Int, x] })#L] = implicitly
+    val F = Iteratee.fold[F, Int, Int](0)(_ + _)
+
+    Arbitrary(
+      for {
+        n <- Gen.chooseNum(0, 16)
+        a <- Arbitrary.arbitrary[Int]
+        it <- Gen.oneOf[Iteratee[F, Int, Int]](
+          Iteratee.drop[F, Int](n).flatMap(_ => F),
+          Iteratee.drop[F, Int](n).flatMap(_ => M.pure(a)),
+          Iteratee.head[F, Int].map(_.getOrElse(0)),
+          Iteratee.peek[F, Int].flatMap(_ => F),
+          Iteratee.peek[F, Int].flatMap(head => M.pure(a + head.getOrElse(0))),
+          Iteratee.take[F, Int](n).flatMap(taken => M.pure(taken.sum)),
+          Iteratee.identity[F, Int].flatMap(_ => F),
+          Iteratee.identity[F, Int].flatMap(_ => M.pure(a))
+        )
+      } yield it
+    )
+  }
+
   implicit def arbitraryVectorIteratee[F[_]: Monad, A](implicit
     A: Arbitrary[A]
   ): Arbitrary[Iteratee[F, Vector[A], Vector[A]]] = {
@@ -42,14 +64,18 @@ trait ArbitraryInstances {
     Arbitrary(
       for {
         n <- Gen.chooseNum(0, 16)
-        xs <- Gen.containerOfN[Vector, A](128, A.arbitrary)
-        it <- Gen.oneOf(
+        as <- Gen.containerOfN[Vector, A](128, A.arbitrary)
+        it <- Gen.oneOf[Iteratee[F, Vector[A], Vector[A]]](
           Iteratee.drop[F, Vector[A]](n).flatMap(_ => F),
-          Iteratee.drop[F, Vector[A]](n).flatMap(_ => M.pure(xs)),
+          Iteratee.drop[F, Vector[A]](n).flatMap(_ => M.pure(as)),
+          Iteratee.head[F, Vector[A]].map(_.getOrElse(Vector.empty)),
           Iteratee.peek[F, Vector[A]].flatMap(_ => F),
-          Iteratee.peek[F, Vector[A]].flatMap(_ => M.pure(xs)),
+          Iteratee.peek[F, Vector[A]].flatMap(head =>
+            M.pure(as ++ head.fold(Vector.empty[A])(_.take(n)))
+          ),
+          Iteratee.take[F, Vector[A]](n).flatMap(taken => M.pure(taken.flatMap(_.headOption))),
           Iteratee.identity[F, Vector[A]].flatMap(_ => F),
-          Iteratee.identity[F, Vector[A]].flatMap(_ => M.pure(xs))
+          Iteratee.identity[F, Vector[A]].flatMap(_ => M.pure(as))
         )
       } yield it
     )
@@ -63,10 +89,10 @@ trait ArbitraryInstances {
 
     Arbitrary(
       Gen.oneOf(
-        (xs: Vector[Int]) => Vector(xs.size),
-        (xs: Vector[Int]) => xs,
-        (xs: Vector[Int]) => xs.drop(2),
-        (xs: Vector[Int]) => xs.map(_ * 2)
+        (as: Vector[Int]) => Vector(as.size),
+        (as: Vector[Int]) => as,
+        (as: Vector[Int]) => as.drop(2),
+        (as: Vector[Int]) => as.map(_ * 2)
       ).map(M.pure(_))
     )
   }
