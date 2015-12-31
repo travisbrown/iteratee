@@ -251,4 +251,20 @@ final object Enumerator extends EnumeratorInstances {
 
       final def apply[A](s: Step[F, E, A]): F[Step[F, E, A]] = loop(s, init)
     }
+
+  /**
+   * An enumerator that iteratively performs an effectful operation and returns
+   * the results.
+   */
+  final def iterateM[F[_], E](init: E)(f: E => F[E])(implicit F: Monad[F]): Enumerator[F, E] =
+    new Enumerator[F, E] {
+      private[this] def loop[A](s: Step[F, E, A], last: E): F[Step[F, E, A]] = s.foldWith(
+        new MapContStepFolder[F, E, A](s) {
+          final def onCont(k: Input[E] => F[Step[F, E, A]]): F[Step[F, E, A]] =
+            F.flatMap(k(Input.el(last)))(next => F.flatMap(f(last))(loop(next, _)))
+        }
+      )
+
+      final def apply[A](s: Step[F, E, A]): F[Step[F, E, A]] = loop(s, init)
+    }
 }
