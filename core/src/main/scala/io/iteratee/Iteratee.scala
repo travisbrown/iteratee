@@ -49,14 +49,11 @@ sealed class Iteratee[F[_], E, A] private[iteratee] (final val state: F[Step[F, 
   final def contramap[E2](f: E2 => E)(implicit F: Monad[F]): Iteratee[F, E2, A] = {
     def loop(s: Step[F, E, A]): F[Step[F, E2, A]] = s.foldWith(
       new Step.Folder[F, E, A, F[Step[F, E2, A]]] {
-        def onCont(k: List[E] => F[Step[F, E, A]]): F[Step[F, E2, A]] =
-          F.pure(Step.cont((in: List[E2]) => F.flatMap(k(in.map(f)))(loop)))
+        def onCont(k: Vector[E] => F[Step[F, E, A]]): F[Step[F, E2, A]] =
+          F.pure(Step.cont((in: Vector[E2]) => F.flatMap(k(in.map(f)))(loop)))
         def onDone(value: A): F[Step[F, E2, A]] = F.pure(Step.done(value))
-        override def onEarly(value: A, remainder: List[E]): F[Step[F, E2, A]] = F.pure(
-          remainder match {
-            case Nil => Step.early(value, Nil)
-            case _ => Step.done(value)
-          }
+        override def onEarly(value: A, remainder: Vector[E]): F[Step[F, E2, A]] = F.pure(
+          if (remainder.isEmpty) Step.early(value, Vector.empty) else Step.done(value)
         )
       }
     )
@@ -79,10 +76,10 @@ sealed class Iteratee[F[_], E, A] private[iteratee] (final val state: F[Step[F, 
   ): Iteratee[G, E, A] = {
     def transform: Step[F, E, A] => Step[G, E, A] = _.foldWith(
       new Step.Folder[F, E, A, Step[G, E, A]] {
-        def onCont(k: List[E] => F[Step[F, E, A]]): Step[G, E, A] =
+        def onCont(k: Vector[E] => F[Step[F, E, A]]): Step[G, E, A] =
           Step.cont(in => loop(k(in)))
         def onDone(value: A): Step[G, E, A] = Step.done(value)
-        override def onEarly(value: A, leftover: List[E]): Step[G, E, A] = Step.early(value, leftover)
+        override def onEarly(value: A, leftover: Vector[E]): Step[G, E, A] = Step.early(value, leftover)
       }
     )
 
@@ -145,7 +142,7 @@ final object Iteratee extends IterateeInstances {
    *
    * @group Constructors
    */
-  final def cont[F[_]: Applicative, E, A](k: List[E] => Iteratee[F, E, A]): Iteratee[F, E, A] =
+  final def cont[F[_]: Applicative, E, A](k: Vector[E] => Iteratee[F, E, A]): Iteratee[F, E, A] =
     fromStep(Step.cont(in => k(in).state))
 
   /**
@@ -161,7 +158,7 @@ final object Iteratee extends IterateeInstances {
    *
    * @group Constructors
    */
-  final def early[F[_]: Applicative, E, A](d: A, r: List[E]): Iteratee[F, E, A] = fromStep(Step.early(d, r))
+  final def early[F[_]: Applicative, E, A](d: A, r: Vector[E]): Iteratee[F, E, A] = fromStep(Step.early(d, r))
 
   /**
    * Create an [[Iteratee]] from a [[io.iteratee.internal.Step]] in a context.

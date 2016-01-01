@@ -29,14 +29,14 @@ sealed abstract class Step[F[_], E, A] extends Serializable {
    * Reduce this [[Step]] to a value using the given functions.
    */
   final def fold[Z](
-    cont: (List[E] => F[Step[F, E, A]]) => Z,
+    cont: (Vector[E] => F[Step[F, E, A]]) => Z,
     done: A => Z,
-    early: (A, List[E]) => Z
+    early: (A, Vector[E]) => Z
   ): Z = foldWith(
     new Step.Folder[F, E, A, Z] {
-      final def onCont(k: List[E] => F[Step[F, E, A]]): Z = cont(k)
+      final def onCont(k: Vector[E] => F[Step[F, E, A]]): Z = cont(k)
       final def onDone(value: A): Z = done(value)
-      override final def onEarly(value: A, leftover: List[E]): Z = early(value, leftover)
+      override final def onEarly(value: A, leftover: Vector[E]): Z = early(value, leftover)
     }
   )
 
@@ -65,7 +65,7 @@ sealed abstract class Step[F[_], E, A] extends Serializable {
   /**
    * Apply this [[Step]] to an input.
    */
-  def feed(in: List[E])(implicit F: Applicative[F]): F[Step[F, E, A]]
+  def feed(in: Vector[E])(implicit F: Applicative[F]): F[Step[F, E, A]]
 }
 
 /**
@@ -94,9 +94,9 @@ final object Step {
    * @tparam B The type of the result of the fold
    */
   abstract class Folder[F[_], E, A, Z] extends Serializable {
-    def onCont(k: List[E] => F[Step[F, E, A]]): Z
+    def onCont(k: Vector[E] => F[Step[F, E, A]]): Z
     def onDone(value: A): Z
-    def onEarly(value: A, leftover: List[E]): Z = onDone(value)
+    def onEarly(value: A, leftover: Vector[E]): Z = onDone(value)
   }
 
   /**
@@ -104,7 +104,7 @@ final object Step {
    *
    * @group Constructors
    */
-  final def cont[F[_], E, A](k: List[E] => F[Step[F, E, A]]): Step[F, E, A] = new Step[F, E, A] {
+  final def cont[F[_], E, A](k: Vector[E] => F[Step[F, E, A]]): Step[F, E, A] = new Step[F, E, A] {
     private[iteratee] final def unsafeValue: A = diverge[A]
     final def isFinished: Boolean = false
     final def foldWith[B](folder: Folder[F, E, A, B]): B = folder.onCont(k)
@@ -114,7 +114,7 @@ final object Step {
     final def bindF[B](f: A => F[Step[F, E, B]])(implicit F: Monad[F]): F[Step[F, E, B]] = F.pure(
       cont(u => F.flatMap(k(u))(_.bindF(f)))
     )
-    final def feed(in: List[E])(implicit F: Applicative[F]): F[Step[F, E, A]] = k(in)
+    final def feed(in: Vector[E])(implicit F: Applicative[F]): F[Step[F, E, A]] = k(in)
   }
 
   /**
@@ -122,7 +122,7 @@ final object Step {
    *
    * @group Constructors
    */
-  final def pureCont[F[_], E, A](k: List[E] => Step[F, E, A])(implicit
+  final def pureCont[F[_], E, A](k: Vector[E] => Step[F, E, A])(implicit
     F0: Applicative[F]
   ): Step[F, E, A] = new Step[F, E, A] {
     private[iteratee] final def unsafeValue: A = diverge[A]
@@ -134,7 +134,7 @@ final object Step {
     final def bindF[B](f: A => F[Step[F, E, B]])(implicit F: Monad[F]): F[Step[F, E, B]] = F.pure(
       cont(in => k(in).bindF(f))
     )
-    final def feed(in: List[E])(implicit F: Applicative[F]): F[Step[F, E, A]] = F.pure(k(in))
+    final def feed(in: Vector[E])(implicit F: Applicative[F]): F[Step[F, E, A]] = F.pure(k(in))
   }
 
   /**
@@ -148,7 +148,7 @@ final object Step {
     final def foldWith[B](folder: Folder[F, E, A, B]): B = folder.onDone(value)
     final def map[B](f: A => B)(implicit F: Functor[F]): Step[F, E, B] = done(f(value))
     final def bindF[B](f: A => F[Step[F, E, B]])(implicit F: Monad[F]): F[Step[F, E, B]] = f(value)
-    final def feed(in: List[E])(implicit F: Applicative[F]): F[Step[F, E, A]] = F.pure(this)
+    final def feed(in: Vector[E])(implicit F: Applicative[F]): F[Step[F, E, A]] = F.pure(this)
   }
 
   /**
@@ -156,7 +156,7 @@ final object Step {
    *
    * @group Constructors
    */
-  final def early[F[_], E, A](value: A, leftover: List[E]): Step[F, E, A] = new Step[F, E, A] {
+  final def early[F[_], E, A](value: A, leftover: Vector[E]): Step[F, E, A] = new Step[F, E, A] {
     private[iteratee] final def unsafeValue: A = value
     final def isFinished: Boolean = true
     final def foldWith[B](folder: Folder[F, E, A, B]): B = folder.onEarly(value, leftover)
@@ -166,14 +166,14 @@ final object Step {
       F.flatMap(f(value))(
         _.foldWith(
           new Folder[F, E, B, F[Step[F, E, B]]] {
-            final def onCont(k: List[E] => F[Step[F, E, B]]): F[Step[F, E, B]] = k(leftover)
+            final def onCont(k: Vector[E] => F[Step[F, E, B]]): F[Step[F, E, B]] = k(leftover)
             final def onDone(aa: B): F[Step[F, E, B]] = F.pure(early(aa, leftover))
-            override final def onEarly(aa: B, r: List[E]): F[Step[F, E, B]] = F.pure(early(aa, leftover))
+            override final def onEarly(aa: B, r: Vector[E]): F[Step[F, E, B]] = F.pure(early(aa, leftover))
           }
         )
       )
 
-    final def feed(in: List[E])(implicit F: Applicative[F]): F[Step[F, E, A]] = F.pure(this)
+    final def feed(in: Vector[E])(implicit F: Applicative[F]): F[Step[F, E, A]] = F.pure(this)
   }
 
   /**
@@ -191,7 +191,7 @@ final object Step {
   final def joinI[F[_], A, B, C](step: Step[F, A, Step[F, B, C]])(implicit F: Monad[F]): F[Step[F, A, C]] = {
     def check: Step[F, B, C] => F[Step[F, A, C]] = _.foldWith(
       new Folder[F, B, C, F[Step[F, A, C]]] {
-        final def onCont(k: List[B] => F[Step[F, B, C]]): F[Step[F, A, C]] = F.flatMap(k(Nil))(
+        final def onCont(k: Vector[B] => F[Step[F, B, C]]): F[Step[F, A, C]] = F.flatMap(k(Vector.empty))(
           s => if (s.isFinished) check(s) else diverge
         )
         final def onDone(value: C): F[Step[F, A, C]] = F.pure(done(value))
@@ -208,10 +208,9 @@ final object Step {
    * @group Collection
    */
   final def fold[F[_], E, A](init: A)(f: (A, E) => A)(implicit F: Applicative[F]): Step[F, E, A] = {
-    def loop(acc: A)(in: List[E]): Step[F, E, A] = in match {
-      case h :: t => pureCont(loop(t.foldLeft(f(acc, h))(f)))
-      case Nil => early(acc, Nil)
-    }
+    def loop(acc: A)(in: Vector[E]): Step[F, E, A] =
+      if (in.isEmpty) early(acc, Vector.empty) else if (in.size == 1) pureCont(loop(f(acc, in.head))) else
+        pureCont(loop(in.foldLeft(acc)(f)))
 
     pureCont(loop(init))
   }
@@ -223,12 +222,12 @@ final object Step {
    * @group Collection
    */
   final def foldM[F[_], E, A](init: A)(f: (A, E) => F[A])(implicit F: Monad[F]): Step[F, E, A] = {
-    def loop(acc: A)(in: List[E]): F[Step[F, E, A]] = in match {
-      case h :: t => F.map(t.foldLeft(f(acc, h))((fa, e) => F.flatMap(fa)(a => f(a, e))))(a =>
-        cont(loop(a))
-      )
-      case Nil => F.pure(early(acc, Nil))
-    }
+    def loop(acc: A)(in: Vector[E]): F[Step[F, E, A]] =
+      if (in.isEmpty) F.pure(early(acc, Vector.empty)) else
+        F.map(in.tail.foldLeft(f(acc, in.head))((fa, e) => F.flatMap(fa)(a => f(a, e))))(a =>
+          cont(loop(a))
+        )
+
 
     cont(loop(init))
   }
@@ -239,10 +238,8 @@ final object Step {
    * @group Collection
    */
   final def drain[F[_], A](implicit F: Applicative[F]): Step[F, A, Vector[A]] = {
-    def loop(acc: Vector[A])(in: List[A]): Step[F, A, Vector[A]] = in match {
-      case Nil => early(acc, Nil)
-      case els => pureCont(loop(acc ++ els))
-    }
+    def loop(acc: Vector[A])(in: Vector[A]): Step[F, A, Vector[A]] =
+      if (in.isEmpty) early(acc, Vector.empty) else pureCont(loop(acc ++ in))
 
     pureCont(loop(Vector.empty))
   }
@@ -258,10 +255,9 @@ final object Step {
     M: MonoidK[C],
     C: Applicative[C]
   ): Step[F, A, C[A]] = {
-    def loop(acc: C[A])(in: List[A]): Step[F, A, C[A]] = in match {
-      case Nil => early(acc, Nil)
-      case els => pureCont(loop(els.foldLeft(acc)((a, e) => M.combine(a, C.pure(e)))))
-    }
+    def loop(acc: C[A])(in: Vector[A]): Step[F, A, C[A]] =
+      if (in.isEmpty) early(acc, Vector.empty) else
+        pureCont(loop(in.foldLeft(acc)((a, e) => M.combine(a, C.pure(e)))))
 
     pureCont(loop(M.empty))
   }
@@ -272,11 +268,10 @@ final object Step {
    * @group Collection
    */
   final def head[F[_]: Applicative, E]: Step[F, E, Option[E]] =
-    pureCont {
-      case Nil => early(None, Nil)
-      case h :: Nil => done(Some(h))
-      case h :: t => early(Some(h), t)
-    }
+    Step.pureCont(in =>
+      if (in.isEmpty) early(None, Vector.empty) else if (in.size == 1) done(Some(in(0))) else
+        early(Some(in.head), in.tail)
+    )
 
   /**
    * A [[Step]] that returns the first value in a stream without consuming it.
@@ -292,22 +287,23 @@ final object Step {
    * @group Collection
    */
   final def take[F[_]: Applicative, A](n: Int): Step[F, A, Vector[A]] = {
-    def loop(acc: Vector[A], n: Int)(in: List[A]): Step[F, A, Vector[A]] = in match {
-      case Nil => early(acc, Nil)
-      case els =>
-        val comp = els.lengthCompare(n)
+    def loop(acc: Vector[A], n: Int)(in: Vector[A]): Step[F, A, Vector[A]] =
+      if (in.isEmpty) early(acc, Vector.empty) else if (in.size == 1) {
+        if (n == 1) done(acc :+ in.head) else pureCont(loop(acc :+ in.head, n - 1))
+      } else {
+        val comp = in.lengthCompare(n)
 
-        if (comp == 0) done(acc ++ els) else if (comp < 0) {
-          val newAcc = acc ++ els
+        if (comp == 0) done(acc ++ in) else if (comp < 0) {
+          val newAcc = acc ++ in
           val added = newAcc.size - acc.size
 
           pureCont(loop(newAcc, n - added))
         } else {
-          val (taken, left) = els.splitAt(n)
+          val (taken, left) = in.splitAt(n)
 
           early(acc ++ taken, left)
         }
-    }
+      }
 
     if (n <= 0) done[F, A, Vector[A]](Vector.empty) else pureCont(loop(Vector.empty, n))
   }
@@ -319,14 +315,14 @@ final object Step {
    * @group Collection
    */
   final def takeWhile[F[_]: Applicative, A](p: A => Boolean): Step[F, A, Vector[A]] = {
-    def loop(acc: Vector[A])(in: List[A]): Step[F, A, Vector[A]] = in match {
-      case Nil => early(acc, Nil)
-      case h :: Nil => if (p(h)) pureCont(loop(acc :+ h)) else early(acc, in)
-      case els =>
-        val (before, after) = els.span(p)
+    def loop(acc: Vector[A])(in: Vector[A]): Step[F, A, Vector[A]] =
+      if (in.isEmpty) early(acc, Vector.empty) else if (in.size == 1) {
+        if (p(in.head)) pureCont(loop(acc :+ in.head)) else early(acc, in)
+      } else {
+        val (before, after) = in.span(p)
 
         if (after.isEmpty) pureCont(loop(acc ++ before)) else early(acc ++ before, after)
-    }
+      }
 
     pureCont(loop(Vector.empty))
   }
@@ -337,14 +333,13 @@ final object Step {
    * @group Collection
    */
   final def drop[F[_]: Applicative, E](n: Int): Step[F, E, Unit] = {
-    def loop(in: List[E]): Step[F, E, Unit] = in match {
-      case Nil => early((), Nil)
-      case els =>
-        val size = els.size
+    def loop(in: Vector[E]): Step[F, E, Unit] =
+      if (in.isEmpty) early((), Vector.empty) else {
+        val size = in.size
         val comp = n - size
 
-        if (comp == 0) done(()) else if (comp > 0) drop(comp) else early((), els.drop(n))
-    }
+        if (comp == 0) done(()) else if (comp > 0) drop(comp) else early((), in.drop(n))
+      }
 
     if (n <= 0) done(()) else pureCont(loop)
   }
@@ -356,12 +351,12 @@ final object Step {
    * @group Collection
    */
   final def dropWhile[F[_], E](p: E => Boolean)(implicit F: Applicative[F]): Step[F, E, Unit] =
-    pureCont {
-      case Nil => early((), Nil)
-      case els =>
-        val after = els.dropWhile(p)
+    pureCont { in =>
+      if (in.isEmpty) early((), Vector.empty) else {
+        val after = in.dropWhile(p)
 
         if (after.isEmpty) dropWhile(p) else early((), after)
+      }
     }
 
   /**
@@ -371,34 +366,33 @@ final object Step {
    */
   final def zip[F[_], E, A, B](stepA: Step[F, E, A], stepB: Step[F, E, B])
     (implicit F: Monad[F]): F[Step[F, E, (A, B)]] = {
-    type Pair[Z] = (Option[(Z, Option[List[E]])], Step[F, E, Z])
+    type Pair[Z] = (Option[(Z, Option[Vector[E]])], Step[F, E, Z])
 
     def paired[Z](s: Step[F, E, Z]): Step[F, E, Pair[Z]] = Step.done(
       s.foldWith(
         new Step.Folder[F, E, Z, Pair[Z]] {
-          def onCont(k: List[E] => F[Step[F, E, Z]]): Pair[Z] = (None, cont(k))
+          def onCont(k: Vector[E] => F[Step[F, E, Z]]): Pair[Z] = (None, cont(k))
           def onDone(value: Z): Pair[Z] = (Some((value, None)), done(value))
-          override def onEarly(value: Z, leftover: List[E]): Pair[Z] =
+          override def onEarly(value: Z, leftover: Vector[E]): Pair[Z] =
             (Some((value, Some(leftover))), early(value, leftover))
         }
       )
     )
 
-    def shorter(a: Option[List[E]], b: Option[List[E]]): Option[List[E]] =
+    def shorter(a: Option[Vector[E]], b: Option[Vector[E]]): Option[Vector[E]] =
       (a, b) match {
-        case (Some(Nil), _) => Some(Nil)
-        case (_, Some(Nil)) => Some(Nil)
+        case (Some(Vector()), _) => Some(Vector.empty)
+        case (_, Some(Vector())) => Some(Vector.empty)
         case (None, _) => None
         case (_, None) => None
         case (as, bs) => if (as.size < bs.size) as else bs
       }
 
-    def loop(stepA: Step[F, E, A], stepB: Step[F, E, B])(in: List[E]): F[Step[F, E, (A, B)]] =
-      in match {
-        case Nil => F.flatMap(stepA.feed(Nil))(
-          _.bindF(a => F.map(stepB.feed(Nil))(_.map((a, _))))
+    def loop(stepA: Step[F, E, A], stepB: Step[F, E, B])(in: Vector[E]): F[Step[F, E, (A, B)]] =
+      if (in.isEmpty) F.flatMap(stepA.feed(Vector.empty))(
+          _.bindF(a => F.map(stepB.feed(Vector.empty))(_.map((a, _))))
         )
-        case els => F.flatMap(stepA.feed(in))(fsA =>
+      else F.flatMap(stepA.feed(in))(fsA =>
             paired(fsA).bindF {
               case (pairA, nextA) =>
                 F.flatMap(stepB.feed(in))(fsB =>
@@ -419,8 +413,6 @@ final object Step {
                 )
             }
           )
-
-      }
 
     paired(stepA).bindF {
       case (pairA, nextA) =>

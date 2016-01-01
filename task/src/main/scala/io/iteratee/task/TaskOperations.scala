@@ -21,10 +21,10 @@ trait TaskOperations {
   private[this] final class LineEnumerator(reader: BufferedReader) extends Enumerator[Task, String] {
     final def apply[A](s: Step[Task, String, A]): Task[Step[Task, String, A]] = s.foldWith(
       new MapContStepFolder[Task, String, A](s) {
-        def onCont(k: List[String] => Task[Step[Task, String, A]]): Task[Step[Task, String, A]] = {
+        def onCont(k: Vector[String] => Task[Step[Task, String, A]]): Task[Step[Task, String, A]] = {
           Task(reader.readLine()).flatMap {
             case null => Task.taskInstance.point(s)
-            case line => k(List(line)).flatMap(apply)
+            case line => k(Vector(line)).flatMap(apply)
           }
         }
       }

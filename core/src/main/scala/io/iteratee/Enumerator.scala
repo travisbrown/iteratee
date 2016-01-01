@@ -26,7 +26,7 @@ abstract class Enumerator[F[_], E] extends Serializable { self =>
       def apply[A](s: Step[F, E, A]): F[Step[F, E, A]] = F.flatMap(
         s.foldWith(
           new Step.Folder[F, E, A, F[Step[F, E, A]]] {
-            def onCont(k: List[E] => F[Step[F, E, A]]): F[Step[F, E, A]] = k(List(e))
+            def onCont(k: Vector[E] => F[Step[F, E, A]]): F[Step[F, E, A]] = k(Vector(e))
             def onDone(value: A): F[Step[F, E, A]] = F.pure(s)
           }
         )
@@ -94,16 +94,16 @@ abstract class Enumerator[F[_], E] extends Serializable { self =>
       final def apply[A](step: Step[F, B, A]): F[Step[F, B, A]] = {
         def check(s: Step[F, E, B]): F[Step[F, B, A]] = s.foldWith(
           new Step.Folder[F, E, B, F[Step[F, B, A]]] {
-            def onCont(k: List[E] => F[Step[F, E, B]]): F[Step[F, B, A]] =
-              F.flatMap(k(Nil)) { s =>
+            def onCont(k: Vector[E] => F[Step[F, E, B]]): F[Step[F, B, A]] =
+              F.flatMap(k(Vector.empty)) { s =>
                 s.foldWith(
                   new Step.Folder[F, E, B, F[Step[F, B, A]]] {
-                    def onCont(k: List[E] => F[Step[F, E, B]]): F[Step[F, B, A]] = diverge
+                    def onCont(k: Vector[E] => F[Step[F, E, B]]): F[Step[F, B, A]] = diverge
                     def onDone(value: B): F[Step[F, B, A]] = check(s)
                   }
                 )
               }
-            def onDone(value: B): F[Step[F, B, A]] = step.feed(List(value))
+            def onDone(value: B): F[Step[F, B, A]] = step.feed(Vector(value))
           }
         )
 
@@ -124,7 +124,7 @@ final object Enumerator extends EnumeratorInstances {
   final def liftM[F[_], E](fa: F[E])(implicit F: Monad[F]): Enumerator[F, E] =
     new Enumerator[F, E] {
       final def apply[A](s: Step[F, E, A]): F[Step[F, E, A]] =
-        F.flatMap(fa)(e => s.feed(List(e)))
+        F.flatMap(fa)(e => s.feed(Vector(e)))
     }
 
   /**
@@ -146,7 +146,7 @@ final object Enumerator extends EnumeratorInstances {
    */
   final def enumEnd[F[_]: Applicative, E]: Enumerator[F, E] =
     new Enumerator[F, E] {
-      final def apply[A](s: Step[F, E, A]): F[Step[F, E, A]] = s.feed(Nil)
+      final def apply[A](s: Step[F, E, A]): F[Step[F, E, A]] = s.feed(Vector.empty)
     }
 
   /**
@@ -161,7 +161,7 @@ final object Enumerator extends EnumeratorInstances {
    * An enumerator that produces a single value.
    */
   final def enumOne[F[_]: Applicative, E](e: E): Enumerator[F, E] = new Enumerator[F, E] {
-    final def apply[A](s: Step[F, E, A]): F[Step[F, E, A]] = s.feed(List(e))
+    final def apply[A](s: Step[F, E, A]): F[Step[F, E, A]] = s.feed(Vector(e))
   }
 
   private[this] abstract class ChunkedIteratorEnumerator[F[_], E](implicit F: Monad[F])
@@ -171,10 +171,10 @@ final object Enumerator extends EnumeratorInstances {
     private[this] final def go[A](it: Iterator[Vector[E]], s: Step[F, E, A]): F[Step[F, E, A]] =
       if (it.isEmpty) F.pure(s) else s.foldWith(
         new MapContStepFolder[F, E, A](s) {
-          def onCont(k: List[E] => F[Step[F, E, A]]): F[Step[F, E, A]] = {
+          def onCont(k: Vector[E] => F[Step[F, E, A]]): F[Step[F, E, A]] = {
             val next = it.next()
 
-            F.flatMap(k(next.toList))(go(it, _))
+            F.flatMap(k(next))(go(it, _))
           }
         }
       )
@@ -196,7 +196,7 @@ final object Enumerator extends EnumeratorInstances {
   final def enumList[F[_], E](xs: List[E])(implicit F: Applicative[F]): Enumerator[F, E] =
     new Enumerator[F, E] {
       final def apply[A](s: Step[F, E, A]): F[Step[F, E, A]] =
-        if (xs.isEmpty) F.pure(s) else s.feed(xs)
+        if (xs.isEmpty) F.pure(s) else s.feed(xs.toVector)
     }
 
   /**
@@ -205,7 +205,7 @@ final object Enumerator extends EnumeratorInstances {
   final def enumVector[F[_], E](xs: Vector[E])(implicit F: Applicative[F]): Enumerator[F, E] =
     new Enumerator[F, E] {
       final def apply[A](s: Step[F, E, A]): F[Step[F, E, A]] =
-        if (xs.isEmpty) F.pure(s) else s.feed(xs.toList)
+        if (xs.isEmpty) F.pure(s) else s.feed(xs)
     }
 
   /**
@@ -219,7 +219,7 @@ final object Enumerator extends EnumeratorInstances {
     private[this] final val limit = math.min(xs.length, max)
 
     private[this] final def loop[A](pos: Int)(s: Step[F, E, A]): F[Step[F, E, A]] =
-      if (limit > pos) F.flatMap(s.feed(List(xs(pos))))(loop(pos + 1)) else F.pure(s)
+      if (limit > pos) F.flatMap(s.feed(Vector(xs(pos))))(loop(pos + 1)) else F.pure(s)
 
     final def apply[A](step: Step[F, E, A]): F[Step[F, E, A]] = loop(math.max(min, 0))(step)
   }
@@ -230,8 +230,8 @@ final object Enumerator extends EnumeratorInstances {
   final def repeat[F[_], E](e: E)(implicit F: Monad[F]): Enumerator[F, E] = new Enumerator[F, E] {
     final def apply[A](s: Step[F, E, A]): F[Step[F, E, A]] = s.foldWith(
       new MapContStepFolder[F, E, A](s) {
-        final def onCont(k: List[E] => F[Step[F, E, A]]): F[Step[F, E, A]] =
-          F.flatMap(k(List(e)))(apply[A])
+        final def onCont(k: Vector[E] => F[Step[F, E, A]]): F[Step[F, E, A]] =
+          F.flatMap(k(Vector(e)))(apply[A])
       }
     )
   }
@@ -244,8 +244,8 @@ final object Enumerator extends EnumeratorInstances {
     new Enumerator[F, E] {
       private[this] def loop[A](s: Step[F, E, A], last: E): F[Step[F, E, A]] = s.foldWith(
         new MapContStepFolder[F, E, A](s) {
-          final def onCont(k: List[E] => F[Step[F, E, A]]): F[Step[F, E, A]] =
-            F.flatMap(k(List(last)))(step => loop(step, f(last)))
+          final def onCont(k: Vector[E] => F[Step[F, E, A]]): F[Step[F, E, A]] =
+            F.flatMap(k(Vector(last)))(step => loop(step, f(last)))
         }
       )
 
@@ -260,8 +260,8 @@ final object Enumerator extends EnumeratorInstances {
     new Enumerator[F, E] {
       private[this] def loop[A](s: Step[F, E, A], last: E): F[Step[F, E, A]] = s.foldWith(
         new MapContStepFolder[F, E, A](s) {
-          final def onCont(k: List[E] => F[Step[F, E, A]]): F[Step[F, E, A]] =
-            F.flatMap(k(List(last)))(next => F.flatMap(f(last))(loop(next, _)))
+          final def onCont(k: Vector[E] => F[Step[F, E, A]]): F[Step[F, E, A]] =
+            F.flatMap(k(Vector(last)))(next => F.flatMap(f(last))(loop(next, _)))
         }
       )
 
