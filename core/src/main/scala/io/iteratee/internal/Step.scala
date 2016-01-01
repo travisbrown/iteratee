@@ -59,7 +59,7 @@ sealed abstract class Step[F[_], E, A] extends Serializable {
   def bindF[B](f: A => F[Step[F, E, B]])(implicit F: Monad[F]): F[Step[F, E, B]]
 
   /**
-   * Apply this [[Step]] to an [[Input]].
+   * Apply this [[Step]] to an input.
    */
   def feed(in: List[E])(implicit F: Applicative[F]): F[Step[F, E, A]]
 }

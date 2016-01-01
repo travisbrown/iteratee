@@ -3,7 +3,7 @@ package io.iteratee
 import algebra.Monoid
 import cats.{ Applicative, Comonad, FlatMap, Functor, Id, Monad, MonadError, MonoidK, Show }
 import cats.arrow.NaturalTransformation
-import io.iteratee.internal.{ Input, Step }
+import io.iteratee.internal.Step
 
 /**
  * An iteratee processes a stream of elements of type `E` and returns a value of
@@ -21,7 +21,7 @@ sealed class Iteratee[F[_], E, A] private[iteratee] (final val state: F[Step[F, 
    * value.
    *
    * @note A well-behaved iteratee will always be in the completed state after
-   *       processing an [[io.iteratee.internal.Input.end]] value.
+   *       processing an end-of-input signal.
    */
   final def run(implicit F: Monad[F]): F[A] = runWith(Enumerator.enumEnd)
 

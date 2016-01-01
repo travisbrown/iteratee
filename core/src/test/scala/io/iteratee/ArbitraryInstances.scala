@@ -2,23 +2,12 @@ package io.iteratee
 
 import cats.Monad
 import cats.data.Xor
-import io.iteratee.internal.Input
 import org.scalacheck.{ Arbitrary, Gen }
 
 trait ArbitraryInstances {
   implicit def arbitraryXor[A, B](implicit A: Arbitrary[A], B: Arbitrary[B]): Arbitrary[Xor[A, B]] =
     Arbitrary(
       Arbitrary.arbitrary[Either[A, B]].map(Xor.fromEither)
-    )
-
-  implicit def arbitraryInput[A](implicit A: Arbitrary[A]): Arbitrary[Input[A]] =
-    Arbitrary(
-      Gen.oneOf(
-        Gen.const(Input.empty[A]),
-        A.arbitrary.map(Input.el),
-        Arbitrary.arbitrary[Vector[A]].map(Input.chunk),
-        Gen.const(Input.end[A])
-      )
     )
 
   implicit def arbitraryEnumerator[F[_]: Monad, A](implicit

@@ -13,7 +13,7 @@ package object internal {
    * Fail because of a divergent iteratee
    *
    * It is possible to construct an [[Iteratee]] (manually) that does not enter
-   * the completed state after receiving an [[Input.end]]. We call these
+   * the completed state after receiving an end-of-input signal. We call these
    * iteratees "divergent", and operations on these iteratees may fail with the
    * following error.
    *
