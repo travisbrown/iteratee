@@ -44,7 +44,7 @@ final object Enumeratee extends EnumerateeInstances {
     new Folding[F, O, I] {
       protected final def stepWith[A](k: List[I] => F[Step[F, I, A]]): List[O] => OuterF[A] =
         _ match {
-          case Nil => F.pure(Step.done(Step.cont(k), Nil))
+          case Nil => F.pure(Step.early(Step.cont(k), Nil))
           case els => F.flatMap(k(els.map(f)))(doneOrLoop)
         }
     }
@@ -69,7 +69,7 @@ final object Enumeratee extends EnumerateeInstances {
                 }
               }
             )
-            final def onDone(value: A): OuterF[A] = toOuterF(Step.done(value, Nil))
+            final def onDone(value: A): OuterF[A] = toOuterF(Step.early(value, Nil))
           }
         )
 
@@ -84,7 +84,7 @@ final object Enumeratee extends EnumerateeInstances {
     new Folding[F, O, I] {
       protected final def stepWith[A](k: List[I] => F[Step[F, I, A]]): List[O] => OuterF[A] =
         _ match {
-          case Nil => F.pure(Step.done(Step.cont(k), Nil))
+          case Nil => F.pure(Step.early(Step.cont(k), Nil))
           case els =>
             els.collect(pf) match {
               case Nil => F.pure(Step.cont(stepWith(k)))
@@ -102,7 +102,7 @@ final object Enumeratee extends EnumerateeInstances {
     new Folding[F, E, E] {
       protected final def stepWith[A](k: List[E] => F[Step[F, E, A]]): List[E] => OuterF[A] =
         _ match {
-          case Nil => F.pure(Step.done(Step.cont(k), Nil))
+          case Nil => F.pure(Step.early(Step.cont(k), Nil))
           case els =>
             els.filter(p) match {
               case Nil => F.pure(Step.cont(stepWith(k)))
@@ -117,8 +117,8 @@ final object Enumeratee extends EnumerateeInstances {
   final def sequenceI[F[_], O, I](iteratee: Iteratee[F, O, I])(implicit F: Monad[F]): Enumeratee[F, O, I] =
     new Looping[F, O, I] {
       protected final def loop[A](k: List[I] => F[Step[F, I, A]]): OuterF[A] =
-        Step.cont[F, O, Boolean](in => F.pure(Step.done(in.isEmpty, in))).bindF { isEnd =>
-          if (isEnd) F.pure[OuterS[A]](Step.done(Step.cont(k), Nil)) else stepWith(k)
+        Step.cont[F, O, Boolean](in => F.pure(Step.early(in.isEmpty, in))).bindF { isEnd =>
+          if (isEnd) F.pure[OuterS[A]](Step.early(Step.cont(k), Nil)) else stepWith(k)
         }
 
       private[this] final def stepWith[A](k: List[I] => F[Step[F, I, A]]): OuterF[A] =
@@ -181,7 +181,7 @@ final object Enumeratee extends EnumerateeInstances {
 
       final def stepWith[A](k: StepEl[A], i: Long): (List[E] => OuterF[A]) =
         _ match {
-          case Nil => F.pure(Step.done(Step.cont(k), Nil))
+          case Nil => F.pure(Step.early(Step.cont(k), Nil))
           case h :: Nil => F.flatMap(k(List((h, i))))(doneOrLoop(i + 1)(_))
           case els => F.flatMap(
             k(els.zipWithIndex.map(p => (p._1, p._2 + i)))
@@ -218,7 +218,7 @@ final object Enumeratee extends EnumerateeInstances {
               val nextStep = F.flatMap(pairingIteratee)(e2.runStep)
               F.flatMap(nextStep)(outerLoop)
 
-            case None => F.pure(Step.done(step, Nil))
+            case None => F.pure(Step.early(step, Nil))
           }
         )
 
