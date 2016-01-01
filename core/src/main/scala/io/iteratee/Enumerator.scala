@@ -174,7 +174,11 @@ final object Enumerator extends EnumeratorInstances {
           def onCont(k: Input[E] => F[Step[F, E, A]]): F[Step[F, E, A]] = {
             val next = it.next()
 
-            F.flatMap(k(Input.chunk(next)))(go(it, _))
+            F.flatMap(
+              k(
+                if (next.size == 1) Input.el(next(0)) else Input.chunk(next(0), next(1), next.drop(2))
+              )
+            )(go(it, _))
           }
         }
       )
@@ -195,8 +199,11 @@ final object Enumerator extends EnumeratorInstances {
    */
   final def enumList[F[_], E](xs: List[E])(implicit F: Applicative[F]): Enumerator[F, E] =
     new Enumerator[F, E] {
-      final def apply[A](s: Step[F, E, A]): F[Step[F, E, A]] =
-        if (xs.isEmpty) F.pure(s) else s.feed(Input.chunk(xs.toVector))
+      final def apply[A](s: Step[F, E, A]): F[Step[F, E, A]] = xs match {
+        case Nil => F.pure(s)
+        case h :: Nil => s.feed(Input.el(h))
+        case h1 :: h2 :: t => s.feed(Input.chunk(h1, h2, t.toVector))
+      }
     }
 
   /**
@@ -205,7 +212,9 @@ final object Enumerator extends EnumeratorInstances {
   final def enumVector[F[_], E](xs: Vector[E])(implicit F: Applicative[F]): Enumerator[F, E] =
     new Enumerator[F, E] {
       final def apply[A](s: Step[F, E, A]): F[Step[F, E, A]] =
-        if (xs.isEmpty) F.pure(s) else s.feed(Input.chunk(xs))
+        if (xs.isEmpty) F.pure(s) else s.feed(
+          if (xs.size == 1) Input.el(xs(0)) else Input.chunk(xs(0), xs(1), xs.drop(2))
+        )
     }
 
   /**

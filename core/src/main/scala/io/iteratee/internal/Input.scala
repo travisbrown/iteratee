@@ -19,7 +19,7 @@ sealed abstract class Input[@specialized E] extends Serializable {
     new Input.Folder[E, Z] {
       final def onEnd: Z = end
       final def onEl(e: E): Z = values(Vector(e))
-      final def onChunk(es: Vector[E]): Z = values(es)
+      final def onChunk(h1: E, h2: E, es: Vector[E]): Z = values(h1 +: h2 +: es)
     }
   )
 
@@ -38,21 +38,6 @@ sealed abstract class Input[@specialized E] extends Serializable {
    * Map a function over all values (if any) in this input.
    */
   def map[B](f: E => B): Input[B]
-
-  /**
-   * Map a function that returns an input over all values (if any) in this
-   * input and flatten the result.
-   */
-  def flatMap[B](f: E => Input[B]): Input[B]
-
-  /**
-   * Normalize the [[Input]] so that representations do not overlap.
-   *
-   * If this [[Input]] is a chunk with no values, an empty input will be
-   * returned, and if it's a chunk with a single value, and element input will
-   * be returned.
-   */
-  private[iteratee] def normalize: Input[E]
 
   /**
    * Convert this [[Input]] value into a sequence of elements.
@@ -74,7 +59,7 @@ final object Input extends InputInstances {
   abstract class Folder[@specialized E, Z] extends Serializable {
     def onEnd: Z
     def onEl(e: E): Z
-    def onChunk(es: Vector[E]): Z
+    def onChunk(h1: E, h2: E, es: Vector[E]): Z
   }
 
   /**
@@ -89,31 +74,21 @@ final object Input extends InputInstances {
     final def foldWith[Z](folder: Folder[E, Z]): Z = folder.onEl(e)
     final def isEnd: Boolean = false
     final def map[B](f: E => B): Input[B] = Input.el(f(e))
-    final def flatMap[B](f: E => Input[B]): Input[B] = f(e)
-    private[iteratee] final def normalize: Input[E] = this
     private[iteratee] final def toVector: Vector[E] = Vector(e)
   }
 
   /**
    * An input value containing zero or more elements.
    */
-  final def chunk[E](es: Vector[E]): Input[E] = new Input[E] {
-    final def foldWith[Z](folder: Folder[E, Z]): Z = folder.onChunk(es)
+  final def chunk[E](h1: E, h2: E, es: Vector[E]): Input[E] = new Input[E] {
+    final private[this] val e1: E = h1
+    final private[this] val e2: E = h2
+    final private[this] val rest: Vector[E] = es
+
+    final def foldWith[Z](folder: Folder[E, Z]): Z = folder.onChunk(e1, e2, rest)
     final def isEnd: Boolean = false
-    final def map[B](f: E => B): Input[B] = chunk(es.map(f(_)))
-    final def flatMap[B](f: E => Input[B]): Input[B] = es.tail.foldLeft(f(es.head)) {
-      case (acc, _) if acc.isEnd => end
-      case (acc, e) =>
-        val ei = f(e)
-        if (ei.isEnd) end else chunk(acc.toVector ++ ei.toVector)
-    }
-
-    private[iteratee] final def normalize: Input[E] = {
-      val c = es.lengthCompare(1)
-      if (c == 0) el(es.head) else this
-    }
-
-    private[iteratee] final def toVector: Vector[E] = es
+    final def map[B](f: E => B): Input[B] = chunk(f(e1), f(e2), rest.map(f(_)))
+    private[iteratee] final def toVector: Vector[E] = h1 +: h2 +: rest
   }
 
   /**
@@ -125,8 +100,6 @@ final object Input extends InputInstances {
     final val isEnd: Boolean = true
     final val isEmpty: Boolean = false
     final def map[B](f: Nothing => B): Input[B] = this.asInstanceOf[Input[B]]
-    final def flatMap[B](f: Nothing => Input[B]): Input[B] = this.asInstanceOf[Input[B]]
-    private[iteratee] final val normalize: Input[Nothing] = this
     private[iteratee] final val toVector: Vector[Nothing] = Vector.empty
   }
 }

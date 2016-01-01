@@ -16,9 +16,10 @@ trait ArbitraryInstances {
       Gen.oneOf(
         A.arbitrary.map(Input.el),
         for {
-          a <- A.arbitrary
+          a1 <- A.arbitrary
+          a2 <- A.arbitrary
           as <- Arbitrary.arbitrary[Vector[A]]
-        } yield Input.chunk(a +: as),
+        } yield Input.chunk(a1, a1, as),
         Gen.const(Input.end[A])
       )
     )
