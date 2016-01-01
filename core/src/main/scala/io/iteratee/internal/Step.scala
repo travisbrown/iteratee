@@ -28,10 +28,11 @@ sealed abstract class Step[F[_], E, A] extends Serializable {
   /**
    * Reduce this [[Step]] to a value using the given pair of functions.
    */
-  final def fold[Z](cont: (Input[E] => F[Step[F, E, A]]) => Z, done: (A, Input[E]) => Z): Z = foldWith(
+  final def fold[Z](cont: (Input[E] => F[Step[F, E, A]]) => Z, done: A => Z, early: (A, Input[E]) => Z): Z = foldWith(
     new Step.Folder[F, E, A, Z] {
       final def onCont(k: Input[E] => F[Step[F, E, A]]): Z = cont(k)
-      final def onDone(value: A, remainder: Input[E]): Z = done(value, remainder)
+      final def onDone(value: A): Z = done(value)
+      override final def onEarly(value: A, remainder: Input[E]): Z = early(value, remainder)
     }
   )
 
@@ -90,7 +91,8 @@ final object Step {
    */
   abstract class Folder[F[_], E, A, Z] extends Serializable {
     def onCont(k: Input[E] => F[Step[F, E, A]]): Z
-    def onDone(value: A, remainder: Input[E]): Z
+    def onDone(value: A): Z
+    def onEarly(value: A, remainder: Input[E]): Z = onDone(value)
   }
 
   /**
@@ -136,18 +138,33 @@ final object Step {
    *
    * @group Constructors
    */
-  final def done[F[_], E, A](value: A, remaining: Input[E]): Step[F, E, A] = new Step[F, E, A] {
+  final def done[F[_], E, A](value: A): Step[F, E, A] = new Step[F, E, A] {
     private[iteratee] final def unsafeValue: A = value
     final def isDone: Boolean = true
-    final def foldWith[B](folder: Folder[F, E, A, B]): B = folder.onDone(value, remaining)
-    final def map[B](f: A => B)(implicit F: Functor[F]): Step[F, E, B] = done(f(value), remaining)
+    final def foldWith[B](folder: Folder[F, E, A, B]): B = folder.onDone(value)
+    final def map[B](f: A => B)(implicit F: Functor[F]): Step[F, E, B] = done(f(value))
+    final def bindF[B](f: A => F[Step[F, E, B]])(implicit F: Monad[F]): F[Step[F, E, B]] = f(value)
+    final def feed(in: Input[E])(implicit F: Applicative[F]): F[Step[F, E, A]] = F.pure(this)
+  }
+
+  /**
+   * Create a new completed state with the given result and leftover input.
+   *
+   * @group Constructors
+   */
+  final def early[F[_], E, A](value: A, remaining: Input[E]): Step[F, E, A] = new Step[F, E, A] {
+    private[iteratee] final def unsafeValue: A = value
+    final def isDone: Boolean = true
+    final def foldWith[B](folder: Folder[F, E, A, B]): B = folder.onEarly(value, remaining)
+    final def map[B](f: A => B)(implicit F: Functor[F]): Step[F, E, B] = early(f(value), remaining)
 
     final def bindF[B](f: A => F[Step[F, E, B]])(implicit F: Monad[F]): F[Step[F, E, B]] =
-      if (remaining.isEmpty) f(value) else F.flatMap(f(value))(
+      F.flatMap(f(value))(
         _.foldWith(
           new Folder[F, E, B, F[Step[F, E, B]]] {
             final def onCont(k: Input[E] => F[Step[F, E, B]]): F[Step[F, E, B]] = k(remaining)
-            final def onDone(aa: B, r: Input[E]): F[Step[F, E, B]] = F.pure(done(aa, remaining))
+            final def onDone(aa: B): F[Step[F, E, B]] = F.pure(early(aa, remaining))
+            override final def onEarly(aa: B, r: Input[E]): F[Step[F, E, B]] = F.pure(early(aa, remaining))
           }
         )
       )
@@ -160,7 +177,7 @@ final object Step {
    *
    * @group Utilities
    */
-  final def liftM[F[_], E, A](fa: F[A])(implicit F: Monad[F]): F[Step[F, E, A]] = F.map(fa)(a => done(a, Input.empty))
+  final def liftM[F[_], E, A](fa: F[A])(implicit F: Monad[F]): F[Step[F, E, A]] = F.map(fa)(a => done(a))
 
   /**
    * Collapse a nested [[Step]] into one layer.
@@ -173,8 +190,8 @@ final object Step {
         final def onCont(k: Input[B] => F[Step[F, B, C]]): F[Step[F, A, C]] = F.flatMap(k(Input.end))(
           s => if (s.isDone) check(s) else diverge
         )
-        final def onDone(value: C, remainder: Input[B]): F[Step[F, A, C]] =
-          F.pure(Step.done(value, Input.empty))
+        final def onDone(value: C): F[Step[F, A, C]] =
+          F.pure(Step.done(value))
       }
     )
 
@@ -190,10 +207,9 @@ final object Step {
   final def fold[F[_]: Applicative, E, A](init: A)(f: (A, E) => A): Step[F, E, A] = {
     def step(acc: A)(in: Input[E]): Step[F, E, A] = in.foldWith(
       new Input.Folder[E, Step[F, E, A]] {
-        final def onEmpty: Step[F, E, A] = Step.pureCont(step(acc))
         final def onEl(e: E): Step[F, E, A] = Step.pureCont(step(f(acc, e)))
         final def onChunk(es: Vector[E]): Step[F, E, A] = Step.pureCont(step(es.foldLeft(acc)(f)))
-        final def onEnd: Step[F, E, A] = Step.done(acc, Input.end)
+        final def onEnd: Step[F, E, A] = Step.early(acc, Input.end)
       }
     )
 
@@ -209,13 +225,12 @@ final object Step {
   final def foldM[F[_], E, A](init: A)(f: (A, E) => F[A])(implicit F: Monad[F]): Step[F, E, A] = {
     def step(acc: A)(in: Input[E]): F[Step[F, E, A]] = in.foldWith(
       new Input.Folder[E, F[Step[F, E, A]]] {
-        final def onEmpty: F[Step[F, E, A]] = F.pure(Step.cont(step(acc)))
         final def onEl(e: E): F[Step[F, E, A]] = F.map(f(acc, e))(a => Step.cont(step(a)))
         final def onChunk(es: Vector[E]): F[Step[F, E, A]] =
           F.map(es.foldLeft(F.pure(acc))((fa, e) => F.flatMap(fa)(a => f(a, e))))(a =>
             Step.cont(step(a))
           )
-        final def onEnd: F[Step[F, E, A]] = F.pure(Step.done(acc, Input.end))
+        final def onEnd: F[Step[F, E, A]] = F.pure(Step.early(acc, Input.end))
       }
     )
 
@@ -230,10 +245,9 @@ final object Step {
   final def drain[F[_], A](implicit F: Applicative[F]): Step[F, A, Vector[A]] = {
     def loop(acc: Vector[A])(in: Input[A]): Step[F, A, Vector[A]] = in.foldWith(
       new Input.Folder[A, Step[F, A, Vector[A]]] {
-        final def onEmpty: Step[F, A, Vector[A]] = Step.pureCont(a => loop(acc)(a))
         final def onEl(e: A): Step[F, A, Vector[A]] = Step.pureCont(a => loop(acc :+ e)(a))
         final def onChunk(es: Vector[A]): Step[F, A, Vector[A]] = Step.pureCont(a => loop(acc ++ es)(a))
-        final def onEnd: Step[F, A, Vector[A]] = Step.done(acc, in)
+        final def onEnd: Step[F, A, Vector[A]] = Step.early(acc, in)
       }
     )
 
@@ -253,12 +267,11 @@ final object Step {
   ): Step[F, A, C[A]] = {
     def loop(acc: C[A])(in: Input[A]): Step[F, A, C[A]] = in.foldWith(
       new Input.Folder[A, Step[F, A, C[A]]] {
-        final def onEmpty: Step[F, A, C[A]] = Step.pureCont(loop(acc))
         final def onEl(e: A): Step[F, A, C[A]] = Step.pureCont(loop(M.combine(acc, C.pure(e))))
         final def onChunk(es: Vector[A]): Step[F, A, C[A]] = Step.pureCont(
           loop(es.foldLeft(acc)((a, e) => M.combine(a, C.pure(e))))
         )
-        final def onEnd: Step[F, A, C[A]] = Step.done(acc, in)
+        final def onEnd: Step[F, A, C[A]] = Step.early(acc, in)
       }
     )
 
@@ -271,13 +284,11 @@ final object Step {
    * @group Collection
    */
   final def head[F[_]: Applicative, E]: Step[F, E, Option[E]] = {
-    def loop(in: Input[E]): Step[F, E, Option[E]] = in.foldWith(
+    def loop(in: Input[E]): Step[F, E, Option[E]] = in.normalize.foldWith(
       new Input.Folder[E, Step[F, E, Option[E]]] {
-        final def onEmpty: Step[F, E, Option[E]] = Step.pureCont(loop)
-        final def onEl(e: E): Step[F, E, Option[E]] = Step.done(Some(e), Input.empty)
-        final def onChunk(es: Vector[E]): Step[F, E, Option[E]] =
-          if (es.isEmpty) onEmpty else Step.done(Some(es.head), Input.chunk(es.tail))
-        final def onEnd: Step[F, E, Option[E]] = Step.done(None, in)
+        final def onEl(e: E): Step[F, E, Option[E]] = Step.done(Some(e))
+        final def onChunk(es: Vector[E]): Step[F, E, Option[E]] = Step.early(Some(es.head), Input.chunk(es.tail))
+        final def onEnd: Step[F, E, Option[E]] = Step.early(None, in)
       }
     )
 
@@ -292,11 +303,9 @@ final object Step {
   final def peek[F[_]: Applicative, E]: Step[F, E, Option[E]] = {
     def loop(in: Input[E]): Step[F, E, Option[E]] = in.foldWith(
       new Input.Folder[E, Step[F, E, Option[E]]] {
-        final def onEmpty: Step[F, E, Option[E]] = Step.pureCont(loop)
-        final def onEl(e: E): Step[F, E, Option[E]] = Step.done(Some(e), in)
-        final def onChunk(es: Vector[E]): Step[F, E, Option[E]] =
-          if (es.isEmpty) onEmpty else Step.done(Some(es.head), in)
-        final def onEnd: Step[F, E, Option[E]] = Step.done(None, in)
+        final def onEl(e: E): Step[F, E, Option[E]] = Step.early(Some(e), in)
+        final def onChunk(es: Vector[E]): Step[F, E, Option[E]] = Step.early(Some(es.head), in)
+        final def onEnd: Step[F, E, Option[E]] = Step.early(None, in)
       }
     )
 
@@ -311,26 +320,25 @@ final object Step {
   final def take[F[_]: Applicative, A](n: Int): Step[F, A, Vector[A]] = {
     def loop(acc: Vector[A], n: Int)(in: Input[A]): Step[F, A, Vector[A]] = in.foldWith(
       new Input.Folder[A, Step[F, A, Vector[A]]] {
-        final def onEmpty: Step[F, A, Vector[A]] = Step.pureCont(loop(acc, n))
         final def onEl(e: A): Step[F, A, Vector[A]] =
-          if (n == 1) Step.done(acc :+ e, Input.empty) else Step.pureCont(loop(acc :+ e, n - 1))
+          if (n == 1) Step.done(acc :+ e) else Step.pureCont(loop(acc :+ e, n - 1))
         final def onChunk(es: Vector[A]): Step[F, A, Vector[A]] = {
           val diff = n - es.size
 
           if (diff > 0) Step.pureCont(loop(acc ++ es, diff)) else {
-            if (diff == 0) Step.done(acc ++ es, Input.empty) else {
+            if (diff == 0) Step.done(acc ++ es) else {
               val (taken, left) = es.splitAt(n)
 
-              Step.done(acc ++ taken, Input.chunk(left))
+              Step.early(acc ++ taken, Input.chunk(left))
             }
           }
         }
-        final def onEnd: Step[F, A, Vector[A]] = Step.done(acc, in)
+        final def onEnd: Step[F, A, Vector[A]] = Step.early(acc, in)
       }
     )
 
     if (n <= 0) {
-      Step.done[F, A, Vector[A]](Vector.empty, Input.empty)
+      Step.done[F, A, Vector[A]](Vector.empty)
     } else {
       Step.pureCont(loop(Vector.empty, n))
     }
@@ -345,9 +353,8 @@ final object Step {
   final def takeWhile[F[_]: Applicative, A](p: A => Boolean): Step[F, A, Vector[A]] = {
     def loop(acc: Vector[A])(in: Input[A]): Step[F, A, Vector[A]] = in.foldWith(
       new Input.Folder[A, Step[F, A, Vector[A]]] {
-        final def onEmpty: Step[F, A, Vector[A]] = Step.pureCont(loop(acc))
         final def onEl(e: A): Step[F, A, Vector[A]] =
-          if (p(e)) Step.pureCont(loop(acc :+ e)) else Step.done(acc, in)
+          if (p(e)) Step.pureCont(loop(acc :+ e)) else Step.early(acc, in)
 
         final def onChunk(es: Vector[A]): Step[F, A, Vector[A]] = {
           val (before, after) = es.span(p)
@@ -355,10 +362,10 @@ final object Step {
           if (after.isEmpty) {
             Step.pureCont(loop(acc ++ before))
           } else {
-            Step.done(acc ++ before, Input.chunk(after))
+            Step.early(acc ++ before, Input.chunk(after))
           }
         }
-        final def onEnd: Step[F, A, Vector[A]] = Step.done(acc, in)
+        final def onEnd: Step[F, A, Vector[A]] = Step.early(acc, in)
       }
     )
 
@@ -373,18 +380,17 @@ final object Step {
   final def drop[F[_]: Applicative, E](n: Int): Step[F, E, Unit] = {
     def loop(in: Input[E]): Step[F, E, Unit] = in.foldWith(
       new Input.Folder[E, Step[F, E, Unit]] {
-        final def onEmpty: Step[F, E, Unit] = Step.pureCont(loop)
         final def onEl(e: E): Step[F, E, Unit] = drop(n - 1)
         final def onChunk(es: Vector[E]): Step[F, E, Unit] = {
           val len = es.size
 
-          if (len <= n) drop(n - len) else Step.done((), Input.chunk(es.drop(n)))
+          if (len <= n) drop(n - len) else Step.early((), Input.chunk(es.drop(n)))
         }
-        final def onEnd: Step[F, E, Unit] = Step.done((), in)
+        final def onEnd: Step[F, E, Unit] = Step.early((), in)
       }
     )
 
-    if (n <= 0) Step.done((), Input.empty) else Step.pureCont(loop)
+    if (n <= 0) Step.done(()) else Step.pureCont(loop)
   }
 
   /**
@@ -393,15 +399,18 @@ final object Step {
    *
    * @group Collection
    */
-  final def dropWhile[F[_], E](p: E => Boolean)(implicit F: Applicative[F]): Step[F, E, Unit] =
-    new StepUnitInputFolder[F, E] {
-      final def onEl(e: E): Step[F, E, Unit] = if (p(e)) dropWhile(p) else Step.done((), Input.el(e))
+  final def dropWhile[F[_], E](p: E => Boolean)(implicit F: Applicative[F]): Step[F, E, Unit] = {
+    val suif = new StepUnitInputFolder[F, E] {
+      final def onEl(e: E): Step[F, E, Unit] = if (p(e)) dropWhile(p) else Step.early((), Input.el(e))
       final def onChunk(es: Vector[E]): Step[F, E, Unit] = {
         val after = es.dropWhile(p)
 
-        if (after.isEmpty) dropWhile(p) else Step.done((), Input.chunk(after))
+        if (after.isEmpty) dropWhile(p) else Step.early((), Input.chunk(after))
       }
-    }.onEmpty
+    }
+
+    Step.pureCont(suif.next)
+  }
 
   /**
    * Zip two steps into a single step that returns a pair.
@@ -410,17 +419,27 @@ final object Step {
    */
   final def zip[F[_], E, A, B](stepA: Step[F, E, A], stepB: Step[F, E, B])
     (implicit F: Monad[F]): F[Step[F, E, (A, B)]] = {
-    type Pair[Z] = (Option[(Z, Input[E])], Step[F, E, Z])
+    type Pair[Z] = (Option[(Z, Option[Input[E]])], Step[F, E, Z])
 
     def paired[Z](s: Step[F, E, Z]): Step[F, E, Pair[Z]] = Step.done(
       s.foldWith(
         new Step.Folder[F, E, Z, Pair[Z]] {
           def onCont(k: Input[E] => F[Step[F, E, Z]]): Pair[Z] = (None, Step.cont(k))
-          def onDone(value: Z, remainder: Input[E]): Pair[Z] = (Some((value, remainder)), Step.done(value, remainder))
+          def onDone(value: Z): Pair[Z] = (Some((value, None)), Step.done(value))
+          def onDone(value: Z, remainder: Input[E]): Pair[Z] =
+            (Some((value, Some(remainder))), Step.early(value, remainder))
         }
-      ),
-      Input.empty
+      )
     )
+
+    def shorter(a: Option[Input[E]], b: Option[Input[E]]): Option[Input[E]] =
+      (a, b) match {
+        case (Some(ia), _) if ia.isEnd => a
+        case (_, Some(ib)) if ib.isEnd => b
+        case (None, _) => None
+        case (_, None) => None
+        case (Some(as), Some(bs)) => Some(as.shorter(bs))
+      }
 
     def loop(stepA: Step[F, E, A], stepB: Step[F, E, B])(in: Input[E]): F[Step[F, E, (A, B)]] =
       in.foldWith(
@@ -434,7 +453,10 @@ final object Step {
                     case (pairB, nextB) => F.pure(
                       (pairA, pairB) match {
                         case (Some((resA, remA)), Some((resB, remB))) =>
-                          Step.done[F, E, (A, B)]((resA, resB), remA.shorter(remB))
+                          shorter(remA, remB) match {
+                            case None => Step.done[F, E, (A, B)]((resA, resB))
+                            case Some(rem) => Step.early[F, E, (A, B)]((resA, resB), rem)
+                          }
                         case (Some((resA, _)), None) => nextB.map((resA, _))
                         case (None, Some((resB, _))) => nextA.map((_, resB))
                         case _ => Step.cont(loop(nextA, nextB))
@@ -453,7 +475,10 @@ final object Step {
                     case (pairB, nextB) => F.pure(
                       (pairA, pairB) match {
                         case (Some((resA, remA)), Some((resB, remB))) =>
-                          Step.done[F, E, (A, B)]((resA, resB), remA.shorter(remB))
+                          shorter(remA, remB) match {
+                            case None => Step.done[F, E, (A, B)]((resA, resB))
+                            case Some(rem) => Step.early[F, E, (A, B)]((resA, resB), rem)
+                          }
                         case (Some((resA, _)), None) => nextB.map((resA, _))
                         case (None, Some((resB, _))) => nextA.map((_, resB))
                         case _ => Step.cont(loop(nextA, nextB))
@@ -477,7 +502,10 @@ final object Step {
             F.pure[Step[F, E, (A, B)]](
               (pairA, pairB) match {
                 case (Some((resA, remA)), Some((resB, remB))) =>
-                  Step.done((resA, resB), remA.shorter(remB))
+                          shorter(remA, remB) match {
+                            case None => Step.done[F, E, (A, B)]((resA, resB))
+                            case Some(rem) => Step.early[F, E, (A, B)]((resA, resB), rem)
+                          }
 
                 case (Some((resA, _)), None) => nextB.map((resA, _))
                 case (None, Some((resB, _))) => nextA.map((_, resB))

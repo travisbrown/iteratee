@@ -4,7 +4,7 @@ import algebra.{ Eq, Semigroup }
 import cats.{ Applicative, Eval, Foldable, Monad, Show, Traverse }
 import cats.std.VectorInstances
 
-private[iteratee] trait InputInstances extends VectorInstances {
+private[iteratee] trait InputInstances extends VectorInstances {/*
   implicit final val inputInstances: Traverse[Input] with Monad[Input] = new Traverse[Input] with Monad[Input] {
     final def pure[A](a: A): Input[A] = Input.el(a)
     final def traverse[G[_], A, B](fa: Input[A])(f: A => G[B])(implicit G: Applicative[G]): G[Input[B]] = fa.foldWith(
@@ -105,5 +105,5 @@ private[iteratee] trait InputInstances extends VectorInstances {
         final def onEnd: String = "end"
       }
     )
-  }
+  }*/
 }
