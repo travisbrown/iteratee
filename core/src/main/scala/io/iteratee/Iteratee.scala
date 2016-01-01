@@ -50,7 +50,22 @@ sealed class Iteratee[F[_], E, A] private[iteratee] (final val state: F[Step[F, 
     def loop(s: Step[F, E, A]): F[Step[F, E2, A]] = s.foldWith(
       new Step.Folder[F, E, A, F[Step[F, E2, A]]] {
         def onCont(k: Input[E] => F[Step[F, E, A]]): F[Step[F, E2, A]] =
-          F.pure(Step.cont((in: Input[E2]) => F.flatMap(k(in.map(f)))(loop)))
+          F.pure(
+            Step.cont((in: Input[E2]) =>
+              F.flatMap(
+                k(
+                  in.foldWith(
+                    new Input.Folder[E2, Input[E]] {
+                      def onEnd: Input[E] = Input.end
+                      def onEl(e: E2): Input[E] = Input.el(f(e))
+                      def onChunk(e1: E2, e2: E2, es: Vector[E2]): Input[E] =
+                        Input.chunk(f(e1), f(e2), es.map(f))
+                    }
+                  )
+                )
+              )(loop)
+            )
+          )
         def onDone(value: A): F[Step[F, E2, A]] = F.pure(Step.done(value))
         override def onEarly(value: A, remainder: Input[E]): F[Step[F, E2, A]] =
           F.pure(if (remainder.isEnd) Step.early(value, Input.end) else Step.done(value))

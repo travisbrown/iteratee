@@ -64,12 +64,12 @@ final object Enumeratee extends EnumerateeInstances {
           new Step.Folder[F, I, A, F[Step[F, O, Step[F, I, A]]]] {
             final def onCont(k: Input[I] => F[Step[F, I, A]]): OuterF[A] = F.pure(
               Step.cont[F, O, Step[F, I, A]] {
-                (_: Input[O]).map(e => f(e)).foldWith(
-                  new Input.Folder[Enumerator[F, I], OuterF[A]] {
-                    def onEl(e: Enumerator[F, I]): OuterF[A] = F.flatMap(e(step))(loop)
-                    def onChunk(e1: Enumerator[F, I], e2: Enumerator[F, I], es: Vector[Enumerator[F, I]]): OuterF[A] =
+                (_: Input[O]).foldWith(
+                  new Input.Folder[O, OuterF[A]] {
+                    def onEl(e: O): OuterF[A] = F.flatMap(f(e)(step))(loop)
+                    def onChunk(e1: O, e2: O, es: Vector[O]): OuterF[A] =
                       F.flatMap(
-                        monoid.combine(monoid.combine(e1, e2), monoid.combineAll(es))(step)
+                        monoid.combine(monoid.combine(f(e1), f(e2)), monoid.combineAll(es.map(f)))(step)
                       )(loop)
                     def onEnd: OuterF[A] = toOuterF(step)
                   }
