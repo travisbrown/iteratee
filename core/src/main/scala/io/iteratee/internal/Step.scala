@@ -438,7 +438,7 @@ final object Step {
         case (_, Some(ib)) if ib.isEnd => b
         case (None, _) => None
         case (_, None) => None
-        case (Some(as), Some(bs)) => Some(as.shorter(bs))
+        case (Some(as), Some(bs)) => if (as.toVector.size <= bs.toVector.size) a else b
       }
 
     def loop(stepA: Step[F, E, A], stepB: Step[F, E, B])(in: Input[E]): F[Step[F, E, (A, B)]] =
