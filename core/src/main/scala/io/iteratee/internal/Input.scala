@@ -6,8 +6,8 @@ package io.iteratee.internal
  * An input value can signal the end of a stream ([[Input.end]]) or it can
  * contain one or more values of the element type. Non-end-of-stream inputs
  * could in principle be represented by a collection of elements, but for the
- * sake of performance we provide special constructors for inputs that are empty
- * ([[Input.empty]]) or contain a single element ([[Input.el]]).
+ * sake of performance we provide special constructors for inputs that contain
+ * a single element ([[Input.el]]).
  *
  * @tparam E The element type
  */
@@ -45,29 +45,6 @@ sealed abstract class Input[@specialized E] extends Serializable {
    */
   def flatMap[B](f: E => Input[B]): Input[B]
 
-  /*
-  /**
-   * Perform an operation for every value in this input.
-   */
-  def foreach(f: E => Unit): Unit
-
-  /**
-   * Return an input that contains all values in this input that satisfy the
-   * given predicate.
-   */
-  def filter(p: E => Boolean): Input[E]
-
-  /**
-   * Check whether all values in this input satisfy the given predicate.
-   */
-  def forall(p: E => Boolean): Boolean
-
-  /**
-   * Check whether any values in this input satisfy the given predicate.
-   */
-  def exists(p: E => Boolean): Boolean
-  */
-
   /**
    * Normalize the [[Input]] so that representations do not overlap.
    *
@@ -81,16 +58,6 @@ sealed abstract class Input[@specialized E] extends Serializable {
    * Convert this [[Input]] value into a sequence of elements.
    */
   private[iteratee] def toVector: Vector[E]
-
-  /**
-   * Return the [[Input]] that contains fewer elements.
-   *
-   * `Input.end` is defined to be shorter than any other value.
-   */
-  private[iteratee] final def shorter(that: Input[E]): Input[E] =
-    if (isEnd || that.isEnd) Input.end else {
-      if (toVector.lengthCompare(that.toVector.size) < 0) this else that
-    }
 }
 
 final object Input extends InputInstances {
@@ -98,8 +65,8 @@ final object Input extends InputInstances {
    * Represents four functions that can be used to reduce an [[Input]] to a
    * value.
    *
-   * Combining four "functions" into a single class allows us to save
-   * allocations. `onEmpty` and `onEl` must be consistent with `onChunk`.
+   * Combining three "functions" into a single class allows us to save
+   * allocations. `onEl` must be consistent with `onChunk`.
    *
    * @tparam E The element type
    * @tparam Z The result type
@@ -123,10 +90,6 @@ final object Input extends InputInstances {
     final def isEnd: Boolean = false
     final def map[B](f: E => B): Input[B] = Input.el(f(e))
     final def flatMap[B](f: E => Input[B]): Input[B] = f(e)
-    /*final def foreach(f: E => Unit): Unit = f(e)
-    final def filter(p: E => Boolean): Input[E] = if (p(e)) this else empty
-    final def forall(p: E => Boolean): Boolean = p(e)
-    final def exists(p: E => Boolean): Boolean = p(e)*/
     private[iteratee] final def normalize: Input[E] = this
     private[iteratee] final def toVector: Vector[E] = Vector(e)
   }
@@ -144,10 +107,6 @@ final object Input extends InputInstances {
         val ei = f(e)
         if (ei.isEnd) end else chunk(acc.toVector ++ ei.toVector)
     }
-    /*final def foreach(f: E => Unit): Unit = es.foreach(f(_))
-    final def filter(p: E => Boolean): Input[E] = Input.chunk(es.filter(p))
-    final def forall(p: E => Boolean): Boolean = es.forall(p(_))
-    final def exists(p: E => Boolean): Boolean = es.exists(p(_))*/
 
     private[iteratee] final def normalize: Input[E] = {
       val c = es.lengthCompare(1)
@@ -167,10 +126,6 @@ final object Input extends InputInstances {
     final val isEmpty: Boolean = false
     final def map[B](f: Nothing => B): Input[B] = this.asInstanceOf[Input[B]]
     final def flatMap[B](f: Nothing => Input[B]): Input[B] = this.asInstanceOf[Input[B]]
-    /*final def foreach(f: Nothing => Unit): Unit = ()
-    final def filter(p: Nothing => Boolean): Input[Nothing] = this
-    final def forall(p: Nothing => Boolean): Boolean = true
-    final def exists(p: Nothing => Boolean): Boolean = false*/
     private[iteratee] final val normalize: Input[Nothing] = this
     private[iteratee] final val toVector: Vector[Nothing] = Vector.empty
   }
