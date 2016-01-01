@@ -45,7 +45,8 @@ final object Enumeratee extends EnumerateeInstances {
       final def folder[A](k: Input[I] => F[Step[F, I, A]]): Input.Folder[O, OuterF[A]] =
         new Input.Folder[O, OuterF[A]] {
           final def onEl(e: O): OuterF[A] = F.flatMap(k(Input.el(f(e))))(doneOrLoop)
-          final def onChunk(es: Vector[O]): OuterF[A] = F.flatMap(k(Input.chunk(es.map(f))))(doneOrLoop)
+          final def onChunk(e1: O, e2: O, es: Vector[O]): OuterF[A] =
+            F.flatMap(k(Input.chunk(f(e1), f(e2), es.map(f))))(doneOrLoop)
           final def onEnd: OuterF[A] = F.pure(Step.early(Step.cont(k), Input.end))
         }
     }
@@ -66,8 +67,10 @@ final object Enumeratee extends EnumerateeInstances {
                 (_: Input[O]).map(e => f(e)).foldWith(
                   new Input.Folder[Enumerator[F, I], OuterF[A]] {
                     def onEl(e: Enumerator[F, I]): OuterF[A] = F.flatMap(e(step))(loop)
-                    def onChunk(es: Vector[Enumerator[F, I]]): OuterF[A] =
-                      F.flatMap(monoid.combineAll(es)(step))(loop)
+                    def onChunk(e1: Enumerator[F, I], e2: Enumerator[F, I], es: Vector[Enumerator[F, I]]): OuterF[A] =
+                      F.flatMap(
+                        monoid.combine(monoid.combine(e1, e2), monoid.combineAll(es))(step)
+                      )(loop)
                     def onEnd: OuterF[A] = toOuterF(step)
                   }
                 )
@@ -94,11 +97,14 @@ final object Enumeratee extends EnumerateeInstances {
               F.flatMap(k(Input.el(pf(e))))(doneOrLoop)
             else
               F.pure(Step.cont(stepWith(k)))
-          final def onChunk(es: Vector[O]): OuterF[A] = {
-            val collected = es.collect(pf)
+          final def onChunk(e1: O, e2: O, es: Vector[O]): OuterF[A] = {
+            val collected = (e1 +: e2 +: es).collect(pf)
 
             if (collected.isEmpty) F.pure(Step.cont(stepWith(k))) else
-              F.flatMap(k(Input.chunk(collected)))(doneOrLoop)
+              if (collected.size == 1)
+                F.flatMap(k(Input.el(collected(0))))(doneOrLoop)
+              else
+                F.flatMap(k(Input.chunk(collected(0), collected(1), collected.drop(2))))(doneOrLoop)
           }
           final def onEnd: OuterF[A] = F.pure(Step.early(Step.cont(k), Input.end))
         }
@@ -115,11 +121,14 @@ final object Enumeratee extends EnumerateeInstances {
         new Input.Folder[E, OuterF[A]] {
           final def onEl(e: E): OuterF[A] =
             if (p(e)) F.flatMap(k(Input.el(e)))(doneOrLoop) else F.pure(Step.cont(stepWith(k)))
-          final def onChunk(es: Vector[E]): OuterF[A] = {
-            val filtered = es.filter(p)
+          final def onChunk(e1: E, e2: E, es: Vector[E]): OuterF[A] = {
+            val filtered = (e1 +: e2 +: es).filter(p)
 
             if (filtered.isEmpty) F.pure(Step.cont(stepWith(k))) else
-              F.flatMap(k(Input.chunk(filtered)))(doneOrLoop)
+              if (filtered.size == 1)
+                F.flatMap(k(Input.el(filtered(0))))(doneOrLoop)
+              else
+                F.flatMap(k(Input.chunk(filtered(0), filtered(1), filtered.drop(2))))(doneOrLoop)
           }
           final def onEnd: OuterF[A] = F.pure(Step.early(Step.cont(k), Input.end))
         }
@@ -159,16 +168,19 @@ final object Enumeratee extends EnumerateeInstances {
                       case Some(v) if E.eqv(e, v) => F.pure(stepWith(Step.cont(k), last))
                       case _ => F.map(k(in))(stepWith(_, Some(e)))
                     }
-                  final def onChunk(es: Vector[E]): F[Step[F, E, A]] =
+                  final def onChunk(e1: E, e2: E, es: Vector[E]): F[Step[F, E, A]] =
                     {
-                      val (newEs, newLast) = es.foldLeft((Vector.empty[E], last)) {
+                      val (newEs, newLast) = (e1 +: e2 +: es).foldLeft((Vector.empty[E], last)) {
                         case ((acc, Some(lastValue)), e) if E.eqv(lastValue, e) =>
                           (acc, Some(lastValue))
                         case ((acc, _), e) => (acc :+ e, Some(e))
                       }
 
                       if (newEs.isEmpty) F.pure(stepWith(Step.cont(k), last)) else
-                        F.map(k(Input.chunk(newEs)))(stepWith(_, newLast))
+                        if (newEs.size == 1)
+                          F.map(k(Input.el(newEs(0))))(stepWith(_, newLast))
+                        else
+                          F.map(k(Input.chunk(newEs(0), newEs(1), newEs.drop(2))))(stepWith(_, newLast))
                     }
                   final def onEnd: F[Step[F, E, A]] = F.map(k(in))(stepWith(_, last))
                 }
@@ -203,14 +215,13 @@ final object Enumeratee extends EnumerateeInstances {
       final def stepWith[A](k: StepEl[A], i: Long): (Input[E] => OuterF[A]) = in =>
         in.foldWith(
           new Input.Folder[E, OuterF[A]] {
-            final def onEmpty: OuterF[A] = F.pure(Step.cont(stepWith(k, i)))
             final def onEl(e: E): OuterF[A] = F.flatMap(k(Input.el((e, i))))(doneOrLoop(i + 1))
-            final def onChunk(es: Vector[E]): OuterF[A] =
+            final def onChunk(e1: E, e2: E, es: Vector[E]): OuterF[A] =
               F.flatMap(
                 k(
-                  Input.chunk(es.zipWithIndex.map(p => (p._1, p._2 + i)))
+                  Input.chunk((e1, i), (e2, i + 1), es.zipWithIndex.map(p => (p._1, p._2 + i + 2)))
                 )
-              )(doneOrLoop(i + es.size))
+              )(doneOrLoop(i + es.size + 2))
             final def onEnd: OuterF[A] = F.pure(Step.early(Step.cont(k), in))
           }
         )
