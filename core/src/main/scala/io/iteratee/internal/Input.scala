@@ -35,11 +35,6 @@ sealed abstract class Input[@specialized E] extends Serializable {
   def isEnd: Boolean
 
   /**
-   * Map a function over all values (if any) in this input.
-   */
-  def map[B](f: E => B): Input[B]
-
-  /**
    * Convert this [[Input]] value into a sequence of elements.
    */
   private[iteratee] def toVector: Vector[E]
@@ -73,22 +68,16 @@ final object Input extends InputInstances {
   final def el[E](e: E): Input[E] = new Input[E] {
     final def foldWith[Z](folder: Folder[E, Z]): Z = folder.onEl(e)
     final def isEnd: Boolean = false
-    final def map[B](f: E => B): Input[B] = Input.el(f(e))
     private[iteratee] final def toVector: Vector[E] = Vector(e)
   }
 
   /**
    * An input value containing zero or more elements.
    */
-  final def chunk[E](h1: E, h2: E, es: Vector[E]): Input[E] = new Input[E] {
-    final private[this] val e1: E = h1
-    final private[this] val e2: E = h2
-    final private[this] val rest: Vector[E] = es
-
-    final def foldWith[Z](folder: Folder[E, Z]): Z = folder.onChunk(e1, e2, rest)
+  final def chunk[E](e1: E, e2: E, es: Vector[E]): Input[E] = new Input[E] {
+    final def foldWith[Z](folder: Folder[E, Z]): Z = folder.onChunk(e1, e2, es)
     final def isEnd: Boolean = false
-    final def map[B](f: E => B): Input[B] = chunk(f(e1), f(e2), rest.map(f(_)))
-    private[iteratee] final def toVector: Vector[E] = h1 +: h2 +: rest
+    private[iteratee] final def toVector: Vector[E] = e1 +: e2 +: es
   }
 
   /**
@@ -98,8 +87,6 @@ final object Input extends InputInstances {
   private[this] final val endValue: Input[Nothing] = new Input[Nothing] {
     final def foldWith[A](folder: Folder[Nothing, A]): A = folder.onEnd
     final val isEnd: Boolean = true
-    final val isEmpty: Boolean = false
-    final def map[B](f: Nothing => B): Input[B] = this.asInstanceOf[Input[B]]
     private[iteratee] final val toVector: Vector[Nothing] = Vector.empty
   }
 }
