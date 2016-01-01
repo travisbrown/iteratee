@@ -27,7 +27,7 @@ abstract class Enumerator[F[_], E] extends Serializable { self =>
         s.foldWith(
           new Step.Folder[F, E, A, F[Step[F, E, A]]] {
             def onCont(k: Input[E] => F[Step[F, E, A]]): F[Step[F, E, A]] = k(Input.el(e))
-            def onDone(value: A, remaining: Input[E]): F[Step[F, E, A]] = F.pure(s)
+            def onDone(value: A): F[Step[F, E, A]] = F.pure(s)
           }
         )
       )(self(_))
@@ -99,11 +99,11 @@ abstract class Enumerator[F[_], E] extends Serializable { self =>
                 s.foldWith(
                   new Step.Folder[F, E, B, F[Step[F, B, A]]] {
                     def onCont(k: Input[E] => F[Step[F, E, B]]): F[Step[F, B, A]] = diverge
-                    def onDone(value: B, remainder: Input[E]): F[Step[F, B, A]] = check(s)
+                    def onDone(value: B): F[Step[F, B, A]] = check(s)
                   }
                 )
               }
-            def onDone(value: B, remainder: Input[E]): F[Step[F, B, A]] = step.feed(Input.el(value))
+            def onDone(value: B): F[Step[F, B, A]] = step.feed(Input.el(value))
           }
         )
 

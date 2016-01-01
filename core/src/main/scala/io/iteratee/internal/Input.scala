@@ -18,7 +18,6 @@ sealed abstract class Input[@specialized E] extends Serializable {
   final def fold[Z](end: => Z, values: Vector[E] => Z): Z = foldWith(
     new Input.Folder[E, Z] {
       final def onEnd: Z = end
-      final def onEmpty: Z = values(Vector.empty)
       final def onEl(e: E): Z = values(Vector(e))
       final def onChunk(es: Vector[E]): Z = values(es)
     }
@@ -34,7 +33,6 @@ sealed abstract class Input[@specialized E] extends Serializable {
   def foldWith[Z](folder: Input.Folder[E, Z]): Z
 
   def isEnd: Boolean
-  def isEmpty: Boolean
 
   /**
    * Map a function over all values (if any) in this input.
@@ -47,6 +45,7 @@ sealed abstract class Input[@specialized E] extends Serializable {
    */
   def flatMap[B](f: E => Input[B]): Input[B]
 
+  /*
   /**
    * Perform an operation for every value in this input.
    */
@@ -67,6 +66,7 @@ sealed abstract class Input[@specialized E] extends Serializable {
    * Check whether any values in this input satisfy the given predicate.
    */
   def exists(p: E => Boolean): Boolean
+  */
 
   /**
    * Normalize the [[Input]] so that representations do not overlap.
@@ -89,9 +89,7 @@ sealed abstract class Input[@specialized E] extends Serializable {
    */
   private[iteratee] final def shorter(that: Input[E]): Input[E] =
     if (isEnd || that.isEnd) Input.end else {
-      if (isEmpty || that.isEmpty) Input.empty else {
-        if (toVector.lengthCompare(that.toVector.size) < 0) this else that
-      }
+      if (toVector.lengthCompare(that.toVector.size) < 0) this else that
     }
 }
 
@@ -108,15 +106,9 @@ final object Input extends InputInstances {
    */
   abstract class Folder[@specialized E, Z] extends Serializable {
     def onEnd: Z
-    def onEmpty: Z
     def onEl(e: E): Z
     def onChunk(es: Vector[E]): Z
   }
-
-  /**
-   * An empty input value.
-   */
-  final def empty[E]: Input[E] = emptyValue.asInstanceOf[Input[E]]
 
   /**
    * An input value representing the end of a stream.
@@ -129,13 +121,12 @@ final object Input extends InputInstances {
   final def el[E](e: E): Input[E] = new Input[E] {
     final def foldWith[Z](folder: Folder[E, Z]): Z = folder.onEl(e)
     final def isEnd: Boolean = false
-    final def isEmpty: Boolean = false
     final def map[B](f: E => B): Input[B] = Input.el(f(e))
     final def flatMap[B](f: E => Input[B]): Input[B] = f(e)
-    final def foreach(f: E => Unit): Unit = f(e)
+    /*final def foreach(f: E => Unit): Unit = f(e)
     final def filter(p: E => Boolean): Input[E] = if (p(e)) this else empty
     final def forall(p: E => Boolean): Boolean = p(e)
-    final def exists(p: E => Boolean): Boolean = p(e)
+    final def exists(p: E => Boolean): Boolean = p(e)*/
     private[iteratee] final def normalize: Input[E] = this
     private[iteratee] final def toVector: Vector[E] = Vector(e)
   }
@@ -146,43 +137,24 @@ final object Input extends InputInstances {
   final def chunk[E](es: Vector[E]): Input[E] = new Input[E] {
     final def foldWith[Z](folder: Folder[E, Z]): Z = folder.onChunk(es)
     final def isEnd: Boolean = false
-    final def isEmpty: Boolean = es.isEmpty
     final def map[B](f: E => B): Input[B] = chunk(es.map(f(_)))
-    final def flatMap[B](f: E => Input[B]): Input[B] = es.foldLeft(empty[B]) {
+    final def flatMap[B](f: E => Input[B]): Input[B] = es.tail.foldLeft(f(es.head)) {
       case (acc, _) if acc.isEnd => end
       case (acc, e) =>
         val ei = f(e)
         if (ei.isEnd) end else chunk(acc.toVector ++ ei.toVector)
     }
-    final def foreach(f: E => Unit): Unit = es.foreach(f(_))
+    /*final def foreach(f: E => Unit): Unit = es.foreach(f(_))
     final def filter(p: E => Boolean): Input[E] = Input.chunk(es.filter(p))
     final def forall(p: E => Boolean): Boolean = es.forall(p(_))
-    final def exists(p: E => Boolean): Boolean = es.exists(p(_))
+    final def exists(p: E => Boolean): Boolean = es.exists(p(_))*/
 
     private[iteratee] final def normalize: Input[E] = {
       val c = es.lengthCompare(1)
-      if (c < 0) empty else if (c == 0) el(es.head) else this
+      if (c == 0) el(es.head) else this
     }
 
     private[iteratee] final def toVector: Vector[E] = es
-  }
-
-  /**
-   * We define a single empty value and cast it to the appropriate type in
-   * `empty` in order to avoid allocations.
-   */
-  private[this] final val emptyValue: Input[Nothing] = new Input[Nothing] {
-    def foldWith[Z](folder: Folder[Nothing, Z]): Z = folder.onEmpty
-    final val isEnd: Boolean = false
-    final val isEmpty: Boolean = true
-    final def map[B](f: Nothing => B): Input[B] = this.asInstanceOf[Input[B]]
-    final def flatMap[B](f: Nothing => Input[B]): Input[B] = this.asInstanceOf[Input[B]]
-    final def foreach(f: Nothing => Unit): Unit = ()
-    final def filter(p: Nothing => Boolean): Input[Nothing] = this
-    final def forall(p: Nothing => Boolean): Boolean = true
-    final def exists(p: Nothing => Boolean): Boolean = false
-    private[iteratee] final val normalize: Input[Nothing] = this
-    private[iteratee] final val toVector: Vector[Nothing] = Vector.empty
   }
 
   /**
@@ -195,10 +167,10 @@ final object Input extends InputInstances {
     final val isEmpty: Boolean = false
     final def map[B](f: Nothing => B): Input[B] = this.asInstanceOf[Input[B]]
     final def flatMap[B](f: Nothing => Input[B]): Input[B] = this.asInstanceOf[Input[B]]
-    final def foreach(f: Nothing => Unit): Unit = ()
+    /*final def foreach(f: Nothing => Unit): Unit = ()
     final def filter(p: Nothing => Boolean): Input[Nothing] = this
     final def forall(p: Nothing => Boolean): Boolean = true
-    final def exists(p: Nothing => Boolean): Boolean = false
+    final def exists(p: Nothing => Boolean): Boolean = false*/
     private[iteratee] final val normalize: Input[Nothing] = this
     private[iteratee] final val toVector: Vector[Nothing] = Vector.empty
   }
