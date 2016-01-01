@@ -21,7 +21,7 @@ private[iteratee] trait IterateeInstances0 {
 }
 
 private class IterateeMonad[F[_], E](F: Monad[F]) extends Monad[({ type L[x] = Iteratee[F, E, x] })#L] {
-  final def pure[A](a: A): Iteratee[F, E, A] = Iteratee.fromStep(Step.done[F, E, A](a, Input.empty))(F)
+  final def pure[A](a: A): Iteratee[F, E, A] = Iteratee.fromStep(Step.done[F, E, A](a))(F)
   override final def map[A, B](fa: Iteratee[F, E, A])(f: A => B): Iteratee[F, E, B] = fa.map(f)(F)
   final def flatMap[A, B](fa: Iteratee[F, E, A])(f: A => Iteratee[F, E, B]): Iteratee[F, E, B] = fa.flatMap(f)(F)
 }
