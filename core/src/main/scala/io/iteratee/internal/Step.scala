@@ -79,7 +79,7 @@ private[iteratee] abstract class DoneStep[F[_], E, A](final val unsafeValue: A) 
  * @groupname Collection Collection operation steps
  * @groupprio Collection 2
  */
-final object Step {
+final object Step { self =>
   /**
    * Represents a pair of functions that can be used to reduce a [[Step]] to a
    * value.
@@ -94,11 +94,42 @@ final object Step {
    * @tparam A The type of the result calculated by the [[Iteratee]]
    * @tparam B The type of the result of the fold
    */
-  abstract class Folder[F[_], E, A, Z] extends Function[Step[F, E, A], Z] {
+  trait Folder[F[_], E, A, Z] extends Function[Step[F, E, A], Z] {
     def onCont(k: Input[E] => F[Step[F, E, A]]): Z
     def onDone(value: A): Z
     def onEarly(value: A, remainder: Input[E]): Z = onDone(value)
     final def apply(step: Step[F, E, A]): Z = step.foldWith(this)
+  }
+
+  abstract class Cont[F[_], E, A](acc: A)
+    extends Step[F, E, A] with Input.Folder[E, F[Step[F, E, A]]] {
+    def F: Applicative[F]
+    private[iteratee] final def unsafeValue: A = diverge[A]
+    final def isDone: Boolean = false
+    final def foldWith[B](folder: Folder[F, E, A, B]): B = folder.onCont(this)
+    final def map[B](f: A => B)(implicit F: Functor[F]): Step[F, E, B] = cont(in =>
+      F.map(apply(in))(_.map(f))
+    )
+    final def bindF[B](f: A => F[Step[F, E, B]])(implicit F: Monad[F]): F[Step[F, E, B]] = F.pure(
+      cont(k => F.flatMap(apply(k))(_.bindF(f)))
+    )
+    final def feed(in: Input[E])(implicit F: Applicative[F]): F[Step[F, E, A]] = apply(in)
+    final def onEnd: F[Step[F, E, A]] = F.pure(Step.early(acc, Input.end))
+  }
+
+  abstract class PureCont[F[_], E, A](acc: A)(implicit F: Applicative[F])
+    extends Step[F, E, A] with Input.Folder[E, Step[F, E, A]] {
+    private[iteratee] final def unsafeValue: A = diverge[A]
+    final def isDone: Boolean = false
+    final def foldWith[B](folder: Folder[F, E, A, B]): B = folder.onCont(in => F.pure(apply(in)))
+    final def map[B](f: A => B)(implicit F0: Functor[F]): Step[F, E, B] = pureCont(in =>
+      apply(in).map(f)
+    )
+    final def bindF[B](f: A => F[Step[F, E, B]])(implicit F: Monad[F]): F[Step[F, E, B]] = F.pure(
+      cont(in => apply(in).bindF(f))
+    )
+    final def feed(in: Input[E])(implicit F: Applicative[F]): F[Step[F, E, A]] = F.pure(apply(in))
+    final def onEnd: Step[F, E, A] = Step.early(acc, Input.end)
   }
 
   /**
@@ -216,12 +247,6 @@ final object Step {
     step.bindF(check)
   }
 
-  class FoldFolder[F[_]: Applicative, E, A](acc: A, f: (A, E) => A) extends Input.Folder[E, Step[F, E, A]] {
-    final def onEl(e: E): Step[F, E, A] = fold(f(acc, e))(f)
-    final def onChunk(e1: E, e2: E, es: Vector[E]): Step[F, E, A] = fold(es.foldLeft(f(f(acc, e1), e2))(f))(f)
-    final def onEnd: Step[F, E, A] = Step.early(acc, Input.end)
-  }
-
   /**
    * A [[Step]] that folds a stream using an initial value and an accumulation
    * function.
@@ -229,7 +254,13 @@ final object Step {
    * @group Collection
    */
   final def fold[F[_]: Applicative, E, A](init: A)(f: (A, E) => A): Step[F, E, A] =
-    pureCont(new FoldFolder[F, E, A](init, f))
+    new FoldCont[F, E, A](init, f)
+
+  final class FoldCont[F[_], E, A](acc: A, f: (A, E) => A)(implicit F: Applicative[F])
+    extends PureCont[F, E, A](acc) with Input.Folder[E, Step[F, E, A]] {
+    final def onEl(e: E): Step[F, E, A] = self.fold(f(acc, e))(f)
+    final def onChunk(e1: E, e2: E, es: Vector[E]): Step[F, E, A] = self.fold(es.foldLeft(f(f(acc, e1), e2))(f))(f)
+  }
 
   /**
    * A [[Step]] that folds a stream using an initial value and a monadic
@@ -237,18 +268,15 @@ final object Step {
    *
    * @group Collection
    */
-  final def foldM[F[_], E, A](init: A)(f: (A, E) => F[A])(implicit F: Monad[F]): Step[F, E, A] = {
-    def step(acc: A)(in: Input[E]): F[Step[F, E, A]] = in.foldWith(
-      new Input.Folder[E, F[Step[F, E, A]]] {
-        final def onEl(e: E): F[Step[F, E, A]] = F.map(f(acc, e))(a => Step.cont(step(a)))
-        final def onChunk(e1: E, e2: E, es: Vector[E]): F[Step[F, E, A]] = F.map(
-          es.foldLeft(F.flatMap(f(acc, e1))(a => f(a, e2)))((fa, e) => F.flatMap(fa)(a => f(a, e)))
-        )(a => Step.cont(step(a)))
-        final def onEnd: F[Step[F, E, A]] = F.pure(Step.early(acc, Input.end))
-      }
-    )
+  final def foldM[F[_], E, A](init: A)(f: (A, E) => F[A])(implicit F: Monad[F]): Step[F, E, A] =
+    new FoldMCont[F, E, A](init, f)
 
-    Step.cont(step(init))
+  final class FoldMCont[F[_], E, A](acc: A, f: (A, E) => F[A])(implicit final val F: Monad[F])
+    extends Cont[F, E, A](acc) with Input.Folder[E, F[Step[F, E, A]]] {
+    final def onEl(e: E): F[Step[F, E, A]] = F.map(f(acc, e))(a => foldM(a)(f))
+    final def onChunk(e1: E, e2: E, es: Vector[E]): F[Step[F, E, A]] = F.map(
+      es.foldLeft(F.flatMap(f(acc, e1))(a => f(a, e2)))((fa, e) => F.flatMap(fa)(a => f(a, e)))
+    )(a => foldM(a)(f))
   }
 
   /**
@@ -256,17 +284,13 @@ final object Step {
    *
    * @group Collection
    */
-  final def drain[F[_], A](implicit F: Applicative[F]): Step[F, A, Vector[A]] = {
-    def loop(acc: Vector[A])(in: Input[A]): Step[F, A, Vector[A]] = in.foldWith(
-      new Input.Folder[A, Step[F, A, Vector[A]]] {
-        final def onEl(e: A): Step[F, A, Vector[A]] = Step.pureCont(a => loop(acc :+ e)(a))
-        final def onChunk(e1: A, e2: A, es: Vector[A]): Step[F, A, Vector[A]] =
-          Step.pureCont(a => loop((acc :+ e1 :+ e2) ++ es)(a))
-        final def onEnd: Step[F, A, Vector[A]] = Step.early(acc, in)
-      }
-    )
+  final def drain[F[_], A](implicit F: Applicative[F]): Step[F, A, Vector[A]] =
+    new DrainCont(Vector.empty)
 
-    Step.pureCont(a => loop(Vector.empty)(a))
+  final class DrainCont[F[_], E](acc: Vector[E])(implicit F: Applicative[F])
+    extends PureCont[F, E, Vector[E]](acc) with Input.Folder[E, Step[F, E, Vector[E]]] {
+    final def onEl(e: E): Step[F, E, Vector[E]] = new DrainCont(acc :+ e)
+    final def onChunk(e1: E, e2: E, es: Vector[E]): Step[F, E, Vector[E]] = new DrainCont((acc :+ e1 :+ e2) ++ es)
   }
 
   /**
