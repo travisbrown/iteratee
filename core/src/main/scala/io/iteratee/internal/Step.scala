@@ -70,25 +70,29 @@ abstract class ContStep[F[_], E, A] extends Step[F, E, A] {
 }
 
 abstract class FuncContStep[F[_], E, A]
-  extends ContStep[F, E, A] with (Input[E] => F[Step[F, E, A]]) {
+  extends ContStep[F, E, A] with (Input[E] => F[Step[F, E, A]]) { self =>
   final def foldWith[B](folder: Step.Folder[F, E, A, B]): B = folder.onCont(this)
-  final def map[B](f: A => B)(implicit F: Functor[F]): Step[F, E, B] = Step.cont(in =>
-    F.map(apply(in))(_.map(f))
-  )
+  final def map[B](f: A => B)(implicit F: Functor[F]): Step[F, E, B] = new FuncContStep[F, E, B] {
+    def apply(in: Input[E]): F[Step[F, E, B]] = F.map(self(in))(_.map(f))
+  }
   final def bindF[B](f: A => F[Step[F, E, B]])(implicit F: Monad[F]): F[Step[F, E, B]] = F.pure(
-    Step.cont(k => F.flatMap(apply(k))(_.bindF(f)))
+    new FuncContStep[F, E, B] {
+      def apply(in: Input[E]): F[Step[F, E, B]] = F.flatMap(self(in))(_.bindF(f))
+    }
   )
   final def feed(in: Input[E])(implicit F: Applicative[F]): F[Step[F, E, A]] = apply(in)
 }
 
 abstract class PureFuncContStep[F[_]: Applicative, E, A]
-  extends ContStep[F, E, A] with (Input[E] => Step[F, E, A]) {
+  extends ContStep[F, E, A] with (Input[E] => Step[F, E, A]) { self =>
   final def foldWith[B](folder: Step.Folder[F, E, A, B]): B = folder.onCont(in => Applicative[F].pure(apply(in)))
-  final def map[B](f: A => B)(implicit F0: Functor[F]): Step[F, E, B] = Step.pureCont(in =>
-    apply(in).map(f)
-  )
+  final def map[B](f: A => B)(implicit F0: Functor[F]): Step[F, E, B] = new PureFuncContStep[F, E, B] {
+    def apply(in: Input[E]): Step[F, E, B] = self(in).map(f)
+  }
   final def bindF[B](f: A => F[Step[F, E, B]])(implicit F: Monad[F]): F[Step[F, E, B]] = F.pure(
-    Step.cont(in => apply(in).bindF(f))
+    new FuncContStep[F, E, B] {
+      def apply(in: Input[E]): F[Step[F, E, B]] = self(in).bindF(f)
+    }
   )
   final def feed(in: Input[E])(implicit F: Applicative[F]): F[Step[F, E, A]] = F.pure(apply(in))
 }
@@ -138,16 +142,6 @@ final object Step { self =>
   final def cont[F[_], E, A](k: Input[E] => F[Step[F, E, A]]): Step[F, E, A] =
     new FuncContStep[F, E, A] {
       final def apply(in: Input[E]): F[Step[F, E, A]] = k(in)
-    }
-
-  /**
-   * Create an incomplete state that will use the given pure function to process the next input.
-   *
-   * @group Constructors
-   */
-  final def pureCont[F[_]: Applicative, E, A](k: Input[E] => Step[F, E, A]): Step[F, E, A] =
-    new PureFuncContStep[F, E, A] {
-      final def apply(in: Input[E]): Step[F, E, A] = k(in)
     }
 
   /**
