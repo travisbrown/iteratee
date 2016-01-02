@@ -60,21 +60,15 @@ final object Enumeratee extends EnumerateeInstances {
       private[this] lazy val monoid: Monoid[Enumerator[F, I]] = implicitly
 
       private[this] def loop[A](step: Step[F, I, A]): Step[F, O, Step[F, I, A]] =
-        step.foldWith(
-          new Step.Folder[F, I, A, Step[F, O, Step[F, I, A]]] {
-            final def onCont(k: Input[I] => F[Step[F, I, A]]): Step[F, O, Step[F, I, A]] =
-              new FuncContStep[F, O, Step[F, I, A]] with Input.Folder[O, OuterF[A]] {
-                final def onEl(e: O): OuterF[A] = F.map(f(e)(step))(loop)
-                final def onChunk(e1: O, e2: O, es: Vector[O]): OuterF[A] =
-                  F.map(
-                    monoid.combine(monoid.combine(f(e1), f(e2)), monoid.combineAll(es.map(f)))(step)
-                  )(loop)
-                final def onEnd: OuterF[A] = toOuterF(step)
-              }
-
-            final def onDone(value: A): Step[F, O, Step[F, I, A]] = Step.done(Step.done(value))
+        if (step.isDone) Step.done(Step.done(step.unsafeValue)) else
+          new FuncContStep[F, O, Step[F, I, A]] with Input.Folder[O, OuterF[A]] {
+            final def onEl(e: O): OuterF[A] = F.map(f(e)(step))(loop)
+            final def onChunk(e1: O, e2: O, es: Vector[O]): OuterF[A] =
+              F.map(
+                monoid.combine(monoid.combine(f(e1), f(e2)), monoid.combineAll(es.map(f)))(step)
+              )(loop)
+            final def onEnd: OuterF[A] = toOuterF(step)
           }
-        )
 
       final def apply[A](step: Step[F, I, A]): OuterF[A] = F.pure(loop(step))
     }
