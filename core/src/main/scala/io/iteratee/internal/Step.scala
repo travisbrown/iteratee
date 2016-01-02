@@ -94,10 +94,11 @@ final object Step {
    * @tparam A The type of the result calculated by the [[Iteratee]]
    * @tparam B The type of the result of the fold
    */
-  abstract class Folder[F[_], E, A, Z] extends Serializable {
+  abstract class Folder[F[_], E, A, Z] extends Function[Step[F, E, A], Z] {
     def onCont(k: Input[E] => F[Step[F, E, A]]): Z
     def onDone(value: A): Z
     def onEarly(value: A, remainder: Input[E]): Z = onDone(value)
+    final def apply(step: Step[F, E, A]): Z = step.foldWith(this)
   }
 
   /**
@@ -215,24 +216,20 @@ final object Step {
     step.bindF(check)
   }
 
+  class FoldFolder[F[_]: Applicative, E, A](acc: A, f: (A, E) => A) extends Input.Folder[E, Step[F, E, A]] {
+    final def onEl(e: E): Step[F, E, A] = fold(f(acc, e))(f)
+    final def onChunk(e1: E, e2: E, es: Vector[E]): Step[F, E, A] = fold(es.foldLeft(f(f(acc, e1), e2))(f))(f)
+    final def onEnd: Step[F, E, A] = Step.early(acc, Input.end)
+  }
+
   /**
    * A [[Step]] that folds a stream using an initial value and an accumulation
    * function.
    *
    * @group Collection
    */
-  final def fold[F[_]: Applicative, E, A](init: A)(f: (A, E) => A): Step[F, E, A] = {
-    def step(acc: A)(in: Input[E]): Step[F, E, A] = in.foldWith(
-      new Input.Folder[E, Step[F, E, A]] {
-        final def onEl(e: E): Step[F, E, A] = Step.pureCont(step(f(acc, e)))
-        final def onChunk(e1: E, e2: E, es: Vector[E]): Step[F, E, A] =
-          Step.pureCont(step(es.foldLeft(f(f(acc, e1), e2))(f)))
-        final def onEnd: Step[F, E, A] = Step.early(acc, Input.end)
-      }
-    )
-
-    Step.pureCont(step(init))
-  }
+  final def fold[F[_]: Applicative, E, A](init: A)(f: (A, E) => A): Step[F, E, A] =
+    pureCont(new FoldFolder[F, E, A](init, f))
 
   /**
    * A [[Step]] that folds a stream using an initial value and a monadic

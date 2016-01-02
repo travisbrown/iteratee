@@ -236,11 +236,11 @@ final object Enumerator extends EnumeratorInstances {
   /**
    * An enumerator that repeats the given value indefinitely.
    */
-  final def repeat[F[_], E](e: E)(implicit F: Monad[F]): Enumerator[F, E] = new Enumerator[F, E] {
+  final def repeat[F[_], E](e: E)(implicit F: Monad[F]): Enumerator[F, E] = new Enumerator[F, E] { self =>
     final def apply[A](s: Step[F, E, A]): F[Step[F, E, A]] = s.foldWith(
       new MapContStepFolder[F, E, A](s) {
         final def onCont(k: Input[E] => F[Step[F, E, A]]): F[Step[F, E, A]] =
-          F.flatMap(k(Input.el(e)))(apply[A])
+          F.flatMap(k(Input.el(e)))(self[A])
       }
     )
   }
