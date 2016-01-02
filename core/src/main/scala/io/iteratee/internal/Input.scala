@@ -51,10 +51,11 @@ final object Input extends InputInstances {
    * @tparam E The element type
    * @tparam Z The result type
    */
-  abstract class Folder[@specialized E, Z] extends Serializable {
+  abstract class Folder[@specialized E, Z] extends Function[Input[E], Z] {
     def onEnd: Z
     def onEl(e: E): Z
     def onChunk(h1: E, h2: E, es: Vector[E]): Z
+    final def apply(in: Input[E]): Z = in.foldWith(this)
   }
 
   /**
