@@ -64,6 +64,11 @@ sealed abstract class Step[F[_], E, A] extends Serializable {
   def feed(in: Input[E])(implicit F: Applicative[F]): F[Step[F, E, A]]
 }
 
+private[iteratee] abstract class DoneStep[F[_], E, A](final val unsafeValue: A) extends Step[F, E, A] {
+  final def isDone: Boolean = true
+  final def feed(in: Input[E])(implicit F: Applicative[F]): F[Step[F, E, A]] = F.pure(this)
+}
+
 /**
  * @groupname Constructors Constructors
  * @groupprio Constructors 0
@@ -138,13 +143,10 @@ final object Step {
    *
    * @group Constructors
    */
-  final def done[F[_], E, A](value: A): Step[F, E, A] = new Step[F, E, A] {
-    private[iteratee] final def unsafeValue: A = value
-    final def isDone: Boolean = true
+  final def done[F[_], E, A](value: A): Step[F, E, A] = new DoneStep[F, E, A](value) {
     final def foldWith[B](folder: Folder[F, E, A, B]): B = folder.onDone(value)
     final def map[B](f: A => B)(implicit F: Functor[F]): Step[F, E, B] = done(f(value))
     final def bindF[B](f: A => F[Step[F, E, B]])(implicit F: Monad[F]): F[Step[F, E, B]] = f(value)
-    final def feed(in: Input[E])(implicit F: Applicative[F]): F[Step[F, E, A]] = F.pure(this)
   }
 
   /**
@@ -152,9 +154,7 @@ final object Step {
    *
    * @group Constructors
    */
-  final def early[F[_], E, A](value: A, remaining: Input[E]): Step[F, E, A] = new Step[F, E, A] {
-    private[iteratee] final def unsafeValue: A = value
-    final def isDone: Boolean = true
+  final def early[F[_], E, A](value: A, remaining: Input[E]): Step[F, E, A] = new DoneStep[F, E, A](value) {
     final def foldWith[B](folder: Folder[F, E, A, B]): B = folder.onEarly(value, remaining)
     final def map[B](f: A => B)(implicit F: Functor[F]): Step[F, E, B] = early(f(value), remaining)
 
@@ -164,12 +164,29 @@ final object Step {
           new Folder[F, E, B, F[Step[F, E, B]]] {
             final def onCont(k: Input[E] => F[Step[F, E, B]]): F[Step[F, E, B]] = k(remaining)
             final def onDone(aa: B): F[Step[F, E, B]] = F.pure(early(aa, remaining))
-            override final def onEarly(aa: B, r: Input[E]): F[Step[F, E, B]] = F.pure(early(aa, remaining))
           }
         )
       )
+  }
 
-    final def feed(in: Input[E])(implicit F: Applicative[F]): F[Step[F, E, A]] = F.pure(this)
+  /**
+   * Create a new completed state with the given result and leftover input.
+   *
+   * @group Constructors
+   */
+  final def ended[F[_], E, A](value: A): Step[F, E, A] = new DoneStep[F, E, A](value) {
+    final def foldWith[B](folder: Folder[F, E, A, B]): B = folder.onEarly(value, Input.end)
+    final def map[B](f: A => B)(implicit F: Functor[F]): Step[F, E, B] = ended(f(value))
+
+    final def bindF[B](f: A => F[Step[F, E, B]])(implicit F: Monad[F]): F[Step[F, E, B]] =
+      F.flatMap(f(value))(
+        _.foldWith(
+          new Folder[F, E, B, F[Step[F, E, B]]] {
+            final def onCont(k: Input[E] => F[Step[F, E, B]]): F[Step[F, E, B]] = k(Input.end)
+            final def onDone(aa: B): F[Step[F, E, B]] = F.pure(ended(aa))
+          }
+        )
+      )
   }
 
   /**
