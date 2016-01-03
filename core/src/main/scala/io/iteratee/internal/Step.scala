@@ -46,7 +46,7 @@ sealed abstract class Step[F[_], E, A] extends Serializable {
    * Map a function returning a [[Step]] in a monadic context over the value of
    * this [[Step]] and flatten the result.
    */
-  def bindF[B](f: A => F[Step[F, E, B]])(implicit F: Monad[F]): F[Step[F, E, B]]
+  def bind[B](f: A => F[Step[F, E, B]])(implicit F: Monad[F]): F[Step[F, E, B]]
 
   /**
    * Apply this [[Step]] to an [[Input]].
@@ -73,9 +73,9 @@ abstract class FuncContStep[F[_], E, A] extends ContStep[F, E, A] { self =>
   final def contramap[E2](f: E2 => E)(implicit F: Functor[F]): Step[F, E2, A] = new FuncContStep[F, E2, A] {
     def apply(in: Input[E2]): F[Step[F, E2, A]] = F.map(self(in.map(f)))(_.contramap(f))
   }
-  final def bindF[B](f: A => F[Step[F, E, B]])(implicit F: Monad[F]): F[Step[F, E, B]] = F.pure(
+  final def bind[B](f: A => F[Step[F, E, B]])(implicit F: Monad[F]): F[Step[F, E, B]] = F.pure(
     new FuncContStep[F, E, B] {
-      def apply(in: Input[E]): F[Step[F, E, B]] = F.flatMap(self(in))(_.bindF(f))
+      def apply(in: Input[E]): F[Step[F, E, B]] = F.flatMap(self(in))(_.bind(f))
     }
   )
 }
@@ -89,9 +89,9 @@ abstract class PureFuncContStep[F[_]: Applicative, E, A] extends ContStep[F, E, 
   final def contramap[E2](f: E2 => E)(implicit F: Functor[F]): Step[F, E2, A] = new PureFuncContStep[F, E2, A] {
     def pureApply(in: Input[E2]): Step[F, E2, A] = self.pureApply(in.map(f)).contramap(f)
   }
-  final def bindF[B](f: A => F[Step[F, E, B]])(implicit F: Monad[F]): F[Step[F, E, B]] = F.pure(
+  final def bind[B](f: A => F[Step[F, E, B]])(implicit F: Monad[F]): F[Step[F, E, B]] = F.pure(
     new FuncContStep[F, E, B] {
-      def apply(in: Input[E]): F[Step[F, E, B]] = self.pureApply(in).bindF(f)
+      def apply(in: Input[E]): F[Step[F, E, B]] = self.pureApply(in).bind(f)
     }
   )
 }
@@ -141,7 +141,7 @@ final object Step { self =>
       onDone(value)
     final def map[B](f: A => B)(implicit F: Functor[F]): Step[F, E, B] = done(f(value))
     final def contramap[E2](f: E2 => E)(implicit F: Functor[F]): Step[F, E2, A] = done(value)
-    final def bindF[B](f: A => F[Step[F, E, B]])(implicit F: Monad[F]): F[Step[F, E, B]] = f(value)
+    final def bind[B](f: A => F[Step[F, E, B]])(implicit F: Monad[F]): F[Step[F, E, B]] = f(value)
     final def mapI[G[_]](f: NaturalTransformation[F, G])(implicit F: Functor[F]): Step[G, E, A] = done(value)
   }
 
@@ -158,7 +158,7 @@ final object Step { self =>
       final def contramap[E2](f: E2 => E)(implicit F: Functor[F]): Step[F, E2, A] =
         if (remaining.isEnd) early(value, Input.end) else done(value)
 
-      final def bindF[B](f: A => F[Step[F, E, B]])(implicit F: Monad[F]): F[Step[F, E, B]] =
+      final def bind[B](f: A => F[Step[F, E, B]])(implicit F: Monad[F]): F[Step[F, E, B]] =
         F.flatMap(f(value))(step =>
           if (step.isDone) F.pure(early(step.unsafeValue, remaining)) else step.feed(remaining)
         )
@@ -186,7 +186,7 @@ final object Step { self =>
           next => if (next.isDone) F.pure(Step.done(next.unsafeValue)) else diverge
         )
 
-    step.bindF(check)
+    step.bind(check)
   }
 
   /**
@@ -423,12 +423,12 @@ final object Step { self =>
 
     def loop(stepA: Step[F, E, A], stepB: Step[F, E, B])(in: Input[E]): F[Step[F, E, (A, B)]] =
       if (in.isEnd) F.flatMap(stepA.feed(Input.end))(
-        _.bindF(a => F.map(stepB.feed(Input.end))(_.map((a, _))))
+        _.bind(a => F.map(stepB.feed(Input.end))(_.map((a, _))))
       ) else F.flatMap(stepA.feed(in))(fsA =>
-        paired(fsA).bindF {
+        paired(fsA).bind {
           case (pairA, nextA) =>
             F.flatMap(stepB.feed(in))(fsB =>
-              paired(fsB).bindF {
+              paired(fsB).bind {
                 case (pairB, nextB) => F.pure(
                   (pairA, pairB) match {
                     case (Some((resA, remA)), Some((resB, remB))) =>
@@ -446,9 +446,9 @@ final object Step { self =>
         }
       )
 
-    paired(stepA).bindF {
+    paired(stepA).bind {
       case (pairA, nextA) =>
-        paired(stepB).bindF {
+        paired(stepB).bind {
           case (pairB, nextB) =>
             F.pure[Step[F, E, (A, B)]](
               (pairA, pairB) match {
