@@ -116,8 +116,8 @@ final object Iteratee extends IterateeInstances {
    *
    * @group Constructors
    */
-  final def cont[F[_]: Applicative, E, A](k: Input[E] => Iteratee[F, E, A]): Iteratee[F, E, A] =
-    fromStep(Step.contX(in => k(in).state))
+  //final def cont[F[_]: Applicative, E, A](k: Input[E] => Iteratee[F, E, A], onEnd: => Iteratee[F, E, A]): Iteratee[F, E, A] =
+  //  fromStep(Step.contX(in => k(in).state))
 
   /**
    * Create a new completed [[Iteratee]] with the given result and leftover

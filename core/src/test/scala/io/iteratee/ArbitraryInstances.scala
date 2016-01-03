@@ -19,8 +19,7 @@ trait ArbitraryInstances {
           a1 <- A.arbitrary
           a2 <- A.arbitrary
           as <- Arbitrary.arbitrary[Vector[A]]
-        } yield Input.chunk(a1, a1, as),
-        Gen.const(Input.end[A])
+        } yield Input.chunk(a1, a1, as)
       )
     )
 
