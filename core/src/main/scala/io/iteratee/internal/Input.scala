@@ -24,6 +24,7 @@ sealed abstract class Input[@specialized E] extends Serializable {
   def foldWith[Z](folder: Input.Folder[E, Z]): Z
 
   def map[B](f: E => B): Input[B]
+  def size: Int
 
   def toNonEmpty: NonEmptyVector[E]
 }
@@ -56,6 +57,7 @@ final object Input  {
   final def el[E](e: E): Input[E] = new Input[E] {
     final def foldWith[Z](folder: Folder[E, Z]): Z = folder.onEl(e)
     final def map[B](f: E => B): Input[B] = el(f(e))
+    final def size: Int = 1
     final def toNonEmpty: NonEmptyVector[E] = NonEmptyVector(e)
   }
 
@@ -65,6 +67,7 @@ final object Input  {
   final def chunk[E](h1: E, h2: E, t: Vector[E]): Input[E] = new Input[E] {
     final def foldWith[Z](folder: Folder[E, Z]): Z = folder.onChunk(h1, h2, t)
     final def map[B](f: E => B): Input[B] = chunk(f(h1), f(h2), t.map(f))
+    final def size: Int = 2 + t.size
     final def toNonEmpty: NonEmptyVector[E] = NonEmptyVector(h1, h2 +: t)
   }
 }

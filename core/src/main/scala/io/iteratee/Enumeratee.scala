@@ -172,7 +172,7 @@ final object Enumeratee extends EnumerateeInstances {
             Step.ended[F, E, Step[F, (E, Long), A]](step)
           )
           final def onEl(e: E): OuterF[A] = F.map(step.feed(Input.el((e, i))))(doneOrLoop(i + 1))
-          final def onChunk(h1: E, h2: E, t: Vector[E]): OuterF[A] = 
+          final def onChunk(h1: E, h2: E, t: Vector[E]): OuterF[A] =
             F.map(
               step.feed(Input.chunk((h1, i), (h2, i + 1), t.zipWithIndex.map(p => (p._1, p._2 + i + 2L))))
             )(doneOrLoop(i + t.size + 2))
