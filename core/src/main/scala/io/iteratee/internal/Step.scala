@@ -2,6 +2,7 @@ package io.iteratee.internal
 
 import algebra.Monoid
 import cats.{ Applicative, Functor, Monad, MonoidK }
+import cats.arrow.NaturalTransformation
 import io.iteratee.Iteratee
 
 /**
@@ -26,24 +27,9 @@ sealed abstract class Step[F[_], E, A] extends Serializable {
   private[iteratee] def unsafeValue: A
 
   /**
-   * Reduce this [[Step]] to a value using the given pair of functions.
+   * Reduce this [[Step]] to a value using the given functions.
    */
-  final def fold[Z](cont: (Input[E] => F[Step[F, E, A]]) => Z, done: A => Z, early: (A, Input[E]) => Z): Z = foldWith(
-    new Step.Folder[F, E, A, Z] {
-      final def onCont(k: Input[E] => F[Step[F, E, A]]): Z = cont(k)
-      final def onDone(value: A): Z = done(value)
-      override final def onEarly(value: A, remainder: Input[E]): Z = early(value, remainder)
-    }
-  )
-
-  /**
-   * Reduce this [[Step]] to a value using the given pair of functions.
-   *
-   * This method is provided primarily for internal use and for cases where the
-   * expense of allocating multiple function objects and collection instances is
-   * known to be too high. In most cases [[fold]] should be preferred.
-   */
-  def foldWith[Z](folder: Step.Folder[F, E, A, Z]): Z
+  def fold[Z](onCont: (Input[E] => F[Step[F, E, A]]) => Z, onDone: A => Z, onEarly: (A, Input[E]) => Z): Z
 
   def isDone: Boolean
 
@@ -51,6 +37,10 @@ sealed abstract class Step[F[_], E, A] extends Serializable {
    * Map a function over the value of this [[Step]].
    */
   def map[B](f: A => B)(implicit F: Functor[F]): Step[F, E, B]
+
+  def contramap[E2](f: E2 => E)(implicit F: Functor[F]): Step[F, E2, A]
+
+  def mapI[G[_]](f: NaturalTransformation[F, G])(implicit F: Functor[F]): Step[G, E, A]
 
   /**
    * Map a function returning a [[Step]] in a monadic context over the value of
@@ -66,17 +56,25 @@ sealed abstract class Step[F[_], E, A] extends Serializable {
   def asFunction(implicit F: Applicative[F]): Input[E] => F[Step[F, E, A]]
 }
 
-abstract class ContStep[F[_], E, A] extends Step[F, E, A] with Function[Input[E], F[Step[F, E, A]]] {
+abstract class ContStep[F[_], E, A] extends Step[F, E, A] with Function[Input[E], F[Step[F, E, A]]] { self =>
+  final def fold[Z](onCont: (Input[E] => F[Step[F, E, A]]) => Z, onDone: A => Z, onEarly: (A, Input[E]) => Z): Z =
+    onCont(this)
   private[iteratee] final def unsafeValue: A = diverge[A]
   final def isDone: Boolean = false
-  final def foldWith[B](folder: Step.Folder[F, E, A, B]): B = folder.onCont(this)
   final def feed(in: Input[E])(implicit F: Applicative[F]): F[Step[F, E, A]] = apply(in)
   final def asFunction(implicit F: Applicative[F]): Input[E] => F[Step[F, E, A]] = this
+  final def mapI[G[_]](f: NaturalTransformation[F, G])(implicit F: Functor[F]): Step[G, E, A] =
+    new FuncContStep[G, E, A] {
+      def apply(in: Input[E]): G[Step[G, E, A]] = f(F.map(self(in))(_.mapI(f)))
+    }
 }
 
 abstract class FuncContStep[F[_], E, A] extends ContStep[F, E, A] { self =>
   final def map[B](f: A => B)(implicit F: Functor[F]): Step[F, E, B] = new FuncContStep[F, E, B] {
     def apply(in: Input[E]): F[Step[F, E, B]] = F.map(self(in))(_.map(f))
+  }
+  final def contramap[E2](f: E2 => E)(implicit F: Functor[F]): Step[F, E2, A] = new FuncContStep[F, E2, A] {
+    def apply(in: Input[E2]): F[Step[F, E2, A]] = F.map(self(in.map(f)))(_.contramap(f))
   }
   final def bindF[B](f: A => F[Step[F, E, B]])(implicit F: Monad[F]): F[Step[F, E, B]] = F.pure(
     new FuncContStep[F, E, B] {
@@ -90,6 +88,9 @@ abstract class PureFuncContStep[F[_]: Applicative, E, A] extends ContStep[F, E, 
   final def apply(in: Input[E]): F[Step[F, E, A]] = Applicative[F].pure(pureApply(in))
   final def map[B](f: A => B)(implicit F0: Functor[F]): Step[F, E, B] = new PureFuncContStep[F, E, B] {
     def pureApply(in: Input[E]): Step[F, E, B] = self.pureApply(in).map(f)
+  }
+  final def contramap[E2](f: E2 => E)(implicit F: Functor[F]): Step[F, E2, A] = new PureFuncContStep[F, E2, A] {
+    def pureApply(in: Input[E2]): Step[F, E2, A] = self.pureApply(in.map(f)).contramap(f)
   }
   final def bindF[B](f: A => F[Step[F, E, B]])(implicit F: Monad[F]): F[Step[F, E, B]] = F.pure(
     new FuncContStep[F, E, B] {
@@ -115,26 +116,6 @@ abstract class DoneStep[F[_], E, A](final val unsafeValue: A) extends Step[F, E,
  * @groupprio Collection 2
  */
 final object Step { self =>
-  /**
-   * Represents a pair of functions that can be used to reduce a [[Step]] to a
-   * value.
-   *
-   * Combining two "functions" into a single class allows us to avoid
-   * allocations.
-   *
-   * @group Utilities
-   *
-   * @tparam E The type of the input data
-   * @tparam F The effect type constructor
-   * @tparam A The type of the result calculated by the [[Iteratee]]
-   * @tparam B The type of the result of the fold
-   */
-  trait Folder[F[_], E, A, Z] extends Serializable {
-    def onCont(k: Input[E] => F[Step[F, E, A]]): Z
-    def onDone(value: A): Z
-    def onEarly(value: A, remainder: Input[E]): Z = onDone(value)
-  }
-
   abstract class Cont[F[_], E, A] extends FuncContStep[F, E, A] with Input.Folder[E, F[Step[F, E, A]]] {
     final def apply(in: Input[E]): F[Step[F, E, A]] = in.foldWith(this)
   }
@@ -160,9 +141,12 @@ final object Step { self =>
    * @group Constructors
    */
   final def done[F[_], E, A](value: A): Step[F, E, A] = new DoneStep[F, E, A](value) {
-    final def foldWith[B](folder: Folder[F, E, A, B]): B = folder.onDone(value)
+    final def fold[Z](onCont: (Input[E] => F[Step[F, E, A]]) => Z, onDone: A => Z, onEarly: (A, Input[E]) => Z): Z =
+      onDone(value)
     final def map[B](f: A => B)(implicit F: Functor[F]): Step[F, E, B] = done(f(value))
+    final def contramap[E2](f: E2 => E)(implicit F: Functor[F]): Step[F, E2, A] = done(value)
     final def bindF[B](f: A => F[Step[F, E, B]])(implicit F: Monad[F]): F[Step[F, E, B]] = f(value)
+    final def mapI[G[_]](f: NaturalTransformation[F, G])(implicit F: Functor[F]): Step[G, E, A] = done(value)
   }
 
   /**
@@ -172,39 +156,20 @@ final object Step { self =>
    */
   final def early[F[_], E, A](value: A, remaining: Input[E]): Step[F, E, A] =
     new DoneStep[F, E, A](value) {
-      final def foldWith[B](folder: Folder[F, E, A, B]): B = folder.onEarly(value, remaining)
+      final def fold[Z](onCont: (Input[E] => F[Step[F, E, A]]) => Z, onDone: A => Z, onEarly: (A, Input[E]) => Z): Z =
+        onEarly(value, remaining)
       final def map[B](f: A => B)(implicit F: Functor[F]): Step[F, E, B] = early(f(value), remaining)
+      final def contramap[E2](f: E2 => E)(implicit F: Functor[F]): Step[F, E2, A] =
+        if (remaining.isEnd) early(value, Input.end) else done(value)
 
       final def bindF[B](f: A => F[Step[F, E, B]])(implicit F: Monad[F]): F[Step[F, E, B]] =
-        F.flatMap(f(value))(
-          _.foldWith(
-            new Folder[F, E, B, F[Step[F, E, B]]] {
-              final def onCont(k: Input[E] => F[Step[F, E, B]]): F[Step[F, E, B]] = k(remaining)
-              final def onDone(aa: B): F[Step[F, E, B]] = F.pure(early(aa, remaining))
-            }
-          )
+        F.flatMap(f(value))(step =>
+          if (step.isDone) F.pure(early(step.unsafeValue, remaining)) else step.feed(remaining)
         )
+
+      final def mapI[G[_]](f: NaturalTransformation[F, G])(implicit F: Functor[F]): Step[G, E, A] =
+        early(value, remaining)
     }
-
-  /**
-   * Create a new completed state with the given result and leftover input.
-   *
-   * @group Constructors
-   */
-  final def ended[F[_], E, A](value: A): Step[F, E, A] = new DoneStep[F, E, A](value) {
-    final def foldWith[B](folder: Folder[F, E, A, B]): B = folder.onEarly(value, Input.end)
-    final def map[B](f: A => B)(implicit F: Functor[F]): Step[F, E, B] = ended(f(value))
-
-    final def bindF[B](f: A => F[Step[F, E, B]])(implicit F: Monad[F]): F[Step[F, E, B]] =
-      F.flatMap(f(value))(
-        _.foldWith(
-          new Folder[F, E, B, F[Step[F, E, B]]] {
-            final def onCont(k: Input[E] => F[Step[F, E, B]]): F[Step[F, E, B]] = k(Input.end)
-            final def onDone(aa: B): F[Step[F, E, B]] = F.pure(ended(aa))
-          }
-        )
-      )
-  }
 
   /**
    * Lift a monadic value into a [[Step]].
@@ -219,15 +184,11 @@ final object Step { self =>
    * @group Utilities
    */
   final def joinI[F[_], A, B, C](step: Step[F, A, Step[F, B, C]])(implicit F: Monad[F]): F[Step[F, A, C]] = {
-    def check: Step[F, B, C] => F[Step[F, A, C]] = _.foldWith(
-      new Folder[F, B, C, F[Step[F, A, C]]] {
-        final def onCont(k: Input[B] => F[Step[F, B, C]]): F[Step[F, A, C]] = F.flatMap(k(Input.end))(
-          s => if (s.isDone) check(s) else diverge
+    def check(step: Step[F, B, C]): F[Step[F, A, C]] =
+      if (step.isDone) F.pure(Step.done(step.unsafeValue)) else
+        F.flatMap(step.feed(Input.end))(
+          next => if (next.isDone) F.pure(Step.done(next.unsafeValue)) else diverge
         )
-        final def onDone(value: C): F[Step[F, A, C]] =
-          F.pure(Step.done(value))
-      }
-    )
 
     step.bindF(check)
   }
@@ -448,13 +409,10 @@ final object Step { self =>
     type Pair[Z] = (Option[(Z, Option[Input[E]])], Step[F, E, Z])
 
     def paired[Z](s: Step[F, E, Z]): Step[F, E, Pair[Z]] = Step.done(
-      s.foldWith(
-        new Step.Folder[F, E, Z, Pair[Z]] {
-          def onCont(k: Input[E] => F[Step[F, E, Z]]): Pair[Z] = (None, Step.cont(k))
-          def onDone(value: Z): Pair[Z] = (Some((value, None)), Step.done(value))
-          def onDone(value: Z, remainder: Input[E]): Pair[Z] =
-            (Some((value, Some(remainder))), Step.early(value, remainder))
-        }
+      s.fold(
+         k => (None, Step.cont(k)),
+         value => (Some((value, None)), Step.done(value)),
+         (value, remainder) => (Some((value, Some(remainder))), Step.early(value, remainder))
       )
     )
 

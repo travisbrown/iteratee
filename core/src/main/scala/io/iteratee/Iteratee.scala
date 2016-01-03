@@ -46,34 +46,8 @@ sealed class Iteratee[F[_], E, A] private[iteratee] (final val state: F[Step[F, 
   /**
    * Transform the inputs to this [[Iteratee]].
    */
-  final def contramap[E2](f: E2 => E)(implicit F: Monad[F]): Iteratee[F, E2, A] = {
-    def loop(s: Step[F, E, A]): F[Step[F, E2, A]] = s.foldWith(
-      new Step.Folder[F, E, A, F[Step[F, E2, A]]] {
-        def onCont(k: Input[E] => F[Step[F, E, A]]): F[Step[F, E2, A]] =
-          F.pure(
-            Step.cont((in: Input[E2]) =>
-              F.flatMap(
-                k(
-                  in.foldWith(
-                    new Input.Folder[E2, Input[E]] {
-                      def onEnd: Input[E] = Input.end
-                      def onEl(e: E2): Input[E] = Input.el(f(e))
-                      def onChunk(e1: E2, e2: E2, es: Vector[E2]): Input[E] =
-                        Input.chunk(f(e1), f(e2), es.map(f))
-                    }
-                  )
-                )
-              )(loop)
-            )
-          )
-        def onDone(value: A): F[Step[F, E2, A]] = F.pure(Step.done(value))
-        override def onEarly(value: A, remainder: Input[E]): F[Step[F, E2, A]] =
-          F.pure(if (remainder.isEnd) Step.early(value, Input.end) else Step.done(value))
-      }
-    )
-
-    Iteratee.iteratee(F.flatMap(state)(loop))
-  }
+  final def contramap[E2](f: E2 => E)(implicit F: Functor[F]): Iteratee[F, E2, A] =
+    Iteratee.iteratee(F.map(state)(_.contramap(f)))
 
   /**
    * Create a new [[Iteratee]] that first processes values with the given
@@ -85,22 +59,8 @@ sealed class Iteratee[F[_], E, A] private[iteratee] (final val state: F[Step[F, 
   /**
    * Transform the context of this [[Iteratee]].
    */
-  final def mapI[G[_]](f: NaturalTransformation[F, G])(implicit
-    F: Functor[F]
-  ): Iteratee[G, E, A] = {
-    def transform: Step[F, E, A] => Step[G, E, A] = _.foldWith(
-      new Step.Folder[F, E, A, Step[G, E, A]] {
-        def onCont(k: Input[E] => F[Step[F, E, A]]): Step[G, E, A] =
-          Step.cont(in => loop(k(in)))
-        def onDone(value: A): Step[G, E, A] = Step.done(value)
-        override def onEarly(value: A, remainder: Input[E]): Step[G, E, A] = Step.early(value, remainder)
-      }
-    )
-
-    def loop: F[Step[F, E, A]] => G[Step[G, E, A]] = i => f(F.map(i)(transform))
-
-    Iteratee.iteratee(loop(state))
-  }
+  final def mapI[G[_]](f: NaturalTransformation[F, G])(implicit F: Functor[F]): Iteratee[G, E, A] =
+    Iteratee.iteratee(f(F.map(state)(_.mapI(f))))
 
   /**
    * Lift this [[Iteratee]] into a different context.
