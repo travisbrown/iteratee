@@ -89,8 +89,8 @@ abstract class Enumerator[F[_], E] extends Serializable { self =>
       final def apply[A](step: Step[F, B, A]): F[Step[F, B, A]] = {
         def check(next: Step[F, E, B]): F[Step[F, B, A]] =
           if (next.isDone) step.feed(Input.el(next.unsafeValue)) else
-            F.flatMap(next.feed(Input.end)) { next2 =>
-              if (next2.isDone) check(next2) else diverge
+            F.flatMap(next.onEnd) { next2 =>
+              if (next2.isDone) step.feed(Input.el(next2.unsafeValue)) else diverge
             }
 
         F.flatMap(self(Step.fold[F, E, B](b)(f)))(check(_))
@@ -132,7 +132,7 @@ final object Enumerator extends EnumeratorInstances {
    */
   final def enumEnd[F[_]: Applicative, E]: Enumerator[F, E] =
     new Enumerator[F, E] {
-      final def apply[A](s: Step[F, E, A]): F[Step[F, E, A]] = s.feed(Input.end)
+      final def apply[A](s: Step[F, E, A]): F[Step[F, E, A]] = s.onEnd.asInstanceOf[F[Step[F, E, A]]]
     }
 
   /**

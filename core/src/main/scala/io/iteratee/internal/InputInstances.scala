@@ -14,7 +14,7 @@ private[iteratee] trait InputInstances extends VectorInstances {
           new Input.Folder[A, Boolean] {
             final def onEl(e2: A): Boolean = A.eqv(e, e2)
             final def onChunk(f1: A, f2: A, fs: Vector[A]): Boolean = false
-            final def onEnd: Boolean = false
+            //final def onEndX: Boolean = false
           }
         )
         final def onChunk(e1: A, e2: A, es: Vector[A]): Boolean = a2.foldWith(
@@ -22,10 +22,10 @@ private[iteratee] trait InputInstances extends VectorInstances {
             final def onEl(e: A): Boolean = false
             final def onChunk(f1: A, f2: A, fs: Vector[A]): Boolean =
               A.eqv(e1, f1) && A.eqv(e2, f2) && eqVectorA.eqv(es, fs)
-            final def onEnd: Boolean = false
+            //final def onEndX: Boolean = false
           }
         )
-        final def onEnd: Boolean = a2.isEnd
+        final def onEndX: Boolean = a2.isEnd
       }
     )
   }
@@ -36,7 +36,7 @@ private[iteratee] trait InputInstances extends VectorInstances {
         final def onEl(e: A): String = s"el(${ A.show(e) })"
         final def onChunk(h1: A, h2: A, es: Vector[A]): String =
           s"""chunk(${ in.toVector.map(A.show).mkString(", ") })"""
-        final def onEnd: String = "end"
+        //final def onEndX: String = "end"
       }
     )
   }
