@@ -15,16 +15,6 @@ import cats.data.NonEmptyVector
  */
 sealed abstract class Input[@specialized E] extends Serializable {
   /**
-   * Reduce this [[Input]] to a value using the given function.
-   */
-  final def fold[Z](f: NonEmptyVector[E] => Z): Z = foldWith(
-    new Input.Folder[E, Z] {
-      final def onEl(e: E): Z = f(NonEmptyVector(e))
-      final def onChunk(h: E, t: NonEmptyVector[E]): Z = f(NonEmptyVector(h, t.head +: t.tail))
-    }
-  )
-
-  /**
    * Reduce this [[Input]] to a value using the given folder.
    *
    * This method is provided primarily for internal use and for cases where the
@@ -34,6 +24,8 @@ sealed abstract class Input[@specialized E] extends Serializable {
   def foldWith[Z](folder: Input.Folder[E, Z]): Z
 
   def map[B](f: E => B): Input[B]
+
+  def toNonEmpty: NonEmptyVector[E]
 }
 
 final object Input  {
@@ -64,6 +56,7 @@ final object Input  {
   final def el[E](e: E): Input[E] = new Input[E] {
     final def foldWith[Z](folder: Folder[E, Z]): Z = folder.onEl(e)
     final def map[B](f: E => B): Input[B] = el(f(e))
+    final def toNonEmpty: NonEmptyVector[E] = NonEmptyVector(e)
   }
 
   /**
@@ -72,5 +65,6 @@ final object Input  {
   final def chunk[E](h: E, t: NonEmptyVector[E]): Input[E] = new Input[E] {
     final def foldWith[Z](folder: Folder[E, Z]): Z = folder.onChunk(h, t)
     final def map[B](f: E => B): Input[B] = chunk(f(h), NonEmptyVector(f(t.head), t.tail.map(f)))
+    final def toNonEmpty: NonEmptyVector[E] = NonEmptyVector(h, t.head +: t.tail)
   }
 }
