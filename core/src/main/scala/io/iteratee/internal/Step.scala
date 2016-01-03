@@ -52,8 +52,6 @@ sealed abstract class Step[F[_], E, A] extends Serializable {
    * Apply this [[Step]] to an [[Input]].
    */
   def feed(in: Input[E])(implicit F: Applicative[F]): F[Step[F, E, A]]
-
-  def asFunction(implicit F: Applicative[F]): Input[E] => F[Step[F, E, A]]
 }
 
 abstract class ContStep[F[_], E, A] extends Step[F, E, A] with Function[Input[E], F[Step[F, E, A]]] { self =>
@@ -62,7 +60,6 @@ abstract class ContStep[F[_], E, A] extends Step[F, E, A] with Function[Input[E]
   private[iteratee] final def unsafeValue: A = diverge[A]
   final def isDone: Boolean = false
   final def feed(in: Input[E])(implicit F: Applicative[F]): F[Step[F, E, A]] = apply(in)
-  final def asFunction(implicit F: Applicative[F]): Input[E] => F[Step[F, E, A]] = this
   final def mapI[G[_]](f: NaturalTransformation[F, G])(implicit F: Functor[F]): Step[G, E, A] =
     new FuncContStep[G, E, A] {
       def apply(in: Input[E]): G[Step[G, E, A]] = f(F.map(self(in))(_.mapI(f)))
@@ -102,7 +99,6 @@ abstract class PureFuncContStep[F[_]: Applicative, E, A] extends ContStep[F, E, 
 abstract class DoneStep[F[_], E, A](final val unsafeValue: A) extends Step[F, E, A] {
   final def isDone: Boolean = true
   final def feed(in: Input[E])(implicit F: Applicative[F]): F[Step[F, E, A]] = F.pure(this)
-  final def asFunction(implicit F: Applicative[F]): Input[E] => F[Step[F, E, A]] = feed _
 }
 
 /**
