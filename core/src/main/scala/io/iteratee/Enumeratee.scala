@@ -127,13 +127,13 @@ final object Enumeratee extends EnumerateeInstances {
   final def sequenceI[F[_], O, I](iteratee: Iteratee[F, O, I])(implicit F: Monad[F]): Enumeratee[F, O, I] =
     new Looping[F, O, I] {
       protected final def loop[A](step: Step[F, I, A]): OuterF[A] =
-        Step.cont[F, O, Boolean](in => F.pure(Step.early(in.isEnd, in))).bindF { isEnd =>
+        Step.cont[F, O, Boolean](in => F.pure(Step.early(in.isEnd, in))).bind { isEnd =>
           if (isEnd) F.pure[OuterS[A]](Step.early(step, Input.end)) else stepWith(step)
         }
 
       private[this] final def stepWith[A](step: Step[F, I, A]): OuterF[A] =
         F.flatMap(iteratee.state)(
-          _.bindF(a => F.flatMap[Step[F, I, A], OuterS[A]](step.feed(Input.el(a)))(doneOrLoop))
+          _.bind(a => F.flatMap[Step[F, I, A], OuterS[A]](step.feed(Input.el(a)))(doneOrLoop))
         )
     }
 
@@ -203,7 +203,7 @@ final object Enumeratee extends EnumerateeInstances {
    * Split the stream using the given predicate to identify delimiters.
    */
   final def splitOn[F[_], E](p: E => Boolean)(implicit F: Monad[F]): Enumeratee[F, E, Vector[E]] = sequenceI(
-    Iteratee.iteratee(Step.takeWhile[F, E](e => !p(e)).bindF(es => F.pure(Step.drop(1).map(_ => es))))
+    Iteratee.iteratee(Step.takeWhile[F, E](e => !p(e)).bind(es => F.pure(Step.drop(1).map(_ => es))))
   )
 
   /**
@@ -214,7 +214,7 @@ final object Enumeratee extends EnumerateeInstances {
     new Enumeratee[F, E1, (E1, E2)] {
       private[this] final def outerLoop[A](step: Step[F, (E1, E2), A]): OuterF[A] =
         F.flatMap(Iteratee.head[F, E1].state)(
-          _.bindF {
+          _.bind {
             case Some(e) =>
               val pairingIteratee = Enumeratee.map[F, E2, (E1, E2)]((e, _)).apply (step)
               val nextStep = F.flatMap(pairingIteratee)(e2.runStep)
