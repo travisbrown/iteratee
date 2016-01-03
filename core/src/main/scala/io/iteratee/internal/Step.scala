@@ -62,12 +62,16 @@ sealed abstract class Step[F[_], E, A] extends Serializable {
    * Apply this [[Step]] to an [[Input]].
    */
   def feed(in: Input[E])(implicit F: Applicative[F]): F[Step[F, E, A]]
+
+  def asFunction(implicit F: Applicative[F]): Input[E] => F[Step[F, E, A]]
 }
 
 abstract class ContStep[F[_], E, A] extends Step[F, E, A] with Function[Input[E], F[Step[F, E, A]]] {
   private[iteratee] final def unsafeValue: A = diverge[A]
   final def isDone: Boolean = false
   final def foldWith[B](folder: Step.Folder[F, E, A, B]): B = folder.onCont(this)
+  final def feed(in: Input[E])(implicit F: Applicative[F]): F[Step[F, E, A]] = apply(in)
+  final def asFunction(implicit F: Applicative[F]): Input[E] => F[Step[F, E, A]] = this
 }
 
 abstract class FuncContStep[F[_], E, A] extends ContStep[F, E, A] { self =>
@@ -79,7 +83,6 @@ abstract class FuncContStep[F[_], E, A] extends ContStep[F, E, A] { self =>
       def apply(in: Input[E]): F[Step[F, E, B]] = F.flatMap(self(in))(_.bindF(f))
     }
   )
-  final def feed(in: Input[E])(implicit F: Applicative[F]): F[Step[F, E, A]] = apply(in)
 }
 
 abstract class PureFuncContStep[F[_]: Applicative, E, A] extends ContStep[F, E, A] { self =>
@@ -93,12 +96,12 @@ abstract class PureFuncContStep[F[_]: Applicative, E, A] extends ContStep[F, E, 
       def apply(in: Input[E]): F[Step[F, E, B]] = self.pureApply(in).bindF(f)
     }
   )
-  final def feed(in: Input[E])(implicit F: Applicative[F]): F[Step[F, E, A]] = apply(in)
 }
 
 abstract class DoneStep[F[_], E, A](final val unsafeValue: A) extends Step[F, E, A] {
   final def isDone: Boolean = true
   final def feed(in: Input[E])(implicit F: Applicative[F]): F[Step[F, E, A]] = F.pure(this)
+  final def asFunction(implicit F: Applicative[F]): Input[E] => F[Step[F, E, A]] = feed _
 }
 
 /**
