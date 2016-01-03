@@ -59,13 +59,13 @@ sealed class Iteratee[F[_], E, A] private[iteratee] (final val state: F[Step[F, 
   /**
    * Transform the context of this [[Iteratee]].
    */
-  final def mapI[G[_]](f: NaturalTransformation[F, G])(implicit F: Functor[F]): Iteratee[G, E, A] =
+  final def mapI[G[_]](f: NaturalTransformation[F, G])(implicit F: Applicative[F]): Iteratee[G, E, A] =
     Iteratee.iteratee(f(F.map(state)(_.mapI(f))))
 
   /**
    * Lift this [[Iteratee]] into a different context.
    */
-  final def up[G[_]](implicit G: Applicative[G], F: Comonad[F]): Iteratee[G, E, A] = mapI(
+  final def up[G[_]](implicit G: Applicative[G], F: Comonad[F], F0: Applicative[F]): Iteratee[G, E, A] = mapI(
     new NaturalTransformation[F, G] {
       final def apply[A](a: F[A]): G[A] = G.pure(F.extract(a))
     }
@@ -117,7 +117,7 @@ final object Iteratee extends IterateeInstances {
    * @group Constructors
    */
   final def cont[F[_]: Applicative, E, A](k: Input[E] => Iteratee[F, E, A]): Iteratee[F, E, A] =
-    fromStep(Step.cont(in => k(in).state))
+    fromStep(Step.contX(in => k(in).state))
 
   /**
    * Create a new completed [[Iteratee]] with the given result and leftover
@@ -305,6 +305,5 @@ final object Iteratee extends IterateeInstances {
    *
    * @group Collection
    */
-  final def isEnd[F[_]: Applicative, E]: Iteratee[F, E, Boolean] =
-    Iteratee.cont(in => Iteratee.early(in.isEnd, in))
+  final def isEnd[F[_]: Applicative, E]: Iteratee[F, E, Boolean] = Iteratee.fromStep(Step.isEnd)
 }

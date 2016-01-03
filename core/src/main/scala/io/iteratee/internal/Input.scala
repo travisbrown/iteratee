@@ -17,7 +17,7 @@ sealed abstract class Input[@specialized E] extends Serializable {
    */
   final def fold[Z](end: => Z, values: Vector[E] => Z): Z = foldWith(
     new Input.Folder[E, Z] {
-      final def onEnd: Z = end
+      //final def onEndX: Z = end
       final def onEl(e: E): Z = values(Vector(e))
       final def onChunk(h1: E, h2: E, es: Vector[E]): Z = values(h1 +: h2 +: es)
     }
@@ -54,7 +54,7 @@ final object Input extends InputInstances {
    * @tparam Z The result type
    */
   trait Folder[@specialized E, Z] {
-    def onEnd: Z
+    //def onEndX: Z
     def onEl(e: E): Z
     def onChunk(h1: E, h2: E, es: Vector[E]): Z
   }
@@ -89,7 +89,7 @@ final object Input extends InputInstances {
    * in `end` in order to avoid allocations.
    */
   private[this] final val endValue: Input[Nothing] = new Input[Nothing] {
-    final def foldWith[A](folder: Folder[Nothing, A]): A = folder.onEnd
+    final def foldWith[A](folder: Folder[Nothing, A]): A = ???
     final val isEnd: Boolean = true
     final def map[B](f: Nothing => B): Input[B] = end
     private[iteratee] final val toVector: Vector[Nothing] = Vector.empty
