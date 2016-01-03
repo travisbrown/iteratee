@@ -1,7 +1,7 @@
 package io.iteratee
 
 import cats.Monad
-import cats.data.{ NonEmptyVector, Xor }
+import cats.data.Xor
 import io.iteratee.internal.Input
 import org.scalacheck.{ Arbitrary, Gen }
 
@@ -19,7 +19,7 @@ trait ArbitraryInstances {
           a1 <- A.arbitrary
           a2 <- A.arbitrary
           as <- Arbitrary.arbitrary[Vector[A]]
-        } yield Input.chunk(a1, NonEmptyVector(a2, as))
+        } yield Input.chunk(a1, a2, as)
       )
     )
 

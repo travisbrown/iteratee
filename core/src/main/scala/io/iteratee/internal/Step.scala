@@ -3,7 +3,6 @@ package io.iteratee.internal
 import algebra.Monoid
 import cats.{ Applicative, Functor, Monad, MonoidK }
 import cats.arrow.NaturalTransformation
-import cats.data.NonEmptyVector
 import io.iteratee.Iteratee
 
 /**
@@ -268,8 +267,8 @@ final object Step { self =>
   final class FoldCont[F[_]: Applicative, E, A](acc: A, f: (A, E) => A) extends PureCont[F, E, A] {
     final def onEnd(implicit F: Applicative[F]): F[Ended[F, E, A]] = F.pure(new Ended(acc))
     final def onEl(e: E): Step[F, E, A] = self.fold(f(acc, e))(f)
-    final def onChunk(h: E, t: NonEmptyVector[E]): Step[F, E, A] =
-      self.fold(t.tail.foldLeft(f(f(acc, h), t.head))(f))(f)
+    final def onChunk(h1: E, h2: E, t: Vector[E]): Step[F, E, A] =
+      self.fold(t.foldLeft(f(f(acc, h1), h2))(f))(f)
   }
 
   /**
@@ -284,9 +283,9 @@ final object Step { self =>
   final class FoldMCont[F[_], E, A](acc: A, f: (A, E) => F[A])(implicit F: Monad[F]) extends Cont[F, E, A] {
     final def onEnd(implicit F0: Applicative[F]): F[Ended[F, E, A]] = F0.pure(new Ended(acc))
     final def onEl(e: E): F[Step[F, E, A]] = F.map(f(acc, e))(a => foldM(a)(f))
-    final def onChunk(h: E, t: NonEmptyVector[E]): F[Step[F, E, A]] =
+    final def onChunk(h1: E, h2: E, t: Vector[E]): F[Step[F, E, A]] =
       F.map(
-        t.tail.foldLeft(F.flatMap(f(acc, h))(a => f(a, t.head)))((fa, e) => F.flatMap(fa)(a => f(a, e)))
+        t.foldLeft(F.flatMap(f(acc, h1))(a => f(a, h2)))((fa, e) => F.flatMap(fa)(a => f(a, e)))
       )(a => foldM(a)(f))
   }
 
@@ -301,7 +300,7 @@ final object Step { self =>
   final class DrainCont[F[_]: Applicative, E](acc: Vector[E]) extends PureCont[F, E, Vector[E]] {
     final def onEnd(implicit F: Applicative[F]): F[Ended[F, E, Vector[E]]] = F.pure(new Ended(acc))
     final def onEl(e: E): Step[F, E, Vector[E]] = new DrainCont(acc :+ e)
-    final def onChunk(h: E, t: NonEmptyVector[E]): Step[F, E, Vector[E]] = new DrainCont(acc ++ (h +: t.head +: t.tail))
+    final def onChunk(h1: E, h2: E, t: Vector[E]): Step[F, E, Vector[E]] = new DrainCont(acc ++ (h1 +: h2 +: t))
   }
 
   /**
@@ -323,8 +322,8 @@ final object Step { self =>
   ) extends PureCont[F, E, C[E]] {
     final def onEnd(implicit F0: Applicative[F]): F[Ended[F, E, C[E]]] = F0.pure(new Ended(acc))
     final def onEl(e: E): Step[F, E, C[E]] = new DrainToCont(M.combine(acc, C.pure(e)))
-    final def onChunk(h: E, t: NonEmptyVector[E]): Step[F, E, C[E]] = new DrainToCont(
-      t.tail.foldLeft(M.combine(M.combine(acc, C.pure(h)), C.pure(t.head)))((a, e) => M.combine(a, C.pure(e)))
+    final def onChunk(h1: E, h2: E, t: Vector[E]): Step[F, E, C[E]] = new DrainToCont(
+      t.foldLeft(M.combine(M.combine(acc, C.pure(h1)), C.pure(h2)))((a, e) => M.combine(a, C.pure(e)))
     )
   }
 
@@ -338,7 +337,7 @@ final object Step { self =>
   final class HeadCont[F[_]: Applicative, E] extends PureCont[F, E, Option[E]] {
     final def onEnd(implicit F: Applicative[F]): F[Ended[F, E, Option[E]]] = F.pure(new Ended(None))
     final def onEl(e: E): Step[F, E, Option[E]] = done(Some(e))
-    final def onChunk(h: E, t: NonEmptyVector[E]): Step[F, E, Option[E]] = early(Some(h), Input.fromNonEmpty(t))
+    final def onChunk(h1: E, h2: E, t: Vector[E]): Step[F, E, Option[E]] = early(Some(h1), Input.fromPair(h2, t))
   }
 
   /**
@@ -351,7 +350,7 @@ final object Step { self =>
   final class PeekCont[F[_]: Applicative, E] extends PureCont[F, E, Option[E]] {
     final def onEnd(implicit F: Applicative[F]): F[Ended[F, E, Option[E]]] = F.pure(new Ended(None))
     final def onEl(e: E): Step[F, E, Option[E]] = early(Some(e), Input.el(e))
-    final def onChunk(h: E, t: NonEmptyVector[E]): Step[F, E, Option[E]] = early(Some(h), Input.chunk(h, t))
+    final def onChunk(h1: E, h2: E, t: Vector[E]): Step[F, E, Option[E]] = early(Some(h1), Input.chunk(h1, h2, t))
   }
 
   /**
@@ -368,8 +367,8 @@ final object Step { self =>
   final class TakeCont[F[_]: Applicative, E](acc: Vector[E], n: Int) extends PureCont[F, E, Vector[E]] {
     final def onEnd(implicit F: Applicative[F]): F[Ended[F, E, Vector[E]]] = F.pure(new Ended(acc))
     final def onEl(e: E): Step[F, E, Vector[E]] = if (n == 1) done(acc :+ e) else new TakeCont(acc :+ e, n - 1)
-    final def onChunk(h: E, t: NonEmptyVector[E]): Step[F, E, Vector[E]] = {
-      val v = h +: t.head +: t.tail
+    final def onChunk(h1: E, h2: E, t: Vector[E]): Step[F, E, Vector[E]] = {
+      val v = h1 +: h2 +: t
       val diff = n - v.size
 
       if (diff > 0) new TakeCont(acc ++ v, diff) else if (diff == 0) done(acc ++ v) else {
@@ -392,8 +391,8 @@ final object Step { self =>
   final class TakeWhileCont[F[_]: Applicative, E](acc: Vector[E], p: E => Boolean) extends PureCont[F, E, Vector[E]] {
     final def onEnd(implicit F: Applicative[F]): F[Ended[F, E, Vector[E]]] = F.pure(new Ended(acc))
     final def onEl(e: E): Step[F, E, Vector[E]] = if (p(e)) new TakeWhileCont(acc :+ e, p) else early(acc, Input.el(e))
-    final def onChunk(h: E, t: NonEmptyVector[E]): Step[F, E, Vector[E]] = {
-      val (before, after) = (h +: t.head +: t.tail).span(p)
+    final def onChunk(h1: E, h2: E, t: Vector[E]): Step[F, E, Vector[E]] = {
+      val (before, after) = (h1 +: h2 +: t).span(p)
 
       if (after.isEmpty) new TakeWhileCont(acc ++ before, p) else
         early(acc ++ before, Input.fromVectorUnsafe(after))
@@ -411,11 +410,11 @@ final object Step { self =>
   final class DropCont[F[_]: Applicative, E](n: Int) extends PureCont[F, E, Unit] {
     final def onEnd(implicit F: Applicative[F]): F[Ended[F, E, Unit]] = F.pure(new Ended(()))
     final def onEl(e: E): Step[F, E, Unit] = drop(n - 1)
-    final def onChunk(h: E, t: NonEmptyVector[E]): Step[F, E, Unit] = {
-      val len = t.tail.size + 2
+    final def onChunk(h1: E, h2: E, t: Vector[E]): Step[F, E, Unit] = {
+      val len = t.size + 2
 
       if (len <= n) drop(n - len) else {
-        val dropped = (h +: t.head +: t.tail).drop(n)
+        val dropped = (h1 +: h2 +: t).drop(n)
 
         early((), Input.fromVectorUnsafe(dropped))
       }
@@ -434,8 +433,8 @@ final object Step { self =>
   final class DropWhileCont[F[_]: Applicative, E](p: E => Boolean) extends PureCont[F, E, Unit] {
     final def onEnd(implicit F: Applicative[F]): F[Ended[F, E, Unit]] = F.pure(new Ended(()))
     final def onEl(e: E): Step[F, E, Unit] = if (p(e)) dropWhile(p) else early((), Input.el(e))
-    final def onChunk(h: E, t: NonEmptyVector[E]): Step[F, E, Unit] = {
-      val after = (h +: t.head +: t.tail).dropWhile(p)
+    final def onChunk(h1: E, h2: E, t: Vector[E]): Step[F, E, Unit] = {
+      val after = (h1 +: h2 +: t).dropWhile(p)
 
       if (after.isEmpty) dropWhile(p) else early((), Input.fromVectorUnsafe(after))
     }
@@ -444,7 +443,7 @@ final object Step { self =>
   final def isEnd[F[_]: Applicative, E]: Step[F, E, Boolean] = new PureCont[F, E, Boolean] {
     final def onEnd(implicit F0: Applicative[F]): F[Ended[F, E, Boolean]] = F0.pure(new Ended(true))
     final def onEl(e: E): Step[F, E, Boolean] = early(false, Input.el(e))
-    final def onChunk(h: E, t: NonEmptyVector[E]): Step[F, E, Boolean] = early(false, Input.chunk(h, t))
+    final def onChunk(h1: E, h2: E, t: Vector[E]): Step[F, E, Boolean] = early(false, Input.chunk(h1, h2, t))
   }
 
   /**
