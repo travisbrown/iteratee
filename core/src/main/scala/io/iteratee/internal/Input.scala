@@ -51,11 +51,10 @@ final object Input extends InputInstances {
    * @tparam E The element type
    * @tparam Z The result type
    */
-  trait Folder[@specialized E, Z] extends Function[Input[E], Z] {
+  trait Folder[@specialized E, Z] {
     def onEnd: Z
     def onEl(e: E): Z
     def onChunk(h1: E, h2: E, es: Vector[E]): Z
-    final def apply(in: Input[E]): Z = in.foldWith(this)
   }
 
   /**
