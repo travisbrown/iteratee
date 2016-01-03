@@ -2,6 +2,7 @@ package io.iteratee
 
 import algebra.{ Monoid, Order, Semigroup }
 import cats.{ Applicative, FlatMap, Id, Monad, MonadError, MonoidK }
+import cats.data.NonEmptyVector
 import io.iteratee.internal.{ Input, Step, diverge }
 
 abstract class Enumerator[F[_], E] extends Serializable { self =>
@@ -24,7 +25,7 @@ abstract class Enumerator[F[_], E] extends Serializable { self =>
   final def prepend(e: E)(implicit F: Monad[F]): Enumerator[F, E] = {
     new Enumerator[F, E] {
       def apply[A](step: Step[F, E, A]): F[Step[F, E, A]] = F.flatMap(
-        if (step.isDone) F.pure(step) else step.feed(Input.el(e))
+        if (step.isDone) F.pure(step) else step.feed(NonEmptyVector(e))
       )(self(_))
     }
   }
@@ -88,9 +89,9 @@ abstract class Enumerator[F[_], E] extends Serializable { self =>
     new Enumerator[F, B] {
       final def apply[A](step: Step[F, B, A]): F[Step[F, B, A]] = {
         def check(next: Step[F, E, B]): F[Step[F, B, A]] =
-          if (next.isDone) step.feed(Input.el(next.unsafeValue)) else
+          if (next.isDone) step.feed(NonEmptyVector(next.unsafeValue)) else
             F.flatMap(next.onEnd) { next2 =>
-              if (next2.isDone) step.feed(Input.el(next2.unsafeValue)) else diverge
+              if (next2.isDone) step.feed(NonEmptyVector(next2.unsafeValue)) else diverge
             }
 
         F.flatMap(self(Step.fold[F, E, B](b)(f)))(check(_))
@@ -110,7 +111,7 @@ final object Enumerator extends EnumeratorInstances {
   final def liftM[F[_], E](fa: F[E])(implicit F: Monad[F]): Enumerator[F, E] =
     new Enumerator[F, E] {
       final def apply[A](s: Step[F, E, A]): F[Step[F, E, A]] =
-        F.flatMap(fa)(e => s.feed(Input.el(e)))
+        F.flatMap(fa)(e => s.feed(NonEmptyVector(e)))
     }
 
   /**
@@ -147,7 +148,7 @@ final object Enumerator extends EnumeratorInstances {
    * An enumerator that produces a single value.
    */
   final def enumOne[F[_]: Applicative, E](e: E): Enumerator[F, E] = new Enumerator[F, E] {
-    final def apply[A](s: Step[F, E, A]): F[Step[F, E, A]] = s.feed(Input.el(e))
+    final def apply[A](s: Step[F, E, A]): F[Step[F, E, A]] = s.feed(NonEmptyVector(e))
   }
 
   private[this] abstract class ChunkedIteratorEnumerator[F[_], E](implicit F: Monad[F])
@@ -158,11 +159,7 @@ final object Enumerator extends EnumeratorInstances {
       if (it.isEmpty || step.isDone) F.pure(step) else {
         val next = it.next()
 
-        F.flatMap(
-          step.feed(
-            if (next.size == 1) Input.el(next(0)) else Input.chunk(next(0), next(1), next.drop(2))
-          )
-        )(go(it, _))
+        F.flatMap(step.feed(NonEmptyVector(next.head, next.tail)))(go(it, _))
       }
 
     final def apply[A](s: Step[F, E, A]): F[Step[F, E, A]] = go(chunks, s)
@@ -183,8 +180,7 @@ final object Enumerator extends EnumeratorInstances {
     new Enumerator[F, E] {
       final def apply[A](s: Step[F, E, A]): F[Step[F, E, A]] = xs match {
         case Nil => F.pure(s)
-        case h :: Nil => s.feed(Input.el(h))
-        case h1 :: h2 :: t => s.feed(Input.chunk(h1, h2, t.toVector))
+        case h :: t => s.feed(NonEmptyVector(h, t.toVector))
       }
     }
 
@@ -194,9 +190,7 @@ final object Enumerator extends EnumeratorInstances {
   final def enumVector[F[_], E](xs: Vector[E])(implicit F: Applicative[F]): Enumerator[F, E] =
     new Enumerator[F, E] {
       final def apply[A](s: Step[F, E, A]): F[Step[F, E, A]] =
-        if (xs.isEmpty) F.pure(s) else s.feed(
-          if (xs.size == 1) Input.el(xs(0)) else Input.chunk(xs(0), xs(1), xs.drop(2))
-        )
+        if (xs.isEmpty) F.pure(s) else s.feed(NonEmptyVector(xs.head, xs.tail))
     }
 
   /**
@@ -210,7 +204,7 @@ final object Enumerator extends EnumeratorInstances {
     private[this] final val limit = math.min(xs.length, max)
 
     private[this] final def loop[A](pos: Int)(s: Step[F, E, A]): F[Step[F, E, A]] =
-      if (limit > pos) F.flatMap(s.feed(Input.el(xs(pos))))(loop(pos + 1)) else F.pure(s)
+      if (limit > pos) F.flatMap(s.feed(NonEmptyVector(xs(pos))))(loop(pos + 1)) else F.pure(s)
 
     final def apply[A](step: Step[F, E, A]): F[Step[F, E, A]] = loop(math.max(min, 0))(step)
   }
@@ -220,7 +214,7 @@ final object Enumerator extends EnumeratorInstances {
    */
   final def repeat[F[_], E](e: E)(implicit F: Monad[F]): Enumerator[F, E] = new Enumerator[F, E] { self =>
     final def apply[A](step: Step[F, E, A]): F[Step[F, E, A]] =
-      if (step.isDone) F.pure(step) else F.flatMap(step.feed(Input.el(e)))(apply)
+      if (step.isDone) F.pure(step) else F.flatMap(step.feed(NonEmptyVector(e)))(apply)
   }
 
   /**
@@ -230,7 +224,7 @@ final object Enumerator extends EnumeratorInstances {
   final def iterate[F[_], E](init: E)(f: E => E)(implicit F: Monad[F]): Enumerator[F, E] =
     new Enumerator[F, E] {
       private[this] def loop[A](step: Step[F, E, A], last: E): F[Step[F, E, A]] =
-        if (step.isDone) F.pure(step) else F.flatMap(step.feed(Input.el(last)))(loop(_, f(last)))
+        if (step.isDone) F.pure(step) else F.flatMap(step.feed(NonEmptyVector(last)))(loop(_, f(last)))
 
       final def apply[A](s: Step[F, E, A]): F[Step[F, E, A]] = loop(s, init)
     }
@@ -243,7 +237,7 @@ final object Enumerator extends EnumeratorInstances {
     new Enumerator[F, E] {
       private[this] def loop[A](step: Step[F, E, A], last: E): F[Step[F, E, A]] =
         if (step.isDone) F.pure(step) else
-          F.flatMap(step.feed(Input.el(last)))(next => F.flatMap(f(last))(loop(next, _)))
+          F.flatMap(step.feed(NonEmptyVector(last)))(next => F.flatMap(f(last))(loop(next, _)))
 
       final def apply[A](s: Step[F, E, A]): F[Step[F, E, A]] = loop(s, init)
     }
