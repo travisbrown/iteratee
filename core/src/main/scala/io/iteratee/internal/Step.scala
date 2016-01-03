@@ -123,7 +123,6 @@ abstract class PureFuncContStep[F[_]: Applicative, E, A] extends ContStep[F, E, 
   )
 }
 
-
 /**
  * @groupname Constructors Constructors
  * @groupprio Constructors 0
@@ -213,12 +212,11 @@ final object Step { self =>
    *
    * @group Constructors
    */
-  /*final def cont[F[_], E, A](k: Input[E] => F[Step[F, E, A]]): Step[F, E, A] =
+  final def cont[F[_], E, A](ifEnd: => F[Ended[F, E, A]], ifInput: Input[E] => F[Step[F, E, A]]): Step[F, E, A] =
     new FuncContStep[F, E, A] {
-      //final def apply(in: Input[E]): F[Step[F, E, A]] = k(in)
-      final def onEnd(implicit F: Applicative[F]): F[Ended[F, E, A]] = ???
-        ///k(Input.end).asInstanceOf[F[Ended[F, E, A]]]
-    }*/
+      final def onEnd(implicit F: Applicative[F]): F[Ended[F, E, A]] = ifEnd
+      final def apply(in: Input[E]): F[Step[F, E, A]] = ifInput(in)
+    }
 
   /**
    * Create a new completed state with the given result and leftover input.
@@ -452,30 +450,30 @@ final object Step { self =>
    * @group Collection
    */
   final def zip[F[_], E, A, B](stepA: Step[F, E, A], stepB: Step[F, E, B])
-    (implicit F: Monad[F]): F[Step[F, E, (A, B)]] = ???/*{
+    (implicit F: Monad[F]): F[Step[F, E, (A, B)]] = {
     type Pair[Z] = (Option[(Z, Option[Input[E]])], Step[F, E, Z])
 
-    def paired[Z](s: Step[F, E, Z]): Step[F, E, Pair[Z]] = Step.done(
+    def paired[Z](s: Step[F, E, Z]): Step[F, E, Pair[Z]] = done(
       s.fold(
-         k => (None, Step.contX(k)),
-         value => (Some((value, None)), Step.done(value)),
-         (value, remainder) => (Some((value, Some(remainder))), Step.early(value, remainder))
+         k => (None, s),
+         value => (Some((value, None)), done(value)),
+         (value, remainder) => (Some((value, Some(remainder))), early(value, remainder)),
+         value => (Some((value, None)), ended(value))
       )
     )
 
     def shorter(a: Option[Input[E]], b: Option[Input[E]]): Option[Input[E]] =
       (a, b) match {
-        case (Some(ia), _) if ia.isEnd => a
-        case (_, Some(ib)) if ib.isEnd => b
         case (None, _) => None
         case (_, None) => None
-        case (Some(as), Some(bs)) => if (as.toVector.size <= bs.toVector.size) a else b
+        case (Some(as), Some(bs)) => if (as.size <= bs.size) a else b
       }
 
+    def end(stepA: Step[F, E, A], stepB: Step[F, E, B]): F[Ended[F, E, (A, B)]] =
+      F.flatMap(stepA.onEnd)(_.bind(a => F.map(stepB.onEnd)(_.map((a, _))))).asInstanceOf[F[Ended[F, E, (A, B)]]]
+
     def loop(stepA: Step[F, E, A], stepB: Step[F, E, B])(in: Input[E]): F[Step[F, E, (A, B)]] =
-      if (in.isEnd) F.flatMap(stepA.onEnd)(
-        _.bind(a => F.map(stepB.onEnd)(_.map((a, _))))
-      ) else F.flatMap(stepA.feed(in))(fsA =>
+      F.flatMap(stepA.feed(in))(fsA =>
         paired(fsA).bind {
           case (pairA, nextA) =>
             F.flatMap(stepB.feed(in))(fsB =>
@@ -489,7 +487,7 @@ final object Step { self =>
                       }
                     case (Some((resA, _)), None) => nextB.map((resA, _))
                     case (None, Some((resB, _))) => nextA.map((_, resB))
-                    case _ => Step.contX(loop(nextA, nextB))
+                    case _ => Step.cont(end(nextA, nextB), loop(nextA, nextB))
                   }
                 )
               }
@@ -510,10 +508,10 @@ final object Step { self =>
                   }
                 case (Some((resA, _)), None) => nextB.map((resA, _))
                 case (None, Some((resB, _))) => nextA.map((_, resB))
-                case _ => Step.contX(loop(nextA, nextB))
+                case _ => Step.cont(end(nextA, nextB), loop(nextA, nextB))
               }
             )
         }
     }
-  }*/
+  }
 }
