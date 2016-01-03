@@ -3,6 +3,7 @@ package io.iteratee
 import algebra.Monoid
 import cats.{ Applicative, Comonad, FlatMap, Functor, Id, Monad, MonadError, MonoidK, Show }
 import cats.arrow.NaturalTransformation
+import cats.data.NonEmptyVector
 import io.iteratee.internal.{ Input, Step }
 
 /**
@@ -133,7 +134,7 @@ final object Iteratee extends IterateeInstances {
    *
    * @group Constructors
    */
-  final def early[F[_]: Applicative, E, A](d: A, r: Input[E]): Iteratee[F, E, A] = fromStep(Step.early(d, r))
+  final def early[F[_]: Applicative, E, A](d: A, r: NonEmptyVector[E]): Iteratee[F, E, A] = fromStep(Step.early(d, r))
 
   /**
    * Create an [[Iteratee]] from a [[io.iteratee.internal.Step]] in a context.

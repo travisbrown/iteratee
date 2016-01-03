@@ -3,6 +3,9 @@ package io.iteratee.internal
 import algebra.Monoid
 import cats.{ Applicative, Functor, Monad, MonoidK }
 import cats.arrow.NaturalTransformation
+import cats.data.{ NonEmptyVector, OneAnd }
+import cats.std.vector._
+import cats.syntax.functor._
 import io.iteratee.Iteratee
 
 /**
@@ -30,9 +33,9 @@ sealed abstract class Step[F[_], E, A] extends Serializable {
    * Reduce this [[Step]] to a value using the given functions.
    */
   def fold[Z](
-    onCont: (Input[E] => F[Step[F, E, A]]) => Z,
+    onCont: (NonEmptyVector[E] => F[Step[F, E, A]]) => Z,
     onDone: A => Z,
-    onEarly: (A, Input[E]) => Z,
+    onEarly: (A, NonEmptyVector[E]) => Z,
     onEnd: A => Z
   ): Z
 
@@ -56,26 +59,26 @@ sealed abstract class Step[F[_], E, A] extends Serializable {
   /**
    * Apply this [[Step]] to an [[Input]].
    */
-  def feed(in: Input[E])(implicit F: Applicative[F]): F[Step[F, E, A]]
+  def feed(in: NonEmptyVector[E])(implicit F: Applicative[F]): F[Step[F, E, A]]
 
   def onEnd(implicit F: Applicative[F]): F[Step.Ended[F, E, A]]
 }
 
 
-abstract class ContStep[F[_], E, A] extends Step[F, E, A] with Function[Input[E], F[Step[F, E, A]]] { self =>
+abstract class ContStep[F[_], E, A] extends Step[F, E, A] with Function[NonEmptyVector[E], F[Step[F, E, A]]] { self =>
   final def fold[Z](
-    onCont: (Input[E] => F[Step[F, E, A]]) => Z,
+    onCont: (NonEmptyVector[E] => F[Step[F, E, A]]) => Z,
     onDone: A => Z,
-    onEarly: (A, Input[E]) => Z,
+    onEarly: (A, NonEmptyVector[E]) => Z,
     onEnd: A => Z
   ): Z =
     onCont(this)
   private[iteratee] final def unsafeValue: A = diverge[A]
   final def isDone: Boolean = false
-  final def feed(in: Input[E])(implicit F: Applicative[F]): F[Step[F, E, A]] = apply(in)
+  final def feed(in: NonEmptyVector[E])(implicit F: Applicative[F]): F[Step[F, E, A]] = apply(in)
   final def mapI[G[_]](f: NaturalTransformation[F, G])(implicit F: Applicative[F]): Step[G, E, A] =
     new FuncContStep[G, E, A] {
-      def apply(in: Input[E]): G[Step[G, E, A]] = f(F.map(self(in))(_.mapI(f)))
+      def apply(in: NonEmptyVector[E]): G[Step[G, E, A]] = f(F.map(self(in))(_.mapI(f)))
       def onEnd(implicit G: Applicative[G]): G[Step.Ended[G, E, A]] =
         f(F.map(self.onEnd)(_.mapI(f))).asInstanceOf[G[Step.Ended[G, E, A]]]
     }
@@ -83,18 +86,18 @@ abstract class ContStep[F[_], E, A] extends Step[F, E, A] with Function[Input[E]
 
 abstract class FuncContStep[F[_], E, A] extends ContStep[F, E, A] { self =>
   final def map[B](f: A => B)(implicit F: Functor[F]): Step[F, E, B] = new FuncContStep[F, E, B] {
-    final def apply(in: Input[E]): F[Step[F, E, B]] = F.map(self(in))(_.map(f))
+    final def apply(in: NonEmptyVector[E]): F[Step[F, E, B]] = F.map(self(in))(_.map(f))
     final def onEnd(implicit F1: Applicative[F]): F[Step.Ended[F, E, B]] =
       F.map(self.onEnd(F1))(_.map(f)(F)).asInstanceOf[F[Step.Ended[F, E, B]]]
   }
   final def contramap[E2](f: E2 => E)(implicit F: Functor[F]): Step[F, E2, A] = new FuncContStep[F, E2, A] {
-    final def apply(in: Input[E2]): F[Step[F, E2, A]] = F.map(self(in.map(f)))(_.contramap(f))
+    final def apply(in: NonEmptyVector[E2]): F[Step[F, E2, A]] = F.map(self(in.map(f)))(_.contramap(f))
     final def onEnd(implicit F0: Applicative[F]): F[Step.Ended[F, E2, A]] =
       F.map(self.onEnd(F0))(_.contramap(f)(F)).asInstanceOf[F[Step.Ended[F, E2, A]]]
   }
   final def bind[B](f: A => F[Step[F, E, B]])(implicit F: Monad[F]): F[Step[F, E, B]] = F.pure(
     new FuncContStep[F, E, B] {
-      final def apply(in: Input[E]): F[Step[F, E, B]] = F.flatMap(self(in))(_.bind(f))
+      final def apply(in: NonEmptyVector[E]): F[Step[F, E, B]] = F.flatMap(self(in))(_.bind(f))
       final def onEnd(implicit F0: Applicative[F]): F[Step.Ended[F, E, B]] =
         F.flatMap(self.onEnd)(_.bind(f)).asInstanceOf[F[Step.Ended[F, E, B]]]
     }
@@ -102,21 +105,21 @@ abstract class FuncContStep[F[_], E, A] extends ContStep[F, E, A] { self =>
 }
 
 abstract class PureFuncContStep[F[_]: Applicative, E, A] extends ContStep[F, E, A] { self =>
-  def pureApply(in: Input[E]): Step[F, E, A]
-  final def apply(in: Input[E]): F[Step[F, E, A]] = Applicative[F].pure(pureApply(in))
+  def pureApply(in: NonEmptyVector[E]): Step[F, E, A]
+  final def apply(in: NonEmptyVector[E]): F[Step[F, E, A]] = Applicative[F].pure(pureApply(in))
   final def map[B](f: A => B)(implicit F0: Functor[F]): Step[F, E, B] = new PureFuncContStep[F, E, B] {
-    final def pureApply(in: Input[E]): Step[F, E, B] = self.pureApply(in).map(f)
+    final def pureApply(in: NonEmptyVector[E]): Step[F, E, B] = self.pureApply(in).map(f)
     final def onEnd(implicit F1: Applicative[F]): F[Step.Ended[F, E, B]] =
       F0.map(self.onEnd(F1))(_.map(f)(F0)).asInstanceOf[F[Step.Ended[F, E, B]]]
   }
   final def contramap[E2](f: E2 => E)(implicit F: Functor[F]): Step[F, E2, A] = new PureFuncContStep[F, E2, A] {
-    final def pureApply(in: Input[E2]): Step[F, E2, A] = self.pureApply(in.map(f)).contramap(f)
+    final def pureApply(in: NonEmptyVector[E2]): Step[F, E2, A] = self.pureApply(in.map(f)).contramap(f)
     final def onEnd(implicit F0: Applicative[F]): F[Step.Ended[F, E2, A]] =
       F.map(self.onEnd(F0))(_.contramap(f)(F)).asInstanceOf[F[Step.Ended[F, E2, A]]]
   }
   final def bind[B](f: A => F[Step[F, E, B]])(implicit F: Monad[F]): F[Step[F, E, B]] = F.pure(
     new FuncContStep[F, E, B] {
-      final def apply(in: Input[E]): F[Step[F, E, B]] = self.pureApply(in).bind(f)
+      final def apply(in: NonEmptyVector[E]): F[Step[F, E, B]] = self.pureApply(in).bind(f)
       final def onEnd(implicit F0: Applicative[F]): F[Step.Ended[F, E, B]] =
         F.flatMap(self.onEnd)(_.bind(f)).asInstanceOf[F[Step.Ended[F, E, B]]]
     }
@@ -137,15 +140,15 @@ abstract class PureFuncContStep[F[_]: Applicative, E, A] extends ContStep[F, E, 
 final object Step { self =>
   sealed abstract class Done[F[_], E, A](final val unsafeValue: A) extends Step[F, E, A] {
     final def isDone: Boolean = true
-    final def feed(in: Input[E])(implicit F: Applicative[F]): F[Step[F, E, A]] = F.pure(this)
+    final def feed(in: NonEmptyVector[E])(implicit F: Applicative[F]): F[Step[F, E, A]] = F.pure(this)
     final def onEnd(implicit F: Applicative[F]): F[Ended[F, E, A]] = F.pure(new Ended(unsafeValue))
   }
 
   case class NoLeftovers[F[_], E, A](value: A) extends Done[F, E, A](value) {
     final def fold[Z](
-      onCont: (Input[E] => F[Step[F, E, A]]) => Z,
+      onCont: (NonEmptyVector[E] => F[Step[F, E, A]]) => Z,
       onDone: A => Z,
-      onEarly: (A, Input[E]) => Z,
+      onEarly: (A, NonEmptyVector[E]) => Z,
       onEnd: A => Z
     ): Z =
       onDone(value)
@@ -156,11 +159,11 @@ final object Step { self =>
       new NoLeftovers(value)
   }
 
-  case class WithLeftovers[F[_], E, A](value: A, remaining: Input[E]) extends Done[F, E, A](value) {
+  case class WithLeftovers[F[_], E, A](value: A, remaining: NonEmptyVector[E]) extends Done[F, E, A](value) {
     final def fold[Z](
-      onCont: (Input[E] => F[Step[F, E, A]]) => Z,
+      onCont: (NonEmptyVector[E] => F[Step[F, E, A]]) => Z,
       onDone: A => Z,
-      onEarly: (A, Input[E]) => Z,
+      onEarly: (A, NonEmptyVector[E]) => Z,
       onEnd: A => Z
     ): Z =
         onEarly(value, remaining)
@@ -178,9 +181,9 @@ final object Step { self =>
 
   case class Ended[F[_], E, A](value: A) extends Done[F, E, A](value) {
     final def fold[Z](
-      onCont: (Input[E] => F[Step[F, E, A]]) => Z,
+      onCont: (NonEmptyVector[E] => F[Step[F, E, A]]) => Z,
       onDone: A => Z,
-      onEarly: (A, Input[E]) => Z,
+      onEarly: (A, NonEmptyVector[E]) => Z,
       onEnd: A => Z
     ): Z =
         onEnd(value)
@@ -197,14 +200,13 @@ final object Step { self =>
   }
 
 
-  abstract class Cont[F[_], E, A] extends FuncContStep[F, E, A] with Input.Folder[E, F[Step[F, E, A]]] {
-    final def apply(in: Input[E]): F[Step[F, E, A]] = in.foldWith(this)
+  abstract class Cont[F[_], E, A] extends FuncContStep[F, E, A] {
+    //final def apply(in: NonEmptyVector[E]): F[Step[F, E, A]]
     //final def onEndX: F[Step[F, E, A]] = onEnd.asInstanceOf[F[Step[F, E, A]]]
   }
 
-  abstract class PureCont[F[_]: Applicative, E, A]
-    extends PureFuncContStep[F, E, A] with Input.Folder[E, Step[F, E, A]] {
-    final def pureApply(in: Input[E]): Step[F, E, A] = in.foldWith(this)
+  abstract class PureCont[F[_]: Applicative, E, A] extends PureFuncContStep[F, E, A] {
+    def pureApply(in: NonEmptyVector[E]): Step[F, E, A]
     //final def onEndX: Step[F, E, A] = onEnd
   }
 
@@ -213,12 +215,12 @@ final object Step { self =>
    *
    * @group Constructors
    */
-  final def cont[F[_], E, A](k: Input[E] => F[Step[F, E, A]]): Step[F, E, A] =
+  /*final def cont[F[_], E, A](k: NonEmptyVector[E] => F[Step[F, E, A]]): Step[F, E, A] =
     new FuncContStep[F, E, A] {
-      final def apply(in: Input[E]): F[Step[F, E, A]] = k(in)
+      //final def apply(in: NonEmptyVector[E]): F[Step[F, E, A]] = k(in)
       final def onEnd(implicit F: Applicative[F]): F[Ended[F, E, A]] = ???
         ///k(Input.end).asInstanceOf[F[Ended[F, E, A]]]
-    }
+    }*/
 
   /**
    * Create a new completed state with the given result and leftover input.
@@ -232,7 +234,7 @@ final object Step { self =>
    *
    * @group Constructors
    */
-  final def early[F[_], E, A](value: A, remaining: Input[E]): Step[F, E, A] = new WithLeftovers(value, remaining)
+  final def early[F[_], E, A](value: A, remaining: NonEmptyVector[E]): Step[F, E, A] = new WithLeftovers(value, remaining)
 
   final def ended[F[_], E, A](value: A): Ended[F, E, A] = new Ended(value)
 
@@ -266,8 +268,10 @@ final object Step { self =>
 
   final class FoldCont[F[_]: Applicative, E, A](acc: A, f: (A, E) => A) extends PureCont[F, E, A] {
     final def onEnd(implicit F: Applicative[F]): F[Ended[F, E, A]] = F.pure(new Ended(acc))
-    final def onEl(e: E): Step[F, E, A] = self.fold(f(acc, e))(f)
-    final def onChunk(e1: E, e2: E, es: Vector[E]): Step[F, E, A] = self.fold(es.foldLeft(f(f(acc, e1), e2))(f))(f)
+    final def pureApply(in: NonEmptyVector[E]): Step[F, E, A] = in match {
+      case OneAnd(h, Vector()) => self.fold(f(acc, h))(f)
+      case OneAnd(h, t) => self.fold(t.foldLeft(f(acc, h))(f))(f)
+    }
   }
 
   /**
@@ -281,10 +285,12 @@ final object Step { self =>
 
   final class FoldMCont[F[_], E, A](acc: A, f: (A, E) => F[A])(implicit F: Monad[F]) extends Cont[F, E, A] {
     final def onEnd(implicit F0: Applicative[F]): F[Ended[F, E, A]] = F0.pure(new Ended(acc))
-    final def onEl(e: E): F[Step[F, E, A]] = F.map(f(acc, e))(a => foldM(a)(f))
-    final def onChunk(e1: E, e2: E, es: Vector[E]): F[Step[F, E, A]] = F.map(
-      es.foldLeft(F.flatMap(f(acc, e1))(a => f(a, e2)))((fa, e) => F.flatMap(fa)(a => f(a, e)))
-    )(a => foldM(a)(f))
+    final def apply(in: NonEmptyVector[E]): F[Step[F, E, A]] = in match {
+      case OneAnd(h, Vector()) => F.map(f(acc, h))(a => foldM(a)(f))
+      case OneAnd(h, t) => F.map(
+        t.foldLeft(f(acc, h))((fa, e) => F.flatMap(fa)(a => f(a, e)))
+      )(a => foldM(a)(f))
+    }
   }
 
   /**
@@ -297,8 +303,7 @@ final object Step { self =>
 
   final class DrainCont[F[_]: Applicative, E](acc: Vector[E]) extends PureCont[F, E, Vector[E]] {
     final def onEnd(implicit F: Applicative[F]): F[Ended[F, E, Vector[E]]] = F.pure(new Ended(acc))
-    final def onEl(e: E): Step[F, E, Vector[E]] = new DrainCont(acc :+ e)
-    final def onChunk(e1: E, e2: E, es: Vector[E]): Step[F, E, Vector[E]] = new DrainCont((acc :+ e1 :+ e2) ++ es)
+    final def pureApply(in: NonEmptyVector[E]): Step[F, E, Vector[E]] = new DrainCont(acc ++ (in.head +: in.tail))
   }
 
   /**
@@ -319,12 +324,12 @@ final object Step { self =>
     C: Applicative[C]
   ) extends PureCont[F, E, C[E]] {
     final def onEnd(implicit F0: Applicative[F]): F[Ended[F, E, C[E]]] = F0.pure(new Ended(acc))
-    final def onEl(e: E): Step[F, E, C[E]] = new DrainToCont(M.combine(acc, C.pure(e)))
-    final def onChunk(e1: E, e2: E, es: Vector[E]): Step[F, E, C[E]] = new DrainToCont(
-      es.foldLeft(
-        M.combine(M.combine(acc, C.pure(e1)), C.pure(e2))
-      )((a, e) => M.combine(a, C.pure(e)))
-    )
+    final def pureApply(in: NonEmptyVector[E]): Step[F, E, C[E]] = in match {
+      case OneAnd(h, Vector()) => new DrainToCont(M.combine(acc, C.pure(h)))
+      case OneAnd(h, t) => new DrainToCont(
+        t.foldLeft(M.combine(acc, C.pure(h)))((a, e) => M.combine(a, C.pure(e)))
+      )
+    }
   }
 
   /**
@@ -336,12 +341,10 @@ final object Step { self =>
 
   final class HeadCont[F[_]: Applicative, E] extends PureCont[F, E, Option[E]] {
     final def onEnd(implicit F: Applicative[F]): F[Ended[F, E, Option[E]]] = F.pure(new Ended(None))
-    final def onEl(e: E): Step[F, E, Option[E]] = Step.done(Some(e))
-    final def onChunk(e1: E, e2: E, es: Vector[E]): Step[F, E, Option[E]] =
-      Step.early(
-        Some(e1),
-        if (es.isEmpty) Input.el(e2) else Input.chunk(e2, es(0), es.drop(1))
-      )
+    final def pureApply(in: NonEmptyVector[E]): Step[F, E, Option[E]] = in match {
+      case OneAnd(h, Vector()) => done(Some(h))
+      case OneAnd(h, th +: tt) => early(Some(h), NonEmptyVector(th, tt))
+    }
   }
 
   /**
@@ -353,9 +356,7 @@ final object Step { self =>
 
   final class PeekCont[F[_]: Applicative, E] extends PureCont[F, E, Option[E]] {
     final def onEnd(implicit F: Applicative[F]): F[Ended[F, E, Option[E]]] = F.pure(new Ended(None))
-    final def onEl(e: E): Step[F, E, Option[E]] = Step.early(Some(e), Input.el(e))
-    final def onChunk(e1: E, e2: E, es: Vector[E]): Step[F, E, Option[E]] =
-      Step.early(Some(e1), Input.chunk(e1, e2, es))
+    final def pureApply(in: NonEmptyVector[E]): Step[F, E, Option[E]] = early(Some(in.head), in)
   }
 
   /**
@@ -371,22 +372,16 @@ final object Step { self =>
 
   final class TakeCont[F[_]: Applicative, E](acc: Vector[E], n: Int) extends PureCont[F, E, Vector[E]] {
     final def onEnd(implicit F: Applicative[F]): F[Ended[F, E, Vector[E]]] = F.pure(new Ended(acc))
-    final def onEl(e: E): Step[F, E, Vector[E]] =
-      if (n == 1) done(acc :+ e) else new TakeCont(acc :+ e, n - 1)
+    final def pureApply(in: NonEmptyVector[E]): Step[F, E, Vector[E]] = in match {
+      case OneAnd(h, Vector()) => if (n == 1) done(acc :+ h) else new TakeCont(acc :+ h, n - 1)
+      case OneAnd(h, t) =>
+        val diff = n - (t.size + 1)
 
-    final def onChunk(e1: E, e2: E, es: Vector[E]): Step[F, E, Vector[E]] = {
-      val diff = n - (es.size + 2)
+        if (diff > 0) new TakeCont(acc ++ (h +: t), diff) else if (diff == 0) done(acc ++ (h +: t)) else {
+          val (taken, left) = (h +: t).splitAt(n)
 
-      if (diff > 0) new TakeCont((acc :+ e1 :+ e2) ++ es, diff) else {
-        if (diff == 0) done((acc :+ e1 :+ e2) ++ es) else {
-          val (taken, left) = (e1 +: e2 +: es).splitAt(n)
-
-          early(
-            acc ++ taken,
-            if (left.size == 1) Input.el(left(0)) else Input.chunk(left(0), left(1), left.drop(2))
-          )
+          early(acc ++ taken, NonEmptyVector(left.head, left.tail))
         }
-      }
     }
   }
 
@@ -401,18 +396,13 @@ final object Step { self =>
 
   final class TakeWhileCont[F[_]: Applicative, E](acc: Vector[E], p: E => Boolean) extends PureCont[F, E, Vector[E]] {
     final def onEnd(implicit F: Applicative[F]): F[Ended[F, E, Vector[E]]] = F.pure(new Ended(acc))
-    final def onEl(e: E): Step[F, E, Vector[E]] =
-      if (p(e)) new TakeWhileCont(acc :+ e, p) else early(acc, Input.el(e))
-    final def onChunk(e1: E, e2: E, es: Vector[E]): Step[F, E, Vector[E]] = {
-      val (before, after) = (e1 +: e2 +: es).span(p)
+    final def pureApply(in: NonEmptyVector[E]): Step[F, E, Vector[E]] = in match {
+      case OneAnd(h, Vector()) => if (p(h)) new TakeWhileCont(acc :+ h, p) else early(acc, in)
+      case OneAnd(h, t) =>
+        val (before, after) = (h +: t).span(p)
 
-      if (after.isEmpty) {
-        new TakeWhileCont(acc ++ before, p)
-      } else if (after.size == 1) {
-        early(acc ++ before, Input.el(after(0)))
-      } else {
-        early(acc ++ before, Input.chunk(after(0), after(1), after.drop(2)))
-      }
+        if (after.isEmpty) new TakeWhileCont(acc ++ before, p) else
+          early(acc ++ before, NonEmptyVector(after.head, after.tail))
     }
   }
 
@@ -426,18 +416,16 @@ final object Step { self =>
 
   final class DropCont[F[_]: Applicative, E](n: Int) extends PureCont[F, E, Unit] {
     final def onEnd(implicit F: Applicative[F]): F[Ended[F, E, Unit]] = F.pure(new Ended(()))
-    final def onEl(e: E): Step[F, E, Unit] = drop(n - 1)
-    final def onChunk(e1: E, e2: E, es: Vector[E]): Step[F, E, Unit] = {
-      val len = es.size + 2
+    final def pureApply(in: NonEmptyVector[E]): Step[F, E, Unit] = in match {
+      case OneAnd(h, Vector()) => drop(n - 1)
+      case OneAnd(h, t) =>
+        val len = t.size + 1
 
-      if (len <= n) drop(n - len) else {
-        val dropped = (e1 +: e2 +: es).drop(n)
+        if (len <= n) drop(n - len) else {
+          val dropped = (h +: t).drop(n)
 
-        early(
-          (),
-          if (dropped.size == 1) Input.el(dropped(0)) else Input.chunk(dropped(0), dropped(1), dropped.drop(2))
-        )
-      }
+          early((), NonEmptyVector(dropped.head, dropped.tail))
+        }
     }
   }
 
@@ -452,19 +440,18 @@ final object Step { self =>
 
   final class DropWhileCont[F[_]: Applicative, E](p: E => Boolean) extends PureCont[F, E, Unit] {
     final def onEnd(implicit F: Applicative[F]): F[Ended[F, E, Unit]] = F.pure(new Ended(()))
-    final def onEl(e: E): Step[F, E, Unit] = if (p(e)) dropWhile(p) else early((), Input.el(e))
-    final def onChunk(e1: E, e2: E, es: Vector[E]): Step[F, E, Unit] = {
-      val after = (e1 +: e2 +: es).dropWhile(p)
+    final def pureApply(in: NonEmptyVector[E]): Step[F, E, Unit] = in match {
+      case OneAnd(h, Vector()) => if (p(h)) dropWhile(p) else early((), in)
+      case OneAnd(h, t) =>
+        val after = (h +: t).dropWhile(p)
 
-      if (after.isEmpty) dropWhile(p) else if (after.size == 1) early((), Input.el(after(0))) else
-        early((), Input.chunk(after(0), after(1), after.drop(2)))
+        if (after.isEmpty) dropWhile(p) else early((), NonEmptyVector(after.head, after.tail))
     }
   }
 
   final def isEnd[F[_]: Applicative, E]: Step[F, E, Boolean] = new PureCont[F, E, Boolean] {
     final def onEnd(implicit F0: Applicative[F]): F[Ended[F, E, Boolean]] = F0.pure(new Ended(true))
-    final def onEl(e: E): Step[F, E, Boolean] = early(false, Input.el(e))
-    final def onChunk(e1: E, e2: E, es: Vector[E]): Step[F, E, Boolean] = early(false, Input.chunk(e1, e2, es))
+    final def pureApply(in: NonEmptyVector[E]): Step[F, E, Boolean] = early(false, in)
   }
 
   /**
