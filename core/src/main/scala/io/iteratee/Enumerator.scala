@@ -23,9 +23,8 @@ abstract class Enumerator[F[_], E] extends Serializable { self =>
 
   final def prepend(e: E)(implicit F: Monad[F]): Enumerator[F, E] = {
     new Enumerator[F, E] {
-      def apply[A](step: Step[F, E, A]): F[Step[F, E, A]] = F.flatMap(
-        if (step.isDone) F.pure(step) else step.feed(Input.el(e))
-      )(self(_))
+      def apply[A](step: Step[F, E, A]): F[Step[F, E, A]] = if (step.isDone) self(step) else
+        F.flatMap(step.feed(Input.el(e)))(self(_))
     }
   }
 

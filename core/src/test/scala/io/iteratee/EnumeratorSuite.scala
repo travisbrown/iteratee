@@ -99,6 +99,10 @@ abstract class EnumeratorSuite[F[_]: Monad] extends ModuleSuite[F] {
     }
   }
 
+  test("prepend with done iteratee") {
+    assert(enumOne(0).append(enumOne(2).prepend(1)).run(head) === F.pure((Some(0))))
+  }
+
   test("bindM") {
     check { (eav: EnumeratorAndValues[Int]) =>
       /**
