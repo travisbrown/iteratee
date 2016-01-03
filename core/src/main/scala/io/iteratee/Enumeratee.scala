@@ -61,7 +61,7 @@ final object Enumeratee extends EnumerateeInstances {
 
       private[this] def loop[A](step: Step[F, I, A]): Step[F, O, Step[F, I, A]] =
         if (step.isDone) Step.done(Step.done(step.unsafeValue)) else
-          new FuncContStep[F, O, Step[F, I, A]] with Input.Folder[O, OuterF[A]] {
+          new Step.Cont[F, O, Step[F, I, A]] {
             final def onEl(e: O): OuterF[A] = F.map(f(e)(step))(loop)
             final def onChunk(e1: O, e2: O, es: Vector[O]): OuterF[A] =
               F.map(
@@ -279,6 +279,6 @@ final object Enumeratee extends EnumerateeInstances {
   abstract class Folding[F[_], O, I](implicit F: Applicative[F]) extends Looping[F, O, I] {
     protected def folder[A](k: Input[I] => F[Step[F, I, A]]): Input.Folder[O, OuterF[A]]
     protected final def loop[A](k: Input[I] => F[Step[F, I, A]]): OuterF[A] = F.pure(Step.cont(stepWith(k)))
-    protected final def stepWith[A](k: Input[I] => F[Step[F, I, A]]): Input[O] => OuterF[A] = folder(k)
+    protected final def stepWith[A](k: Input[I] => F[Step[F, I, A]]): Input[O] => OuterF[A] = _.foldWith(folder(k))
   }
 }
