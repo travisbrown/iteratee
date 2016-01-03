@@ -467,55 +467,27 @@ final object Step { self =>
       }
 
     def loop(stepA: Step[F, E, A], stepB: Step[F, E, B])(in: Input[E]): F[Step[F, E, (A, B)]] =
-      in.foldWith(
-        new Input.Folder[E, F[Step[F, E, (A, B)]]] {
-          def onEl(e: E): F[Step[F, E, (A, B)]] = F.flatMap(stepA.feed(in))(fsA =>
-            paired(fsA).bindF {
-              case (pairA, nextA) =>
-                F.flatMap(stepB.feed(in))(fsB =>
-                  paired(fsB).bindF {
-                    case (pairB, nextB) => F.pure(
-                      (pairA, pairB) match {
-                        case (Some((resA, remA)), Some((resB, remB))) =>
-                          shorter(remA, remB) match {
-                            case None => Step.done[F, E, (A, B)]((resA, resB))
-                            case Some(rem) => Step.early[F, E, (A, B)]((resA, resB), rem)
-                          }
-                        case (Some((resA, _)), None) => nextB.map((resA, _))
-                        case (None, Some((resB, _))) => nextA.map((_, resB))
-                        case _ => Step.cont(loop(nextA, nextB))
+      if (in.isEnd) F.flatMap(stepA.feed(Input.end))(
+        _.bindF(a => F.map(stepB.feed(Input.end))(_.map((a, _))))
+      ) else F.flatMap(stepA.feed(in))(fsA =>
+        paired(fsA).bindF {
+          case (pairA, nextA) =>
+            F.flatMap(stepB.feed(in))(fsB =>
+              paired(fsB).bindF {
+                case (pairB, nextB) => F.pure(
+                  (pairA, pairB) match {
+                    case (Some((resA, remA)), Some((resB, remB))) =>
+                      shorter(remA, remB) match {
+                        case None => Step.done[F, E, (A, B)]((resA, resB))
+                        case Some(rem) => Step.early[F, E, (A, B)]((resA, resB), rem)
                       }
-                    )
+                    case (Some((resA, _)), None) => nextB.map((resA, _))
+                    case (None, Some((resB, _))) => nextA.map((_, resB))
+                    case _ => Step.cont(loop(nextA, nextB))
                   }
                 )
-            }
-          )
-
-          def onChunk(e1: E, e2: E, es: Vector[E]): F[Step[F, E, (A, B)]] = F.flatMap(stepA.feed(in))(fsA =>
-            paired(fsA).bindF {
-              case (pairA, nextA) =>
-                F.flatMap(stepB.feed(in))(fsB =>
-                  paired(fsB).bindF {
-                    case (pairB, nextB) => F.pure(
-                      (pairA, pairB) match {
-                        case (Some((resA, remA)), Some((resB, remB))) =>
-                          shorter(remA, remB) match {
-                            case None => Step.done[F, E, (A, B)]((resA, resB))
-                            case Some(rem) => Step.early[F, E, (A, B)]((resA, resB), rem)
-                          }
-                        case (Some((resA, _)), None) => nextB.map((resA, _))
-                        case (None, Some((resB, _))) => nextA.map((_, resB))
-                        case _ => Step.cont(loop(nextA, nextB))
-                      }
-                    )
-                  }
-                )
-            }
-          )
-
-          def onEnd: F[Step[F, E, (A, B)]] = F.flatMap(stepA.feed(Input.end))(
-            _.bindF(a => F.map(stepB.feed(Input.end))(_.map((a, _))))
-          )
+              }
+            )
         }
       )
 
@@ -526,11 +498,10 @@ final object Step { self =>
             F.pure[Step[F, E, (A, B)]](
               (pairA, pairB) match {
                 case (Some((resA, remA)), Some((resB, remB))) =>
-                          shorter(remA, remB) match {
-                            case None => Step.done[F, E, (A, B)]((resA, resB))
-                            case Some(rem) => Step.early[F, E, (A, B)]((resA, resB), rem)
-                          }
-
+                  shorter(remA, remB) match {
+                    case None => Step.done[F, E, (A, B)]((resA, resB))
+                    case Some(rem) => Step.early[F, E, (A, B)]((resA, resB), rem)
+                  }
                 case (Some((resA, _)), None) => nextB.map((resA, _))
                 case (None, Some((resB, _))) => nextA.map((_, resB))
                 case _ => Step.cont(loop(nextA, nextB))
