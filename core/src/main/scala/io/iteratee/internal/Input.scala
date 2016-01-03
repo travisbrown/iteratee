@@ -1,5 +1,7 @@
 package io.iteratee.internal
 
+import cats.data.NonEmptyVector
+
 /**
  * An input to an [[Iteratee]].
  *
@@ -13,36 +15,28 @@ package io.iteratee.internal
  */
 sealed abstract class Input[@specialized E] extends Serializable {
   /**
-   * Reduce this [[Input]] to a value using the given pair of functions.
+   * Reduce this [[Input]] to a value using the given function.
    */
-  final def fold[Z](end: => Z, values: Vector[E] => Z): Z = foldWith(
-    new Input.FolderX[E, Z] {
-      //final def onEndX: Z = end
-      final def onEl(e: E): Z = values(Vector(e))
-      final def onChunk(h1: E, h2: E, es: Vector[E]): Z = values(h1 +: h2 +: es)
+  final def fold[Z](f: NonEmptyVector[E] => Z): Z = foldWith(
+    new Input.Folder[E, Z] {
+      final def onEl(e: E): Z = f(NonEmptyVector(e))
+      final def onChunk(h: E, t: NonEmptyVector[E]): Z = f(NonEmptyVector(h, t.head +: t.tail))
     }
   )
 
   /**
-   * Reduce this [[Input]] to a value using the given four functions.
+   * Reduce this [[Input]] to a value using the given folder.
    *
    * This method is provided primarily for internal use and for cases where the
    * expense of allocating multiple function objects and collection instances is
    * known to be too high. In most cases [[fold]] should be preferred.
    */
-  def foldWith[Z](folder: Input.FolderX[E, Z]): Z
+  def foldWith[Z](folder: Input.Folder[E, Z]): Z
 
   def map[B](f: E => B): Input[B]
-
-  //def isEnd: Boolean
-
-  /**
-   * Convert this [[Input]] value into a sequence of elements.
-   */
-  private[iteratee] def toVector: Vector[E]
 }
 
-final object Input extends InputInstances {
+final object Input  {
   /**
    * Represents four functions that can be used to reduce an [[Input]] to a
    * value.
@@ -53,29 +47,30 @@ final object Input extends InputInstances {
    * @tparam E The element type
    * @tparam Z The result type
    */
-  trait FolderX[@specialized E, Z] {
-    //def onEndX: Z
+  trait Folder[@specialized E, Z] {
     def onEl(e: E): Z
-    def onChunk(h1: E, h2: E, es: Vector[E]): Z
+    def onChunk(h: E, t: NonEmptyVector[E]): Z
   }
+
+  private[iteratee] final def fromVectorUnsafe[E](es: Vector[E]): Input[E] =
+    if (es.size == 1) el(es.head) else chunk(es.head, NonEmptyVector(es(1), es.drop(2)))
+
+  final def fromNonEmpty[E](es: NonEmptyVector[E]): Input[E] =
+    if (es.tail.isEmpty) el(es.head) else chunk(es.head, NonEmptyVector(es.tail.head, es.tail.tail))
 
   /**
    * An input value containing a single element.
    */
   final def el[E](e: E): Input[E] = new Input[E] {
-    final def foldWith[Z](folder: FolderX[E, Z]): Z = folder.onEl(e)
-    final def isEnd: Boolean = false
+    final def foldWith[Z](folder: Folder[E, Z]): Z = folder.onEl(e)
     final def map[B](f: E => B): Input[B] = el(f(e))
-    private[iteratee] final def toVector: Vector[E] = Vector(e)
   }
 
   /**
    * An input value containing zero or more elements.
    */
-  final def chunk[E](e1: E, e2: E, es: Vector[E]): Input[E] = new Input[E] {
-    final def foldWith[Z](folder: FolderX[E, Z]): Z = folder.onChunk(e1, e2, es)
-    final def isEnd: Boolean = false
-    final def map[B](f: E => B): Input[B] = chunk(f(e1), f(e2), es.map(f))
-    private[iteratee] final def toVector: Vector[E] = e1 +: e2 +: es
+  final def chunk[E](h: E, t: NonEmptyVector[E]): Input[E] = new Input[E] {
+    final def foldWith[Z](folder: Folder[E, Z]): Z = folder.onChunk(h, t)
+    final def map[B](f: E => B): Input[B] = chunk(f(h), NonEmptyVector(f(t.head), t.tail.map(f)))
   }
 }
