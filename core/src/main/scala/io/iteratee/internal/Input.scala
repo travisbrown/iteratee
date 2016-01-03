@@ -32,6 +32,8 @@ sealed abstract class Input[@specialized E] extends Serializable {
    */
   def foldWith[Z](folder: Input.Folder[E, Z]): Z
 
+  def map[B](f: E => B): Input[B]
+
   def isEnd: Boolean
 
   /**
@@ -68,6 +70,7 @@ final object Input extends InputInstances {
   final def el[E](e: E): Input[E] = new Input[E] {
     final def foldWith[Z](folder: Folder[E, Z]): Z = folder.onEl(e)
     final def isEnd: Boolean = false
+    final def map[B](f: E => B): Input[B] = el(f(e))
     private[iteratee] final def toVector: Vector[E] = Vector(e)
   }
 
@@ -77,6 +80,7 @@ final object Input extends InputInstances {
   final def chunk[E](e1: E, e2: E, es: Vector[E]): Input[E] = new Input[E] {
     final def foldWith[Z](folder: Folder[E, Z]): Z = folder.onChunk(e1, e2, es)
     final def isEnd: Boolean = false
+    final def map[B](f: E => B): Input[B] = chunk(f(e1), f(e2), es.map(f))
     private[iteratee] final def toVector: Vector[E] = e1 +: e2 +: es
   }
 
@@ -87,6 +91,7 @@ final object Input extends InputInstances {
   private[this] final val endValue: Input[Nothing] = new Input[Nothing] {
     final def foldWith[A](folder: Folder[Nothing, A]): A = folder.onEnd
     final val isEnd: Boolean = true
+    final def map[B](f: Nothing => B): Input[B] = end
     private[iteratee] final val toVector: Vector[Nothing] = Vector.empty
   }
 }
