@@ -12,7 +12,6 @@ class InputSuite extends FunSuite with Discipline with IntInstances with OptionI
     def show(in: Input[Int]): String = Show[Input[Int]].show(in)
 
     show(Input.el(0)) === "el(0)" &&
-    show(Input.chunk(0, 1, Vector(2, 3))) === "chunk(0, 1, 2, 3)" &&
-    show(Input.end[Int]) === "end"
+    show(Input.chunk(0, 1, Vector(2, 3))) === "chunk(0, 1, 2, 3)"
   }
 }

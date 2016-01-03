@@ -25,7 +25,7 @@ private[iteratee] trait InputInstances extends VectorInstances {
             //final def onEndX: Boolean = false
           }
         )
-        final def onEndX: Boolean = a2.isEnd
+        //final def onEndX: Boolean = a2.isEnd
       }
     )
   }
