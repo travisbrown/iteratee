@@ -179,15 +179,12 @@ final object Step { self =>
    *
    * @group Utilities
    */
-  final def joinI[F[_], A, B, C](step: Step[F, A, Step[F, B, C]])(implicit F: Monad[F]): F[Step[F, A, C]] = {
-    def check(step: Step[F, B, C]): F[Step[F, A, C]] =
-      if (step.isDone) F.pure(Step.done(step.unsafeValue)) else
-        F.flatMap(step.feed(Input.end))(
-          next => if (next.isDone) F.pure(Step.done(next.unsafeValue)) else diverge
-        )
-
-    step.bind(check)
-  }
+  final def joinI[F[_], A, B, C](step: Step[F, A, Step[F, B, C]])(implicit F: Monad[F]): F[Step[F, A, C]] =
+    step.bind(s =>
+      if (s.isDone) F.pure(Step.done(s.unsafeValue)) else F.flatMap(s.feed(Input.end))(
+        next => if (next.isDone) F.pure(Step.done(next.unsafeValue)) else diverge
+      )
+    )
 
   /**
    * A [[Step]] that folds a stream using an initial value and an accumulation

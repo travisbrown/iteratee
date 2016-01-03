@@ -128,13 +128,10 @@ final object Enumeratee extends EnumerateeInstances {
     new Looping[F, O, I] {
       protected final def loop[A](step: Step[F, I, A]): OuterF[A] =
         Step.cont[F, O, Boolean](in => F.pure(Step.early(in.isEnd, in))).bind { isEnd =>
-          if (isEnd) F.pure[OuterS[A]](Step.early(step, Input.end)) else stepWith(step)
+          if (isEnd) F.pure(Step.early(step, Input.end)) else F.flatMap(iteratee.state)(
+            _.bind(a => F.flatMap(step.feed(Input.el(a)))(doneOrLoop))
+          )
         }
-
-      private[this] final def stepWith[A](step: Step[F, I, A]): OuterF[A] =
-        F.flatMap(iteratee.state)(
-          _.bind(a => F.flatMap[Step[F, I, A], OuterS[A]](step.feed(Input.el(a)))(doneOrLoop))
-        )
     }
 
   /**
