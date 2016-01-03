@@ -2,7 +2,6 @@ package io.iteratee
 
 import algebra.{ Monoid, Order, Semigroup }
 import cats.{ Applicative, FlatMap, Id, Monad, MonadError, MonoidK }
-import cats.data.NonEmptyVector
 import io.iteratee.internal.{ Input, Step, diverge }
 
 abstract class Enumerator[F[_], E] extends Serializable { self =>
@@ -180,7 +179,7 @@ final object Enumerator extends EnumeratorInstances {
     new Enumerator[F, E] {
       final def apply[A](s: Step[F, E, A]): F[Step[F, E, A]] = xs match {
         case Nil => F.pure(s)
-        case h :: t => s.feed(Input.fromNonEmpty(NonEmptyVector(h, t.toVector)))
+        case h :: t => s.feed(Input.fromPair(h, t.toVector))
       }
     }
 

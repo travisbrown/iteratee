@@ -41,14 +41,14 @@ final object Input  {
    */
   trait Folder[@specialized E, Z] {
     def onEl(e: E): Z
-    def onChunk(h: E, t: NonEmptyVector[E]): Z
+    def onChunk(h1: E, h2: E, t: Vector[E]): Z
   }
 
   private[iteratee] final def fromVectorUnsafe[E](es: Vector[E]): Input[E] =
-    if (es.size == 1) el(es.head) else chunk(es.head, NonEmptyVector(es(1), es.drop(2)))
+    if (es.size == 1) el(es(0)) else chunk(es(0), es(1), es.drop(2))
 
-  final def fromNonEmpty[E](es: NonEmptyVector[E]): Input[E] =
-    if (es.tail.isEmpty) el(es.head) else chunk(es.head, NonEmptyVector(es.tail.head, es.tail.tail))
+  final def fromPair[E](e: E, es: Vector[E]): Input[E] =
+    if (es.isEmpty) el(e) else chunk(e, es.head, es.tail)
 
   /**
    * An input value containing a single element.
@@ -62,9 +62,9 @@ final object Input  {
   /**
    * An input value containing zero or more elements.
    */
-  final def chunk[E](h: E, t: NonEmptyVector[E]): Input[E] = new Input[E] {
-    final def foldWith[Z](folder: Folder[E, Z]): Z = folder.onChunk(h, t)
-    final def map[B](f: E => B): Input[B] = chunk(f(h), NonEmptyVector(f(t.head), t.tail.map(f)))
-    final def toNonEmpty: NonEmptyVector[E] = NonEmptyVector(h, t.head +: t.tail)
+  final def chunk[E](h1: E, h2: E, t: Vector[E]): Input[E] = new Input[E] {
+    final def foldWith[Z](folder: Folder[E, Z]): Z = folder.onChunk(h1, h2, t)
+    final def map[B](f: E => B): Input[B] = chunk(f(h1), f(h2), t.map(f))
+    final def toNonEmpty: NonEmptyVector[E] = NonEmptyVector(h1, h2 +: t)
   }
 }
