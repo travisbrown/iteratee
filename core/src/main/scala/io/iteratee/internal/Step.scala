@@ -29,7 +29,12 @@ sealed abstract class Step[F[_], E, A] extends Serializable {
   /**
    * Reduce this [[Step]] to a value using the given functions.
    */
-  def fold[Z](onCont: (Input[E] => F[Step[F, E, A]]) => Z, onDone: A => Z, onEarly: (A, Input[E]) => Z): Z
+  def fold[Z](
+    onCont: (Input[E] => F[Step[F, E, A]]) => Z,
+    onDone: A => Z,
+    onEarly: (A, Input[E]) => Z,
+    onEnd: A => Z
+  ): Z
 
   def isDone: Boolean
 
@@ -58,7 +63,12 @@ sealed abstract class Step[F[_], E, A] extends Serializable {
 
 
 abstract class ContStep[F[_], E, A] extends Step[F, E, A] with Function[Input[E], F[Step[F, E, A]]] { self =>
-  final def fold[Z](onCont: (Input[E] => F[Step[F, E, A]]) => Z, onDone: A => Z, onEarly: (A, Input[E]) => Z): Z =
+  final def fold[Z](
+    onCont: (Input[E] => F[Step[F, E, A]]) => Z,
+    onDone: A => Z,
+    onEarly: (A, Input[E]) => Z,
+    onEnd: A => Z
+  ): Z =
     onCont(this)
   private[iteratee] final def unsafeValue: A = diverge[A]
   final def isDone: Boolean = false
@@ -132,7 +142,12 @@ final object Step { self =>
   }
 
   case class NoLeftovers[F[_], E, A](value: A) extends Done[F, E, A](value) {
-    final def fold[Z](onCont: (Input[E] => F[Step[F, E, A]]) => Z, onDone: A => Z, onEarly: (A, Input[E]) => Z): Z =
+    final def fold[Z](
+      onCont: (Input[E] => F[Step[F, E, A]]) => Z,
+      onDone: A => Z,
+      onEarly: (A, Input[E]) => Z,
+      onEnd: A => Z
+    ): Z =
       onDone(value)
     final def map[B](f: A => B)(implicit F: Functor[F]): Step[F, E, B] = new NoLeftovers(f(value))
     final def contramap[E2](f: E2 => E)(implicit F: Functor[F]): Step[F, E2, A] = new NoLeftovers(value)
@@ -142,8 +157,12 @@ final object Step { self =>
   }
 
   case class WithLeftovers[F[_], E, A](value: A, remaining: Input[E]) extends Done[F, E, A](value) {
-    if (remaining.isEnd) throw sys.error(s"Invalid for $value")
-    final def fold[Z](onCont: (Input[E] => F[Step[F, E, A]]) => Z, onDone: A => Z, onEarly: (A, Input[E]) => Z): Z =
+    final def fold[Z](
+      onCont: (Input[E] => F[Step[F, E, A]]) => Z,
+      onDone: A => Z,
+      onEarly: (A, Input[E]) => Z,
+      onEnd: A => Z
+    ): Z =
         onEarly(value, remaining)
     final def map[B](f: A => B)(implicit F: Functor[F]): Step[F, E, B] = new WithLeftovers(f(value), remaining)
     final def contramap[E2](f: E2 => E)(implicit F: Functor[F]): Step[F, E2, A] = new NoLeftovers(value)
@@ -158,8 +177,13 @@ final object Step { self =>
   }
 
   case class Ended[F[_], E, A](value: A) extends Done[F, E, A](value) {
-    final def fold[Z](onCont: (Input[E] => F[Step[F, E, A]]) => Z, onDone: A => Z, onEarly: (A, Input[E]) => Z): Z =
-        onEarly(value, Input.end)
+    final def fold[Z](
+      onCont: (Input[E] => F[Step[F, E, A]]) => Z,
+      onDone: A => Z,
+      onEarly: (A, Input[E]) => Z,
+      onEnd: A => Z
+    ): Z =
+        onEnd(value)
     final def map[B](f: A => B)(implicit F: Functor[F]): Step[F, E, B] = new Ended(f(value))
     final def contramap[E2](f: E2 => E)(implicit F: Functor[F]): Step[F, E2, A] = new Ended(value)
 
@@ -189,11 +213,11 @@ final object Step { self =>
    *
    * @group Constructors
    */
-  final def contX[F[_], E, A](k: Input[E] => F[Step[F, E, A]]): Step[F, E, A] =
+  final def cont[F[_], E, A](k: Input[E] => F[Step[F, E, A]]): Step[F, E, A] =
     new FuncContStep[F, E, A] {
       final def apply(in: Input[E]): F[Step[F, E, A]] = k(in)
-      final def onEnd(implicit F: Applicative[F]): F[Ended[F, E, A]] =
-        k(Input.end).asInstanceOf[F[Ended[F, E, A]]]
+      final def onEnd(implicit F: Applicative[F]): F[Ended[F, E, A]] = ???
+        ///k(Input.end).asInstanceOf[F[Ended[F, E, A]]]
     }
 
   /**
@@ -449,7 +473,7 @@ final object Step { self =>
    * @group Collection
    */
   final def zip[F[_], E, A, B](stepA: Step[F, E, A], stepB: Step[F, E, B])
-    (implicit F: Monad[F]): F[Step[F, E, (A, B)]] = {
+    (implicit F: Monad[F]): F[Step[F, E, (A, B)]] = ???/*{
     type Pair[Z] = (Option[(Z, Option[Input[E]])], Step[F, E, Z])
 
     def paired[Z](s: Step[F, E, Z]): Step[F, E, Pair[Z]] = Step.done(
@@ -512,5 +536,5 @@ final object Step { self =>
             )
         }
     }
-  }
+  }*/
 }

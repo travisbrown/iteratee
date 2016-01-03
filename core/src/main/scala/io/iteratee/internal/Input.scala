@@ -34,7 +34,7 @@ sealed abstract class Input[@specialized E] extends Serializable {
 
   def map[B](f: E => B): Input[B]
 
-  def isEnd: Boolean
+  //def isEnd: Boolean
 
   /**
    * Convert this [[Input]] value into a sequence of elements.
@@ -60,11 +60,6 @@ final object Input extends InputInstances {
   }
 
   /**
-   * An input value representing the end of a stream.
-   */
-  final def end[E]: Input[E] = endValue.asInstanceOf[Input[E]]
-
-  /**
    * An input value containing a single element.
    */
   final def el[E](e: E): Input[E] = new Input[E] {
@@ -82,16 +77,5 @@ final object Input extends InputInstances {
     final def isEnd: Boolean = false
     final def map[B](f: E => B): Input[B] = chunk(f(e1), f(e2), es.map(f))
     private[iteratee] final def toVector: Vector[E] = e1 +: e2 +: es
-  }
-
-  /**
-   * We define a single end-of-stream value and cast it to the appropriate type
-   * in `end` in order to avoid allocations.
-   */
-  private[this] final val endValue: Input[Nothing] = new Input[Nothing] {
-    final def foldWith[A](folder: Folder[Nothing, A]): A = ???
-    final val isEnd: Boolean = true
-    final def map[B](f: Nothing => B): Input[B] = end
-    private[iteratee] final val toVector: Vector[Nothing] = Vector.empty
   }
 }
