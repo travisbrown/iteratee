@@ -2,7 +2,7 @@ package io.iteratee.task
 
 import cats.data.NonEmptyVector
 import io.iteratee.Enumerator
-import io.iteratee.internal.{ Input, Step }
+import io.iteratee.internal.Step
 import java.io.{ BufferedReader, File, FileReader }
 import scalaz.concurrent.Task
 
@@ -23,7 +23,7 @@ trait TaskOperations {
     final def apply[A](step: Step[Task, String, A]): Task[Step[Task, String, A]] =
       if (step.isDone) Task.taskInstance.point(step) else Task(reader.readLine()).flatMap {
         case null => Task.taskInstance.point(step)
-        case line => step.feed(Input.el(line)).flatMap(apply)
+        case line => step.feedEl(line).flatMap(apply)
       }
   }
 }
