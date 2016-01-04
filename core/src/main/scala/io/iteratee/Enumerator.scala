@@ -92,6 +92,12 @@ abstract class Enumerator[F[_], E] extends Serializable { self =>
 
   final def cross[E2](e2: Enumerator[F, E2])(implicit M: Monad[F]): Enumerator[F, (E, E2)] =
     mapE(Enumeratee.cross(e2))
+
+  final def handleErrorWith[T](f: T => Enumerator[F, E])(implicit F: MonadError[F, T]): Enumerator[F, E] =
+    new Enumerator[F, E] {
+      final def apply[A](s: Step[F, E, A]): F[Step[F, E, A]] =
+        F.handleErrorWith(self(s))(t => f(t)(s))
+    }
 }
 
 final object Enumerator extends EnumeratorInstances {
