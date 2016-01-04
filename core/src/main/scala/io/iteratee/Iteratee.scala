@@ -24,13 +24,7 @@ sealed class Iteratee[F[_], E, A] private[iteratee] (final val state: F[Step[F, 
    * @note A well-behaved iteratee will always be in the completed state after
    *       processing an [[io.iteratee.internal.Input.end]] value.
    */
-  final def run(implicit F: Monad[F]): F[A] = runWith(Enumerator.enumEnd)
-
-  /**
-   * Feed an enumerator to this iteratee and run it to return an effectful
-   * value.
-   */
-  final def runWith(enumerator: Enumerator[F, E])(implicit F: Monad[F]): F[A] = enumerator.run(self)
+  final def run(implicit F: Monad[F]): F[A] = F.flatMap(state)(_.run)
 
   /**
    * Map a function over the result of this [[Iteratee]].
@@ -119,7 +113,7 @@ final object Iteratee extends IterateeInstances {
    */
   final def cont[F[_]: Applicative, E, A](
     ifInput: NonEmptyVector[E] => Iteratee[F, E, A],
-    ifEnd: => F[A]
+    ifEnd: F[A]
   ): Iteratee[F, E, A] = fromStep(Step.cont(es => ifInput(es).state, ifEnd))
 
   /**
