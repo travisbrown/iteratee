@@ -116,12 +116,8 @@ final object Step { self =>
   }
 
   object Done {
-    class IsDone[F[_], E, A](val step: Step[F, E, A]) extends AnyVal {
-      def isEmpty: Boolean = !step.isDone
-      def get: A = step.asInstanceOf[Done[F, E, A]].value
-    }
-
-    final def unapply[F[_], E, A](step: Step[F, E, A]): IsDone[F, E, A] = new IsDone(step)
+    final def unapply[F[_], E, A](step: Step[F, E, A]): Option[A] =
+      if (step.isDone) Some(step.asInstanceOf[Done[F, E, A]].value) else None
   }
 
   class NoLeftovers[F[_]: Applicative, E, A](value: A) extends Done[F, E, A](value) {
