@@ -5,6 +5,7 @@ import cats.{ Eval, Id, Monad, MonadError }
 import cats.arrow.NaturalTransformation
 import cats.data.{ Xor, XorT }
 import cats.laws.discipline.{ ContravariantTests, MonadErrorTests, MonadTests, MonoidalTests }
+import io.iteratee.internal.Step
 import org.scalacheck.Arbitrary
 import org.scalacheck.Prop.BooleanOperators
 
@@ -34,6 +35,40 @@ abstract class IterateeSuite[F[_]: Monad] extends ModuleSuite[F] {
     s"Iteratee[$monadName, Int, Vector[Int]]",
     ContravariantTests[VectorIntProducingIteratee].invariant[Vector[Int], Int, Vector[Int]]
   )
+
+  test("cont") {
+    check { (eav: EnumeratorAndValues[Int]) =>
+      def myDrain(acc: List[Int]): Iteratee[F, Int, List[Int]] = cont[Int, List[Int]](
+        els => myDrain(acc ::: (els.head :: els.tail.toList)),
+        F.pure(acc)
+      )
+
+      eav.enumerator.run(myDrain(Nil)) === F.map(eav.enumerator.drain)(_.toList)
+    }
+  }
+
+  test("pureCont") {
+    check { (eav: EnumeratorAndValues[Int]) =>
+      val myHead: Iteratee[F, Int, Option[Int]] = pureCont[Int, Option[Int]](
+        els => Step.done(Some(els.head), els.tail),
+        F.pure(None)
+      )
+
+      eav.enumerator.run(myHead) === eav.enumerator.run(head)
+    }
+  }
+
+  test("done") {
+    check { (eav: EnumeratorAndValues[Int], s: String) =>
+      eav.enumerator.run(done(s)) === F.pure(s)
+    }
+  }
+
+  test("ended") {
+    check { (eav: EnumeratorAndValues[Int], s: String) =>
+      eav.enumerator.run(ended(s)) === F.pure(s)
+    }
+  }
 
   test("liftM") {
     check { (i: Int) =>

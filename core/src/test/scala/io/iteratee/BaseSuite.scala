@@ -13,6 +13,7 @@ class BaseSuite extends FunSuite with Checkers with Discipline
   with ArbitraryInstances with EqInstances
   with AllInstances with AllSyntax {
   override def convertToEqualizer[T](left: T): Equalizer[T] = ???
+  implicit override val generatorDrivenConfig = PropertyCheckConfiguration(minSuccessful = 300)
 }
 
 abstract class ModuleSuite[F[_]](implicit val F: Monad[F]) extends BaseSuite
