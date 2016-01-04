@@ -59,7 +59,7 @@ sealed class Iteratee[F[_], E, A] private[iteratee] (final val state: F[Step[F, 
   /**
    * Transform the context of this [[Iteratee]].
    */
-  final def mapI[G[_]](f: NaturalTransformation[F, G])(implicit F: Applicative[F]): Iteratee[G, E, A] =
+  final def mapI[G[_]: Applicative](f: NaturalTransformation[F, G])(implicit F: Applicative[F]): Iteratee[G, E, A] =
     Iteratee.iteratee(f(F.map(state)(_.mapI(f))))
 
   /**
