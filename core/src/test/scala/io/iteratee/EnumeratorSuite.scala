@@ -2,8 +2,8 @@ package io.iteratee
 
 import algebra.Eq
 import algebra.laws.GroupLaws
-import cats.{ Eval, Monad }
-import cats.data.XorT
+import cats.{ Eval, Monad, MonadError }
+import cats.data.{ Xor, XorT }
 import cats.laws.discipline.{ MonadTests, MonoidalTests }
 import org.scalacheck.{ Gen, Prop }
 
@@ -247,6 +247,9 @@ class EvalEnumeratorTests extends EnumeratorSuite[Eval] with EvalSuite {
 
 class XorEnumeratorTests extends EnumeratorSuite[({ type L[x] = XorT[Eval, Throwable, x] })#L]
   with XorSuite {
+
+  type XTE[A] = XorT[Eval, Throwable, A]
+
   test("ensure") {
     check { (eav: EnumeratorAndValues[Int]) =>
       var counter = 0
@@ -265,6 +268,14 @@ class XorEnumeratorTests extends EnumeratorSuite[({ type L[x] = XorT[Eval, Throw
       val n = math.max(0, eav.values.size - 2)
 
       counter == 0 && enumerator.run(take(n)) === F.pure(eav.values.take(n)) && counter === 1
+    }
+  }
+
+  test("failEnumerator") {
+    check { (eav: EnumeratorAndValues[Int], message: String) =>
+      val error: Throwable = new Exception(message)
+
+      eav.enumerator.append(failEnumerator(error)).drain.value.value === Xor.left(error)
     }
   }
 }
