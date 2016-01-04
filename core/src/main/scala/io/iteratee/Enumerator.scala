@@ -2,7 +2,7 @@ package io.iteratee
 
 import algebra.{ Monoid, Order, Semigroup }
 import cats.{ Applicative, FlatMap, Id, Monad, MonadError, MonoidK }
-import io.iteratee.internal.{ Input, Step, diverge }
+import io.iteratee.internal.{ Step, diverge }
 
 abstract class Enumerator[F[_], E] extends Serializable { self =>
   def apply[A](s: Step[F, E, A]): F[Step[F, E, A]]
@@ -155,9 +155,10 @@ final object Enumerator extends EnumeratorInstances {
 
     private[this] final def go[A](it: Iterator[Vector[E]], step: Step[F, E, A]): F[Step[F, E, A]] =
       if (it.isEmpty || step.isDone) F.pure(step) else {
-        val next = it.next()
-
-        F.flatMap(step.feed(Input.fromVectorUnsafe(next)))(go(it, _))
+        it.next() match {
+          case Vector(e) => F.flatMap(step.feedEl(e))(go(it, _))
+          case h1 +: h2 +: t => F.flatMap(step.feedChunk(h1, h2, t))(go(it, _))
+        }
       }
 
     final def apply[A](s: Step[F, E, A]): F[Step[F, E, A]] = go(chunks, s)
@@ -178,7 +179,8 @@ final object Enumerator extends EnumeratorInstances {
     new Enumerator[F, E] {
       final def apply[A](s: Step[F, E, A]): F[Step[F, E, A]] = xs match {
         case Nil => F.pure(s)
-        case h :: t => s.feed(Input.fromPair(h, t.toVector))
+        case e :: Nil => s.feedEl(e)
+        case h1 :: h2 :: t => s.feedChunk(h1, h2, t.toVector)
       }
     }
 
@@ -188,7 +190,11 @@ final object Enumerator extends EnumeratorInstances {
   final def enumVector[F[_], E](xs: Vector[E])(implicit F: Applicative[F]): Enumerator[F, E] =
     new Enumerator[F, E] {
       final def apply[A](s: Step[F, E, A]): F[Step[F, E, A]] =
-        if (xs.isEmpty) F.pure(s) else s.feed(Input.fromVectorUnsafe(xs))
+        xs match {
+          case Vector() => F.pure(s)
+          case Vector(e) => s.feedEl(e)
+          case h1 +: h2 +: t => s.feedChunk(h1, h2, t)
+        }
     }
 
   /**
