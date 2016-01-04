@@ -155,7 +155,7 @@ final object Enumeratee extends EnumerateeInstances {
         }
 
       final def apply[A](step: Step[F, E, A]): OuterF[A] =
-        F.pure(stepWith(step, None).map(Step.done[F, E, A]))
+        F.pure(stepWith(step, None).map(Step.done(_)))
     }
 
   /**
