@@ -38,7 +38,7 @@ abstract class Enumerator[F[_], E] extends Serializable { self =>
     F: Monad[F],
     G: Monad[G]
   ): F[G[Enumerator[F, B]]] = {
-    val iteratee = Iteratee.fold[F, G[Enumerator[F, B]], G[Enumerator[F, B]]](
+    val iteratee = Iteratee.fold[G[Enumerator[F, B]], G[Enumerator[F, B]]](
       G.pure(Enumerator.empty)
     ) {
       case (acc, concat) => G.flatMap(acc)(en =>
@@ -46,7 +46,7 @@ abstract class Enumerator[F[_], E] extends Serializable { self =>
       )
     }
 
-    map(f).run(iteratee)
+    map(f).run(iteratee.up[F])
   }
 
   final def collect[B](pf: PartialFunction[E, B])(implicit F: Monad[F]): Enumerator[F, B] =
@@ -76,15 +76,15 @@ abstract class Enumerator[F[_], E] extends Serializable { self =>
   final def splitOn(p: E => Boolean)(implicit F: Monad[F]): Enumerator[F, Vector[E]] =
     mapE(Enumeratee.splitOn(p))
 
-  final def drain(implicit F: Monad[F]): F[Vector[E]] = run(Iteratee.drain)
+  final def drain(implicit F: Monad[F]): F[Vector[E]] = run(Iteratee.drain.up[F])
 
   final def drainTo[C[_]: Applicative: MonoidK](implicit F: Monad[F]): F[C[E]] =
-    run(Iteratee.drainTo)
+    run(Iteratee.drainTo[E, C].up[F])
 
   final def reduced[B](b: B)(f: (B, E) => B)(implicit F: Monad[F]): Enumerator[F, B] =
     new Enumerator[F, B] {
       final def apply[A](step: Step[F, B, A]): F[Step[F, B, A]] =
-        F.flatMap(self(Step.fold[F, E, B](b)(f))) {
+        F.flatMap(self(Step.fold[E, B](b)(f).up[F])) {
           case Step.Done(value) => step.feedEl(value)
           case other => F.flatMap(other.run)(step.feedEl)
         }

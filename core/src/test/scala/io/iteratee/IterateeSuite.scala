@@ -47,17 +47,6 @@ abstract class IterateeSuite[F[_]: Monad] extends ModuleSuite[F] {
     }
   }
 
-  test("pureCont") {
-    check { (eav: EnumeratorAndValues[Int]) =>
-      val myHead: Iteratee[F, Int, Option[Int]] = pureCont[Int, Option[Int]](
-        els => Step.done(Some(els.head), els.tail),
-        F.pure(None)
-      )
-
-      eav.enumerator.run(myHead) === eav.enumerator.run(head)
-    }
-  }
-
   test("done") {
     check { (eav: EnumeratorAndValues[Int], s: String) =>
       eav.enumerator.run(done(s)) === F.pure(s)
@@ -304,7 +293,7 @@ class XorIterateeTests extends IterateeSuite[({ type L[x] = XorT[Eval, Throwable
   test("mapI") {
     check { (eav: EnumeratorAndValues[Int], n: Int) =>
       (n != Int.MaxValue) ==> {
-        val iteratee = Iteratee.take[Id, Int](n).mapI(
+        val iteratee = Iteratee.take[Int](n).mapI(
           new NaturalTransformation[Id, XTE] {
             def apply[A](a: A): XTE[A] = F.pure(a)
           }
@@ -320,7 +309,7 @@ class XorIterateeTests extends IterateeSuite[({ type L[x] = XorT[Eval, Throwable
   test("up") {
     check { (eav: EnumeratorAndValues[Int], n: Int) =>
       (n != Int.MaxValue) ==> {
-        val iteratee = Iteratee.take[Id, Int](n).up[XTE]
+        val iteratee = Iteratee.take[Int](n).up[XTE]
         val result = (eav.values.take(n), eav.values.drop(n))
 
         eav.resultWithLeftovers(iteratee) === F.pure(result)
