@@ -46,7 +46,7 @@ trait TaskOperations {
     final def apply[A](step: Step[Task, String, A]): Task[Step[Task, String, A]] =
       if (step.isDone) Task.taskInstance.point(step) else Task(reader.readLine()).flatMap {
         case null => Task.taskInstance.point(step)
-        case line => step.feedEl(line).flatMap(apply)
+        case line => step.onEl(line).flatMap(apply)
       }
   }
 
@@ -60,7 +60,7 @@ trait TaskOperations {
         } else null
       ).flatMap {
         case null => Task.taskInstance.point(step)
-        case pair => step.feedEl(pair).flatMap(apply)
+        case pair => step.onEl(pair).flatMap(apply)
       }
   }
 }

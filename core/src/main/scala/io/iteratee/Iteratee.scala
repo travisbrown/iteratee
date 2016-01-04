@@ -96,6 +96,11 @@ sealed class Iteratee[F[_], E, A] private[iteratee] (final val state: F[Step[F, 
  */
 final object Iteratee extends IterateeInstances {
   /**
+   */
+  //final def raiseId[F[_], E, A](step: Iteratee[Id, E, A])(implicit F: Applicative[F]): Iteratee[F, E, A] =
+  //  iteratee(F.pure(step.state))
+
+  /**
    * Create an incomplete [[Iteratee]] that will use the given function to
    * process the next input.
    *
@@ -130,7 +135,7 @@ final object Iteratee extends IterateeInstances {
    */
   final def iteratee[F[_], E, A](s: F[Step[F, E, A]]): Iteratee[F, E, A] = new Iteratee[F, E, A](s)
 
-  /**
+  /**ii
    * Create an [[Iteratee]] from a [[io.iteratee.internal.Step]].
    *
    * @group Utilities

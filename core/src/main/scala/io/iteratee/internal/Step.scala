@@ -16,7 +16,7 @@ import io.iteratee.Iteratee
  * @tparam E The type of the input data
  * @tparam A The type of the result calculated by the [[Iteratee]]
  */
-sealed abstract class Step[F[_], E, A] extends Serializable {
+sealed abstract class Step[F[_], E, A] extends Input.Folder[E, F[Step[F, E, A]]] {
   /**
    * Reduce this [[Step]] to a value using the given functions.
    */
@@ -43,8 +43,6 @@ sealed abstract class Step[F[_], E, A] extends Serializable {
    */
   def bind[B](f: A => F[Step[F, E, B]])(implicit M: Monad[F]): F[Step[F, E, B]]
 
-  def feedEl(e: E): F[Step[F, E, A]]
-  def feedChunk(h1: E, h2: E, t: Vector[E]): F[Step[F, E, A]]
   def end: F[Step.Ended[F, E, A]]
   def run: F[A]
 
@@ -54,53 +52,6 @@ sealed abstract class Step[F[_], E, A] extends Serializable {
   final def up[G[_]](implicit G: Applicative[G], F: Comonad[F]): Step[G, E, A] = mapI(
     new NaturalTransformation[F, G] {
       final def apply[A](a: F[A]): G[A] = G.pure(F.extract(a))
-    }
-  )
-}
-
-
-abstract class ContStep[F[_], E, A](implicit F: Applicative[F]) extends Step[F, E, A] { self =>
-  final def fold[Z](
-    ifCont: (NonEmptyVector[E] => F[Step[F, E, A]]) => Z,
-    ifDone: (A, Vector[E]) => Z,
-    ifEnd: A => Z
-  ): Z = ifCont {
-    case OneAnd(e, Vector()) => feedEl(e)
-    case OneAnd(h1, h2 +: t) => feedChunk(h1, h2, t)
-  }
-  final def isDone: Boolean = false
-  final def mapI[G[_]: Applicative](f: NaturalTransformation[F, G]): Step[G, E, A] =
-    new FuncContStep[G, E, A] {
-      final def feedEl(e: E): G[Step[G, E, A]] = f(F.map(self.feedEl(e))(_.mapI(f)))
-      final def feedChunk(h1: E, h2: E, t: Vector[E]): G[Step[G, E, A]] = f(F.map(self.feedChunk(h1, h2, t))(_.mapI(f)))
-      final def end: G[Step.Ended[G, E, A]] =
-        f(F.map(self.end)(_.mapI(f))).asInstanceOf[G[Step.Ended[G, E, A]]]
-    }
-
-  final def run: F[A] = F.map(end)(_.value)
-}
-
-abstract class FuncContStep[F[_], E, A](implicit F: Applicative[F]) extends ContStep[F, E, A] { self =>
-  final def map[B](f: A => B): Step[F, E, B] = new FuncContStep[F, E, B] {
-    final def feedEl(e: E): F[Step[F, E, B]] = F.map(self.feedEl(e))(_.map(f))
-    final def feedChunk(h1: E, h2: E, t: Vector[E]): F[Step[F, E, B]] = F.map(self.feedChunk(h1, h2, t))(_.map(f))
-    final def end: F[Step.Ended[F, E, B]] =
-      F.map(self.end)(_.map(f)).asInstanceOf[F[Step.Ended[F, E, B]]]
-  }
-  final def contramap[E2](f: E2 => E): Step[F, E2, A] = new FuncContStep[F, E2, A] {
-    final def feedEl(e: E2): F[Step[F, E2, A]] = F.map(self.feedEl(f(e)))(_.contramap(f))
-    final def feedChunk(h1: E2, h2: E2, t: Vector[E2]): F[Step[F, E2, A]] =
-      F.map(self.feedChunk(f(h1), f(h2), t.map(f)))(_.contramap(f))
-    final def end: F[Step.Ended[F, E2, A]] =
-      F.map(self.end)(_.contramap(f)).asInstanceOf[F[Step.Ended[F, E2, A]]]
-  }
-  final def bind[B](f: A => F[Step[F, E, B]])(implicit M: Monad[F]): F[Step[F, E, B]] = F.pure(
-    new FuncContStep[F, E, B] {
-      final def feedEl(e: E): F[Step[F, E, B]] = M.flatMap(self.feedEl(e))(_.bind(f))
-      final def feedChunk(h1: E, h2: E, t: Vector[E]): F[Step[F, E, B]] =
-        M.flatMap(self.feedChunk(h1, h2, t))(_.bind(f))
-      final def end: F[Step.Ended[F, E, B]] =
-        M.flatMap(self.end)(_.bind(f)).asInstanceOf[F[Step.Ended[F, E, B]]]
     }
   )
 }
@@ -118,8 +69,8 @@ abstract class FuncContStep[F[_], E, A](implicit F: Applicative[F]) extends Cont
 final object Step { self =>
   sealed abstract class Done[F[_], E, A](final val value: A)(implicit F: Applicative[F]) extends Step[F, E, A] {
     final def isDone: Boolean = true
-    final def feedEl(e: E): F[Step[F, E, A]] = F.pure(this)
-    final def feedChunk(h1: E, h2: E, t: Vector[E]): F[Step[F, E, A]] = F.pure(this)
+    final def onEl(e: E): F[Step[F, E, A]] = F.pure(this)
+    final def onChunk(h1: E, h2: E, t: Vector[E]): F[Step[F, E, A]] = F.pure(this)
     final def end: F[Ended[F, E, A]] = F.pure(new Ended(value))
     final def run: F[A] = F.map(end)(_.value)
   }
@@ -157,8 +108,8 @@ final object Step { self =>
         case Done(v) => M.pure(new WithLeftovers(v, remaining))
         case step => remaining.foldWith(
           new Input.Folder[E, F[Step[F, E, B]]] {
-            def onEl(e: E): F[Step[F, E, B]] = step.feedEl(e)
-            def onChunk(h1: E, h2: E, t: Vector[E]): F[Step[F, E, B]] = step.feedChunk(h1, h2, t)
+            def onEl(e: E): F[Step[F, E, B]] = step.onEl(e)
+            def onChunk(h1: E, h2: E, t: Vector[E]): F[Step[F, E, B]] = step.onChunk(h1, h2, t)
           }
         )
       }
@@ -186,9 +137,48 @@ final object Step { self =>
     final def mapI[G[_]: Applicative](f: NaturalTransformation[F, G]): Step[G, E, A] = new Ended(value)
   }
 
-  abstract class Cont[F[_]: Applicative, E, A] extends FuncContStep[F, E, A] with Input.Folder[E, F[Step[F, E, A]]] {
-    final def feedEl(e: E): F[Step[F, E, A]] = onEl(e)
-    final def feedChunk(h1: E, h2: E, t: Vector[E]): F[Step[F, E, A]] = onChunk(h1, h2, t)
+  abstract class Cont[F[_], E, A](implicit F: Applicative[F]) extends Step[F, E, A] { self =>
+    final def fold[Z](
+      ifCont: (NonEmptyVector[E] => F[Step[F, E, A]]) => Z,
+      ifDone: (A, Vector[E]) => Z,
+      ifEnd: A => Z
+    ): Z = ifCont {
+      case OneAnd(e, Vector()) => onEl(e)
+      case OneAnd(h1, h2 +: t) => onChunk(h1, h2, t)
+    }
+    final def isDone: Boolean = false
+    final def mapI[G[_]: Applicative](f: NaturalTransformation[F, G]): Step[G, E, A] =
+      new Step.Cont[G, E, A] {
+        final def onEl(e: E): G[Step[G, E, A]] = f(F.map(self.onEl(e))(_.mapI(f)))
+        final def onChunk(h1: E, h2: E, t: Vector[E]): G[Step[G, E, A]] = f(F.map(self.onChunk(h1, h2, t))(_.mapI(f)))
+        final def end: G[Step.Ended[G, E, A]] =
+          f(F.map(self.end)(_.mapI(f))).asInstanceOf[G[Step.Ended[G, E, A]]]
+      }
+
+    final def run: F[A] = F.map(end)(_.value)
+
+    final def map[B](f: A => B): Step[F, E, B] = new Cont[F, E, B] {
+      final def onEl(e: E): F[Step[F, E, B]] = F.map(self.onEl(e))(_.map(f))
+      final def onChunk(h1: E, h2: E, t: Vector[E]): F[Step[F, E, B]] = F.map(self.onChunk(h1, h2, t))(_.map(f))
+      final def end: F[Step.Ended[F, E, B]] =
+        F.map(self.end)(_.map(f)).asInstanceOf[F[Step.Ended[F, E, B]]]
+    }
+    final def contramap[E2](f: E2 => E): Step[F, E2, A] = new Cont[F, E2, A] {
+      final def onEl(e: E2): F[Step[F, E2, A]] = F.map(self.onEl(f(e)))(_.contramap(f))
+      final def onChunk(h1: E2, h2: E2, t: Vector[E2]): F[Step[F, E2, A]] =
+        F.map(self.onChunk(f(h1), f(h2), t.map(f)))(_.contramap(f))
+      final def end: F[Step.Ended[F, E2, A]] =
+        F.map(self.end)(_.contramap(f)).asInstanceOf[F[Step.Ended[F, E2, A]]]
+    }
+    final def bind[B](f: A => F[Step[F, E, B]])(implicit M: Monad[F]): F[Step[F, E, B]] = F.pure(
+      new Cont[F, E, B] {
+        final def onEl(e: E): F[Step[F, E, B]] = M.flatMap(self.onEl(e))(_.bind(f))
+        final def onChunk(h1: E, h2: E, t: Vector[E]): F[Step[F, E, B]] =
+          M.flatMap(self.onChunk(h1, h2, t))(_.bind(f))
+        final def end: F[Step.Ended[F, E, B]] =
+          M.flatMap(self.end)(_.bind(f)).asInstanceOf[F[Step.Ended[F, E, B]]]
+      }
+    )
   }
 
   /**
@@ -200,10 +190,10 @@ final object Step { self =>
     ifInput: NonEmptyVector[E] => F[Step[F, E, A]],
     ifEnd: F[A]
   )(implicit F: Applicative[F]): Step[F, E, A] =
-    new FuncContStep[F, E, A] {
+    new Cont[F, E, A] {
       final def end: F[Ended[F, E, A]] = F.map(ifEnd)(ended(_))
-      final def feedEl(e: E): F[Step[F, E, A]] = ifInput(NonEmptyVector(e))
-      final def feedChunk(h1: E, h2: E, t: Vector[E]): F[Step[F, E, A]] = ifInput(NonEmptyVector(h1, h2 +: t))
+      final def onEl(e: E): F[Step[F, E, A]] = ifInput(NonEmptyVector(e))
+      final def onChunk(h1: E, h2: E, t: Vector[E]): F[Step[F, E, A]] = ifInput(NonEmptyVector(h1, h2 +: t))
     }
 
   /**
@@ -456,12 +446,12 @@ final object Step { self =>
       F.flatMap(stepA.end)(_.bind(a => F.map(stepB.end)(_.map((a, _))))).asInstanceOf[F[Ended[F, E, (A, B)]]]
 
     def loop(stepA: Step[F, E, A], stepB: Step[F, E, B]): Step[F, E, (A, B)] =
-      new FuncContStep[F, E, (A, B)] {
+      new Cont[F, E, (A, B)] {
         final def end: F[Ended[F, E, (A, B)]] = endSteps(stepA, stepB)
-        final def feedEl(e: E): F[Step[F, E, (A, B)]] = F.flatMap(stepA.feedEl(e))(fsA =>
+        final def onEl(e: E): F[Step[F, E, (A, B)]] = F.flatMap(stepA.onEl(e))(fsA =>
           paired(fsA).bind {
             case (pairA, nextA) =>
-              F.flatMap(stepB.feedEl(e))(fsB =>
+              F.flatMap(stepB.onEl(e))(fsB =>
                 paired(fsB).bind {
                   case (pairB, nextB) => F.pure(
                     (pairA, pairB) match {
@@ -479,11 +469,11 @@ final object Step { self =>
               )
           }
         )
-        final def feedChunk(h1: E, h2: E, t: Vector[E]): F[Step[F, E, (A, B)]] =
-          F.flatMap(stepA.feedChunk(h1, h2, t))(fsA =>
+        final def onChunk(h1: E, h2: E, t: Vector[E]): F[Step[F, E, (A, B)]] =
+          F.flatMap(stepA.onChunk(h1, h2, t))(fsA =>
           paired(fsA).bind {
             case (pairA, nextA) =>
-              F.flatMap(stepB.feedChunk(h1, h2, t))(fsB =>
+              F.flatMap(stepB.onChunk(h1, h2, t))(fsB =>
                 paired(fsB).bind {
                   case (pairB, nextB) => F.pure(
                     (pairA, pairB) match {
