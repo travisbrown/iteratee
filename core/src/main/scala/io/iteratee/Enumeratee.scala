@@ -2,12 +2,10 @@ package io.iteratee
 
 import algebra.{ Eq, Monoid }
 import cats.{ Applicative, Monad }
-import io.iteratee.internal.{ Input, Step }
+import io.iteratee.internal.Step
 
 abstract class Enumeratee[F[_], O, I] extends Serializable { self =>
-  type OuterS[A] = Step[F, O, Step[F, I, A]]
-  type OuterF[A] = F[OuterS[A]]
-  type OuterI[A] = Iteratee[F, O, Step[F, I, A]]
+  type OuterF[A] = F[Step[F, O, Step[F, I, A]]]
 
   def apply[A](step: Step[F, I, A]): F[Step[F, O, Step[F, I, A]]]
 
@@ -31,9 +29,6 @@ abstract class Enumeratee[F[_], O, I] extends Serializable { self =>
 
   final def contramap[J](f: J => O)(implicit F: Monad[F]): Enumeratee[F, J, I] =
     Enumeratee.map(f)(F).andThen(self)
-
-  protected final def toOuterF[A](step: Step[F, I, A])(implicit F: Applicative[F]): OuterF[A] =
-    F.pure(Step.done(step))
 }
 
 final object Enumeratee extends EnumerateeInstances {
@@ -83,10 +78,11 @@ final object Enumeratee extends EnumerateeInstances {
             else
               F.pure(stepWith(step))
           final def onChunk(h1: O, h2: O, t: Vector[O]): OuterF[A] = {
-            val collected = (h1 +: h2 +: t).collect(pf)
-
-            if (collected.isEmpty) F.pure(stepWith(step)) else
-              F.flatMap(step.feed(Input.fromVectorUnsafe(collected)))(doneOrLoop)
+            (h1 +: h2 +: t).collect(pf) match {
+              case Vector() => F.pure(stepWith(step))
+              case Vector(e) => F.flatMap(step.feedEl(e))(doneOrLoop)
+              case h1 +: h2 +: t => F.flatMap(step.feedChunk(h1, h2, t))(doneOrLoop)
+            }
           }
           final def end: F[Step.Ended[F, O, Step[F, I, A]]] =
             F.pure(Step.ended(step))
@@ -107,10 +103,11 @@ final object Enumeratee extends EnumerateeInstances {
           final def onEl(e: E): OuterF[A] =
             if (p(e)) F.flatMap(step.feedEl(e))(doneOrLoop) else F.pure(stepWith(step))
           final def onChunk(h1: E, h2: E, t: Vector[E]): OuterF[A] = {
-            val filtered = (h1 +: h2 +: t).filter(p)
-
-            if (filtered.isEmpty) F.pure(stepWith(step)) else
-              F.flatMap(step.feed(Input.fromVectorUnsafe(filtered)))(doneOrLoop)
+            (h1 +: h2 +: t).filter(p) match {
+              case Vector() => F.pure(stepWith(step))
+              case Vector(e) => F.flatMap(step.feedEl(e))(doneOrLoop)
+              case h1 +: h2 +: t => F.flatMap(step.feedChunk(h1, h2, t))(doneOrLoop)
+            }
           }
         }
     }
@@ -149,8 +146,11 @@ final object Enumeratee extends EnumerateeInstances {
               case ((acc, _), e) => (acc :+ e, Some(e))
             }
 
-            if (newEs.isEmpty) F.pure(stepWith(step, last)) else
-              F.map(step.feed(Input.fromVectorUnsafe(newEs)))(stepWith(_, newLast))
+            newEs match {
+              case Vector() => F.pure(stepWith(step, last))
+              case Vector(e) => F.map(step.feedEl(e))(stepWith(_, newLast))
+              case h1 +: h2 +: t => F.map(step.feedChunk(h1, h2, t))(stepWith(_, newLast))
+            }
           }
         }
 
