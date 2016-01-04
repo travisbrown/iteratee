@@ -234,7 +234,7 @@ final object Step { self =>
    */
   final def cont[F[_], E, A](
     ifInput: NonEmptyVector[E] => F[Step[F, E, A]],
-    ifEnd: => F[A]
+    ifEnd: F[A]
   )(implicit F: Applicative[F]): Step[F, E, A] =
     new FuncContStep[F, E, A] {
       final def end: F[Ended[F, E, A]] = F.map(ifEnd)(ended(_))
