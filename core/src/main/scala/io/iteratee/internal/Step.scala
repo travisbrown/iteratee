@@ -188,7 +188,6 @@ final object Step { self =>
 
   abstract class PureCont[F[_], E, A](implicit F: Applicative[F])
     extends ContStep[F, E, A] with Input.Folder[E, Step[F, E, A]]  { self =>
-    final def pureApply(in: Input[E]): Step[F, E, A] = in.foldWith(this)
     final def feedEl(e: E): F[Step[F, E, A]] = F.pure(onEl(e))
     final def feedChunk(h1: E, h2: E, t: Vector[E]): F[Step[F, E, A]] = F.pure(onChunk(h1, h2, t))
 
@@ -228,6 +227,21 @@ final object Step { self =>
       final def end: F[Ended[F, E, A]] = F.map(ifEnd)(ended(_))
       final def feedEl(e: E): F[Step[F, E, A]] = ifInput(NonEmptyVector(e))
       final def feedChunk(h1: E, h2: E, t: Vector[E]): F[Step[F, E, A]] = ifInput(NonEmptyVector(h1, h2 +: t))
+    }
+
+  /**
+   * Create an incomplete state that will use the given function to process the next input.
+   *
+   * @group Constructors
+   */
+  final def pureCont[F[_], E, A](
+    ifInput: NonEmptyVector[E] => Step[F, E, A],
+    ifEnd: F[A]
+  )(implicit F: Applicative[F]): Step[F, E, A] =
+    new PureCont[F, E, A] {
+      final def end: F[Ended[F, E, A]] = F.map(ifEnd)(ended(_))
+      final def onEl(e: E): Step[F, E, A] = ifInput(NonEmptyVector(e))
+      final def onChunk(h1: E, h2: E, t: Vector[E]): Step[F, E, A] = ifInput(NonEmptyVector(h1, h2 +: t))
     }
 
   /**
