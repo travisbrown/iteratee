@@ -67,16 +67,6 @@ sealed class Iteratee[F[_], E, A] private[iteratee] (final val state: F[Step[F, 
   )
 
   /**
-   * Create an [[Enumeratee]] that repeatedly applies this [[Iteratee]] to a
-   * stream.
-   *
-   * The resulting enumeratee feeds input elements to this iteratee until it's
-   * done and then feeds the produced value to the inner iteratee. The iteratee
-   * will start over and loop until the inner iteratee is done.
-   */
-  final def sequenceI(implicit m: Monad[F]): Enumeratee[F, E, A] = Enumeratee.sequenceI(this)
-
-  /**
    * Zip this [[Iteratee]] with another to create an iteratee that returns a
    * pair of their results.
    */

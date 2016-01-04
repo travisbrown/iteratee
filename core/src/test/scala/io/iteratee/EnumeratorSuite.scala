@@ -56,9 +56,21 @@ abstract class EnumeratorSuite[F[_]: Monad] extends ModuleSuite[F] {
     }
   }
 
+  test("enumVector with single element") {
+    check { (x: Int) =>
+      enumVector(Vector(x)).drain === F.pure(Vector(x))
+    }
+  }
+
   test("enumIndexedSeq") {
     check { (xs: Vector[Int], start: Int, count: Int) =>
       enumIndexedSeq(xs, start, start + count).drain === F.pure(xs.slice(start, start + count))
+    }
+  }
+
+  test("enumIndexedSeq with given slice") {
+    check { (xs: Vector[Int]) =>
+      enumIndexedSeq(xs, 0, 100).drain === F.pure(xs.slice(0, 100))
     }
   }
 
@@ -134,6 +146,14 @@ abstract class EnumeratorSuite[F[_]: Monad] extends ModuleSuite[F] {
   test("reduced") {
     check { (eav: EnumeratorAndValues[Int]) =>
       eav.enumerator.reduced(Vector.empty[Int])(_ :+ _).drain === F.pure(Vector(eav.values))
+    }
+  }
+
+  test("reduced with end") {
+    check { (eav: EnumeratorAndValues[Int]) =>
+      val enumerator = eav.enumerator.append(enumEnd)
+
+      enumerator.reduced(Vector.empty[Int])(_ :+ _).drain === F.pure(Vector(eav.values))
     }
   }
 
@@ -260,6 +280,17 @@ class XorEnumeratorTests extends EnumeratorSuite[({ type L[x] = XorT[Eval, Throw
     }
   }
 
+  test("ensure with failure") {
+    check { (eav: EnumeratorAndValues[Int], message: String) =>
+      val error: Throwable = new Exception(message)
+      var counter = 0
+      val action = XorT.right[Eval, Throwable, Unit](Eval.always(counter += 1))
+      val enumerator = failEnumerator(error).append(eav.enumerator).ensure(action)
+
+      counter == 0 && enumerator.drain.value.value === Xor.left(error) && counter === 1
+    }
+  }
+
   test("ensure without necessarily consuming all elements") {
     check { (eav: EnumeratorAndValues[Int]) =>
       var counter = 0
@@ -276,6 +307,15 @@ class XorEnumeratorTests extends EnumeratorSuite[({ type L[x] = XorT[Eval, Throw
       val error: Throwable = new Exception(message)
 
       eav.enumerator.append(failEnumerator(error)).drain.value.value === Xor.left(error)
+    }
+  }
+
+  test("handleErrorWith") {
+    check { (eav: EnumeratorAndValues[Int], message: String) =>
+      val error: Throwable = new Exception(message)
+      val enumerator = failEnumerator(error).handleErrorWith[Throwable](_ => eav.enumerator)
+
+      enumerator.drain.value.value === Xor.right(eav.values)
     }
   }
 }
