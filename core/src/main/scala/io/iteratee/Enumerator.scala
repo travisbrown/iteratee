@@ -2,7 +2,7 @@ package io.iteratee
 
 import algebra.{ Monoid, Order, Semigroup }
 import cats.{ Applicative, FlatMap, Id, Monad, MonadError, MonoidK }
-import io.iteratee.internal.{ Step, diverge }
+import io.iteratee.internal.Step
 
 abstract class Enumerator[F[_], E] extends Serializable { self =>
   def apply[A](s: Step[F, E, A]): F[Step[F, E, A]]
@@ -10,11 +10,9 @@ abstract class Enumerator[F[_], E] extends Serializable { self =>
   final def mapE[I](enumeratee: Enumeratee[F, E, I])(implicit M: Monad[F]): Enumerator[F, I] =
     enumeratee.wrap(this)
 
-  final def runStep[A](s: Step[F, E, A])(implicit F: Monad[F]): F[A] =
-    F.map(F.flatMap(this(s))(Enumerator.enumEnd[F, E].apply))(_.unsafeValue)
+  final def runStep[A](s: Step[F, E, A])(implicit F: Monad[F]): F[A] = F.flatMap(this(s))(_.run)
 
-  final def run[A](iteratee: Iteratee[F, E, A])(implicit F: Monad[F]): F[A] =
-    F.flatMap(iteratee.state)(runStep)
+  final def run[A](iteratee: Iteratee[F, E, A])(implicit F: Monad[F]): F[A] = F.flatMap(iteratee.state)(runStep)
 
   final def map[B](f: E => B)(implicit F: Monad[F]): Enumerator[F, B] = mapE(Enumeratee.map(f))
 
@@ -85,15 +83,11 @@ abstract class Enumerator[F[_], E] extends Serializable { self =>
 
   final def reduced[B](b: B)(f: (B, E) => B)(implicit F: Monad[F]): Enumerator[F, B] =
     new Enumerator[F, B] {
-      final def apply[A](step: Step[F, B, A]): F[Step[F, B, A]] = {
-        def check(next: Step[F, E, B]): F[Step[F, B, A]] =
-          if (next.isDone) step.feedEl(next.unsafeValue) else
-            F.flatMap(next.end) { next2 =>
-              if (next2.isDone) step.feedEl(next2.unsafeValue) else diverge
-            }
-
-        F.flatMap(self(Step.fold[F, E, B](b)(f)))(check(_))
-      }
+      final def apply[A](step: Step[F, B, A]): F[Step[F, B, A]] =
+        F.flatMap(self(Step.fold[F, E, B](b)(f))) {
+          case Step.Done(value) => step.feedEl(value)
+          case other => F.flatMap(other.run)(step.feedEl)
+        }
     }
 
   final def cross[E2](e2: Enumerator[F, E2])(implicit M: Monad[F]): Enumerator[F, (E, E2)] =

@@ -18,16 +18,6 @@ import io.iteratee.Iteratee
  */
 sealed abstract class Step[F[_], E, A] extends Serializable {
   /**
-   * The [[Iteratee]]'s result.
-   *
-   * In some cases we know that an iteratee has been constructed in such a way
-   * that it must be in a completed state, even though that's not tracked by the
-   * type system. This method provides (unsafe) access to the result for use in
-   * these situations.
-   */
-  private[iteratee] def unsafeValue: A
-
-  /**
    * Reduce this [[Step]] to a value using the given functions.
    */
   def fold[Z](
@@ -69,8 +59,6 @@ abstract class ContStep[F[_], E, A](implicit F: Applicative[F]) extends Step[F, 
     case OneAnd(e, Vector()) => feedEl(e)
     case OneAnd(h1, h2 +: t) => feedChunk(h1, h2, t)
   }
-
-  private[iteratee] final def unsafeValue: A = diverge[A]
   final def isDone: Boolean = false
   final def mapI[G[_]: Applicative](f: NaturalTransformation[F, G]): Step[G, E, A] =
     new FuncContStep[G, E, A] {
@@ -119,24 +107,24 @@ abstract class FuncContStep[F[_], E, A](implicit F: Applicative[F]) extends Cont
  * @groupprio Collection 2
  */
 final object Step { self =>
-  sealed abstract class Done[F[_], E, A](final val unsafeValue: A)(implicit F: Applicative[F]) extends Step[F, E, A] {
+  sealed abstract class Done[F[_], E, A](final val value: A)(implicit F: Applicative[F]) extends Step[F, E, A] {
     final def isDone: Boolean = true
     final def feedEl(e: E): F[Step[F, E, A]] = F.pure(this)
     final def feedChunk(h1: E, h2: E, t: Vector[E]): F[Step[F, E, A]] = F.pure(this)
-    final def end: F[Ended[F, E, A]] = F.pure(new Ended(unsafeValue))
+    final def end: F[Ended[F, E, A]] = F.pure(new Ended(value))
     final def run: F[A] = F.map(end)(_.value)
   }
 
   object Done {
     class IsDone[F[_], E, A](val step: Step[F, E, A]) extends AnyVal {
       def isEmpty: Boolean = !step.isDone
-      def get: A = step.unsafeValue
+      def get: A = step.asInstanceOf[Done[F, E, A]].value
     }
 
     final def unapply[F[_], E, A](step: Step[F, E, A]): IsDone[F, E, A] = new IsDone(step)
   }
 
-  case class NoLeftovers[F[_]: Applicative, E, A](value: A) extends Done[F, E, A](value) {
+  class NoLeftovers[F[_]: Applicative, E, A](value: A) extends Done[F, E, A](value) {
     final def fold[Z](
       ifCont: (NonEmptyVector[E] => F[Step[F, E, A]]) => Z,
       ifDone: (A, Vector[E]) => Z,
@@ -149,7 +137,7 @@ final object Step { self =>
     final def mapI[G[_]: Applicative](f: NaturalTransformation[F, G]): Step[G, E, A] = new NoLeftovers(value)
   }
 
-  case class WithLeftovers[F[_]: Applicative, E, A](value: A, remaining: Input[E]) extends Done[F, E, A](value) {
+  class WithLeftovers[F[_]: Applicative, E, A](value: A, remaining: Input[E]) extends Done[F, E, A](value) {
     final def fold[Z](
       ifCont: (NonEmptyVector[E] => F[Step[F, E, A]]) => Z,
       ifDone: (A, Vector[E]) => Z,
@@ -174,7 +162,7 @@ final object Step { self =>
       new WithLeftovers(value, remaining)
   }
 
-  case class Ended[F[_]: Applicative, E, A](value: A) extends Done[F, E, A](value) {
+  class Ended[F[_]: Applicative, E, A](value: A) extends Done[F, E, A](value) {
     final def fold[Z](
       ifCont: (NonEmptyVector[E] => F[Step[F, E, A]]) => Z,
       ifDone: (A, Vector[E]) => Z,
@@ -185,13 +173,13 @@ final object Step { self =>
     final def contramap[E2](f: E2 => E): Step[F, E2, A] = new Ended(value)
 
     final def bind[B](f: A => F[Step[F, E, B]])(implicit M: Monad[F]): F[Step[F, E, B]] =
-      M.flatMap(f(value))(step =>
-        if (step.isDone) M.pure(new Ended(step.unsafeValue)) else step.end.asInstanceOf[F[Step[F, E, B]]]
-      )
+      M.flatMap(f(value)) {
+        case Done(v) => M.pure(new Ended(v))
+        case step => step.end.asInstanceOf[F[Step[F, E, B]]]
+      }
 
     final def mapI[G[_]: Applicative](f: NaturalTransformation[F, G]): Step[G, E, A] = new Ended(value)
   }
-
 
   abstract class Cont[F[_]: Applicative, E, A] extends FuncContStep[F, E, A] with Input.Folder[E, F[Step[F, E, A]]] {
     final def feedEl(e: E): F[Step[F, E, A]] = onEl(e)
@@ -269,11 +257,10 @@ final object Step { self =>
    * @group Utilities
    */
   final def joinI[F[_], A, B, C](step: Step[F, A, Step[F, B, C]])(implicit F: Monad[F]): F[Step[F, A, C]] =
-    step.bind(s =>
-      if (s.isDone) F.pure(Step.done(s.unsafeValue)) else F.flatMap(s.end)(
-        next => if (next.isDone) F.pure(Step.done(next.unsafeValue)) else diverge
-      )
-    )
+    step.bind {
+      case Done(value) => F.pure(Step.done(value))
+      case next => F.map(next.run)(Step.done(_))
+    }
 
   /**
    * A [[Step]] that folds a stream using an initial value and an accumulation
