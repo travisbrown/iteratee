@@ -41,7 +41,7 @@ class StreamingExampleData {
 @OutputTimeUnit(TimeUnit.SECONDS)
 class InMemoryBenchmark extends InMemoryExampleData {
   @Benchmark
-  def sumInts0: Int = intsI.run(i.Iteratee.sum[Task, Int]).run
+  def sumInts0: Int = intsI.run(i.Iteratee.sum[Int].up[Task]).run
 
   @Benchmark
   def sumInts1: Int = intsS.sum.runLastOr(sys.error("Impossible")).run
@@ -67,7 +67,7 @@ class StreamingBenchmark extends StreamingExampleData {
   val size = 10000
 
   @Benchmark
-  def takeLongs0: Vector[Long] = longStreamI.run(i.Iteratee.take[Task, Long](size)).run
+  def takeLongs0: Vector[Long] = longStreamI.run(i.Iteratee.take[Long](size).up[Task]).run
 
   @Benchmark
   def takeLongs1: Vector[Long] = longStreamS.take(size).runLog.run
