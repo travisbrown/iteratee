@@ -3,6 +3,7 @@ package io.iteratee
 import algebra.Monoid
 import cats.{ Applicative, Comonad, FlatMap, Functor, Id, Monad, MonadError, MonoidK, Show }
 import cats.arrow.NaturalTransformation
+import cats.data.NonEmptyVector
 import io.iteratee.internal.{ Input, Step }
 
 /**
@@ -116,11 +117,10 @@ final object Iteratee extends IterateeInstances {
    *
    * @group Constructors
    */
-  /*final def cont[F[_]: Applicative, E, A](
-    ifEnd: => Iteratee[F, E, A],
-    ifInput: Input[E] => Iteratee[F, E, A]
-  ): Iteratee[F, E, A] = ???*/
-  //  fromStep(Step.contX(in => k(in).state))
+  final def cont[F[_]: Applicative, E, A](
+    ifInput: NonEmptyVector[E] => Iteratee[F, E, A],
+    ifEnd: => F[A]
+  ): Iteratee[F, E, A] = fromStep(Step.cont(es => ifInput(es).state, ifEnd))
 
   /**
    * Create a new completed [[Iteratee]] with the given result and leftover
@@ -128,15 +128,8 @@ final object Iteratee extends IterateeInstances {
    *
    * @group Constructors
    */
-  final def done[F[_]: Applicative, E, A](d: A): Iteratee[F, E, A] = fromStep(Step.done(d))
-
-  /**
-   * Create a new completed [[Iteratee]] with the given result and leftover
-   * input.
-   *
-   * @group Constructors
-   */
-  final def early[F[_]: Applicative, E, A](d: A, r: Input[E]): Iteratee[F, E, A] = fromStep(Step.early(d, r))
+  final def done[F[_]: Applicative, E, A](value: A, remaining: Vector[E] = Vector.empty): Iteratee[F, E, A] =
+    fromStep(Step.done(value, remaining))
 
   /**
    * Create an [[Iteratee]] from a [[io.iteratee.internal.Step]] in a context.
