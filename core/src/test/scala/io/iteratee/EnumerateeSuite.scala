@@ -24,6 +24,14 @@ abstract class EnumerateeSuite[F[_]: Monad] extends ModuleSuite[F] {
     }
   }
 
+  test("flatMap with iteratee that stops early") {
+    check { (eav: EnumeratorAndValues[Int]) =>
+      val enumerator = eav.enumerator.mapE(flatMap(v => enumVector(Vector(v, v))))
+
+      enumerator.run(head) === F.pure(eav.values.flatMap(v => Vector(v, v)).headOption)
+    }
+  }
+
   /**
    * We skip this test on Scala 2.10 because of weird "Bad invokespecial instruction" exceptions
    * that I wasn't able to reproduce in other contexts.
@@ -54,11 +62,27 @@ abstract class EnumerateeSuite[F[_]: Monad] extends ModuleSuite[F] {
     }
   }
 
+  test("sequenceI with iteratee that stops early") {
+    check { (eav: EnumeratorAndValues[Int]) =>
+      Prop.forAll(Gen.posNum[Int]) { n =>
+        eav.enumerator.mapE(sequenceI(take(n))).run(head) === F.pure(eav.values.grouped(n).toVector.headOption)
+      }
+    }
+  }
+
   test("uniq") {
     check { (xs: Vector[Int]) =>
       val sorted = xs.sorted
 
       enumVector(sorted).mapE(uniq).drain === F.pure(sorted.distinct)
+    }
+  }
+
+  test("uniq with iteratee that stops early") {
+    check { (xs: Vector[Int]) =>
+      val sorted = xs.sorted
+
+      enumVector(sorted).mapE(uniq).run(head) === F.pure(sorted.distinct.headOption)
     }
   }
 
@@ -74,7 +98,6 @@ abstract class EnumerateeSuite[F[_]: Monad] extends ModuleSuite[F] {
     assert(enumerator.mapE(uniq).drain === F.pure(result))
   }
 
-
   test("zipWithIndex") {
     check { (eav: EnumeratorAndValues[Int]) =>
       val result = eav.values.zipWithIndex.map {
@@ -82,6 +105,16 @@ abstract class EnumerateeSuite[F[_]: Monad] extends ModuleSuite[F] {
       }
 
       eav.enumerator.mapE(zipWithIndex).drain === F.pure(result)
+    }
+  }
+
+  test("zipWithIndex with iteratee that stops early") {
+    check { (eav: EnumeratorAndValues[Int]) =>
+      val result = eav.values.zipWithIndex.map {
+        case (v, i) => (v, i.toLong)
+      }
+
+      eav.enumerator.mapE(zipWithIndex).run(head) === F.pure(result.headOption)
     }
   }
 

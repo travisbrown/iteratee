@@ -3,7 +3,7 @@ package io.iteratee
 import algebra.Eq
 import cats.{ Eval, Id, Monad, MonadError }
 import cats.arrow.NaturalTransformation
-import cats.data.{ Xor, XorT }
+import cats.data.{ NonEmptyVector, Xor, XorT }
 import cats.laws.discipline.{ ContravariantTests, MonadErrorTests, MonadTests, MonoidalTests }
 import io.iteratee.internal.Step
 import org.scalacheck.Arbitrary
@@ -150,6 +150,14 @@ abstract class IterateeSuite[F[_]: Monad] extends ModuleSuite[F] {
     }
   }
 
+  test("dropWhile with nothing left in chunk") {
+    val iteratee = for {
+      _ <- dropWhile[Int](_ < 100)
+      r <- drain
+    } yield r
+    enumVector(Vector(1, 2, 3)).run(iteratee) === F.pure(Vector(1, 2, 3))
+  }
+
   test("fold") {
     check { (eav: EnumeratorAndValues[Int]) =>
       eav.resultWithLeftovers(fold[Int, Int](0)(_ + _)) === F.pure((eav.values.sum, Vector.empty))
@@ -261,8 +269,14 @@ abstract class IterateeSuite[F[_]: Monad] extends ModuleSuite[F] {
       F.pure(acc)
     )
 
-    check { (s: String, es: List[Int]) =>
-      myDrain(es).fold(f => Some(s), (_, _) => None, _ => None) === F.pure(Some((s)))
+    check { (es: List[Int]) =>
+      val folded = myDrain(es).fold[F[List[Int]]](
+        _(NonEmptyVector(0)).run,
+        (_, _) => F.pure(Nil),
+        _ => F.pure(Nil)
+      )
+
+      F.flatten(folded) === F.pure(es :+ 0)
     }
   }
 }

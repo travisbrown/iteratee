@@ -73,8 +73,14 @@ trait ArbitraryInstances {
     Arbitrary(
       for {
         n <- Gen.chooseNum(0, 16)
-        as <- Gen.containerOfN[Vector, A](128, A.arbitrary)
+        asSize <- Gen.chooseNum(0, 128)
+        as <- Gen.containerOfN[Vector, A](asSize, A.arbitrary)
+        rSize <- Gen.chooseNum(0, 128)
+        r <- Gen.containerOfN[Vector, Vector[A]](rSize, Arbitrary.arbitrary[Vector[A]])
         it <- Gen.oneOf[Iteratee[F, Vector[A], Vector[A]]](
+          Iteratee.done[F, Vector[A], Vector[A]](as),
+          Iteratee.done[F, Vector[A], Vector[A]](as, r),
+          Iteratee.ended[F, Vector[A], Vector[A]](as),
           Iteratee.drop[F, Vector[A]](n).flatMap(_ => F),
           Iteratee.drop[F, Vector[A]](n).flatMap(_ => M.pure(as)),
           Iteratee.head[F, Vector[A]].map(_.getOrElse(Vector.empty)),
