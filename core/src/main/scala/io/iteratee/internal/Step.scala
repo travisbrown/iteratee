@@ -47,13 +47,9 @@ sealed abstract class Step[F[_], E, A] extends Input.Folder[E, F[Step[F, E, A]]]
   def run: F[A]
 
   /**
-   * Lift this [[Iteratee]] into a different context.
+   * Lift this [[Step]] into a different context.
    */
-  final def up[G[_]](implicit G: Applicative[G], F: Comonad[F]): Step[G, E, A] = mapI(
-    new NaturalTransformation[F, G] {
-      final def apply[A](a: F[A]): G[A] = G.pure(F.extract(a))
-    }
-  )
+  def up[G[_]](implicit G: Applicative[G], F: Comonad[F]): Step[G, E, A]
 }
 
 /**
@@ -91,6 +87,7 @@ final object Step { self =>
     final def contramap[E2](f: E2 => E): Step[F, E2, A] = new NoLeftovers(value)
     final def bind[B](f: A => F[Step[F, E, B]])(implicit M: Monad[F]): F[Step[F, E, B]] = f(value)
     final def mapI[G[_]: Applicative](f: NaturalTransformation[F, G]): Step[G, E, A] = new NoLeftovers(value)
+    final def up[G[_]](implicit G: Applicative[G], F: Comonad[F]): Step[G, E, A] = new NoLeftovers(value)
   }
 
   class WithLeftovers[F[_]: Applicative, E, A](value: A, remaining: Input[E]) extends Done[F, E, A](value) {
@@ -116,6 +113,7 @@ final object Step { self =>
 
     final def mapI[G[_]: Applicative](f: NaturalTransformation[F, G]): Step[G, E, A] =
       new WithLeftovers(value, remaining)
+    final def up[G[_]](implicit G: Applicative[G], F: Comonad[F]): Step[G, E, A] = new WithLeftovers(value, remaining)
   }
 
   class Ended[F[_]: Applicative, E, A](value: A) extends Done[F, E, A](value) {
@@ -135,6 +133,7 @@ final object Step { self =>
       }
 
     final def mapI[G[_]: Applicative](f: NaturalTransformation[F, G]): Step[G, E, A] = new Ended(value)
+    final def up[G[_]](implicit G: Applicative[G], F: Comonad[F]): Step[G, E, A] = new Ended(value)
   }
 
   abstract class Cont[F[_], E, A](implicit F: Applicative[F]) extends Step[F, E, A] { self =>
@@ -154,6 +153,12 @@ final object Step { self =>
         final def end: G[Step.Ended[G, E, A]] =
           f(F.map(self.end)(_.mapI(f))).asInstanceOf[G[Step.Ended[G, E, A]]]
       }
+
+    final def up[G[_]](implicit G: Applicative[G], F: Comonad[F]): Step[G, E, A] = mapI(
+      new NaturalTransformation[F, G] {
+        def apply[Z](z: F[Z]): G[Z] = G.pure(F.extract(z))
+      }
+    )
 
     final def run: F[A] = F.map(end)(_.value)
 
@@ -179,6 +184,50 @@ final object Step { self =>
           M.flatMap(self.end)(_.bind(f)).asInstanceOf[F[Step.Ended[F, E, B]]]
       }
     )
+  }
+
+  abstract class PureCont[E, A] extends Step[Id, E, A] { self =>
+    final def fold[Z](
+      ifCont: (NonEmptyVector[E] => Step[Id, E, A]) => Z,
+      ifDone: (A, Vector[E]) => Z,
+      ifEnd: A => Z
+    ): Z = ifCont {
+      case OneAnd(e, Vector()) => onEl(e)
+      case OneAnd(h1, h2 +: t) => onChunk(h1, h2, t)
+    }
+    final def isDone: Boolean = false
+    final def mapI[G[_]: Applicative](f: NaturalTransformation[Id, G]): Step[G, E, A] =
+      new Cont[G, E, A] {
+        final def onEl(e: E): G[Step[G, E, A]] = f(self.onEl(e).mapI(f))
+        final def onChunk(h1: E, h2: E, t: Vector[E]): G[Step[G, E, A]] = f(self.onChunk(h1, h2, t).mapI(f))
+        final def end: G[Ended[G, E, A]] = f(self.end.mapI(f).asInstanceOf[Ended[G, E, A]])
+      }
+    final def up[G[_]](implicit G: Applicative[G], F: Comonad[Id]): Step[G, E, A] =
+      new Cont[G, E, A] {
+        final def onEl(e: E): G[Step[G, E, A]] = G.pure(self.onEl(e).up[G])
+        final def onChunk(h1: E, h2: E, t: Vector[E]): G[Step[G, E, A]] = G.pure(self.onChunk(h1, h2, t).up[G])
+        final def end: G[Ended[G, E, A]] = G.pure(self.end.up[G].asInstanceOf[Ended[G, E, A]])
+      }
+
+    final def run: A = end.value
+
+    final def map[B](f: A => B): Step[Id, E, B] = new PureCont[E, B] {
+      final def onEl(e: E): Step[Id, E, B] = self.onEl(e).map(f)
+      final def onChunk(h1: E, h2: E, t: Vector[E]): Step[Id, E, B] = self.onChunk(h1, h2, t).map(f)
+      final def end: Ended[Id, E, B] = self.end.map(f).asInstanceOf[Ended[Id, E, B]]
+    }
+    final def contramap[E2](f: E2 => E): Step[Id, E2, A] = new PureCont[E2, A] {
+      final def onEl(e: E2): Step[Id, E2, A] = self.onEl(f(e)).contramap(f)
+      final def onChunk(h1: E2, h2: E2, t: Vector[E2]): Step[Id, E2, A] =
+        self.onChunk(f(h1), f(h2), t.map(f)).contramap(f)
+      final def end: Ended[Id, E2, A] = self.end.contramap(f).asInstanceOf[Ended[Id, E2, A]]
+    }
+    final def bind[B](f: A => Step[Id, E, B])(implicit M: Monad[Id]): Step[Id, E, B] =
+      new PureCont[E, B] {
+        final def onEl(e: E): Step[Id, E, B] = M.flatMap(self.onEl(e))(_.bind(f))
+        final def onChunk(h1: E, h2: E, t: Vector[E]): Step[Id, E, B] = self.onChunk(h1, h2, t).bind(f)
+        final def end: Ended[Id, E, B] = self.end.bind(f).asInstanceOf[Ended[Id, E, B]]
+      }
   }
 
   /**
@@ -224,8 +273,8 @@ final object Step { self =>
    */
   final def joinI[F[_], A, B, C](step: Step[F, A, Step[F, B, C]])(implicit F: Monad[F]): F[Step[F, A, C]] =
     step.bind {
-      case Done(value) => F.pure(Step.done(value))
-      case next => F.map(next.run)(Step.done(_))
+      case Done(value) => F.pure(done(value))
+      case next => F.map(next.run)(done(_))
     }
 
   /**
@@ -236,7 +285,7 @@ final object Step { self =>
    */
   final def fold[E, A](init: A)(f: (A, E) => A): Step[Id, E, A] = new FoldCont[E, A](init, f)
 
-  final class FoldCont[E, A](acc: A, f: (A, E) => A) extends Cont[Id, E, A] {
+  final class FoldCont[E, A](acc: A, f: (A, E) => A) extends PureCont[E, A] {
     final def end: Ended[Id, E, A] = new Ended(acc)
     final def onEl(e: E): Step[Id, E, A] = self.fold(f(acc, e))(f)
     final def onChunk(h1: E, h2: E, t: Vector[E]): Step[Id, E, A] =
@@ -268,7 +317,7 @@ final object Step { self =>
    */
   final def drain[A]: Step[Id, A, Vector[A]] = new DrainCont(Vector.empty)
 
-  final class DrainCont[E](acc: Vector[E]) extends Cont[Id, E, Vector[E]] {
+  final class DrainCont[E](acc: Vector[E]) extends PureCont[E, Vector[E]] {
     final def end: Ended[Id, E, Vector[E]] = new Ended(acc)
     final def onEl(e: E): Step[Id, E, Vector[E]] = new DrainCont(acc :+ e)
     final def onChunk(h1: E, h2: E, t: Vector[E]): Step[Id, E, Vector[E]] = new DrainCont(acc ++ (h1 +: h2 +: t))
@@ -285,7 +334,7 @@ final object Step { self =>
   final class DrainToCont[E, C[_]](acc: C[E])(implicit
     M: MonoidK[C],
     C: Applicative[C]
-  ) extends Cont[Id, E, C[E]] {
+  ) extends PureCont[E, C[E]] {
     final def end: Ended[Id, E, C[E]] = new Ended(acc)
     final def onEl(e: E): Step[Id, E, C[E]] = new DrainToCont(M.combine(acc, C.pure(e)))
     final def onChunk(h1: E, h2: E, t: Vector[E]): Step[Id, E, C[E]] = new DrainToCont(
@@ -300,7 +349,7 @@ final object Step { self =>
    */
   final def head[E]: Step[Id, E, Option[E]] = new HeadCont
 
-  final class HeadCont[E] extends Cont[Id, E, Option[E]] {
+  final class HeadCont[E] extends PureCont[E, Option[E]] {
     final def end: Ended[Id, E, Option[E]] = new Ended(None)
     final def onEl(e: E): Step[Id, E, Option[E]] = done(Some(e))
     final def onChunk(h1: E, h2: E, t: Vector[E]): Step[Id, E, Option[E]] =
@@ -314,7 +363,7 @@ final object Step { self =>
    */
   final def peek[E]: Step[Id, E, Option[E]] = new PeekCont
 
-  final class PeekCont[E] extends Cont[Id, E, Option[E]] {
+  final class PeekCont[E] extends PureCont[E, Option[E]] {
     final def end: Ended[Id, E, Option[E]] = new Ended(None)
     final def onEl(e: E): Step[Id, E, Option[E]] = new WithLeftovers(Some(e), Input.el(e))
     final def onChunk(h1: E, h2: E, t: Vector[E]): Step[Id, E, Option[E]] =
@@ -327,12 +376,12 @@ final object Step { self =>
    * @group Collection
    */
   final def take[A](n: Int): Step[Id, A, Vector[A]] = if (n <= 0) {
-    Step.done[Id, A, Vector[A]](Vector.empty)
+    done[Id, A, Vector[A]](Vector.empty)
   } else {
     new TakeCont(Vector.empty, n)
   }
 
-  final class TakeCont[E](acc: Vector[E], n: Int) extends Cont[Id, E, Vector[E]] {
+  final class TakeCont[E](acc: Vector[E], n: Int) extends PureCont[E, Vector[E]] {
     final def end: Ended[Id, E, Vector[E]] = new Ended(acc)
     final def onEl(e: E): Step[Id, E, Vector[E]] = if (n == 1) done(acc :+ e) else new TakeCont(acc :+ e, n - 1)
     final def onChunk(h1: E, h2: E, t: Vector[E]): Step[Id, E, Vector[E]] = {
@@ -355,7 +404,7 @@ final object Step { self =>
    */
   final def takeWhile[E](p: E => Boolean): Step[Id, E, Vector[E]] = new TakeWhileCont(Vector.empty, p)
 
-  final class TakeWhileCont[E](acc: Vector[E], p: E => Boolean) extends Cont[Id, E, Vector[E]] {
+  final class TakeWhileCont[E](acc: Vector[E], p: E => Boolean) extends PureCont[E, Vector[E]] {
     final def end: Ended[Id, E, Vector[E]] = new Ended(acc)
     final def onEl(e: E): Step[Id, E, Vector[E]] =
       if (p(e)) new TakeWhileCont(acc :+ e, p) else new WithLeftovers(acc, Input.el(e))
@@ -374,7 +423,7 @@ final object Step { self =>
    */
   final def drop[E](n: Int): Step[Id, E, Unit] = if (n <= 0) done(()) else new DropCont(n)
 
-  final class DropCont[E](n: Int) extends Cont[Id, E, Unit] {
+  final class DropCont[E](n: Int) extends PureCont[E, Unit] {
     final def end: Ended[Id, E, Unit] = new Ended(())
     final def onEl(e: E): Step[Id, E, Unit] = drop(n - 1)
     final def onChunk(h1: E, h2: E, t: Vector[E]): Step[Id, E, Unit] = {
@@ -396,7 +445,7 @@ final object Step { self =>
    */
   final def dropWhile[E](p: E => Boolean): Step[Id, E, Unit] = new DropWhileCont(p)
 
-  final class DropWhileCont[E](p: E => Boolean) extends Cont[Id, E, Unit] {
+  final class DropWhileCont[E](p: E => Boolean) extends PureCont[E, Unit] {
     final def end: Ended[Id, E, Unit] = new Ended(())
     final def onEl(e: E): Step[Id, E, Unit] = if (p(e)) dropWhile(p) else new WithLeftovers((), Input.el(e))
     final def onChunk(h1: E, h2: E, t: Vector[E]): Step[Id, E, Unit] = {
@@ -406,7 +455,7 @@ final object Step { self =>
     }
   }
 
-  final def isEnd[E]: Step[Id, E, Boolean] = new Cont[Id, E, Boolean] {
+  final def isEnd[E]: Step[Id, E, Boolean] = new PureCont[E, Boolean] {
     final def end: Ended[Id, E, Boolean] = new Ended(true)
     final def onEl(e: E): Step[Id, E, Boolean] = new WithLeftovers(false, Input.el(e))
     final def onChunk(h1: E, h2: E, t: Vector[E]): Step[Id, E, Boolean] =
