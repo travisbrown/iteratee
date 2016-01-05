@@ -1,9 +1,15 @@
 package io.iteratee
 
 import cats.{ Eval, Monad }
+import cats.laws.discipline.{ CategoryTests, ProfunctorTests }
 import org.scalacheck.{ Gen, Prop }
 
 abstract class EnumerateeSuite[F[_]: Monad] extends ModuleSuite[F] {
+  type EnumerateeF[O, I] = Enumeratee[F, O, I]
+
+  checkAll(s"Enumeratee[$monadName, Int, Int]", ProfunctorTests[EnumerateeF].profunctor[Int, Int, Int, Int, Int, Int])
+  checkAll(s"Enumeratee[$monadName, Int, Int]", CategoryTests[EnumerateeF].category[Int, Int, Int, Int])
+
   test("map") {
     check { (eav: EnumeratorAndValues[Int]) =>
       eav.enumerator.mapE(map(_ + 1)).drain === F.pure(eav.values.map(_ + 1))
