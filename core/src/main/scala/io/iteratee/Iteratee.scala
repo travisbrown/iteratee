@@ -20,9 +20,6 @@ sealed class Iteratee[F[_], E, A] private[iteratee] (final val state: F[Step[F, 
   /**
    * Run this iteratee and close the stream so that it must produce an effectful
    * value.
-   *
-   * @note A well-behaved iteratee will always be in the completed state after
-   *       processing an [[io.iteratee.internal.Input.end]] value.
    */
   final def run(implicit F: Monad[F]): F[A] = F.flatMap(state)(_.run)
 

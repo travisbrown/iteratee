@@ -131,7 +131,7 @@ final object Enumerator extends EnumeratorInstances {
    */
   final def enumEnd[F[_]: Applicative, E]: Enumerator[F, E] =
     new Enumerator[F, E] {
-      final def apply[A](s: Step[F, E, A]): F[Step[F, E, A]] = s.end.asInstanceOf[F[Step[F, E, A]]]
+      final def apply[A](s: Step[F, E, A]): F[Step[F, E, A]] = Done.Ended.asStep(s.end)
     }
 
   /**
