@@ -2,6 +2,7 @@ package io.iteratee
 
 import cats.Monad
 import cats.data.Xor
+import cats.std.int._
 import io.iteratee.internal.Input
 import org.scalacheck.{ Arbitrary, Gen }
 
@@ -27,15 +28,17 @@ trait ArbitraryInstances {
     A: Arbitrary[A]
   ): Arbitrary[Enumerator[F, A]] =
     Arbitrary(
-      Gen.containerOfN[List, A](10, A.arbitrary).flatMap(as =>
-        Gen.oneOf(
+      for {
+        n <- Gen.chooseNum(0, 16)
+        as <- Gen.containerOfN[List, A](n, A.arbitrary)
+        en <- Gen.oneOf(
           Enumerator.enumList[F, A](as),
           Enumerator.enumStream[F, A](as.toStream)
         )
-      )
+      } yield en
     )
 
-  implicit def arbitraryIntIteratee[F[_]: Monad, A]: Arbitrary[Iteratee[F, Int, Int]] = {
+  implicit def arbitraryIntIteratee[F[_]: Monad]: Arbitrary[Iteratee[F, Int, Int]] = {
     val M: Monad[({ type L[x] = Iteratee[F, Int, x] })#L] = implicitly
     val F = Iteratee.fold[F, Int, Int](0)(_ + _)
 
@@ -102,4 +105,23 @@ trait ArbitraryInstances {
       ).map(M.pure(_))
     )
   }
+
+  implicit def arbitraryEnumeratee[F[_]: Monad]: Arbitrary[Enumeratee[F, Int, Int]] =
+    Arbitrary(
+      for {
+        a <- Arbitrary.arbitrary[Int]
+        en <- arbitraryEnumerator[F, Int].arbitrary
+        et <- Gen.oneOf[Enumeratee[F, Int, Int]](
+          Enumeratee.map[F, Int, Int](_ + 1),
+          Enumeratee.map[F, Int, Int](_ => a),
+          Enumeratee.flatMap[F, Int, Int](_ => en),
+          Enumeratee.filter[F, Int](_ % 2 == 0),
+          Enumeratee.collect[F, Int, Int] {
+            case i if i.toString.last != '0' => i
+          },
+          Enumeratee.sequenceI[F, Int, Int](Iteratee.take(2).map(_.head)),
+          Enumeratee.uniq[F, Int]
+        )
+      } yield et
+    )
 }
