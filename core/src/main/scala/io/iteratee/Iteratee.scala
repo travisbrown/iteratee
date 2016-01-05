@@ -107,17 +107,6 @@ final object Iteratee extends IterateeInstances {
   ): Iteratee[F, E, A] = fromStep(Step.cont(es => ifInput(es).state, ifEnd))
 
   /**
-   * Create an incomplete [[Iteratee]] that will use the given function to
-   * process the next input.
-   *
-   * @group Constructors
-   */
-  final def pureCont[F[_]: Applicative, E, A](
-    ifInput: NonEmptyVector[E] => Step[F, E, A],
-    ifEnd: F[A]
-  ): Iteratee[F, E, A] = fromStep(Step.pureCont(ifInput, ifEnd))
-
-  /**
    * Create a new completed [[Iteratee]] with the given result and leftover
    * input.
    *

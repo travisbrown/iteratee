@@ -16,10 +16,6 @@ import cats.data.NonEmptyVector
 sealed abstract class Input[@specialized E] extends Serializable {
   /**
    * Reduce this [[Input]] to a value using the given folder.
-   *
-   * This method is provided primarily for internal use and for cases where the
-   * expense of allocating multiple function objects and collection instances is
-   * known to be too high. In most cases [[fold]] should be preferred.
    */
   def foldWith[Z](folder: Input.Folder[E, Z]): Z
 

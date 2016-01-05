@@ -47,17 +47,6 @@ abstract class IterateeSuite[F[_]: Monad] extends ModuleSuite[F] {
     }
   }
 
-  test("pureCont") {
-    check { (eav: EnumeratorAndValues[Int]) =>
-      val myHead: Iteratee[F, Int, Option[Int]] = pureCont[Int, Option[Int]](
-        els => Step.done(Some(els.head), els.tail),
-        F.pure(None)
-      )
-
-      eav.enumerator.run(myHead) === eav.enumerator.run(head)
-    }
-  }
-
   test("done") {
     check { (eav: EnumeratorAndValues[Int], s: String) =>
       eav.enumerator.run(done(s)) === F.pure(s)

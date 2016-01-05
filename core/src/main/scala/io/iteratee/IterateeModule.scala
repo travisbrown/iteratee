@@ -26,17 +26,6 @@ trait IterateeModule[F[_]] {
   )(implicit F: Applicative[F]): Iteratee[F, E, A] = Iteratee.cont(ifInput, ifEnd)
 
   /**
-   * Create an incomplete [[Iteratee]] that will use the given function to
-   * process the next input.
-   *
-   * @group Constructors
-   */
-  final def pureCont[E, A](
-    ifInput: NonEmptyVector[E] => Step[F, E, A],
-    ifEnd: F[A]
-  )(implicit F: Applicative[F]): Iteratee[F, E, A] = Iteratee.pureCont(ifInput, ifEnd)
-
-  /**
    * Create a new completed [[Iteratee]] with the given result and leftover
    * input.
    *
