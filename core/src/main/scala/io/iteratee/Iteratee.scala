@@ -18,6 +18,15 @@ import io.iteratee.internal.{ Input, Step }
  */
 sealed class Iteratee[F[_], E, A] private[iteratee] (final val state: F[Step[F, E, A]]) extends Serializable { self =>
   /**
+   * Reduce this [[Iteratee]] to an effectful value using the given functions.
+   */
+  final def fold[Z](
+    ifCont: (NonEmptyVector[E] => Iteratee[F, E, A]) => Z,
+    ifDone: (A, Vector[E]) => Z,
+    ifEnd: A => Z
+  )(implicit F: Functor[F]): F[Z] = F.map(state)(_.fold(f => ifCont(in => Iteratee.iteratee(f(in))), ifDone, ifEnd))
+
+  /**
    * Run this iteratee and close the stream so that it must produce an effectful
    * value.
    */

@@ -43,7 +43,11 @@ trait ArbitraryInstances {
       for {
         n <- Gen.chooseNum(0, 16)
         a <- Arbitrary.arbitrary[Int]
+        r <- Arbitrary.arbitrary[Vector[Int]]
         it <- Gen.oneOf[Iteratee[F, Int, Int]](
+          Iteratee.done[F, Int, Int](a),
+          Iteratee.done[F, Int, Int](a, r),
+          Iteratee.ended[F, Int, Int](a),
           Iteratee.drop[F, Int](n).flatMap(_ => F),
           Iteratee.drop[F, Int](n).flatMap(_ => M.pure(a)),
           Iteratee.head[F, Int].map(_.getOrElse(0)),

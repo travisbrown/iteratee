@@ -47,15 +47,21 @@ abstract class IterateeSuite[F[_]: Monad] extends ModuleSuite[F] {
     }
   }
 
-  test("done") {
+  test("done with no leftovers") {
     check { (eav: EnumeratorAndValues[Int], s: String) =>
-      eav.enumerator.run(done(s)) === F.pure(s)
+      eav.resultWithLeftovers(done(s)) === F.pure((s, eav.values))
+    }
+  }
+
+  test("done with leftovers") {
+    check { (eav: EnumeratorAndValues[Int], s: String, es: Vector[Int]) =>
+      eav.resultWithLeftovers(done(s, es)) === F.pure((s, es ++ eav.values))
     }
   }
 
   test("ended") {
     check { (eav: EnumeratorAndValues[Int], s: String) =>
-      eav.enumerator.run(ended(s)) === F.pure(s)
+      eav.resultWithLeftovers(ended(s)) === F.pure((s, Vector.empty))
     }
   }
 
@@ -228,6 +234,35 @@ abstract class IterateeSuite[F[_]: Monad] extends ModuleSuite[F] {
 
     check { (i: Int) =>
       F.pure(i).intoIteratee.run === F.pure(i)
+    }
+  }
+
+  test("folding done with no leftovers") {
+    check { (s: String) =>
+      done[Int, String](s).fold(_ => None, (v, r) => Some((v, r)), _ => None) === F.pure(Some((s, Vector.empty)))
+    }
+  }
+
+  test("folding done with leftovers") {
+    check { (s: String, es: Vector[Int]) =>
+      done[Int, String](s, es).fold(_ => None, (v, r) => Some((v, r)), _ => None) === F.pure(Some((s, es)))
+    }
+  }
+
+  test("folding ended") {
+    check { (s: String) =>
+      ended[Int, String](s).fold(_ => None, (_, _) => None, v => Some(v)) === F.pure(Some((s)))
+    }
+  }
+
+  test("folding cont") {
+    def myDrain(acc: List[Int]): Iteratee[F, Int, List[Int]] = cont[Int, List[Int]](
+      els => myDrain(acc ::: (els.head :: els.tail.toList)),
+      F.pure(acc)
+    )
+
+    check { (s: String, es: List[Int]) =>
+      myDrain(es).fold(f => Some(s), (_, _) => None, _ => None) === F.pure(Some((s)))
     }
   }
 }
