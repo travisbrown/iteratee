@@ -2,7 +2,7 @@ package io.iteratee
 
 import algebra.{ Monoid, Order, Semigroup }
 import cats.{ Applicative, FlatMap, Id, Monad, MonadError, MonoidK }
-import io.iteratee.internal.{ Done, Step }
+import io.iteratee.internal.Step
 
 abstract class Enumerator[F[_], E] extends Serializable { self =>
   def apply[A](s: Step[F, E, A]): F[Step[F, E, A]]
@@ -85,7 +85,7 @@ abstract class Enumerator[F[_], E] extends Serializable { self =>
     new Enumerator[F, B] {
       final def apply[A](step: Step[F, B, A]): F[Step[F, B, A]] =
         F.flatMap(self(Step.fold[F, E, B](b)(f))) {
-          case Done(value) => step.feedEl(value)
+          case Step.Done(value) => step.feedEl(value)
           case other => F.flatMap(other.run)(step.feedEl)
         }
     }
@@ -131,7 +131,7 @@ final object Enumerator extends EnumeratorInstances {
    */
   final def enumEnd[F[_]: Applicative, E]: Enumerator[F, E] =
     new Enumerator[F, E] {
-      final def apply[A](s: Step[F, E, A]): F[Step[F, E, A]] = Done.Ended.asStep(s.end)
+      final def apply[A](s: Step[F, E, A]): F[Step[F, E, A]] = Step.Ended.asStep(s.end)
     }
 
   /**
