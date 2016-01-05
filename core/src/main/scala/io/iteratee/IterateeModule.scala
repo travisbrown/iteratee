@@ -41,7 +41,7 @@ trait IterateeModule[F[_]] {
    *
    * @group Constructors
    */
-  final def ended[F[_], E, A](value: A)(implicit F: Applicative[F]): Iteratee[F, E, A] = Iteratee.ended(value)
+  final def ended[E, A](value: A)(implicit F: Applicative[F]): Iteratee[F, E, A] = Iteratee.ended(value)
 
   /**
    * @group Helpers

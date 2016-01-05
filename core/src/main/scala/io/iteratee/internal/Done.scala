@@ -62,14 +62,24 @@ final object Done {
       ifEnd: A => Z
     ): Z = ifEnd(value)
 
-    final def map[B](f: A => B): Step[F, E, B] = new Ended(f(value))
-    final def contramap[E2](f: E2 => E): Step[F, E2, A] = new Ended(value)
-    final def mapI[G[_]: Applicative](f: NaturalTransformation[F, G]): Step[G, E, A] = new Ended(value)
-
+    final def map[B](f: A => B): Step[F, E, B] = endedMap(f)
+    final def contramap[E2](f: E2 => E): Step[F, E2, A] = endedContramap(f)
+    final def mapI[G[_]: Applicative](f: NaturalTransformation[F, G]): Step[G, E, A] = endedMapI(f)
     final def bind[B](f: A => F[Step[F, E, B]])(implicit M: Monad[F]): F[Step[F, E, B]] =
+      Ended.toStep(endedBind(f))
+
+    final def endedMap[B](f: A => B): Ended[F, E, B] = new Ended(f(value))
+    final def endedContramap[E2](f: E2 => E): Ended[F, E2, A] = new Ended(value)
+    final def endedMapI[G[_]: Applicative](f: NaturalTransformation[F, G]): Ended[G, E, A] = new Ended(value)
+    final def endedBind[B](f: A => F[Step[F, E, B]])(implicit M: Monad[F]): F[Ended[F, E, B]] =
       M.flatMap(f(value)) {
         case Done(v) => M.pure(new Ended(v))
-        case step => step.end.asInstanceOf[F[Step[F, E, B]]]
+        case step => step.end
       }
+  }
+
+  object Ended {
+    def toStep[F[_], E, A](ended: F[Ended[F, E, A]]): F[Step[F, E, A]] =
+      ended.asInstanceOf[F[Step[F, E, A]]]
   }
 }

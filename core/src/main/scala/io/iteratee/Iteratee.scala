@@ -193,7 +193,7 @@ final object Iteratee extends IterateeInstances {
    * @group Collection
    */
   final def drain[F[_], A](implicit F: Applicative[F]): Iteratee[F, A, Vector[A]] =
-    Iteratee.fromStep(Step.drain[F, A])
+    fromStep(Step.drain[F, A])
 
   /**
    * An [[Iteratee]] that collects all the elements in a stream in a given
@@ -201,16 +201,15 @@ final object Iteratee extends IterateeInstances {
    *
    * @group Collection
    */
-  final def drainTo[F[_]: Monad, A, C[_]: Applicative: MonoidK]: Iteratee[F, A, C[A]] =
-    Iteratee.fromStep(Step.drainTo[F, A, C])
+  final def drainTo[F[_]: Applicative, A, C[_]: Applicative: MonoidK]: Iteratee[F, A, C[A]] =
+    fromStep(Step.drainTo[F, A, C])
 
   /**
    * An [[Iteratee]] that returns the first value in a stream.
    *
    * @group Collection
    */
-  final def head[F[_]: Applicative, E]: Iteratee[F, E, Option[E]] =
-    Iteratee.fromStep(Step.head[F, E])
+  final def head[F[_]: Applicative, E]: Iteratee[F, E, Option[E]] = fromStep(Step.head[F, E])
 
   /**
    * An [[Iteratee]] that returns the first value in a stream without consuming
@@ -218,8 +217,7 @@ final object Iteratee extends IterateeInstances {
    *
    * @group Collection
    */
-  final def peek[F[_]: Applicative, E]: Iteratee[F, E, Option[E]] =
-    Iteratee.fromStep(Step.peek[F, E])
+  final def peek[F[_]: Applicative, E]: Iteratee[F, E, Option[E]] = fromStep(Step.peek[F, E])
 
   /**
    * An [[Iteratee]] that returns a given number of the first values in a
@@ -227,8 +225,7 @@ final object Iteratee extends IterateeInstances {
    *
    * @group Collection
    */
-  final def take[F[_]: Applicative, A](n: Int): Iteratee[F, A, Vector[A]] =
-    Iteratee.fromStep(Step.take[F, A](n))
+  final def take[F[_]: Applicative, A](n: Int): Iteratee[F, A, Vector[A]] = fromStep(Step.take[F, A](n))
 
   /**
    * An [[Iteratee]] that returns values from a stream as long as they satisfy
@@ -237,15 +234,14 @@ final object Iteratee extends IterateeInstances {
    * @group Collection
    */
   final def takeWhile[F[_]: Applicative, A](p: A => Boolean): Iteratee[F, A, Vector[A]] =
-    Iteratee.fromStep(Step.takeWhile[F, A](p))
+    fromStep(Step.takeWhile[F, A](p))
 
   /**
    * An [[Iteratee]] that drops a given number of the values from a stream.
    *
    * @group Collection
    */
-  final def drop[F[_]: Applicative, E](n: Int): Iteratee[F, E, Unit] =
-    Iteratee.fromStep(Step.drop[F, E](n))
+  final def drop[F[_]: Applicative, E](n: Int): Iteratee[F, E, Unit] = fromStep(Step.drop[F, E](n))
 
   /**
    * An [[Iteratee]] that drops values from a stream as long as they satisfy the
@@ -254,7 +250,7 @@ final object Iteratee extends IterateeInstances {
    * @group Collection
    */
   final def dropWhile[F[_]: Applicative, E](p: E => Boolean): Iteratee[F, E, Unit] =
-    Iteratee.fromStep(Step.dropWhile[F, E](p))
+    fromStep(Step.dropWhile[F, E](p))
 
   /**
    * An [[Iteratee]] that collects all inputs in reverse order.
@@ -262,7 +258,7 @@ final object Iteratee extends IterateeInstances {
    * @group Collection
    */
   final def reversed[F[_]: Applicative, A]: Iteratee[F, A, List[A]] =
-    Iteratee.fold[F, A, List[A]](Nil)((acc, e) => e :: acc)
+    fold[F, A, List[A]](Nil)((acc, e) => e :: acc)
 
   /**
    * An [[Iteratee]] that combines values using an [[algebra.Monoid]] instance.
@@ -276,7 +272,7 @@ final object Iteratee extends IterateeInstances {
    *
    * @group Collection
    */
-  final def sum[F[_], E](implicit F: Monad[F], E: Monoid[E]): Iteratee[F, E, E] =
+  final def sum[F[_], E](implicit F: Applicative[F], E: Monoid[E]): Iteratee[F, E, E] =
     fold(E.empty)((a, e) => E.combine(a, e))
 
   /**
@@ -285,7 +281,7 @@ final object Iteratee extends IterateeInstances {
    *
    * @group Collection
    */
-  final def foldMap[F[_], E, A](f: E => A)(implicit F: Monad[F], A: Monoid[A]): Iteratee[F, E, A] =
+  final def foldMap[F[_], E, A](f: E => A)(implicit F: Applicative[F], A: Monoid[A]): Iteratee[F, E, A] =
     fold(A.empty)((a, e) => A.combine(a, f(e)))
 
   /**

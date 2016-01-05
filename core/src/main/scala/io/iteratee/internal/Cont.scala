@@ -4,7 +4,6 @@ import cats.{ Applicative, Monad }
 import cats.data.{ NonEmptyVector, OneAnd }
 import cats.arrow.NaturalTransformation
 
-
 abstract class Cont[F[_], E, A](implicit F: Applicative[F]) extends Step[F, E, A] { self =>
   final def fold[Z](
     ifCont: (NonEmptyVector[E] => F[Step[F, E, A]]) => Z,

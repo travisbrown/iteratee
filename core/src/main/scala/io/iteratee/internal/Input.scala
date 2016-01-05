@@ -1,15 +1,11 @@
 package io.iteratee.internal
 
-import cats.data.NonEmptyVector
-
 /**
- * An input to an [[Iteratee]].
+ * An input to an [[io.iteratee.Iteratee]].
  *
- * An input value can signal the end of a stream ([[Input.end]]) or it can
- * contain one or more values of the element type. Non-end-of-stream inputs
- * could in principle be represented by a collection of elements, but for the
- * sake of performance we provide special constructors for inputs that contain
- * a single element ([[Input.el]]).
+ * This type is isomorphic to a [[cats.data.NonEmptyVector]], but exists as a
+ * separate type for the sake of performance (using `NonEmptyVector` proved
+ * significantly slower in experiments).
  *
  * @tparam E The element type
  */
@@ -19,19 +15,25 @@ sealed abstract class Input[@specialized E] extends Serializable {
    */
   def foldWith[Z](folder: Input.Folder[E, Z]): Z
 
+  /**
+   * The number of elements in this [[Input]].
+   */
   def size: Int
 
+  /**
+   * Convert this [[Input]] to a (non-empty)
+   * [[scala.collection.immutable.Vector]].
+   */
   def toVector: Vector[E]
-  def toNonEmpty: NonEmptyVector[E]
 }
 
 final object Input  {
   /**
-   * Represents four functions that can be used to reduce an [[Input]] to a
+   * Represents two functions that can be used to reduce an [[Input]] to a
    * value.
    *
-   * Combining three "functions" into a single class allows us to save
-   * allocations. `onEl` must be consistent with `onChunk`.
+   * Combining these "functions" into a single trait allows us to let objects
+   * we're already creating (e.g. a [[Step]]) play this role for us.
    *
    * @tparam E The element type
    * @tparam Z The result type
@@ -41,10 +43,10 @@ final object Input  {
     def onChunk(h1: E, h2: E, t: Vector[E]): Z
   }
 
-  private[iteratee] final def fromVectorUnsafe[E](es: Vector[E]): Input[E] =
+  private[internal] final def fromVectorUnsafe[E](es: Vector[E]): Input[E] =
     if (es.size == 1) el(es(0)) else chunk(es(0), es(1), es.drop(2))
 
-  final def fromPair[E](e: E, es: Vector[E]): Input[E] =
+  private[internal] final def fromPair[E](e: E, es: Vector[E]): Input[E] =
     if (es.isEmpty) el(e) else chunk(e, es.head, es.tail)
 
   /**
@@ -54,16 +56,14 @@ final object Input  {
     final def foldWith[Z](folder: Folder[E, Z]): Z = folder.onEl(e)
     final def size: Int = 1
     final def toVector: Vector[E] = Vector(e)
-    final def toNonEmpty: NonEmptyVector[E] = NonEmptyVector(e)
   }
 
   /**
-   * An input value containing zero or more elements.
+   * An input value containing two or more elements.
    */
   final def chunk[E](h1: E, h2: E, t: Vector[E]): Input[E] = new Input[E] {
     final def foldWith[Z](folder: Folder[E, Z]): Z = folder.onChunk(h1, h2, t)
     final def size: Int = 2 + t.size
     final def toVector: Vector[E] = h1 +: h2 +: t
-    final def toNonEmpty: NonEmptyVector[E] = NonEmptyVector(h1, h2 +: t)
   }
 }

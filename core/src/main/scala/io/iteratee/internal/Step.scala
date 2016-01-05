@@ -6,14 +6,11 @@ import cats.data.{ NonEmptyVector, OneAnd }
 import cats.arrow.NaturalTransformation
 
 /**
- * Represents the current state of an [[Iteratee]].
- *
- * An [[Iteratee]] has either already calculated a result ([[Step.done]]) or is
- * waiting for more data ([[Step.cont]]).
+ * Represents the current state of an [[io.iteratee.Iteratee]].
  *
  * @tparam F The effect type constructor
  * @tparam E The type of the input data
- * @tparam A The type of the result calculated by the [[Iteratee]]
+ * @tparam A The type of the result calculated by the [[io.iteratee.Iteratee]]
  */
 abstract class Step[F[_], E, A] extends Serializable {
   /**
@@ -27,9 +24,24 @@ abstract class Step[F[_], E, A] extends Serializable {
 
   def isDone: Boolean
 
+  /**
+   * Feed a single element to this [[Step]].
+   */
   def feedEl(e: E): F[Step[F, E, A]]
+
+  /**
+   * Feed a multi-element [[Input]] to this [[Step]].
+   */
   def feedChunk(h1: E, h2: E, t: Vector[E]): F[Step[F, E, A]]
+
+  /**
+   * Force this [[Step]] to enter the ended state.
+   */
   def end: F[Done.Ended[F, E, A]]
+
+  /**
+   * Run this [[Step]] so that it produces a value in an effectful context.
+   */
   def run: F[A]
 
   /**
@@ -37,8 +49,14 @@ abstract class Step[F[_], E, A] extends Serializable {
    */
   def map[B](f: A => B): Step[F, E, B]
 
+  /**
+   * Map a function over the inputs of this [[Step]].
+   */
   def contramap[E2](f: E2 => E): Step[F, E2, A]
 
+  /**
+   * Transform the context of this [[Step]].
+   */
   def mapI[G[_]: Applicative](f: NaturalTransformation[F, G]): Step[G, E, A]
 
   /**
@@ -61,21 +79,22 @@ abstract class Step[F[_], E, A] extends Serializable {
  */
 final object Step { self =>
   /**
-   * Create an incomplete state that will use the given function to process the next input.
+   * Create an incomplete [[Step]] that will use the given functions to process
+   * the next input.
    *
    * @group Constructors
    */
   final def cont[F[_], E, A](
-    ifInput: NonEmptyVector[E] => F[Step[F, E, A]],
-    ifEnd: F[A]
+    onInput: NonEmptyVector[E] => F[Step[F, E, A]],
+    onEnd: F[A]
   )(implicit F: Applicative[F]): Step[F, E, A] = new Cont.Effectful[F, E, A] {
-    final def feedEl(e: E): F[Step[F, E, A]] = ifInput(NonEmptyVector(e))
-    final def feedChunk(h1: E, h2: E, t: Vector[E]): F[Step[F, E, A]] = ifInput(NonEmptyVector(h1, h2 +: t))
-    final def end: F[Done.Ended[F, E, A]] = F.map(ifEnd)(ended(_))
+    final def feedEl(e: E): F[Step[F, E, A]] = onInput(NonEmptyVector(e))
+    final def feedChunk(h1: E, h2: E, t: Vector[E]): F[Step[F, E, A]] = onInput(NonEmptyVector(h1, h2 +: t))
+    final def end: F[Done.Ended[F, E, A]] = F.map(onEnd)(ended(_))
   }
 
   /**
-   * Create a new completed state with the given result and leftover input.
+   * Create a new completed [[Step]] with the given result and leftover input.
    *
    * @group Constructors
    */
@@ -86,6 +105,11 @@ final object Step { self =>
       case h1 +: h2 +: t => new Done.WithLeftovers(value, Input.chunk(h1, h2, t))
     }
 
+  /**
+   * Create a new ended [[Step]] with the given result.
+   *
+   * @group Constructors
+   */
   final def ended[F[_]: Applicative, E, A](value: A): Done.Ended[F, E, A] = new Done.Ended(value)
 
   /**
@@ -112,8 +136,7 @@ final object Step { self =>
    *
    * @group Collection
    */
-  final def fold[F[_]: Applicative, E, A](init: A)(f: (A, E) => A): Step[F, E, A] =
-    new FoldCont[F, E, A](init, f)
+  final def fold[F[_]: Applicative, E, A](init: A)(f: (A, E) => A): Step[F, E, A] = new FoldCont[F, E, A](init, f)
 
   private[this] final class FoldCont[F[_], E, A](acc: A, f: (A, E) => A)(implicit F: Applicative[F])
     extends Cont.PureFolder[F, E, A] {
@@ -129,8 +152,7 @@ final object Step { self =>
    *
    * @group Collection
    */
-  final def foldM[F[_], E, A](init: A)(f: (A, E) => F[A])(implicit F: Monad[F]): Step[F, E, A] =
-    new FoldMCont[F, E, A](init, f)
+  final def foldM[F[_]: Monad, E, A](init: A)(f: (A, E) => F[A]): Step[F, E, A] = new FoldMCont[F, E, A](init, f)
 
   private[this] final class FoldMCont[F[_], E, A](acc: A, f: (A, E) => F[A])(implicit F: Monad[F])
     extends Cont.EffectfulFolder[F, E, A] {
@@ -147,8 +169,7 @@ final object Step { self =>
    *
    * @group Collection
    */
-  final def drain[F[_]: Applicative, A]: Step[F, A, Vector[A]] =
-    new DrainCont(Vector.empty)
+  final def drain[F[_]: Applicative, A]: Step[F, A, Vector[A]] = new DrainCont(Vector.empty)
 
   private[this] final class DrainCont[F[_], E](acc: Vector[E])(implicit F: Applicative[F])
     extends Cont.PureFolder[F, E, Vector[E]] {
@@ -164,7 +185,7 @@ final object Step { self =>
    * @group Collection
    */
   final def drainTo[F[_], E, C[_]](implicit
-    F: Monad[F],
+    F: Applicative[F],
     M: MonoidK[C],
     C: Applicative[C]
   ): Step[F, E, C[E]] = new DrainToCont(M.empty)
@@ -307,25 +328,32 @@ final object Step { self =>
     final def end: F[Done.Ended[F, E, Boolean]] = F.pure(new Done.Ended(true))
   }
 
+  private[this] final def product[F[_], E, A, B](stepA: Step[F, E, A], stepB: Step[F, E, B])
+    (implicit F: Monad[F]): F[Step[F, E, (A, B)]] =
+      stepA.bind(a => F.pure(stepB.map((a, _))))
+
+
+  private[this] def endProduct[F[_], E, A, B](stepA: Step[F, E, A], stepB: Step[F, E, B])
+    (implicit F: Monad[F]): F[Done.Ended[F, E, (A, B)]] =
+      F.flatMap(F.product(stepA.end, stepB.end)) {
+        case (endedA, endedB) => endedA.endedBind(a => F.pure(endedB.map((a, _))))
+      }
+
   /**
-   * Zip two steps into a single step that returns a pair.
+   * Zip two steps into a single [[Step]]that returns a pair.
    *
    * @group Collection
    */
   final def zip[F[_], E, A, B](stepA: Step[F, E, A], stepB: Step[F, E, B])
     (implicit F: Monad[F]): F[Step[F, E, (A, B)]] = {
-    type Pair[Z] = (Option[(Z, Option[Input[E]])], Step[F, E, Z])
-
-    def paired[Z](s: Step[F, E, Z]): Step[F, E, Pair[Z]] = done(
+    def paired[Z](s: Step[F, E, Z]): Step[F, E, (Option[(Z, Option[Input[E]])], Step[F, E, Z])] = done(
       s.fold(
         ifCont = k => (None, s),
-        ifDone = (value, remainder) =>
-          if (remainder.isEmpty) (Some((value, None)), done(value)) else {
-            val input = Input.fromVectorUnsafe(remainder)
-
-            (Some((value, Some(input))), new Done.WithLeftovers(value, input))
-          },
-         ifEnd = value => (Some((value, None)), ended(value))
+        ifDone = (value, remainder) => if (remainder.isEmpty) (Some((value, None)), done(value)) else {
+          val input = Input.fromVectorUnsafe(remainder)
+          (Some((value, Some(input))), new Done.WithLeftovers(value, input))
+        },
+        ifEnd = value => (Some((value, None)), ended(value))
       )
     )
 
@@ -336,74 +364,34 @@ final object Step { self =>
         case (Some(as), Some(bs)) => if (as.size <= bs.size) a else b
       }
 
-    def endSteps(stepA: Step[F, E, A], stepB: Step[F, E, B]): F[Done.Ended[F, E, (A, B)]] =
-      F.flatMap(stepA.end)(_.bind(a => F.map(stepB.end)(_.map((a, _))))).asInstanceOf[F[Done.Ended[F, E, (A, B)]]]
+    def advanceF(fsA: F[Step[F, E, A]], fsB: F[Step[F, E, B]]): F[Step[F, E, (A, B)]] =
+      F.flatMap(F.product(fsA, fsB)) { case (sA, sB) => advance(sA, sB) }
 
-    def loop(stepA: Step[F, E, A], stepB: Step[F, E, B]): Step[F, E, (A, B)] =
-      new Cont.Effectful[F, E, (A, B)] {
-        final def end: F[Done.Ended[F, E, (A, B)]] = endSteps(stepA, stepB)
-        final def feedEl(e: E): F[Step[F, E, (A, B)]] = F.flatMap(stepA.feedEl(e))(fsA =>
-          paired(fsA).bind {
-            case (pairA, nextA) =>
-              F.flatMap(stepB.feedEl(e))(fsB =>
-                paired(fsB).bind {
-                  case (pairB, nextB) => F.pure(
-                    (pairA, pairB) match {
-                      case (Some((resA, remA)), Some((resB, remB))) =>
-                        shorter(remA, remB) match {
-                          case None => new Done.NoLeftovers[F, E, (A, B)]((resA, resB))
-                          case Some(rem) => new Done.WithLeftovers[F, E, (A, B)]((resA, resB), rem)
-                        }
-                      case (Some((resA, _)), None) => nextB.map((resA, _))
-                      case (None, Some((resB, _))) => nextA.map((_, resB))
-                      case _ => loop(nextA, nextB)
-                    }
-                  )
+    def advance(sA: Step[F, E, A], sB: Step[F, E, B]): F[Step[F, E, (A, B)]] =
+      F.flatMap(product(paired(sA), paired(sB)))(
+        _.bind {
+          case ((pairA, nextA), (pairB, nextB)) => F.pure(
+            (pairA, pairB) match {
+              case (Some((resA, remA)), Some((resB, remB))) =>
+                shorter(remA, remB) match {
+                  case None => new Done.NoLeftovers[F, E, (A, B)]((resA, resB))
+                  case Some(rem) => new Done.WithLeftovers[F, E, (A, B)]((resA, resB), rem)
                 }
-              )
-          }
-        )
-        final def feedChunk(h1: E, h2: E, t: Vector[E]): F[Step[F, E, (A, B)]] =
-          F.flatMap(stepA.feedChunk(h1, h2, t))(fsA =>
-          paired(fsA).bind {
-            case (pairA, nextA) =>
-              F.flatMap(stepB.feedChunk(h1, h2, t))(fsB =>
-                paired(fsB).bind {
-                  case (pairB, nextB) => F.pure(
-                    (pairA, pairB) match {
-                      case (Some((resA, remA)), Some((resB, remB))) =>
-                        shorter(remA, remB) match {
-                          case None => new Done.NoLeftovers[F, E, (A, B)]((resA, resB))
-                          case Some(rem) => new Done.WithLeftovers[F, E, (A, B)]((resA, resB), rem)
-                        }
-                      case (Some((resA, _)), None) => nextB.map((resA, _))
-                      case (None, Some((resB, _))) => nextA.map((_, resB))
-                      case _ => loop(nextA, nextB)
-                    }
-                  )
-                }
-              )
-          }
-        )
-      }
-
-    paired(stepA).bind {
-      case (pairA, nextA) =>
-        paired(stepB).bind {
-          case (pairB, nextB) =>
-            F.pure[Step[F, E, (A, B)]](
-              (pairA, pairB) match {
-                case (Some((resA, remA)), Some((resB, remB))) =>
-                  shorter(remA, remB) match {
-                    case None => new Done.NoLeftovers[F, E, (A, B)]((resA, resB))
-                    case Some(rem) => new Done.WithLeftovers[F, E, (A, B)]((resA, resB), rem)
-                  }
-                case (Some((resA, _)), None) => nextB.map((resA, _))
-                case (None, Some((resB, _))) => nextA.map((_, resB))
-                case _ => loop(nextA, nextB)
-              }
-            )
+              case (Some((resA, _)), None) => nextB.map((resA, _))
+              case (None, Some((resB, _))) => nextA.map((_, resB))
+              case _ => loop(nextA, nextB)
+            }
+          )
         }
+      )
+
+    def loop(stepA: Step[F, E, A], stepB: Step[F, E, B]): Step[F, E, (A, B)] = new Cont.Effectful[F, E, (A, B)] {
+      final def end: F[Done.Ended[F, E, (A, B)]] = endProduct(stepA, stepB)
+      final def feedEl(e: E): F[Step[F, E, (A, B)]] = advanceF(stepA.feedEl(e), stepB.feedEl(e))
+      final def feedChunk(h1: E, h2: E, t: Vector[E]): F[Step[F, E, (A, B)]] =
+        advanceF(stepA.feedChunk(h1, h2, t), stepB.feedChunk(h1, h2, t))
     }
+
+    advance(stepA, stepB)
   }
 }
