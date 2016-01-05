@@ -41,16 +41,16 @@ class StreamingExampleData {
 @OutputTimeUnit(TimeUnit.SECONDS)
 class InMemoryBenchmark extends InMemoryExampleData {
   @Benchmark
-  def sumIntsC: Int = intsC.sum
+  def sumInts0: Int = intsI.run(i.Iteratee.sum[Task, Int]).run
 
   @Benchmark
-  def sumIntsI: Int = intsI.run(i.Iteratee.sum[Task, Int]).run
+  def sumInts1: Int = intsS.sum.runLastOr(sys.error("Impossible")).run
 
   @Benchmark
-  def sumIntsS: Int = intsS.sum.runLastOr(sys.error("Impossible")).run
+  def sumInts2: Int = (z.IterateeT.sum[Int, Task] &= intsZ).run.run
 
   @Benchmark
-  def sumIntsZ: Int = (z.IterateeT.sum[Int, Task] &= intsZ).run.run
+  def sumInts3: Int = intsC.sum
 }
 
 /**
@@ -67,15 +67,15 @@ class StreamingBenchmark extends StreamingExampleData {
   val size = 10000
 
   @Benchmark
-  def takeLongsC: Vector[Long] = longStreamC.take(size).toVector
+  def takeLongs0: Vector[Long] = longStreamI.run(i.Iteratee.take[Task, Long](size)).run
 
   @Benchmark
-  def takeLongsI: Vector[Long] = longStreamI.run(i.Iteratee.take[Task, Long](size)).run
+  def takeLongs1: Vector[Long] = longStreamS.take(size).runLog.run
 
   @Benchmark
-  def takeLongsS: Vector[Long] = longStreamS.take(size).runLog.run
-
-  @Benchmark
-  def takeLongsZ: Vector[Long] =
+  def takeLongs2: Vector[Long] =
     (z.Iteratee.take[Long, Vector](size).up[Task] &= longStreamZ).run.run
+
+  @Benchmark
+  def takeLongs3: Vector[Long] = longStreamC.take(size).toVector
 }
