@@ -215,6 +215,32 @@ abstract class IterateeSuite[F[_]: Monad] extends ModuleSuite[F] {
     }
   }
 
+  test("zip where leftover sizes must be compared") {
+    check { (eav: EnumeratorAndValues[Int]) =>
+      val iteratee = take[Int](2).zip(take(3))
+
+      val result = ((eav.values.take(2), eav.values.take(3)), eav.values.drop(3))
+
+      eav.resultWithLeftovers(iteratee) === F.pure(result)
+    }
+  }
+
+  test("zip on ended iteratees") {
+    check { (eav: EnumeratorAndValues[Int], s: String, t: String) =>
+      val iteratee = ended[Int, String](s).zip(ended(t))
+
+      eav.resultWithLeftovers(iteratee) === F.pure(((s, t), Vector.empty))
+    }
+  }
+
+  test("zip on ended iteratee with cont") {
+    check { (eav: EnumeratorAndValues[Int], s: String) =>
+      val iteratee = ended[Int, String](s).zip(drain)
+
+      eav.resultWithLeftovers(iteratee) === F.pure(((s, Vector.empty), Vector.empty))
+    }
+  }
+
   test("zip with leftovers (scalaz/scalaz#1068)") {
     check { (eav: EnumeratorAndValues[Int], m: Int, n: Int) =>
       /**
@@ -280,6 +306,8 @@ abstract class IterateeSuite[F[_]: Monad] extends ModuleSuite[F] {
     }
   }
 }
+
+class EvalIterateeTests extends IterateeSuite[Eval] with EvalSuite
 
 class XorIterateeTests extends IterateeSuite[({ type L[x] = XorT[Eval, Throwable, x] })#L]
   with XorSuite {

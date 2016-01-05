@@ -43,7 +43,11 @@ private[internal] case class WithLeftovers[F[_]: Applicative, E, A](value: A, re
 
   final def bind[B](f: A => F[Step[F, E, B]])(implicit M: Monad[F]): F[Step[F, E, B]] =
     M.flatMap(f(value)) {
-      case Step.Ended(v) => M.pure(new Step.Ended(v))
+      case ended @ Step.Ended(_) => M.pure(ended)
+      case NoLeftovers(otherValue) => M.pure(new WithLeftovers(otherValue, remaining))
+      case WithLeftovers(otherValue, otherRemaining) => M.pure(
+        new WithLeftovers(otherValue, otherRemaining.append(remaining))
+      )
       case Step.Done(v) => M.pure(new WithLeftovers(v, remaining))
       case step => remaining.foldWith(
         new Input.Folder[E, F[Step[F, E, B]]] {
