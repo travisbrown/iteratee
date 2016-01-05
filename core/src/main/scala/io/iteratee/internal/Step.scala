@@ -141,15 +141,13 @@ final object Step { self =>
    *
    * @group Collection
    */
-  final def fold[F[_]: Applicative, E, A](init: A)(f: (A, E) => A): Step[F, E, A] = new FoldCont[F, E, A](init, f)
-
-  private[this] final class FoldCont[F[_], E, A](acc: A, f: (A, E) => A)(implicit F: Applicative[F])
-    extends Cont.PureFolder[F, E, A] {
-    final def onEl(e: E): Step[F, E, A] = self.fold(f(acc, e))(f)
-    final def onChunk(h1: E, h2: E, t: Vector[E]): Step[F, E, A] =
-      self.fold(t.foldLeft(f(f(acc, h1), h2))(f))(f)
-    final def end: F[Done.Ended[F, E, A]] = F.pure(new Done.Ended(acc))
-  }
+  final def fold[F[_], E, A](init: A)(f: (A, E) => A)(implicit F: Applicative[F]): Step[F, E, A] =
+    new Cont.PureFolder[F, E, A] {
+      final def onEl(e: E): Step[F, E, A] = self.fold(f(init, e))(f)
+      final def onChunk(h1: E, h2: E, t: Vector[E]): Step[F, E, A] =
+        self.fold(t.foldLeft(f(f(init, h1), h2))(f))(f)
+      final def end: F[Done.Ended[F, E, A]] = F.pure(new Done.Ended(init))
+    }
 
   /**
    * A [[Step]] that folds a stream using an initial value and a monadic
@@ -157,17 +155,15 @@ final object Step { self =>
    *
    * @group Collection
    */
-  final def foldM[F[_]: Monad, E, A](init: A)(f: (A, E) => F[A]): Step[F, E, A] = new FoldMCont[F, E, A](init, f)
-
-  private[this] final class FoldMCont[F[_], E, A](acc: A, f: (A, E) => F[A])(implicit F: Monad[F])
-    extends Cont.EffectfulFolder[F, E, A] {
-    final def end: F[Done.Ended[F, E, A]] = F.pure(new Done.Ended(acc))
-    final def onEl(e: E): F[Step[F, E, A]] = F.map(f(acc, e))(a => foldM(a)(f))
-    final def onChunk(h1: E, h2: E, t: Vector[E]): F[Step[F, E, A]] =
-      F.map(
-        t.foldLeft(F.flatMap(f(acc, h1))(a => f(a, h2)))((fa, e) => F.flatMap(fa)(a => f(a, e)))
-      )(a => foldM(a)(f))
-  }
+  final def foldM[F[_], E, A](init: A)(f: (A, E) => F[A])(implicit F: Monad[F]): Step[F, E, A] =
+    new Cont.EffectfulFolder[F, E, A] {
+      final def onEl(e: E): F[Step[F, E, A]] = F.map(f(init, e))(a => foldM(a)(f))
+      final def onChunk(h1: E, h2: E, t: Vector[E]): F[Step[F, E, A]] =
+        F.map(
+          t.foldLeft(F.flatMap(f(init, h1))(a => f(a, h2)))((fa, e) => F.flatMap(fa)(a => f(a, e)))
+        )(a => foldM(a)(f))
+      final def end: F[Done.Ended[F, E, A]] = F.pure(new Done.Ended(init))
+    }
 
   /**
    * A [[Step]] that collects all the elements in a stream in a vector.
@@ -212,9 +208,7 @@ final object Step { self =>
    *
    * @group Collection
    */
-  final def head[F[_]: Applicative, E]: Step[F, E, Option[E]] = new HeadCont
-
-  private[this] final class HeadCont[F[_], E](implicit F: Applicative[F]) extends Cont.PureFolder[F, E, Option[E]] {
+  final def head[F[_], E](implicit F: Applicative[F]): Step[F, E, Option[E]] = new Cont.PureFolder[F, E, Option[E]] {
     final def onEl(e: E): Step[F, E, Option[E]] = done(Some(e))
     final def onChunk(h1: E, h2: E, t: Vector[E]): Step[F, E, Option[E]] =
       new Done.WithLeftovers(Some(h1), Input.fromPair(h2, t))
@@ -226,9 +220,7 @@ final object Step { self =>
    *
    * @group Collection
    */
-  final def peek[F[_]: Applicative, E]: Step[F, E, Option[E]] = new PeekCont
-
-  private[this] final class PeekCont[F[_], E](implicit F: Applicative[F]) extends Cont.PureFolder[F, E, Option[E]] {
+  final def peek[F[_], E](implicit F: Applicative[F]): Step[F, E, Option[E]] = new Cont.PureFolder[F, E, Option[E]] {
     final def onEl(e: E): Step[F, E, Option[E]] = new Done.WithLeftovers(Some(e), Input.el(e))
     final def onChunk(h1: E, h2: E, t: Vector[E]): Step[F, E, Option[E]] =
       new Done.WithLeftovers(Some(h1), Input.chunk(h1, h2, t))
@@ -240,11 +232,8 @@ final object Step { self =>
    *
    * @group Collection
    */
-  final def take[F[_]: Applicative, A](n: Int): Step[F, A, Vector[A]] = if (n <= 0) {
-    done[F, A, Vector[A]](Vector.empty)
-  } else {
-    new TakeCont(Vector.empty, n)
-  }
+  final def take[F[_]: Applicative, A](n: Int): Step[F, A, Vector[A]] =
+    if (n <= 0) done[F, A, Vector[A]](Vector.empty) else new TakeCont(Vector.empty, n)
 
   private[this] final class TakeCont[F[_], E](acc: Vector[E], n: Int)(implicit F: Applicative[F])
     extends Cont.PureFolder[F, E, Vector[E]] {
@@ -289,22 +278,20 @@ final object Step { self =>
    *
    * @group Collection
    */
-  final def drop[F[_]: Applicative, E](n: Int): Step[F, E, Unit] =
-    if (n <= 0) done(()) else new DropCont(n)
+  final def drop[F[_], E](n: Int)(implicit F: Applicative[F]): Step[F, E, Unit] =
+    if (n <= 0) done(()) else new Cont.PureFolder[F, E, Unit] {
+      final def onEl(e: E): Step[F, E, Unit] = drop(n - 1)
+      final def onChunk(h1: E, h2: E, t: Vector[E]): Step[F, E, Unit] = {
+        val len = t.size + 2
 
-  private[this] final class DropCont[F[_], E](n: Int)(implicit F: Applicative[F]) extends Cont.PureFolder[F, E, Unit] {
-    final def onEl(e: E): Step[F, E, Unit] = drop(n - 1)
-    final def onChunk(h1: E, h2: E, t: Vector[E]): Step[F, E, Unit] = {
-      val len = t.size + 2
+        if (len <= n) drop(n - len) else {
+          val dropped = (h1 +: h2 +: t).drop(n)
 
-      if (len <= n) drop(n - len) else {
-        val dropped = (h1 +: h2 +: t).drop(n)
-
-        new Done.WithLeftovers((), Input.fromVectorUnsafe(dropped))
+          new Done.WithLeftovers((), Input.fromVectorUnsafe(dropped))
+        }
       }
+      final def end: F[Done.Ended[F, E, Unit]] = F.pure(new Done.Ended(()))
     }
-    final def end: F[Done.Ended[F, E, Unit]] = F.pure(new Done.Ended(()))
-  }
 
   /**
    * A [[Step]] that drops values from a stream as long as they satisfy the
