@@ -2,8 +2,8 @@ package io.iteratee
 
 import algebra.Eq
 import algebra.laws.GroupLaws
-import cats.{ Eval, Monad }
-import cats.data.XorT
+import cats.{ Eval, Monad, MonadError }
+import cats.data.{ Xor, XorT }
 import cats.laws.discipline.{ MonadTests, MonoidalTests }
 import org.scalacheck.{ Gen, Prop }
 
@@ -56,9 +56,21 @@ abstract class EnumeratorSuite[F[_]: Monad] extends ModuleSuite[F] {
     }
   }
 
+  test("enumVector with single element") {
+    check { (x: Int) =>
+      enumVector(Vector(x)).drain === F.pure(Vector(x))
+    }
+  }
+
   test("enumIndexedSeq") {
     check { (xs: Vector[Int], start: Int, count: Int) =>
       enumIndexedSeq(xs, start, start + count).drain === F.pure(xs.slice(start, start + count))
+    }
+  }
+
+  test("enumIndexedSeq with given slice") {
+    check { (xs: Vector[Int]) =>
+      enumIndexedSeq(xs, 0, 100).drain === F.pure(xs.slice(0, 100))
     }
   }
 
@@ -99,6 +111,10 @@ abstract class EnumeratorSuite[F[_]: Monad] extends ModuleSuite[F] {
     }
   }
 
+  test("prepend with done iteratee") {
+    assert(enumOne(0).append(enumOne(2).prepend(1)).run(head) === F.pure((Some(0))))
+  }
+
   test("bindM") {
     check { (eav: EnumeratorAndValues[Int]) =>
       /**
@@ -130,6 +146,14 @@ abstract class EnumeratorSuite[F[_]: Monad] extends ModuleSuite[F] {
   test("reduced") {
     check { (eav: EnumeratorAndValues[Int]) =>
       eav.enumerator.reduced(Vector.empty[Int])(_ :+ _).drain === F.pure(Vector(eav.values))
+    }
+  }
+
+  test("reduced with end") {
+    check { (eav: EnumeratorAndValues[Int]) =>
+      val enumerator = eav.enumerator.append(enumEnd)
+
+      enumerator.reduced(Vector.empty[Int])(_ :+ _).drain === F.pure(Vector(eav.values))
     }
   }
 
@@ -243,6 +267,9 @@ class EvalEnumeratorTests extends EnumeratorSuite[Eval] with EvalSuite {
 
 class XorEnumeratorTests extends EnumeratorSuite[({ type L[x] = XorT[Eval, Throwable, x] })#L]
   with XorSuite {
+
+  type XTE[A] = XorT[Eval, Throwable, A]
+
   test("ensure") {
     check { (eav: EnumeratorAndValues[Int]) =>
       var counter = 0
@@ -250,6 +277,17 @@ class XorEnumeratorTests extends EnumeratorSuite[({ type L[x] = XorT[Eval, Throw
       val enumerator = eav.enumerator.ensure(action)
 
       counter == 0 && enumerator.drain === F.pure(eav.values) && counter === 1
+    }
+  }
+
+  test("ensure with failure") {
+    check { (eav: EnumeratorAndValues[Int], message: String) =>
+      val error: Throwable = new Exception(message)
+      var counter = 0
+      val action = XorT.right[Eval, Throwable, Unit](Eval.always(counter += 1))
+      val enumerator = failEnumerator(error).append(eav.enumerator).ensure(action)
+
+      counter == 0 && enumerator.drain.value.value === Xor.left(error) && counter === 1
     }
   }
 
@@ -261,6 +299,23 @@ class XorEnumeratorTests extends EnumeratorSuite[({ type L[x] = XorT[Eval, Throw
       val n = math.max(0, eav.values.size - 2)
 
       counter == 0 && enumerator.run(take(n)) === F.pure(eav.values.take(n)) && counter === 1
+    }
+  }
+
+  test("failEnumerator") {
+    check { (eav: EnumeratorAndValues[Int], message: String) =>
+      val error: Throwable = new Exception(message)
+
+      eav.enumerator.append(failEnumerator(error)).drain.value.value === Xor.left(error)
+    }
+  }
+
+  test("handleErrorWith") {
+    check { (eav: EnumeratorAndValues[Int], message: String) =>
+      val error: Throwable = new Exception(message)
+      val enumerator = failEnumerator(error).handleErrorWith[Throwable](_ => eav.enumerator)
+
+      enumerator.drain.value.value === Xor.right(eav.values)
     }
   }
 }

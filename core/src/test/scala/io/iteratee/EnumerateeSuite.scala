@@ -56,6 +56,19 @@ abstract class EnumerateeSuite[F[_]: Monad] extends ModuleSuite[F] {
     }
   }
 
+  test("uniq with known duplicates") {
+    val enumerator = enumVector(Vector(1, 2, 3, 4))
+      .append(enumVector(Vector(4, 5, 6, 7)))
+      .append(enumOne(7))
+      .append(enumOne(8))
+      .append(enumVector(Vector(8, 8, 8)))
+      .append(enumVector(Vector(9, 10)))
+    val result = Vector(1, 2, 3, 4, 5, 6, 7, 8, 9, 10)
+
+    assert(enumerator.mapE(uniq).drain === F.pure(result))
+  }
+
+
   test("zipWithIndex") {
     check { (eav: EnumeratorAndValues[Int]) =>
       val result = eav.values.zipWithIndex.map {

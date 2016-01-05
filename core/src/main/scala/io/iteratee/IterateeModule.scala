@@ -2,6 +2,8 @@ package io.iteratee
 
 import algebra.Monoid
 import cats.{ Applicative, Monad, MonadError, MonoidK }
+import cats.data.NonEmptyVector
+import io.iteratee.internal.Step
 import scala.collection.generic.CanBuildFrom
 
 /**
@@ -12,6 +14,35 @@ import scala.collection.generic.CanBuildFrom
  * @groupprio Helpers 4
  */
 trait IterateeModule[F[_]] {
+  /**
+   * Create an incomplete [[Iteratee]] that will use the given function to
+   * process the next input.
+   *
+   * @group Constructors
+   */
+  final def cont[E, A](
+    ifInput: NonEmptyVector[E] => Iteratee[F, E, A],
+    ifEnd: F[A]
+  )(implicit F: Applicative[F]): Iteratee[F, E, A] = Iteratee.cont(ifInput, ifEnd)
+
+  /**
+   * Create a new completed [[Iteratee]] with the given result and leftover
+   * input.
+   *
+   * @group Constructors
+   */
+  final def done[E, A](value: A, remaining: Vector[E] = Vector.empty)
+    (implicit F: Applicative[F]): Iteratee[F, E, A] =
+      Iteratee.done(value, remaining)
+
+  /**
+   * Create a new completed [[Iteratee]] with the given result and leftover
+   * input.
+   *
+   * @group Constructors
+   */
+  final def ended[E, A](value: A)(implicit F: Applicative[F]): Iteratee[F, E, A] = Iteratee.ended(value)
+
   /**
    * @group Helpers
    */

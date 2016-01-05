@@ -12,22 +12,22 @@ private[iteratee] trait IterateeInstances extends IterateeInstances0 {
 
   implicit final def iterateeMonadError[F[_], T, E]
     (implicit F: MonadError[F, T]): MonadError[({ type L[x] = Iteratee[F, E, x] })#L, T] =
-      new IterateeMonadError[F, T, E](F)
+      new IterateeMonadError[F, T, E]
 }
 
 private[iteratee] trait IterateeInstances0 {
   implicit final def iterateeMonad[F[_], E](implicit F: Monad[F]): Monad[({ type L[x] = Iteratee[F, E, x] })#L] =
-    new IterateeMonad[F, E](F)
+    new IterateeMonad[F, E]
 }
 
-private class IterateeMonad[F[_], E](F: Monad[F]) extends Monad[({ type L[x] = Iteratee[F, E, x] })#L] {
-  final def pure[A](a: A): Iteratee[F, E, A] = Iteratee.fromStep(Step.done[F, E, A](a, Input.empty))(F)
-  override final def map[A, B](fa: Iteratee[F, E, A])(f: A => B): Iteratee[F, E, B] = fa.map(f)(F)
-  final def flatMap[A, B](fa: Iteratee[F, E, A])(f: A => Iteratee[F, E, B]): Iteratee[F, E, B] = fa.flatMap(f)(F)
+private class IterateeMonad[F[_], E](implicit F: Monad[F]) extends Monad[({ type L[x] = Iteratee[F, E, x] })#L] {
+  final def pure[A](a: A): Iteratee[F, E, A] = Iteratee.fromStep(Step.done[F, E, A](a))
+  override final def map[A, B](fa: Iteratee[F, E, A])(f: A => B): Iteratee[F, E, B] = fa.map(f)
+  final def flatMap[A, B](fa: Iteratee[F, E, A])(f: A => Iteratee[F, E, B]): Iteratee[F, E, B] = fa.flatMap(f)
 }
 
-private class IterateeMonadError[F[_], T, E](F: MonadError[F, T])
-  extends IterateeMonad[F, E](F) with MonadError[({ type L[x] = Iteratee[F, E, x] })#L, T] {
+private class IterateeMonadError[F[_], T, E](implicit F: MonadError[F, T])
+  extends IterateeMonad[F, E] with MonadError[({ type L[x] = Iteratee[F, E, x] })#L, T] {
   final def raiseError[A](e: T): Iteratee[F, E, A] = Iteratee.fail(e)(F)
   final def handleErrorWith[A](fa: Iteratee[F, E, A])(f: T => Iteratee[F, E, A]): Iteratee[F, E, A] =
     fa.handleErrorWith(f)(F)

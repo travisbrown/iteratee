@@ -3,6 +3,7 @@ package io.iteratee
 import algebra.Monoid
 import cats.{ Applicative, Comonad, FlatMap, Functor, Id, Monad, MonadError, MonoidK, Show }
 import cats.arrow.NaturalTransformation
+import cats.data.NonEmptyVector
 import io.iteratee.internal.{ Input, Step }
 
 /**
@@ -17,19 +18,19 @@ import io.iteratee.internal.{ Input, Step }
  */
 sealed class Iteratee[F[_], E, A] private[iteratee] (final val state: F[Step[F, E, A]]) extends Serializable { self =>
   /**
-   * Run this iteratee and close the stream so that it must produce an effectful
-   * value.
-   *
-   * @note A well-behaved iteratee will always be in the completed state after
-   *       processing an [[io.iteratee.internal.Input.end]] value.
+   * Reduce this [[Iteratee]] to an effectful value using the given functions.
    */
-  final def run(implicit F: Monad[F]): F[A] = runWith(Enumerator.enumEnd)
+  final def fold[Z](
+    ifCont: (NonEmptyVector[E] => Iteratee[F, E, A]) => Z,
+    ifDone: (A, Vector[E]) => Z,
+    ifEnd: A => Z
+  )(implicit F: Functor[F]): F[Z] = F.map(state)(_.fold(f => ifCont(in => Iteratee.iteratee(f(in))), ifDone, ifEnd))
 
   /**
-   * Feed an enumerator to this iteratee and run it to return an effectful
+   * Run this iteratee and close the stream so that it must produce an effectful
    * value.
    */
-  final def runWith(enumerator: Enumerator[F, E])(implicit F: Monad[F]): F[A] = enumerator.run(self)
+  final def run(implicit F: Monad[F]): F[A] = F.flatMap(state)(_.run)
 
   /**
    * Map a function over the result of this [[Iteratee]].
@@ -41,23 +42,13 @@ sealed class Iteratee[F[_], E, A] private[iteratee] (final val state: F[Step[F, 
    * Map a monadic function over the result of this [[Iteratee]].
    */
   final def flatMap[B](f: A => Iteratee[F, E, B])(implicit F: Monad[F]): Iteratee[F, E, B] =
-    Iteratee.iteratee(F.flatMap(state)(_.bindF(a => f(a).state)))
+    Iteratee.iteratee(F.flatMap(state)(_.bind(a => f(a).state)))
 
   /**
    * Transform the inputs to this [[Iteratee]].
    */
-  final def contramap[E2](f: E2 => E)(implicit F: Monad[F]): Iteratee[F, E2, A] = {
-    def loop(s: Step[F, E, A]): F[Step[F, E2, A]] = s.foldWith(
-      new Step.Folder[F, E, A, F[Step[F, E2, A]]] {
-        def onCont(k: Input[E] => F[Step[F, E, A]]): F[Step[F, E2, A]] =
-          F.pure(Step.cont((in: Input[E2]) => F.flatMap(k(in.map(f)))(loop)))
-        def onDone(value: A, remainder: Input[E]): F[Step[F, E2, A]] =
-          F.pure(Step.done(value, if (remainder.isEnd) Input.end else Input.empty))
-      }
-    )
-
-    Iteratee.iteratee(F.flatMap(state)(loop))
-  }
+  final def contramap[E2](f: E2 => E)(implicit F: Functor[F]): Iteratee[F, E2, A] =
+    Iteratee.iteratee(F.map(state)(_.contramap(f)))
 
   /**
    * Create a new [[Iteratee]] that first processes values with the given
@@ -69,51 +60,24 @@ sealed class Iteratee[F[_], E, A] private[iteratee] (final val state: F[Step[F, 
   /**
    * Transform the context of this [[Iteratee]].
    */
-  final def mapI[G[_]](f: NaturalTransformation[F, G])(implicit
-    F: Functor[F]
-  ): Iteratee[G, E, A] = {
-    def transform: Step[F, E, A] => Step[G, E, A] = _.foldWith(
-      new Step.Folder[F, E, A, Step[G, E, A]] {
-        def onCont(k: Input[E] => F[Step[F, E, A]]): Step[G, E, A] =
-          Step.cont(in => loop(k(in)))
-        def onDone(value: A, remainder: Input[E]): Step[G, E, A] = Step.done(value, remainder)
-      }
-    )
-
-    def loop: F[Step[F, E, A]] => G[Step[G, E, A]] = i => f(F.map(i)(transform))
-
-    Iteratee.iteratee(loop(state))
-  }
+  final def mapI[G[_]: Applicative](f: NaturalTransformation[F, G])(implicit F: Applicative[F]): Iteratee[G, E, A] =
+    Iteratee.iteratee(f(F.map(state)(_.mapI(f))))
 
   /**
    * Lift this [[Iteratee]] into a different context.
    */
-  final def up[G[_]](implicit G: Applicative[G], F: Comonad[F]): Iteratee[G, E, A] = mapI(
+  final def up[G[_]](implicit G: Applicative[G], F: Comonad[F], F0: Applicative[F]): Iteratee[G, E, A] = mapI(
     new NaturalTransformation[F, G] {
       final def apply[A](a: F[A]): G[A] = G.pure(F.extract(a))
     }
   )
 
   /**
-   * Create an [[Enumeratee]] that repeatedly applies this [[Iteratee]] to a
-   * stream.
-   *
-   * The resulting enumeratee feeds input elements to this iteratee until it's
-   * done and then feeds the produced value to the inner iteratee. The iteratee
-   * will start over and loop until the inner iteratee is done.
-   */
-  final def sequenceI(implicit m: Monad[F]): Enumeratee[F, E, A] = Enumeratee.sequenceI(this)
-
-  /**
    * Zip this [[Iteratee]] with another to create an iteratee that returns a
    * pair of their results.
    */
   final def zip[B](other: Iteratee[F, E, B])(implicit F: Monad[F]): Iteratee[F, E, (A, B)] =
-    Iteratee.iteratee(
-      F.flatMap(F.product(self.state, other.state)) {
-        case (sA, sB) => Step.zip(sA, sB)
-      }
-    )
+    Iteratee.iteratee(F.flatten(F.map2(self.state, other.state)(_.zip(_))))
 
   /**
    * If this [[Iteratee]] has failed, use the provided function to recover.
@@ -139,8 +103,10 @@ final object Iteratee extends IterateeInstances {
    *
    * @group Constructors
    */
-  final def cont[F[_]: Applicative, E, A](k: Input[E] => Iteratee[F, E, A]): Iteratee[F, E, A] =
-    fromStep(Step.cont(in => k(in).state))
+  final def cont[F[_]: Applicative, E, A](
+    ifInput: NonEmptyVector[E] => Iteratee[F, E, A],
+    ifEnd: F[A]
+  ): Iteratee[F, E, A] = fromStep(Step.cont(es => ifInput(es).state, ifEnd))
 
   /**
    * Create a new completed [[Iteratee]] with the given result and leftover
@@ -148,7 +114,16 @@ final object Iteratee extends IterateeInstances {
    *
    * @group Constructors
    */
-  final def done[F[_]: Applicative, E, A](d: A, r: Input[E]): Iteratee[F, E, A] = fromStep(Step.done(d, r))
+  final def done[F[_]: Applicative, E, A](value: A, remaining: Vector[E] = Vector.empty): Iteratee[F, E, A] =
+    fromStep(Step.done(value, remaining))
+
+  /**
+   * Create a new completed [[Iteratee]] with the given result and leftover
+   * input.
+   *
+   * @group Constructors
+   */
+  final def ended[F[_]: Applicative, E, A](value: A): Iteratee[F, E, A] = fromStep(Step.ended(value))
 
   /**
    * Create an [[Iteratee]] from a [[io.iteratee.internal.Step]] in a context.
@@ -185,7 +160,7 @@ final object Iteratee extends IterateeInstances {
    *
    * @group Utilities
    */
-  final def identity[F[_]: Applicative, E]: Iteratee[F, E, Unit] = done[F, E, Unit]((), Input.empty)
+  final def identity[F[_]: Applicative, E]: Iteratee[F, E, Unit] = done[F, E, Unit](())
 
   /**
    * Collapse an [[Iteratee]] returning a [[io.iteratee.internal.Step]] into one
@@ -220,7 +195,7 @@ final object Iteratee extends IterateeInstances {
    * @group Collection
    */
   final def drain[F[_], A](implicit F: Applicative[F]): Iteratee[F, A, Vector[A]] =
-    Iteratee.fromStep(Step.drain[F, A])
+    fromStep(Step.drain[F, A])
 
   /**
    * An [[Iteratee]] that collects all the elements in a stream in a given
@@ -228,16 +203,15 @@ final object Iteratee extends IterateeInstances {
    *
    * @group Collection
    */
-  final def drainTo[F[_]: Monad, A, C[_]: Applicative: MonoidK]: Iteratee[F, A, C[A]] =
-    Iteratee.fromStep(Step.drainTo[F, A, C])
+  final def drainTo[F[_]: Applicative, A, C[_]: Applicative: MonoidK]: Iteratee[F, A, C[A]] =
+    fromStep(Step.drainTo[F, A, C])
 
   /**
    * An [[Iteratee]] that returns the first value in a stream.
    *
    * @group Collection
    */
-  final def head[F[_]: Applicative, E]: Iteratee[F, E, Option[E]] =
-    Iteratee.fromStep(Step.head[F, E])
+  final def head[F[_]: Applicative, E]: Iteratee[F, E, Option[E]] = fromStep(Step.head[F, E])
 
   /**
    * An [[Iteratee]] that returns the first value in a stream without consuming
@@ -245,8 +219,7 @@ final object Iteratee extends IterateeInstances {
    *
    * @group Collection
    */
-  final def peek[F[_]: Applicative, E]: Iteratee[F, E, Option[E]] =
-    Iteratee.fromStep(Step.peek[F, E])
+  final def peek[F[_]: Applicative, E]: Iteratee[F, E, Option[E]] = fromStep(Step.peek[F, E])
 
   /**
    * An [[Iteratee]] that returns a given number of the first values in a
@@ -254,8 +227,7 @@ final object Iteratee extends IterateeInstances {
    *
    * @group Collection
    */
-  final def take[F[_]: Applicative, A](n: Int): Iteratee[F, A, Vector[A]] =
-    Iteratee.fromStep(Step.take[F, A](n))
+  final def take[F[_]: Applicative, A](n: Int): Iteratee[F, A, Vector[A]] = fromStep(Step.take[F, A](n))
 
   /**
    * An [[Iteratee]] that returns values from a stream as long as they satisfy
@@ -264,15 +236,14 @@ final object Iteratee extends IterateeInstances {
    * @group Collection
    */
   final def takeWhile[F[_]: Applicative, A](p: A => Boolean): Iteratee[F, A, Vector[A]] =
-    Iteratee.fromStep(Step.takeWhile[F, A](p))
+    fromStep(Step.takeWhile[F, A](p))
 
   /**
    * An [[Iteratee]] that drops a given number of the values from a stream.
    *
    * @group Collection
    */
-  final def drop[F[_]: Applicative, E](n: Int): Iteratee[F, E, Unit] =
-    Iteratee.fromStep(Step.drop[F, E](n))
+  final def drop[F[_]: Applicative, E](n: Int): Iteratee[F, E, Unit] = fromStep(Step.drop[F, E](n))
 
   /**
    * An [[Iteratee]] that drops values from a stream as long as they satisfy the
@@ -281,7 +252,7 @@ final object Iteratee extends IterateeInstances {
    * @group Collection
    */
   final def dropWhile[F[_]: Applicative, E](p: E => Boolean): Iteratee[F, E, Unit] =
-    Iteratee.fromStep(Step.dropWhile[F, E](p))
+    fromStep(Step.dropWhile[F, E](p))
 
   /**
    * An [[Iteratee]] that collects all inputs in reverse order.
@@ -289,7 +260,7 @@ final object Iteratee extends IterateeInstances {
    * @group Collection
    */
   final def reversed[F[_]: Applicative, A]: Iteratee[F, A, List[A]] =
-    Iteratee.fold[F, A, List[A]](Nil)((acc, e) => e :: acc)
+    fold[F, A, List[A]](Nil)((acc, e) => e :: acc)
 
   /**
    * An [[Iteratee]] that combines values using an [[algebra.Monoid]] instance.
@@ -303,7 +274,7 @@ final object Iteratee extends IterateeInstances {
    *
    * @group Collection
    */
-  final def sum[F[_], E](implicit F: Monad[F], E: Monoid[E]): Iteratee[F, E, E] =
+  final def sum[F[_], E](implicit F: Applicative[F], E: Monoid[E]): Iteratee[F, E, E] =
     fold(E.empty)((a, e) => E.combine(a, e))
 
   /**
@@ -312,7 +283,7 @@ final object Iteratee extends IterateeInstances {
    *
    * @group Collection
    */
-  final def foldMap[F[_], E, A](f: E => A)(implicit F: Monad[F], A: Monoid[A]): Iteratee[F, E, A] =
+  final def foldMap[F[_], E, A](f: E => A)(implicit F: Applicative[F], A: Monoid[A]): Iteratee[F, E, A] =
     fold(A.empty)((a, e) => A.combine(a, f(e)))
 
   /**
@@ -320,6 +291,5 @@ final object Iteratee extends IterateeInstances {
    *
    * @group Collection
    */
-  final def isEnd[F[_]: Applicative, E]: Iteratee[F, E, Boolean] =
-    Iteratee.cont(in => Iteratee.done(in.isEnd, in))
+  final def isEnd[F[_]: Applicative, E]: Iteratee[F, E, Boolean] = Iteratee.fromStep(Step.isEnd)
 }

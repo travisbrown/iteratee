@@ -2,7 +2,7 @@ package io.iteratee
 
 import algebra.{ Monoid, Order, Semigroup }
 import cats.{ Applicative, FlatMap, Id, Monad, MonadError, MonoidK }
-import io.iteratee.internal.{ Input, MapContStepFolder, Step, diverge }
+import io.iteratee.internal.Step
 
 abstract class Enumerator[F[_], E] extends Serializable { self =>
   def apply[A](s: Step[F, E, A]): F[Step[F, E, A]]
@@ -10,11 +10,9 @@ abstract class Enumerator[F[_], E] extends Serializable { self =>
   final def mapE[I](enumeratee: Enumeratee[F, E, I])(implicit M: Monad[F]): Enumerator[F, I] =
     enumeratee.wrap(this)
 
-  final def runStep[A](s: Step[F, E, A])(implicit F: Monad[F]): F[A] =
-    F.map(F.flatMap(this(s))(Enumerator.enumEnd[F, E].apply))(_.unsafeValue)
+  final def runStep[A](s: Step[F, E, A])(implicit F: Monad[F]): F[A] = F.flatMap(this(s))(_.run)
 
-  final def run[A](iteratee: Iteratee[F, E, A])(implicit F: Monad[F]): F[A] =
-    F.flatMap(iteratee.state)(runStep)
+  final def run[A](iteratee: Iteratee[F, E, A])(implicit F: Monad[F]): F[A] = F.flatMap(iteratee.state)(runStep)
 
   final def map[B](f: E => B)(implicit F: Monad[F]): Enumerator[F, B] = mapE(Enumeratee.map(f))
 
@@ -23,14 +21,8 @@ abstract class Enumerator[F[_], E] extends Serializable { self =>
 
   final def prepend(e: E)(implicit F: Monad[F]): Enumerator[F, E] = {
     new Enumerator[F, E] {
-      def apply[A](s: Step[F, E, A]): F[Step[F, E, A]] = F.flatMap(
-        s.foldWith(
-          new Step.Folder[F, E, A, F[Step[F, E, A]]] {
-            def onCont(k: Input[E] => F[Step[F, E, A]]): F[Step[F, E, A]] = k(Input.el(e))
-            def onDone(value: A, remaining: Input[E]): F[Step[F, E, A]] = F.pure(s)
-          }
-        )
-      )(self(_))
+      def apply[A](step: Step[F, E, A]): F[Step[F, E, A]] = if (step.isDone) self(step) else
+        F.flatMap(step.feedEl(e))(self(_))
     }
   }
 
@@ -91,28 +83,21 @@ abstract class Enumerator[F[_], E] extends Serializable { self =>
 
   final def reduced[B](b: B)(f: (B, E) => B)(implicit F: Monad[F]): Enumerator[F, B] =
     new Enumerator[F, B] {
-      final def apply[A](step: Step[F, B, A]): F[Step[F, B, A]] = {
-        def check(s: Step[F, E, B]): F[Step[F, B, A]] = s.foldWith(
-          new Step.Folder[F, E, B, F[Step[F, B, A]]] {
-            def onCont(k: Input[E] => F[Step[F, E, B]]): F[Step[F, B, A]] =
-              F.flatMap(k(Input.end)) { s =>
-                s.foldWith(
-                  new Step.Folder[F, E, B, F[Step[F, B, A]]] {
-                    def onCont(k: Input[E] => F[Step[F, E, B]]): F[Step[F, B, A]] = diverge
-                    def onDone(value: B, remainder: Input[E]): F[Step[F, B, A]] = check(s)
-                  }
-                )
-              }
-            def onDone(value: B, remainder: Input[E]): F[Step[F, B, A]] = step.feed(Input.el(value))
-          }
-        )
-
-        F.flatMap(self(Step.fold[F, E, B](b)(f)))(check(_))
-      }
+      final def apply[A](step: Step[F, B, A]): F[Step[F, B, A]] =
+        F.flatMap(self(Step.fold[F, E, B](b)(f))) {
+          case Step.Done(value) => step.feedEl(value)
+          case other => F.flatMap(other.run)(step.feedEl)
+        }
     }
 
   final def cross[E2](e2: Enumerator[F, E2])(implicit M: Monad[F]): Enumerator[F, (E, E2)] =
     mapE(Enumeratee.cross(e2))
+
+  final def handleErrorWith[T](f: T => Enumerator[F, E])(implicit F: MonadError[F, T]): Enumerator[F, E] =
+    new Enumerator[F, E] {
+      final def apply[A](s: Step[F, E, A]): F[Step[F, E, A]] =
+        F.handleErrorWith(self(s))(t => f(t)(s))
+    }
 }
 
 final object Enumerator extends EnumeratorInstances {
@@ -124,7 +109,7 @@ final object Enumerator extends EnumeratorInstances {
   final def liftM[F[_], E](fa: F[E])(implicit F: Monad[F]): Enumerator[F, E] =
     new Enumerator[F, E] {
       final def apply[A](s: Step[F, E, A]): F[Step[F, E, A]] =
-        F.flatMap(fa)(e => s.feed(Input.el(e)))
+        F.flatMap(fa)(s.feedEl)
     }
 
   /**
@@ -146,7 +131,7 @@ final object Enumerator extends EnumeratorInstances {
    */
   final def enumEnd[F[_]: Applicative, E]: Enumerator[F, E] =
     new Enumerator[F, E] {
-      final def apply[A](s: Step[F, E, A]): F[Step[F, E, A]] = s.feed(Input.end)
+      final def apply[A](s: Step[F, E, A]): F[Step[F, E, A]] = Step.Ended.asStep(s.end)
     }
 
   /**
@@ -161,23 +146,20 @@ final object Enumerator extends EnumeratorInstances {
    * An enumerator that produces a single value.
    */
   final def enumOne[F[_]: Applicative, E](e: E): Enumerator[F, E] = new Enumerator[F, E] {
-    final def apply[A](s: Step[F, E, A]): F[Step[F, E, A]] = s.feed(Input.el(e))
+    final def apply[A](s: Step[F, E, A]): F[Step[F, E, A]] = s.feedEl(e)
   }
 
   private[this] abstract class ChunkedIteratorEnumerator[F[_], E](implicit F: Monad[F])
     extends Enumerator[F, E] {
     def chunks: Iterator[Vector[E]]
 
-    private[this] final def go[A](it: Iterator[Vector[E]], s: Step[F, E, A]): F[Step[F, E, A]] =
-      if (it.isEmpty) F.pure(s) else s.foldWith(
-        new MapContStepFolder[F, E, A](s) {
-          def onCont(k: Input[E] => F[Step[F, E, A]]): F[Step[F, E, A]] = {
-            val next = it.next()
-
-            F.flatMap(k(Input.chunk(next)))(go(it, _))
-          }
+    private[this] final def go[A](it: Iterator[Vector[E]], step: Step[F, E, A]): F[Step[F, E, A]] =
+      if (it.isEmpty || step.isDone) F.pure(step) else {
+        it.next() match {
+          case Vector(e) => F.flatMap(step.feedEl(e))(go(it, _))
+          case h1 +: h2 +: t => F.flatMap(step.feedChunk(h1, h2, t))(go(it, _))
         }
-      )
+      }
 
     final def apply[A](s: Step[F, E, A]): F[Step[F, E, A]] = go(chunks, s)
   }
@@ -195,8 +177,11 @@ final object Enumerator extends EnumeratorInstances {
    */
   final def enumList[F[_], E](xs: List[E])(implicit F: Applicative[F]): Enumerator[F, E] =
     new Enumerator[F, E] {
-      final def apply[A](s: Step[F, E, A]): F[Step[F, E, A]] =
-        if (xs.isEmpty) F.pure(s) else s.feed(Input.chunk(xs.toVector))
+      final def apply[A](s: Step[F, E, A]): F[Step[F, E, A]] = xs match {
+        case Nil => F.pure(s)
+        case e :: Nil => s.feedEl(e)
+        case h1 :: h2 :: t => s.feedChunk(h1, h2, t.toVector)
+      }
     }
 
   /**
@@ -205,7 +190,11 @@ final object Enumerator extends EnumeratorInstances {
   final def enumVector[F[_], E](xs: Vector[E])(implicit F: Applicative[F]): Enumerator[F, E] =
     new Enumerator[F, E] {
       final def apply[A](s: Step[F, E, A]): F[Step[F, E, A]] =
-        if (xs.isEmpty) F.pure(s) else s.feed(Input.chunk(xs))
+        xs match {
+          case Vector() => F.pure(s)
+          case Vector(e) => s.feedEl(e)
+          case h1 +: h2 +: t => s.feedChunk(h1, h2, t)
+        }
     }
 
   /**
@@ -219,7 +208,7 @@ final object Enumerator extends EnumeratorInstances {
     private[this] final val limit = math.min(xs.length, max)
 
     private[this] final def loop[A](pos: Int)(s: Step[F, E, A]): F[Step[F, E, A]] =
-      if (limit > pos) F.flatMap(s.feed(Input.el(xs(pos))))(loop(pos + 1)) else F.pure(s)
+      if (limit > pos) F.flatMap(s.feedEl(xs(pos)))(loop(pos + 1)) else F.pure(s)
 
     final def apply[A](step: Step[F, E, A]): F[Step[F, E, A]] = loop(math.max(min, 0))(step)
   }
@@ -227,13 +216,9 @@ final object Enumerator extends EnumeratorInstances {
   /**
    * An enumerator that repeats the given value indefinitely.
    */
-  final def repeat[F[_], E](e: E)(implicit F: Monad[F]): Enumerator[F, E] = new Enumerator[F, E] {
-    final def apply[A](s: Step[F, E, A]): F[Step[F, E, A]] = s.foldWith(
-      new MapContStepFolder[F, E, A](s) {
-        final def onCont(k: Input[E] => F[Step[F, E, A]]): F[Step[F, E, A]] =
-          F.flatMap(k(Input.el(e)))(apply[A])
-      }
-    )
+  final def repeat[F[_], E](e: E)(implicit F: Monad[F]): Enumerator[F, E] = new Enumerator[F, E] { self =>
+    final def apply[A](step: Step[F, E, A]): F[Step[F, E, A]] =
+      if (step.isDone) F.pure(step) else F.flatMap(step.feedEl(e))(apply)
   }
 
   /**
@@ -242,12 +227,8 @@ final object Enumerator extends EnumeratorInstances {
    */
   final def iterate[F[_], E](init: E)(f: E => E)(implicit F: Monad[F]): Enumerator[F, E] =
     new Enumerator[F, E] {
-      private[this] def loop[A](s: Step[F, E, A], last: E): F[Step[F, E, A]] = s.foldWith(
-        new MapContStepFolder[F, E, A](s) {
-          final def onCont(k: Input[E] => F[Step[F, E, A]]): F[Step[F, E, A]] =
-            F.flatMap(k(Input.el(last)))(step => loop(step, f(last)))
-        }
-      )
+      private[this] def loop[A](step: Step[F, E, A], last: E): F[Step[F, E, A]] =
+        if (step.isDone) F.pure(step) else F.flatMap(step.feedEl(last))(loop(_, f(last)))
 
       final def apply[A](s: Step[F, E, A]): F[Step[F, E, A]] = loop(s, init)
     }
@@ -258,12 +239,9 @@ final object Enumerator extends EnumeratorInstances {
    */
   final def iterateM[F[_], E](init: E)(f: E => F[E])(implicit F: Monad[F]): Enumerator[F, E] =
     new Enumerator[F, E] {
-      private[this] def loop[A](s: Step[F, E, A], last: E): F[Step[F, E, A]] = s.foldWith(
-        new MapContStepFolder[F, E, A](s) {
-          final def onCont(k: Input[E] => F[Step[F, E, A]]): F[Step[F, E, A]] =
-            F.flatMap(k(Input.el(last)))(next => F.flatMap(f(last))(loop(next, _)))
-        }
-      )
+      private[this] def loop[A](step: Step[F, E, A], last: E): F[Step[F, E, A]] =
+        if (step.isDone) F.pure(step) else
+          F.flatMap(step.feedEl(last))(next => F.flatMap(f(last))(loop(next, _)))
 
       final def apply[A](s: Step[F, E, A]): F[Step[F, E, A]] = loop(s, init)
     }

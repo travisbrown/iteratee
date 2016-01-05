@@ -14,10 +14,12 @@ trait ArbitraryInstances {
   implicit def arbitraryInput[A](implicit A: Arbitrary[A]): Arbitrary[Input[A]] =
     Arbitrary(
       Gen.oneOf(
-        Gen.const(Input.empty[A]),
         A.arbitrary.map(Input.el),
-        Arbitrary.arbitrary[Vector[A]].map(Input.chunk),
-        Gen.const(Input.end[A])
+        for {
+          a1 <- A.arbitrary
+          a2 <- A.arbitrary
+          as <- Arbitrary.arbitrary[Vector[A]]
+        } yield Input.chunk(a1, a2, as)
       )
     )
 
@@ -41,7 +43,11 @@ trait ArbitraryInstances {
       for {
         n <- Gen.chooseNum(0, 16)
         a <- Arbitrary.arbitrary[Int]
+        r <- Arbitrary.arbitrary[Vector[Int]]
         it <- Gen.oneOf[Iteratee[F, Int, Int]](
+          Iteratee.done[F, Int, Int](a),
+          Iteratee.done[F, Int, Int](a, r),
+          Iteratee.ended[F, Int, Int](a),
           Iteratee.drop[F, Int](n).flatMap(_ => F),
           Iteratee.drop[F, Int](n).flatMap(_ => M.pure(a)),
           Iteratee.head[F, Int].map(_.getOrElse(0)),
