@@ -4,7 +4,8 @@ import cats.{ Applicative, Monad }
 import cats.data.NonEmptyVector
 import cats.arrow.NaturalTransformation
 
-abstract class Done[F[_], E, A](final val value: A)(implicit F: Applicative[F]) extends Step[F, E, A] {
+abstract class Done[F[_], E, A](implicit F: Applicative[F]) extends Step[F, E, A] {
+  def value: A
   final def isDone: Boolean = true
   final def feedEl(e: E): F[Step[F, E, A]] = F.pure(this)
   final def feedChunk(h1: E, h2: E, t: Vector[E]): F[Step[F, E, A]] = F.pure(this)
@@ -16,7 +17,7 @@ final object Done {
   final def unapply[F[_], E, A](step: Step[F, E, A]): Option[A] =
     if (step.isDone) Some(step.asInstanceOf[Done[F, E, A]].value) else None
 
-  private[internal] class NoLeftovers[F[_]: Applicative, E, A](value: A) extends Done[F, E, A](value) {
+  private[internal] case class NoLeftovers[F[_]: Applicative, E, A](value: A) extends Done[F, E, A] {
     final def fold[Z](
       ifCont: (NonEmptyVector[E] => F[Step[F, E, A]]) => Z,
       ifDone: (A, Vector[E]) => Z,
@@ -26,12 +27,13 @@ final object Done {
     final def map[B](f: A => B): Step[F, E, B] = new NoLeftovers(f(value))
     final def contramap[E2](f: E2 => E): Step[F, E2, A] = new NoLeftovers(value)
     final def mapI[G[_]: Applicative](f: NaturalTransformation[F, G]): Step[G, E, A] = new NoLeftovers(value)
-
     final def bind[B](f: A => F[Step[F, E, B]])(implicit M: Monad[F]): F[Step[F, E, B]] = f(value)
+    final def zip[B](other: Step[F, E, B])(implicit M: Monad[F]): F[Step[F, E, (A, B)]] =
+      M.pure(other.map((value, _)))
   }
 
-  private[internal] class WithLeftovers[F[_]: Applicative, E, A](value: A, remaining: Input[E])
-    extends Done[F, E, A](value) {
+  private[internal] case class WithLeftovers[F[_]: Applicative, E, A](value: A, remaining: Input[E])
+    extends Done[F, E, A] {
     final def fold[Z](
       ifCont: (NonEmptyVector[E] => F[Step[F, E, A]]) => Z,
       ifDone: (A, Vector[E]) => Z,
@@ -53,9 +55,21 @@ final object Done {
           }
         )
       }
+
+    final def zip[B](other: Step[F, E, B])(implicit M: Monad[F]): F[Step[F, E, (A, B)]] = M.pure(
+      other match {
+        case NoLeftovers(otherValue) => new NoLeftovers((value, otherValue))
+        case WithLeftovers(otherValue, otherRemaining) => new WithLeftovers(
+          (value, otherValue),
+          if (remaining.size <= otherRemaining.size) remaining else otherRemaining
+        )
+        case Ended(otherValue) => new Ended((value, otherValue))
+        case step => step.map((value, _))
+      }
+    )
   }
 
-  class Ended[F[_]: Applicative, E, A](value: A) extends Done[F, E, A](value) {
+  case class Ended[F[_]: Applicative, E, A](value: A) extends Done[F, E, A] {
     final def fold[Z](
       ifCont: (NonEmptyVector[E] => F[Step[F, E, A]]) => Z,
       ifDone: (A, Vector[E]) => Z,
@@ -68,6 +82,12 @@ final object Done {
     final def bind[B](f: A => F[Step[F, E, B]])(implicit M: Monad[F]): F[Step[F, E, B]] =
       Ended.asStep(endedBind(f))
 
+    final def zip[B](other: Step[F, E, B])(implicit M: Monad[F]): F[Step[F, E, (A, B)]] =
+      other match {
+        case Done(otherValue) => M.pure(new Ended((value, otherValue)))
+        case step => M.map(step.end)(endedZip)
+      }
+
     final def endedMap[B](f: A => B): Ended[F, E, B] = new Ended(f(value))
     final def endedContramap[E2](f: E2 => E): Ended[F, E2, A] = new Ended(value)
     final def endedMapI[G[_]: Applicative](f: NaturalTransformation[F, G]): Ended[G, E, A] = new Ended(value)
@@ -76,13 +96,16 @@ final object Done {
         case Done(v) => M.pure(new Ended(v))
         case step => step.end
       }
+
+    final def endedZip[B](other: Ended[F, E, B]): Ended[F, E, (A, B)] =
+      new Ended((value, other.value))
   }
 
-  object Ended {
+  final object Ended {
     /**
      * Up-cast an [[Ended]] in a context to a [[Step]] in a context.
      */
-    def asStep[F[_], E, A](ended: F[Ended[F, E, A]]): F[Step[F, E, A]] =
+    final def asStep[F[_], E, A](ended: F[Ended[F, E, A]]): F[Step[F, E, A]] =
       ended.asInstanceOf[F[Step[F, E, A]]]
   }
 }

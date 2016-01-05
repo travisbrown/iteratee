@@ -21,6 +21,17 @@ abstract class Cont[F[_], E, A](implicit F: Applicative[F]) extends Step[F, E, A
     final def feedChunk(h1: E, h2: E, t: Vector[E]): G[Step[G, E, A]] = f(F.map(self.feedChunk(h1, h2, t))(_.mapI(f)))
     final def end: G[Done.Ended[G, E, A]] = f(F.map(self.end)(_.endedMapI(f)))
   }
+  final def zip[B](other: Step[F, E, B])(implicit M: Monad[F]): F[Step[F, E, (A, B)]] = F.pure(
+    other match {
+      case Done(otherValue) => map((_, otherValue))
+      case step => new Cont.Effectful[F, E, (A, B)] {
+        final def feedEl(e: E): F[Step[F, E, (A, B)]] = M.flatten(M.map2(self.feedEl(e), step.feedEl(e))(_.zip(_)))
+        final def feedChunk(h1: E, h2: E, t: Vector[E]): F[Step[F, E, (A, B)]] =
+          M.flatten(M.map2(self.feedChunk(h1, h2, t), step.feedChunk(h1, h2, t))(_.zip(_)))
+        final def end: F[Done.Ended[F, E, (A, B)]] = M.map2(self.end, step.end)(_.endedZip(_))
+      }
+    }
+  )
 }
 
 final object Cont {

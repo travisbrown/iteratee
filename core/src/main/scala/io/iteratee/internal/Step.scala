@@ -64,6 +64,11 @@ abstract class Step[F[_], E, A] extends Serializable {
    * this [[Step]] and flatten the result.
    */
   def bind[B](f: A => F[Step[F, E, B]])(implicit M: Monad[F]): F[Step[F, E, B]]
+
+  /**
+   * Zip this [[Step]] with another.
+   */
+  def zip[B](other: Step[F, E, B])(implicit M: Monad[F]): F[Step[F, E, (A, B)]]
 }
 
 
@@ -326,72 +331,5 @@ final object Step { self =>
     final def onChunk(h1: E, h2: E, t: Vector[E]): Step[F, E, Boolean] =
       new Done.WithLeftovers(false, Input.chunk(h1, h2, t))
     final def end: F[Done.Ended[F, E, Boolean]] = F.pure(new Done.Ended(true))
-  }
-
-  private[this] final def product[F[_], E, A, B](stepA: Step[F, E, A], stepB: Step[F, E, B])
-    (implicit F: Monad[F]): F[Step[F, E, (A, B)]] =
-      stepA.bind(a => F.pure(stepB.map((a, _))))
-
-
-  private[this] def endProduct[F[_], E, A, B](stepA: Step[F, E, A], stepB: Step[F, E, B])
-    (implicit F: Monad[F]): F[Done.Ended[F, E, (A, B)]] =
-      F.flatMap(F.product(stepA.end, stepB.end)) {
-        case (endedA, endedB) => endedA.endedBind(a => F.pure(endedB.map((a, _))))
-      }
-
-  /**
-   * Zip two steps into a single [[Step]]that returns a pair.
-   *
-   * @group Collection
-   */
-  final def zip[F[_], E, A, B](stepA: Step[F, E, A], stepB: Step[F, E, B])
-    (implicit F: Monad[F]): F[Step[F, E, (A, B)]] = {
-    def paired[Z](s: Step[F, E, Z]): Step[F, E, (Option[(Z, Option[Input[E]])], Step[F, E, Z])] = done(
-      s.fold(
-        ifCont = k => (None, s),
-        ifDone = (value, remainder) => if (remainder.isEmpty) (Some((value, None)), done(value)) else {
-          val input = Input.fromVectorUnsafe(remainder)
-          (Some((value, Some(input))), new Done.WithLeftovers(value, input))
-        },
-        ifEnd = value => (Some((value, None)), ended(value))
-      )
-    )
-
-    def shorter(a: Option[Input[E]], b: Option[Input[E]]): Option[Input[E]] =
-      (a, b) match {
-        case (None, _) => None
-        case (_, None) => None
-        case (Some(as), Some(bs)) => if (as.size <= bs.size) a else b
-      }
-
-    def advanceF(fsA: F[Step[F, E, A]], fsB: F[Step[F, E, B]]): F[Step[F, E, (A, B)]] =
-      F.flatMap(F.product(fsA, fsB)) { case (sA, sB) => advance(sA, sB) }
-
-    def advance(sA: Step[F, E, A], sB: Step[F, E, B]): F[Step[F, E, (A, B)]] =
-      F.flatMap(product(paired(sA), paired(sB)))(
-        _.bind {
-          case ((pairA, nextA), (pairB, nextB)) => F.pure(
-            (pairA, pairB) match {
-              case (Some((resA, remA)), Some((resB, remB))) =>
-                shorter(remA, remB) match {
-                  case None => new Done.NoLeftovers[F, E, (A, B)]((resA, resB))
-                  case Some(rem) => new Done.WithLeftovers[F, E, (A, B)]((resA, resB), rem)
-                }
-              case (Some((resA, _)), None) => nextB.map((resA, _))
-              case (None, Some((resB, _))) => nextA.map((_, resB))
-              case _ => loop(nextA, nextB)
-            }
-          )
-        }
-      )
-
-    def loop(stepA: Step[F, E, A], stepB: Step[F, E, B]): Step[F, E, (A, B)] = new Cont.Effectful[F, E, (A, B)] {
-      final def end: F[Done.Ended[F, E, (A, B)]] = endProduct(stepA, stepB)
-      final def feedEl(e: E): F[Step[F, E, (A, B)]] = advanceF(stepA.feedEl(e), stepB.feedEl(e))
-      final def feedChunk(h1: E, h2: E, t: Vector[E]): F[Step[F, E, (A, B)]] =
-        advanceF(stepA.feedChunk(h1, h2, t), stepB.feedChunk(h1, h2, t))
-    }
-
-    advance(stepA, stepB)
   }
 }
