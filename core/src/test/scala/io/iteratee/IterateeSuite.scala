@@ -6,7 +6,7 @@ import cats.arrow.NaturalTransformation
 import cats.data.{ NonEmptyVector, Xor, XorT }
 import cats.laws.discipline.{ ContravariantTests, MonadErrorTests, MonadTests, MonoidalTests }
 import io.iteratee.internal.Step
-import org.scalacheck.Arbitrary
+import org.scalacheck.{ Arbitrary, Prop }
 import org.scalacheck.Prop.BooleanOperators
 
 abstract class IterateeSuite[F[_]: Monad] extends ModuleSuite[F] {
@@ -192,10 +192,8 @@ abstract class IterateeSuite[F[_]: Monad] extends ModuleSuite[F] {
   }
 
   test("contramap") {
-    check { (eav: EnumeratorAndValues[Int]) =>
-      val result = (eav.values.sum + eav.values.size, Vector.empty)
-
-      eav.resultWithLeftovers(sum[Int].contramap((_: Int) + 1)) === F.pure(result)
+    check { (eav: EnumeratorAndValues[Int], iteratee: Iteratee[F, Int, Int]) =>
+      eav.enumerator.run(iteratee.contramap(_ + 1)) === eav.enumerator.map(_ + 1).run(iteratee)
     }
   }
 
@@ -215,16 +213,6 @@ abstract class IterateeSuite[F[_]: Monad] extends ModuleSuite[F] {
     }
   }
 
-  test("zip where leftover sizes must be compared") {
-    check { (eav: EnumeratorAndValues[Int]) =>
-      val iteratee = take[Int](2).zip(take(3))
-
-      val result = ((eav.values.take(2), eav.values.take(3)), eav.values.drop(3))
-
-      eav.resultWithLeftovers(iteratee) === F.pure(result)
-    }
-  }
-
   test("zip with leftovers (scalaz/scalaz#1068)") {
     check { (eav: EnumeratorAndValues[Int], m: Int, n: Int) =>
       /**
@@ -237,6 +225,28 @@ abstract class IterateeSuite[F[_]: Monad] extends ModuleSuite[F] {
         eav.resultWithLeftovers(take[Int](m).zip(take[Int](n))) === F.pure(result)
       }
     }
+  }
+
+  test("zip where leftover sizes must be compared") {
+    check { (eav: EnumeratorAndValues[Int]) =>
+      val iteratee = take[Int](2).zip(take(3))
+
+      val result = ((eav.values.take(2), eav.values.take(3)), eav.values.drop(3))
+
+      eav.resultWithLeftovers(iteratee) === F.pure(result)
+    }
+  }
+
+  test("zip with single leftovers") {
+    val es = Vector(1, 2, 3, 4)
+    val enumerator = enumVector(es)
+    val iteratee1 = take[Int](2).zip(take(3)).zip(take(4))
+    val iteratee2 = take[Int](2).zip(take(3)).zip(drain)
+    val result = ((es.take(2), es.take(3)), es)
+
+    assert(
+      enumerator.run(iteratee1) === F.pure(result) && enumerator.run(iteratee2) === F.pure(result)
+    )
   }
 
   test("foldMap") {
@@ -267,7 +277,7 @@ abstract class IterateeSuite[F[_]: Monad] extends ModuleSuite[F] {
     }
   }
 
-  test("folding cont") {
+  test("folding cont with one value") {
     def myDrain(acc: List[Int]): Iteratee[F, Int, List[Int]] = cont[Int, List[Int]](
       els => myDrain(acc ::: (els.head :: els.tail.toList)),
       F.pure(acc)
@@ -281,6 +291,52 @@ abstract class IterateeSuite[F[_]: Monad] extends ModuleSuite[F] {
       )
 
       F.flatten(folded) === F.pure(es :+ 0)
+    }
+  }
+
+  test("folding cont with multiple values") {
+    def myDrain(acc: List[Int]): Iteratee[F, Int, List[Int]] = cont[Int, List[Int]](
+      els => myDrain(acc ::: (els.head :: els.tail.toList)),
+      F.pure(acc)
+    )
+
+    check { (es: List[Int]) =>
+      val folded = myDrain(es).fold[F[List[Int]]](
+        _(NonEmptyVector(0, Vector(1, 2, 3))).run,
+        (_, _) => F.pure(Nil),
+        _ => F.pure(Nil)
+      )
+
+      F.flatten(folded) === F.pure(es ++ Vector(0, 1, 2, 3))
+    }
+  }
+
+  /**
+   * Well-behaved iteratees don't inject values into the stream, but if we do
+   * end up in this situation, we try to make sure something fairly reasonable
+   * happens (and specifically that flatMap stays associative in as many cases
+   * as possible).
+   */
+  test("successive iteratees that inject values") {
+    check { (l1: Vector[Int], l2: Vector[Int]) =>
+      val allL1I = done((), l1)
+      val allL2I = done((), l2)
+      val oneL1I = done((), l1.take(1))
+      val oneL2I = done((), l2.take(1))
+
+      val iteratee1: Iteratee[F, Int, Vector[Int]] = allL1I.flatMap(_ => allL2I).flatMap(_ => drain)
+      val iteratee2: Iteratee[F, Int, Vector[Int]] = allL1I.flatMap(_ => allL2I.flatMap(_ => drain))
+
+      val iteratee3: Iteratee[F, Int, Vector[Int]] = allL1I.flatMap(_ => oneL2I).flatMap(_ => drain)
+      val iteratee4: Iteratee[F, Int, Vector[Int]] = allL1I.flatMap(_ => oneL2I.flatMap(_ => drain))
+
+      val iteratee5: Iteratee[F, Int, Vector[Int]] = oneL1I.flatMap(_ => allL2I).flatMap(_ => drain)
+      val iteratee6: Iteratee[F, Int, Vector[Int]] = oneL1I.flatMap(_ => allL2I.flatMap(_ => drain))
+
+      val iteratee7: Iteratee[F, Int, Vector[Int]] = oneL1I.flatMap(_ => oneL2I).flatMap(_ => drain)
+      val iteratee8: Iteratee[F, Int, Vector[Int]] = oneL1I.flatMap(_ => oneL2I.flatMap(_ => drain))
+
+      iteratee1 === iteratee2 && iteratee3 === iteratee4 && iteratee5 === iteratee6 && iteratee7 === iteratee8
     }
   }
 }
@@ -349,16 +405,16 @@ class XorIterateeTests extends IterateeSuite[({ type L[x] = XorT[Eval, Throwable
 
   test("mapI") {
     check { (eav: EnumeratorAndValues[Int], n: Int) =>
-      (n != Int.MaxValue) ==> {
-        val iteratee = Iteratee.take[Id, Int](n).mapI(
+      Prop.forAll(arbitraryIntIteratee[Id].arbitrary) { iteratee =>
+        val pureEnumerator = Enumerator.enumVector[Id, Int](eav.values)
+
+        val xorIteratee = iteratee.mapI(
           new NaturalTransformation[Id, XTE] {
             def apply[A](a: A): XTE[A] = F.pure(a)
           }
         )
 
-        val result = (eav.values.take(n), eav.values.drop(n))
-
-        eav.resultWithLeftovers(iteratee) === F.pure(result)
+        eav.enumerator.run(xorIteratee) === F.pure(pureEnumerator.run(iteratee))
       }
     }
   }
