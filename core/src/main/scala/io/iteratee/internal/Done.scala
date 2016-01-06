@@ -48,7 +48,6 @@ private[internal] case class WithLeftovers[F[_]: Applicative, E, A](value: A, re
       case WithLeftovers(otherValue, otherRemaining) => M.pure(
         new WithLeftovers(otherValue, otherRemaining.append(remaining))
       )
-      case Step.Done(v) => M.pure(new WithLeftovers(v, remaining))
       case step => remaining.foldWith(
         new Input.Folder[E, F[Step[F, E, B]]] {
           def onEl(e: E): F[Step[F, E, B]] = step.feedEl(e)

@@ -80,7 +80,6 @@ trait ArbitraryInstances {
         it <- Gen.oneOf[Iteratee[F, Vector[A], Vector[A]]](
           Iteratee.done[F, Vector[A], Vector[A]](as),
           Iteratee.done[F, Vector[A], Vector[A]](as, r),
-          Iteratee.ended[F, Vector[A], Vector[A]](as),
           Iteratee.drop[F, Vector[A]](n).flatMap(_ => F),
           Iteratee.drop[F, Vector[A]](n).flatMap(_ => M.pure(as)),
           Iteratee.head[F, Vector[A]].map(_.getOrElse(Vector.empty)),
