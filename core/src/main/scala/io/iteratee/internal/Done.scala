@@ -7,10 +7,9 @@ import cats.arrow.NaturalTransformation
 private[internal] abstract class BaseDone[F[_], E, A](implicit F: Applicative[F]) extends Step[F, E, A] {
   def value: A
   final def isDone: Boolean = true
+  final def run: F[A] = F.pure(value)
   final def feedEl(e: E): F[Step[F, E, A]] = F.pure(this)
   final def feedChunk(h1: E, h2: E, t: Vector[E]): F[Step[F, E, A]] = F.pure(this)
-  final def end: F[Step.Ended[F, E, A]] = F.pure(new Step.Ended(value))
-  final def run: F[A] = F.map(end)(_.value)
 }
 
 private[internal] case class NoLeftovers[F[_]: Applicative, E, A](value: A) extends BaseDone[F, E, A] {
@@ -43,7 +42,6 @@ private[internal] case class WithLeftovers[F[_]: Applicative, E, A](value: A, re
 
   final def bind[B](f: A => F[Step[F, E, B]])(implicit M: Monad[F]): F[Step[F, E, B]] =
     M.flatMap(f(value)) {
-      case ended @ Step.Ended(_) => M.pure(ended)
       case NoLeftovers(otherValue) => M.pure(new WithLeftovers(otherValue, remaining))
       case WithLeftovers(otherValue, otherRemaining) => M.pure(
         new WithLeftovers(otherValue, otherRemaining.append(remaining))
@@ -63,7 +61,6 @@ private[internal] case class WithLeftovers[F[_]: Applicative, E, A](value: A, re
         (value, otherValue),
         if (remaining.size <= otherRemaining.size) remaining else otherRemaining
       )
-      case Step.Ended(otherValue) => new Step.Ended((value, otherValue))
       case step => step.map((value, _))
     }
   )

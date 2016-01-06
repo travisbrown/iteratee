@@ -26,12 +26,6 @@ abstract class EnumeratorSuite[F[_]: Monad] extends ModuleSuite[F] {
     empty[Int].drain === F.pure(Vector.empty)
   }
 
-  test("enumEnd") {
-    check { (eav: EnumeratorAndValues[Int]) =>
-      eav.enumerator.append(enumEnd[Int]).append(eav.enumerator).drain === F.pure(eav.values)
-    }
-  }
-
   test("enumOne") {
     check { (i: Int) =>
       enumOne(i).drain === F.pure(Vector(i))
@@ -146,14 +140,6 @@ abstract class EnumeratorSuite[F[_]: Monad] extends ModuleSuite[F] {
   test("reduced") {
     check { (eav: EnumeratorAndValues[Int]) =>
       eav.enumerator.reduced(Vector.empty[Int])(_ :+ _).drain === F.pure(Vector(eav.values))
-    }
-  }
-
-  test("reduced with end") {
-    check { (eav: EnumeratorAndValues[Int]) =>
-      val enumerator = eav.enumerator.append(enumEnd)
-
-      enumerator.reduced(Vector.empty[Int])(_ :+ _).drain === F.pure(Vector(eav.values))
     }
   }
 

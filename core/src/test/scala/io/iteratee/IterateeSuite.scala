@@ -53,15 +53,15 @@ abstract class IterateeSuite[F[_]: Monad] extends ModuleSuite[F] {
     }
   }
 
-  test("done with leftovers") {
-    check { (eav: EnumeratorAndValues[Int], s: String, es: Vector[Int]) =>
-      eav.resultWithLeftovers(done(s, es)) === F.pure((s, es ++ eav.values))
+  test("done with exactly one leftover") {
+    check { (eav: EnumeratorAndValues[Int], s: String, e: Int) =>
+      eav.resultWithLeftovers(done(s, Vector(e))) === F.pure((s, e +: eav.values))
     }
   }
 
-  test("ended") {
-    check { (eav: EnumeratorAndValues[Int], s: String) =>
-      eav.resultWithLeftovers(ended(s)) === F.pure((s, Vector.empty))
+  test("done with leftovers") {
+    check { (eav: EnumeratorAndValues[Int], s: String, es: Vector[Int]) =>
+      eav.resultWithLeftovers(done(s, es)) === F.pure((s, es ++ eav.values))
     }
   }
 
@@ -225,22 +225,6 @@ abstract class IterateeSuite[F[_]: Monad] extends ModuleSuite[F] {
     }
   }
 
-  test("zip on ended iteratees") {
-    check { (eav: EnumeratorAndValues[Int], s: String, t: String) =>
-      val iteratee = ended[Int, String](s).zip(ended(t))
-
-      eav.resultWithLeftovers(iteratee) === F.pure(((s, t), Vector.empty))
-    }
-  }
-
-  test("zip on ended iteratee with cont") {
-    check { (eav: EnumeratorAndValues[Int], s: String) =>
-      val iteratee = ended[Int, String](s).zip(drain)
-
-      eav.resultWithLeftovers(iteratee) === F.pure(((s, Vector.empty), Vector.empty))
-    }
-  }
-
   test("zip with leftovers (scalaz/scalaz#1068)") {
     check { (eav: EnumeratorAndValues[Int], m: Int, n: Int) =>
       /**
@@ -280,12 +264,6 @@ abstract class IterateeSuite[F[_]: Monad] extends ModuleSuite[F] {
   test("folding done with leftovers") {
     check { (s: String, es: Vector[Int]) =>
       done[Int, String](s, es).fold(_ => None, (v, r) => Some((v, r)), _ => None) === F.pure(Some((s, es)))
-    }
-  }
-
-  test("folding ended") {
-    check { (s: String) =>
-      ended[Int, String](s).fold(_ => None, (_, _) => None, v => Some(v)) === F.pure(Some((s)))
     }
   }
 

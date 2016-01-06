@@ -36,14 +36,6 @@ trait IterateeModule[F[_]] {
       Iteratee.done(value, remaining)
 
   /**
-   * Create a new completed [[Iteratee]] with the given result and leftover
-   * input.
-   *
-   * @group Constructors
-   */
-  final def ended[E, A](value: A)(implicit F: Applicative[F]): Iteratee[F, E, A] = Iteratee.ended(value)
-
-  /**
    * @group Helpers
    */
   sealed class LiftToIterateePartiallyApplied[E] {
