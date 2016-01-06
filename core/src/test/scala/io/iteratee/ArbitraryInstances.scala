@@ -49,8 +49,6 @@ trait ArbitraryInstances {
         r <- Arbitrary.arbitrary[Vector[Int]]
         it <- Gen.oneOf[Iteratee[F, Int, Int]](
           Iteratee.done[F, Int, Int](a),
-          Iteratee.done[F, Int, Int](a, r),
-          Iteratee.ended[F, Int, Int](a),
           Iteratee.drop[F, Int](n).flatMap(_ => F),
           Iteratee.drop[F, Int](n).flatMap(_ => M.pure(a)),
           Iteratee.head[F, Int].map(_.getOrElse(0)),
@@ -79,7 +77,6 @@ trait ArbitraryInstances {
         r <- Gen.containerOfN[Vector, Vector[A]](rSize, Arbitrary.arbitrary[Vector[A]])
         it <- Gen.oneOf[Iteratee[F, Vector[A], Vector[A]]](
           Iteratee.done[F, Vector[A], Vector[A]](as),
-          Iteratee.done[F, Vector[A], Vector[A]](as, r),
           Iteratee.drop[F, Vector[A]](n).flatMap(_ => F),
           Iteratee.drop[F, Vector[A]](n).flatMap(_ => M.pure(as)),
           Iteratee.head[F, Vector[A]].map(_.getOrElse(Vector.empty)),

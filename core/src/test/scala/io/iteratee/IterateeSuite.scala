@@ -307,6 +307,8 @@ abstract class IterateeSuite[F[_]: Monad] extends ModuleSuite[F] {
   }
 }
 
+class PureIterateeTests extends IterateeSuite[Id] with PureSuite
+
 class EvalIterateeTests extends IterateeSuite[Eval] with EvalSuite
 
 class XorIterateeTests extends IterateeSuite[({ type L[x] = XorT[Eval, Throwable, x] })#L]
