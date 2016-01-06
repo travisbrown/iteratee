@@ -21,6 +21,11 @@ sealed abstract class Input[@specialized E] extends Serializable {
   def size: Int
 
   /**
+   * Combine two inputs.
+   */
+  def append(other: Input[E]): Input[E]
+
+  /**
    * Convert this [[Input]] to a (non-empty)
    * [[scala.collection.immutable.Vector]].
    */
@@ -55,6 +60,12 @@ final object Input  {
   final def el[E](e: E): Input[E] = new Input[E] {
     final def foldWith[Z](folder: Folder[E, Z]): Z = folder.onEl(e)
     final def size: Int = 1
+    final def append(other: Input[E]): Input[E] = other.foldWith(
+      new Folder[E, Input[E]] {
+        def onEl(otherE: E): Input[E] = chunk(e, otherE, Vector.empty)
+        def onChunk(h1: E, h2: E, t: Vector[E]): Input[E] = chunk(e, h1, h2 +: t)
+      }
+    )
     final def toVector: Vector[E] = Vector(e)
   }
 
@@ -64,6 +75,7 @@ final object Input  {
   final def chunk[E](h1: E, h2: E, t: Vector[E]): Input[E] = new Input[E] {
     final def foldWith[Z](folder: Folder[E, Z]): Z = folder.onChunk(h1, h2, t)
     final def size: Int = 2 + t.size
+    final def append(other: Input[E]): Input[E] = chunk(h1, h2, t ++ other.toVector)
     final def toVector: Vector[E] = h1 +: h2 +: t
   }
 }

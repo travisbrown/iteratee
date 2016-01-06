@@ -24,7 +24,6 @@ abstract class Enumeratee[F[_], O, I] extends Serializable { self =>
         F.flatMap(self(step))(next => F.flatMap(other(next))(Step.joinI(_)))
     }
 
-
   final def map[J](f: I => J)(implicit F: Monad[F]): Enumeratee[F, O, J] =
     andThen(Enumeratee.map(f))
 

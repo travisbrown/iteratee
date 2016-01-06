@@ -134,6 +134,9 @@ final object Step { self =>
     final def zip[B](other: Step[F, E, B])(implicit M: Monad[F]): F[Step[F, E, (A, B)]] =
       other match {
         case Done(otherValue) => M.pure(new Ended((value, otherValue)))
+        /**
+         * We shouldn't end up here, but if we do, this is a reasonable thing to do.
+         */
         case step => M.map(step.end)(endedZip)
       }
 
@@ -206,6 +209,7 @@ final object Step { self =>
    */
   final def joinI[F[_], A, B, C](step: Step[F, A, Step[F, B, C]])(implicit F: Monad[F]): F[Step[F, A, C]] =
     step.bind {
+      case Ended(value) => F.pure(ended(value))
       case Done(value) => F.pure(done(value))
       case next => F.map(next.run)(done(_))
     }
