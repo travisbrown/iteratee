@@ -84,10 +84,7 @@ abstract class Enumerator[F[_], E] extends Serializable { self =>
   final def reduced[B](b: B)(f: (B, E) => B)(implicit F: Monad[F]): Enumerator[F, B] =
     new Enumerator[F, B] {
       final def apply[A](step: Step[F, B, A]): F[Step[F, B, A]] =
-        F.flatMap(self(Step.fold[F, E, B](b)(f))) {
-          case Step.Done(value) => step.feedEl(value)
-          case other => F.flatMap(other.run)(step.feedEl)
-        }
+        F.flatMap(self(Step.fold[F, E, B](b)(f)))(next => F.flatMap(next.run)(step.feedEl))
     }
 
   final def cross[E2](e2: Enumerator[F, E2])(implicit M: Monad[F]): Enumerator[F, (E, E2)] =
@@ -124,14 +121,6 @@ final object Enumerator extends EnumeratorInstances {
   final def empty[F[_], E](implicit F: Applicative[F]): Enumerator[F, E] =
     new Enumerator[F, E] {
       final def apply[A](s: Step[F, E, A]): F[Step[F, E, A]] = F.pure(s)
-    }
-
-  /**
-   * An enumerator that ends the stream.
-   */
-  final def enumEnd[F[_]: Applicative, E]: Enumerator[F, E] =
-    new Enumerator[F, E] {
-      final def apply[A](s: Step[F, E, A]): F[Step[F, E, A]] = Step.Ended.asStep(s.end)
     }
 
   /**

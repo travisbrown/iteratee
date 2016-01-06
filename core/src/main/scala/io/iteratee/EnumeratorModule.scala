@@ -40,13 +40,6 @@ trait EnumeratorModule[F[_]] {
   final def empty[E](implicit F: Applicative[F]): Enumerator[F, E] = Enumerator.empty
 
   /**
-   * An enumerator that ends the stream.
-   *
-   * @group Enumerators
-   */
-  final def enumEnd[E](implicit F: Applicative[F]): Enumerator[F, E] = Enumerator.enumEnd
-
-  /**
    * @group Helpers
    */
   sealed class PerformPartiallyApplied[E] {

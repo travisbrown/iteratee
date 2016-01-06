@@ -118,14 +118,6 @@ final object Iteratee extends IterateeInstances {
     fromStep(Step.done(value, remaining))
 
   /**
-   * Create a new completed [[Iteratee]] with the given result and leftover
-   * input.
-   *
-   * @group Constructors
-   */
-  final def ended[F[_]: Applicative, E, A](value: A): Iteratee[F, E, A] = fromStep(Step.ended(value))
-
-  /**
    * Create an [[Iteratee]] from a [[io.iteratee.internal.Step]] in a context.
    *
    * @group Utilities
