@@ -283,6 +283,35 @@ abstract class IterateeSuite[F[_]: Monad] extends ModuleSuite[F] {
       F.flatten(folded) === F.pure(es :+ 0)
     }
   }
+
+  /**
+   * Well-behaved iteratees don't inject values into the stream, but if we do
+   * end up in this situation, we try to make sure something fairly reasonable
+   * happens (and specifically that flatMap stays associative in as many cases
+   * as possible).
+   */
+  test("successive iteratees that inject values") {
+    check { (l1: Vector[Int], l2: Vector[Int]) =>
+      val allL1I = done((), l1)
+      val allL2I = done((), l2)
+      val oneL1I = done((), l1.take(1))
+      val oneL2I = done((), l2.take(1))
+
+      val iteratee1: Iteratee[F, Int, Vector[Int]] = allL1I.flatMap(_ => allL2I).flatMap(_ => drain)
+      val iteratee2: Iteratee[F, Int, Vector[Int]] = allL1I.flatMap(_ => allL2I.flatMap(_ => drain))
+
+      val iteratee3: Iteratee[F, Int, Vector[Int]] = allL1I.flatMap(_ => oneL2I).flatMap(_ => drain)
+      val iteratee4: Iteratee[F, Int, Vector[Int]] = allL1I.flatMap(_ => oneL2I.flatMap(_ => drain))
+
+      val iteratee5: Iteratee[F, Int, Vector[Int]] = oneL1I.flatMap(_ => allL2I).flatMap(_ => drain)
+      val iteratee6: Iteratee[F, Int, Vector[Int]] = oneL1I.flatMap(_ => allL2I.flatMap(_ => drain))
+
+      val iteratee7: Iteratee[F, Int, Vector[Int]] = oneL1I.flatMap(_ => oneL2I).flatMap(_ => drain)
+      val iteratee8: Iteratee[F, Int, Vector[Int]] = oneL1I.flatMap(_ => oneL2I.flatMap(_ => drain))
+
+      iteratee1 === iteratee2 && iteratee3 === iteratee4 && iteratee5 === iteratee6 && iteratee7 === iteratee8
+    }
+  }
 }
 
 class PureIterateeTests extends IterateeSuite[Id] with PureSuite
