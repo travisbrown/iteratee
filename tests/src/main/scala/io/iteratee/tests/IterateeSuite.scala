@@ -1,12 +1,9 @@
-package io.iteratee
+package io.iteratee.tests
 
-import algebra.Eq
-import cats.{ Eval, Id, Monad, MonadError }
-import cats.arrow.NaturalTransformation
-import cats.data.{ NonEmptyVector, Xor, XorT }
-import cats.laws.discipline.{ ContravariantTests, MonadErrorTests, MonadTests, MonoidalTests }
-import io.iteratee.internal.Step
-import org.scalacheck.{ Arbitrary, Prop }
+import cats.Monad
+import cats.data.NonEmptyVector
+import cats.laws.discipline.{ ContravariantTests, MonadTests, MonoidalTests }
+import io.iteratee.Iteratee
 import org.scalacheck.Prop.BooleanOperators
 
 abstract class IterateeSuite[F[_]: Monad] extends ModuleSuite[F] {
@@ -337,96 +334,6 @@ abstract class IterateeSuite[F[_]: Monad] extends ModuleSuite[F] {
       val iteratee8: Iteratee[F, Int, Vector[Int]] = oneL1I.flatMap(_ => oneL2I.flatMap(_ => drain))
 
       iteratee1 === iteratee2 && iteratee3 === iteratee4 && iteratee5 === iteratee6 && iteratee7 === iteratee8
-    }
-  }
-}
-
-class PureIterateeTests extends IterateeSuite[Id] with PureSuite
-
-class EvalIterateeTests extends IterateeSuite[Eval] with EvalSuite
-
-class XorIterateeTests extends IterateeSuite[({ type L[x] = XorT[Eval, Throwable, x] })#L]
-  with XorSuite {
-
-  type XTE[A] = XorT[Eval, Throwable, A]
-
-  implicit val monadError: MonadError[VectorIntFoldingIteratee, Throwable] =
-    Iteratee.iterateeMonadError[
-    ({ type L[x] = XorT[Eval, Throwable, x] })#L,
-    Throwable,
-    Vector[Int]
-  ]
-
-  implicit val arbitraryVectorIntFoldingIteratee: Arbitrary[
-    VectorIntFoldingIteratee[Vector[Int]]
-  ] = arbitraryVectorIteratee[({ type L[x] = XorT[Eval, Throwable, x] })#L, Int]
-
-  implicit val eqVectorIntIteratee: Eq[
-    VectorIntFoldingIteratee[Vector[Int]]
-  ] = eqIteratee[XTE, Vector[Int], Vector[Int]]
-
-  implicit val eqXorUnitIteratee: Eq[
-    VectorIntFoldingIteratee[Xor[Throwable, Unit]]
-  ] = eqIteratee[XTE, Vector[Int], Xor[Throwable, Unit]]
-
-  implicit val eqXorVectorIntIteratee: Eq[
-    VectorIntFoldingIteratee[Xor[Throwable, Vector[Int]]]
-  ] = eqIteratee[XTE, Vector[Int], Xor[Throwable, Vector[Int]]]
-
-  implicit val eqXorTVectorInt3Iteratee: Eq[
-    VectorIntFoldingIteratee[(Vector[Int], Vector[Int], Vector[Int])]
-  ] = eqIteratee[XTE, Vector[Int], (Vector[Int], Vector[Int], Vector[Int])]
-
-  implicit val eqXorTVectorInt: Eq[
-    XorT[({ type L[x] = Iteratee[XTE, Vector[Int], x] })#L, Throwable, Vector[Int]]
-  ] = XorT.xorTEq(eqXorVectorIntIteratee)
-
-  implicit val arbitraryVectorIntFunctionIteratee: Arbitrary[
-    VectorIntFoldingIteratee[Vector[Int] => Vector[Int]]
-  ] = arbitraryFunctionIteratee[XTE, Vector[Int]]
-
-  checkAll(
-    s"Iteratee[$monadName, Vector[Int], Vector[Int]]",
-    MonadErrorTests[VectorIntFoldingIteratee, Throwable].monadError[
-      Vector[Int],
-      Vector[Int],
-      Vector[Int]
-    ]
-  )
-
-  test("failIteratee") {
-    check { (eav: EnumeratorAndValues[Int], message: String) =>
-      val error: Throwable = new Exception(message)
-      val result = MonadError[XTE, Throwable].raiseError[(String, Vector[Int])](error)
-
-      eav.resultWithLeftovers(failIteratee(error)) === result
-    }
-  }
-
-  test("mapI") {
-    check { (eav: EnumeratorAndValues[Int], n: Int) =>
-      Prop.forAll(arbitraryIntIteratee[Id].arbitrary) { iteratee =>
-        val pureEnumerator = Enumerator.enumVector[Id, Int](eav.values)
-
-        val xorIteratee = iteratee.mapI(
-          new NaturalTransformation[Id, XTE] {
-            def apply[A](a: A): XTE[A] = F.pure(a)
-          }
-        )
-
-        eav.enumerator.run(xorIteratee) === F.pure(pureEnumerator.run(iteratee))
-      }
-    }
-  }
-
-  test("up") {
-    check { (eav: EnumeratorAndValues[Int], n: Int) =>
-      (n != Int.MaxValue) ==> {
-        val iteratee = Iteratee.take[Id, Int](n).up[XTE]
-        val result = (eav.values.take(n), eav.values.drop(n))
-
-        eav.resultWithLeftovers(iteratee) === F.pure(result)
-      }
     }
   }
 }

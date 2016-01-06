@@ -1,7 +1,8 @@
-package io.iteratee
+package io.iteratee.tests
 
 import cats.{ Eval, Monad }
 import cats.laws.discipline.{ CategoryTests, ProfunctorTests }
+import io.iteratee.Enumeratee
 import org.scalacheck.{ Gen, Prop }
 
 abstract class EnumerateeSuite[F[_]: Monad] extends ModuleSuite[F] {
@@ -151,5 +152,3 @@ abstract class EnumerateeSuite[F[_]: Monad] extends ModuleSuite[F] {
     }
   }
 }
-
-class EvalEnumerateeTests extends EnumerateeSuite[Eval] with EvalSuite

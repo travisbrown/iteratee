@@ -1,10 +1,10 @@
-package io.iteratee
+package io.iteratee.tests
 
 import algebra.Eq
 import algebra.laws.GroupLaws
-import cats.{ Eval, Monad, MonadError }
-import cats.data.{ Xor, XorT }
+import cats.Monad
 import cats.laws.discipline.{ MonadTests, MonoidalTests }
+import io.iteratee.Enumerator
 import org.scalacheck.{ Gen, Prop }
 
 abstract class EnumeratorSuite[F[_]: Monad] extends ModuleSuite[F] {
@@ -235,73 +235,6 @@ abstract class EnumeratorSuite[F[_]: Monad] extends ModuleSuite[F] {
       } yield (v1, v2)
 
       eav1.enumerator.cross(eav2.enumerator).drain === F.pure(result)
-    }
-  }
-}
-
-class EvalEnumeratorTests extends EnumeratorSuite[Eval] with EvalSuite {
-  test("perform") {
-    check { (eav: EnumeratorAndValues[Int]) =>
-      var counter = 0
-      val action = perform[Int](Eval.always(counter += 1))
-      val enumerator = action.append(eav.enumerator).append(action)
-
-      counter === 0 && enumerator.drain === F.pure(eav.values) && counter === 2
-    }
-  }
-}
-
-class XorEnumeratorTests extends EnumeratorSuite[({ type L[x] = XorT[Eval, Throwable, x] })#L]
-  with XorSuite {
-
-  type XTE[A] = XorT[Eval, Throwable, A]
-
-  test("ensure") {
-    check { (eav: EnumeratorAndValues[Int]) =>
-      var counter = 0
-      val action = XorT.right[Eval, Throwable, Unit](Eval.always(counter += 1))
-      val enumerator = eav.enumerator.ensure(action)
-
-      counter == 0 && enumerator.drain === F.pure(eav.values) && counter === 1
-    }
-  }
-
-  test("ensure with failure") {
-    check { (eav: EnumeratorAndValues[Int], message: String) =>
-      val error: Throwable = new Exception(message)
-      var counter = 0
-      val action = XorT.right[Eval, Throwable, Unit](Eval.always(counter += 1))
-      val enumerator = failEnumerator(error).append(eav.enumerator).ensure(action)
-
-      counter == 0 && enumerator.drain.value.value === Xor.left(error) && counter === 1
-    }
-  }
-
-  test("ensure without necessarily consuming all elements") {
-    check { (eav: EnumeratorAndValues[Int]) =>
-      var counter = 0
-      val action = XorT.right[Eval, Throwable, Unit](Eval.always(counter += 1))
-      val enumerator = eav.enumerator.ensure(action)
-      val n = math.max(0, eav.values.size - 2)
-
-      counter == 0 && enumerator.run(take(n)) === F.pure(eav.values.take(n)) && counter === 1
-    }
-  }
-
-  test("failEnumerator") {
-    check { (eav: EnumeratorAndValues[Int], message: String) =>
-      val error: Throwable = new Exception(message)
-
-      eav.enumerator.append(failEnumerator(error)).drain.value.value === Xor.left(error)
-    }
-  }
-
-  test("handleErrorWith") {
-    check { (eav: EnumeratorAndValues[Int], message: String) =>
-      val error: Throwable = new Exception(message)
-      val enumerator = failEnumerator(error).handleErrorWith[Throwable](_ => eav.enumerator)
-
-      enumerator.drain.value.value === Xor.right(eav.values)
     }
   }
 }

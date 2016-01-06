@@ -1,10 +1,11 @@
-package io.iteratee
+package io.iteratee.tests
 
 import algebra.Eq
 import cats.{ Eval, Id, Monad }
 import cats.data.{ Xor, XorT }
 import cats.std.AllInstances
 import cats.syntax.AllSyntax
+import io.iteratee.Module
 import org.scalatest.FunSuite
 import org.scalatest.prop.Checkers
 import org.typelevel.discipline.scalatest.Discipline
@@ -12,8 +13,8 @@ import org.typelevel.discipline.scalatest.Discipline
 class BaseSuite extends FunSuite with Checkers with Discipline
   with ArbitraryInstances with EqInstances
   with AllInstances with AllSyntax {
-  override def convertToEqualizer[T](left: T): Equalizer[T] = ???
-  implicit override val generatorDrivenConfig = PropertyCheckConfiguration(minSuccessful = 256)
+  override def convertToEqualizer[T](left: T): Equalizer[T] =
+    sys.error("Intentionally ambiguous implicit for Equalizer")
 }
 
 abstract class ModuleSuite[F[_]](implicit val F: Monad[F]) extends BaseSuite
