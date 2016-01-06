@@ -4,9 +4,8 @@ import algebra.Eq
 import cats.{ Eval, Id, MonadError }
 import cats.arrow.NaturalTransformation
 import cats.data.{ Xor, XorT }
-import cats.laws.discipline.MonadErrorTests
-import io.iteratee.tests.{ EnumerateeSuite, EnumeratorSuite, IterateeSuite, XorSuite }
-import org.scalacheck.{ Arbitrary, Prop }
+import io.iteratee.tests.{ EnumerateeSuite, EnumeratorSuite, IterateeErrorSuite, XorSuite, eqThrowable }
+import org.scalacheck.Prop
 import org.scalacheck.Prop.BooleanOperators
 
 class XorEnumerateeTests extends EnumerateeSuite[({ type L[x] = XorT[Eval, Throwable, x] })#L] with XorSuite
@@ -64,10 +63,11 @@ class XorEnumeratorTests extends EnumeratorSuite[({ type L[x] = XorT[Eval, Throw
   }
 }
 
-class XorIterateeTests extends IterateeSuite[({ type L[x] = XorT[Eval, Throwable, x] })#L] with XorSuite {
+class XorIterateeTests extends IterateeErrorSuite[({ type L[x] = XorT[Eval, Throwable, x] })#L, Throwable]
+  with XorSuite {
   type XTE[A] = XorT[Eval, Throwable, A]
 
-  implicit val monadError: MonadError[VectorIntFoldingIteratee, Throwable] =
+  /*implicit val monadError: MonadError[VectorIntFoldingIteratee, Throwable] =
     Iteratee.iterateeMonadError[
     ({ type L[x] = XorT[Eval, Throwable, x] })#L,
     Throwable,
@@ -109,7 +109,7 @@ class XorIterateeTests extends IterateeSuite[({ type L[x] = XorT[Eval, Throwable
       Vector[Int],
       Vector[Int]
     ]
-  )
+  )*/
 
   test("failIteratee") {
     check { (eav: EnumeratorAndValues[Int], message: String) =>

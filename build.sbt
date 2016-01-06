@@ -89,13 +89,15 @@ lazy val coreBase = crossProject.crossType(CrossType.Pure).in(file("core"))
 lazy val core = coreBase.jvm
 lazy val coreJS = coreBase.js
 
-lazy val testsBase = crossProject.crossType(CrossType.Pure).in(file("tests"))
+lazy val testsBase = crossProject.in(file("tests"))
+  .configs(IntegrationTest)
   .settings(
     moduleName := "iteratee-tests",
     name := "tests"
   )
   .settings(allSettings: _*)
   .settings(noPublishSettings: _*)
+  .settings(Defaults.itSettings: _*)
   .settings(
     libraryDependencies ++= Seq(
       "org.scalacheck" %% "scalacheck" % scalaCheckVersion,
@@ -226,7 +228,7 @@ val jsProjects = Seq(
 )
 
 addCommandAlias("buildJVM", jvmProjects.map(";" + _ + "/compile").mkString)
-addCommandAlias("validateJVM", ";buildJVM;tests/test;scalastyle;unidoc")
+addCommandAlias("validateJVM", ";buildJVM;tests/test;tests/it:test;scalastyle;unidoc")
 addCommandAlias("buildJS", jsProjects.map(";" + _ + "/compile").mkString)
-addCommandAlias("validateJS", ";buildJS;testsJS/test;scalastyle")
+addCommandAlias("validateJS", ";buildJS;testsJS/test;testsJS/it:test;scalastyle")
 addCommandAlias("validate", ";validateJVM;validateJS")

@@ -1,15 +1,54 @@
 package io.iteratee.tests
 
-import cats.Monad
-import cats.data.NonEmptyVector
-import cats.laws.discipline.{ ContravariantTests, MonadTests, MonoidalTests }
+import algebra.Eq
+import cats.{ Monad, MonadError }
+import cats.data.{ NonEmptyVector, Xor, XorT }
+import cats.laws.discipline.{ ContravariantTests, MonadTests, MonadErrorTests, MonoidalTests }
 import io.iteratee.Iteratee
+import org.scalacheck.Arbitrary
 import org.scalacheck.Prop.BooleanOperators
 
-abstract class IterateeSuite[F[_]: Monad] extends ModuleSuite[F] {
+abstract class IterateeSuite[F[_]: Monad] extends BaseIterateeSuite[F] {
+  checkAll(
+    s"Iteratee[$monadName, Vector[Int], Vector[Int]]",
+    MonadTests[VectorIntFoldingIteratee].monad[Vector[Int], Vector[Int], Vector[Int]]
+  )
+}
+
+abstract class IterateeErrorSuite[F[_], T: Arbitrary: Eq](implicit F: MonadError[F, T]) extends BaseIterateeSuite[F] {
+  implicit def monadError: MonadError[VectorIntFoldingIteratee, T] = Iteratee.iterateeMonadError[F, T, Vector[Int]]
+
+  implicit val arbitraryVectorIntFoldingIteratee: Arbitrary[VectorIntFoldingIteratee[Vector[Int]]] =
+    arbitraryVectorIteratee[F, Int]
+
+  implicit val eqVectorIntIteratee: Eq[VectorIntFoldingIteratee[Vector[Int]]] =
+    eqIteratee[F, Vector[Int], Vector[Int]]
+
+  implicit val eqXorUnitIteratee: Eq[VectorIntFoldingIteratee[Xor[T, Unit]]] =
+    eqIteratee[F, Vector[Int], Xor[T, Unit]]
+
+  implicit val eqXorVectorIntIteratee: Eq[VectorIntFoldingIteratee[Xor[T, Vector[Int]]]] =
+    eqIteratee[F, Vector[Int], Xor[T, Vector[Int]]]
+
+  implicit val eqVectorInt3Iteratee: Eq[VectorIntFoldingIteratee[(Vector[Int], Vector[Int], Vector[Int])]] =
+    eqIteratee[F, Vector[Int], (Vector[Int], Vector[Int], Vector[Int])]
+
+  implicit val eqXorTVectorInt: Eq[XorT[({ type L[x] = Iteratee[F, Vector[Int], x] })#L, T, Vector[Int]]] =
+    XorT.xorTEq(eqXorVectorIntIteratee)
+
+  implicit val arbitraryVectorIntFunctionIteratee: Arbitrary[VectorIntFoldingIteratee[Vector[Int] => Vector[Int]]] =
+    arbitraryFunctionIteratee[F, Vector[Int]]
+
+  checkAll(
+    s"Iteratee[$monadName, Vector[Int], Vector[Int]]",
+    MonadErrorTests[VectorIntFoldingIteratee, T].monadError[Vector[Int], Vector[Int], Vector[Int]]
+  )
+}
+
+abstract class BaseIterateeSuite[F[_]: Monad] extends ModuleSuite[F] {
   implicit override val generatorDrivenConfig: PropertyCheckConfiguration = PropertyCheckConfig(
     minSize = 0,
-    maxSize = 10000
+    maxSize = 5000
   )
 
   type VectorIntProducingIteratee[E] = Iteratee[F, E, Vector[Int]]
@@ -17,11 +56,6 @@ abstract class IterateeSuite[F[_]: Monad] extends ModuleSuite[F] {
 
   implicit val isomorphisms: MonoidalTests.Isomorphisms[VectorIntFoldingIteratee] =
     MonoidalTests.Isomorphisms.invariant[VectorIntFoldingIteratee]
-
-  checkAll(
-    s"Iteratee[$monadName, Vector[Int], Vector[Int]]",
-    MonadTests[VectorIntFoldingIteratee].monad[Vector[Int], Vector[Int], Vector[Int]]
-  )
 
   checkAll(
     s"Iteratee[$monadName, Int, Vector[Int]]",

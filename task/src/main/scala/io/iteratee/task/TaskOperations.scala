@@ -37,8 +37,8 @@ trait TaskOperations {
       case files => Enumerator.enumVector(files.toVector)
     }
 
-  final def listFiles(dir: File): Enumerator[Task, File] = listContents(dir).flatMap {
-    case item if item.isDirectory => listFiles(item)
+  final def listAllFiles(dir: File): Enumerator[Task, File] = listContents(dir).flatMap {
+    case item if item.isDirectory => listAllFiles(item)
     case item => Enumerator.enumOne(item)
   }
 
