@@ -21,6 +21,8 @@ lazy val compilerOptions = Seq(
 )
 
 lazy val catsVersion = "0.4.0-SNAPSHOT"
+lazy val disciplineVersion = "0.4"
+lazy val scalaCheckVersion = "1.12.5"
 lazy val scalaTestVersion = "3.0.0-M9"
 
 lazy val baseSettings = Seq(
@@ -61,37 +63,24 @@ lazy val docSettings = site.settings ++ ghpages.settings ++ unidocSettings ++ Se
   scalacOptions in (ScalaUnidoc, unidoc) ++= Seq("-groups", "-implicits"),
   git.remoteRepo := "git@github.com:travisbrown/iteratee.git",
   unidocProjectFilter in (ScalaUnidoc, unidoc) :=
-    inAnyProject -- inProjects(coreJS, benchmark)
+    inAnyProject -- inProjects(coreJS, benchmark, tests, testsJS)
 )
 
 lazy val root = project.in(file("."))
   .settings(allSettings)
   .settings(docSettings)
   .settings(noPublishSettings)
-  .aggregate(core, coreJS, task)
+  .aggregate(core, coreJS, task, tests, testsJS)
   .dependsOn(core)
 
 lazy val coreBase = crossProject.crossType(CrossType.Pure).in(file("core"))
   .settings(
     moduleName := "iteratee-core",
-    name := "core",
-    testOptions in Test ++= (
-      CrossVersion.partialVersion(scalaVersion.value) match {
-        case Some((2, 10)) => Seq(Tests.Argument("-l", "io.iteratee.NoScala210Test"))
-        case _ => Nil
-      }
-    )
+    name := "core"
   )
   .settings(allSettings: _*)
   .settings(
-    libraryDependencies += "org.spire-math" %%% "cats-core" % catsVersion,
-    libraryDependencies ++= Seq(
-      "org.scalacheck" %% "scalacheck" % "1.12.5",
-      "org.scalatest" %% "scalatest" % scalaTestVersion,
-      "org.spire-math" %% "cats-free" % catsVersion,
-      "org.spire-math" %% "cats-laws" % catsVersion,
-      "org.typelevel" %% "discipline" % "0.4"
-    ).map(_ % "test")
+    libraryDependencies += "org.spire-math" %%% "cats-core" % catsVersion
   )
   .jsSettings(commonJsSettings: _*)
   .jvmConfigure(_.copy(id = "core"))
@@ -99,6 +88,41 @@ lazy val coreBase = crossProject.crossType(CrossType.Pure).in(file("core"))
 
 lazy val core = coreBase.jvm
 lazy val coreJS = coreBase.js
+
+lazy val testsBase = crossProject.in(file("tests"))
+  .configs(IntegrationTest)
+  .settings(
+    moduleName := "iteratee-tests",
+    name := "tests"
+  )
+  .settings(allSettings: _*)
+  .settings(noPublishSettings: _*)
+  .settings(Defaults.itSettings: _*)
+  .settings(
+    libraryDependencies ++= Seq(
+      "org.scalacheck" %% "scalacheck" % scalaCheckVersion,
+      "org.scalatest" %% "scalatest" % scalaTestVersion,
+      "org.spire-math" %% "cats-laws" % catsVersion,
+      "org.typelevel" %% "discipline" % disciplineVersion
+    )
+  )
+  .settings(
+    ScoverageSbtPlugin.ScoverageKeys.coverageExcludedPackages := "io\\.iteratee\\.tests\\..*",
+    testOptions in Test ++= (
+      CrossVersion.partialVersion(scalaVersion.value) match {
+        case Some((2, 10)) => Seq(Tests.Argument("-l", "io.iteratee.tests.NoScala210Test"))
+        case _ => Nil
+      }
+    )
+  )
+  .jvmSettings(fork := true)
+  .jsSettings(commonJsSettings: _*)
+  .jvmConfigure(_.copy(id = "tests").dependsOn(task))
+  .jsConfigure(_.copy(id = "testsJS"))
+  .dependsOn(coreBase)
+
+lazy val tests = testsBase.jvm
+lazy val testsJS = testsBase.js
 
 lazy val task = project
   .settings(
@@ -194,15 +218,17 @@ credentials ++= (
 
 val jvmProjects = Seq(
   "core",
-  "task"
+  "task",
+  "tests"
 )
 
 val jsProjects = Seq(
-  "coreJS"
+  "coreJS",
+  "testsJS"
 )
 
 addCommandAlias("buildJVM", jvmProjects.map(";" + _ + "/compile").mkString)
-addCommandAlias("validateJVM", ";buildJVM;core/test;task/test;scalastyle;unidoc")
+addCommandAlias("validateJVM", ";buildJVM;tests/test;tests/it:test;scalastyle;unidoc")
 addCommandAlias("buildJS", jsProjects.map(";" + _ + "/compile").mkString)
-addCommandAlias("validateJS", ";buildJS;coreJS/test;scalastyle")
+addCommandAlias("validateJS", ";buildJS;testsJS/test;testsJS/it:test;scalastyle")
 addCommandAlias("validate", ";validateJVM;validateJS")

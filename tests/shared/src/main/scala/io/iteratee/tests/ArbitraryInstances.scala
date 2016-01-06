@@ -1,8 +1,9 @@
-package io.iteratee
+package io.iteratee.tests
 
 import cats.Monad
 import cats.data.Xor
 import cats.std.int._
+import io.iteratee.{ Iteratee, Enumeratee, Enumerator }
 import io.iteratee.internal.Input
 import org.scalacheck.{ Arbitrary, Gen }
 
@@ -92,10 +93,7 @@ trait ArbitraryInstances {
     )
   }
 
-  implicit def arbitraryFunctionIteratee[
-    F[_]: Monad,
-    A
-  ]: Arbitrary[Iteratee[F, A, Vector[Int] => Vector[Int]]] = {
+  implicit def arbitraryFunctionIteratee[F[_]: Monad, A]: Arbitrary[Iteratee[F, A, Vector[Int] => Vector[Int]]] = {
     val M: Monad[({ type L[x] = Iteratee[F, A, x] })#L] = implicitly
 
     Arbitrary(
