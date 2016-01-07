@@ -139,9 +139,10 @@ lazy val benchmark = project
   .settings(noPublishSettings)
   .settings(
     libraryDependencies ++= Seq(
+      "com.typesafe.play" %% "play-iteratees" % "2.4.6",
+      "org.scalatest" %% "scalatest" % scalaTestVersion % "test",
       "org.scalaz" %% "scalaz-iteratee" % "7.1.5",
-      "org.scalaz.stream" %% "scalaz-stream" % "0.8",
-      "org.spire-math" %% "cats-free" % catsVersion
+      "org.scalaz.stream" %% "scalaz-stream" % "0.8"
     )
   )
   .enablePlugins(JmhPlugin)
@@ -228,7 +229,7 @@ val jsProjects = Seq(
 )
 
 addCommandAlias("buildJVM", jvmProjects.map(";" + _ + "/compile").mkString)
-addCommandAlias("validateJVM", ";buildJVM;tests/test;tests/it:test;scalastyle;unidoc")
+addCommandAlias("validateJVM", ";buildJVM;tests/test;tests/it:test;benchmark/test;scalastyle;unidoc")
 addCommandAlias("buildJS", jsProjects.map(";" + _ + "/compile").mkString)
 addCommandAlias("validateJS", ";buildJS;testsJS/test;testsJS/it:test;scalastyle")
 addCommandAlias("validate", ";validateJVM;validateJS")

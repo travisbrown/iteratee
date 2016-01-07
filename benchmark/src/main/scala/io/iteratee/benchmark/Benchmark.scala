@@ -1,12 +1,16 @@
 package io.iteratee.benchmark
 
-import cats.Eval
 import cats.std.int._
 import cats.std.list.{ listAlgebra, listInstance => listInstanceC }
 import io.{ iteratee => i }
-import io.iteratee.task._
+import io.iteratee.Module
+import io.iteratee.task.TaskInstances
 import java.util.concurrent.TimeUnit
 import org.openjdk.jmh.annotations._
+import play.api.libs.{ iteratee => p }
+import scala.concurrent.Await
+import scala.concurrent.duration._
+import scala.concurrent.ExecutionContext.Implicits.global
 import scalaz.concurrent.Task
 import scalaz.{ iteratee => z }
 import scalaz.std.anyVal.intInstance
@@ -14,19 +18,25 @@ import scalaz.std.list.{ listInstance => listInstanceS, listMonoid }
 import scalaz.std.vector._
 import scalaz.stream.Process
 
-class InMemoryExampleData {
-  val size = 10000
-  val intsC: Vector[Int] = (0 until size).toVector
-  val intsI: i.Enumerator[Task, Int] = i.Enumerator.enumVector(intsC)
+class IterateeBenchmark extends Module[Task] with TaskInstances
+
+class InMemoryExampleData extends IterateeBenchmark {
+  private[this] val count = 10000
+
+  val intsC: Vector[Int] = (0 until count).toVector
+  val intsI: i.Enumerator[Task, Int] = enumVector(intsC)
   val intsS: Process[Task, Int] = Process.emitAll(intsC)
   val intsZ: z.EnumeratorT[Int, Task] = z.EnumeratorT.enumIndexedSeq(intsC)
+  val intsP: p.Enumerator[Int] = p.Enumerator(intsC: _*)
 }
 
-class StreamingExampleData {
-  val longStreamC: Stream[Long] = Stream.iterate(0L)(_ + 1L)
-  val longStreamI: i.Enumerator[Task, Long] = i.Enumerator.iterate[Task, Long](0L)(_ + 1L)
+class StreamingExampleData extends IterateeBenchmark {
+  val longStreamI: i.Enumerator[Task, Long] = iterate(0L)(_ + 1L)
   val longStreamS: Process[Task, Long] = Process.iterate(0L)(_ + 1L)
-  val longStreamZ: z.EnumeratorT[Long, Task] = z.EnumeratorT.iterate[Long, Task](_ + 1L, 0L)
+  // scalaz-iteratee's iterate is broken.
+  val longStreamZ: z.EnumeratorT[Long, Task] = z.EnumeratorT.repeat[Unit, Task](()).zipWithIndex.map(_._2)
+  val longStreamP: p.Enumerator[Long] = p.Enumerator.unfold(0L)(i => Some((i + 1L, i)))
+  val longStreamC: Stream[Long] = Stream.iterate(0L)(_ + 1L)
 }
 
 /**
@@ -34,23 +44,26 @@ class StreamingExampleData {
  *
  * The following command will run the benchmarks with reasonable settings:
  *
- * > sbt "benchmark/run -i 10 -wi 10 -f 2 -t 1 io.iteratee.benchmark.InMemoryBenchmark"
+ * > sbt "benchmark/jmh:run -i 10 -wi 10 -f 2 -t 1 io.iteratee.benchmark.InMemoryBenchmark"
  */
 @State(Scope.Thread)
 @BenchmarkMode(Array(Mode.Throughput))
 @OutputTimeUnit(TimeUnit.SECONDS)
 class InMemoryBenchmark extends InMemoryExampleData {
   @Benchmark
-  def sumInts0: Int = intsI.run(i.Iteratee.sum[Task, Int]).run
+  def sumInts0I: Int = intsI.run(sum).run
 
   @Benchmark
-  def sumInts1: Int = intsS.sum.runLastOr(sys.error("Impossible")).run
+  def sumInts1S: Int = intsS.sum.runLastOr(sys.error("Impossible")).run
 
   @Benchmark
-  def sumInts2: Int = (z.IterateeT.sum[Int, Task] &= intsZ).run.run
+  def sumInts2Z: Int = (z.IterateeT.sum[Int, Task] &= intsZ).run.run
 
   @Benchmark
-  def sumInts3: Int = intsC.sum
+  def sumInts3P: Int = Await.result(intsP.run(p.Iteratee.fold(0)(_ + _)), Duration.Inf)
+
+  @Benchmark
+  def sumInts4C: Int = intsC.sum
 }
 
 /**
@@ -58,24 +71,26 @@ class InMemoryBenchmark extends InMemoryExampleData {
  *
  * The following command will run the benchmarks with reasonable settings:
  *
- * > sbt "benchmark/run -i 10 -wi 10 -f 2 -t 1 io.iteratee.benchmark.StreamingBenchmark"
+ * > sbt "benchmark/jmh:run -i 10 -wi 10 -f 2 -t 1 io.iteratee.benchmark.StreamingBenchmark"
  */
 @State(Scope.Thread)
 @BenchmarkMode(Array(Mode.Throughput))
 @OutputTimeUnit(TimeUnit.SECONDS)
 class StreamingBenchmark extends StreamingExampleData {
-  val size = 10000
+  val count = 10000
 
   @Benchmark
-  def takeLongs0: Vector[Long] = longStreamI.run(i.Iteratee.take[Task, Long](size)).run
+  def takeLongs0I: Vector[Long] = longStreamI.run(take(count)).run
 
   @Benchmark
-  def takeLongs1: Vector[Long] = longStreamS.take(size).runLog.run
+  def takeLongs1S: Vector[Long] = longStreamS.take(count).runLog.run
 
   @Benchmark
-  def takeLongs2: Vector[Long] =
-    (z.Iteratee.take[Long, Vector](size).up[Task] &= longStreamZ).run.run
+  def takeLongs2Z: Vector[Long] = (z.Iteratee.take[Long, Vector](count).up[Task] &= longStreamZ).run.run
 
   @Benchmark
-  def takeLongs3: Vector[Long] = longStreamC.take(size).toVector
+  def takeLongs3P: Seq[Long] = Await.result(longStreamP.run(p.Iteratee.takeUpTo(count)), Duration.Inf)
+
+  @Benchmark
+  def takeLongs4C: Vector[Long] = longStreamC.take(count).toVector
 }
