@@ -20,11 +20,8 @@ sealed class Iteratee[F[_], E, A] private[iteratee] (final val state: F[Step[F, 
   /**
    * Reduce this [[Iteratee]] to an effectful value using the given functions.
    */
-  final def fold[Z](
-    ifCont: (NonEmptyVector[E] => Iteratee[F, E, A]) => Z,
-    ifDone: (A, Vector[E]) => Z,
-    ifEnd: A => Z
-  )(implicit F: Functor[F]): F[Z] = F.map(state)(_.fold(f => ifCont(in => Iteratee.iteratee(f(in))), ifDone, ifEnd))
+  final def fold[Z](ifCont: (NonEmptyVector[E] => Iteratee[F, E, A]) => Z, ifDone: (A, Vector[E]) => Z)
+    (implicit F: Functor[F]): F[Z] = F.map(state)(_.fold(f => ifCont(in => Iteratee.iteratee(f(in))), ifDone))
 
   /**
    * Run this iteratee and close the stream so that it must produce an effectful

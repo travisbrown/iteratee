@@ -5,11 +5,7 @@ import cats.data.{ NonEmptyVector, OneAnd }
 import cats.arrow.NaturalTransformation
 
 private[internal] abstract class BaseCont[F[_], E, A](implicit F: Applicative[F]) extends Step[F, E, A] { self =>
-  final def fold[Z](
-    ifCont: (NonEmptyVector[E] => F[Step[F, E, A]]) => Z,
-    ifDone: (A, Vector[E]) => Z,
-    ifEnd: A => Z
-  ): Z = ifCont {
+  final def fold[Z](ifCont: (NonEmptyVector[E] => F[Step[F, E, A]]) => Z, ifDone: (A, Vector[E]) => Z): Z = ifCont {
     case OneAnd(e, Vector()) => feedEl(e)
     case OneAnd(h1, h2 +: t) => feedChunk(h1, h2, t)
   }
