@@ -9,7 +9,7 @@ package io.iteratee.internal
  *
  * @tparam E The element type
  */
-sealed abstract class Input[@specialized E] extends Serializable {
+sealed abstract class Input[E] extends Serializable {
   /**
    * Reduce this [[Input]] to a value using the given folder.
    */
@@ -43,7 +43,7 @@ final object Input  {
    * @tparam E The element type
    * @tparam Z The result type
    */
-  trait Folder[@specialized E, Z] {
+  trait Folder[E, Z] {
     def onEl(e: E): Z
     def onChunk(h1: E, h2: E, t: Vector[E]): Z
   }
