@@ -298,13 +298,13 @@ abstract class BaseIterateeSuite[F[_]: Monad] extends ModuleSuite[F] {
 
   test("folding done with no leftovers") {
     check { (s: String) =>
-      done[Int, String](s).fold(_ => None, (v, r) => Some((v, r)), _ => None) === F.pure(Some((s, Vector.empty)))
+      done[Int, String](s).fold(_ => None, (v, r) => Some((v, r))) === F.pure(Some((s, Vector.empty)))
     }
   }
 
   test("folding done with leftovers") {
     check { (s: String, es: Vector[Int]) =>
-      done[Int, String](s, es).fold(_ => None, (v, r) => Some((v, r)), _ => None) === F.pure(Some((s, es)))
+      done[Int, String](s, es).fold(_ => None, (v, r) => Some((v, r))) === F.pure(Some((s, es)))
     }
   }
 
@@ -315,11 +315,7 @@ abstract class BaseIterateeSuite[F[_]: Monad] extends ModuleSuite[F] {
     )
 
     check { (es: List[Int]) =>
-      val folded = myDrain(es).fold[F[List[Int]]](
-        _(NonEmptyVector(0)).run,
-        (_, _) => F.pure(Nil),
-        _ => F.pure(Nil)
-      )
+      val folded = myDrain(es).fold[F[List[Int]]](_(NonEmptyVector(0)).run, (_, _) => F.pure(Nil))
 
       F.flatten(folded) === F.pure(es :+ 0)
     }
@@ -332,11 +328,7 @@ abstract class BaseIterateeSuite[F[_]: Monad] extends ModuleSuite[F] {
     )
 
     check { (es: List[Int]) =>
-      val folded = myDrain(es).fold[F[List[Int]]](
-        _(NonEmptyVector(0, Vector(1, 2, 3))).run,
-        (_, _) => F.pure(Nil),
-        _ => F.pure(Nil)
-      )
+      val folded = myDrain(es).fold[F[List[Int]]](_(NonEmptyVector(0, Vector(1, 2, 3))).run, (_, _) => F.pure(Nil))
 
       F.flatten(folded) === F.pure(es ++ Vector(0, 1, 2, 3))
     }

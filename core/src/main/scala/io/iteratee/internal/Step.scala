@@ -16,11 +16,7 @@ abstract class Step[F[_], E, A] extends Serializable {
   /**
    * Reduce this [[Step]] to a value using the given functions.
    */
-  def fold[Z](
-    ifCont: (NonEmptyVector[E] => F[Step[F, E, A]]) => Z,
-    ifDone: (A, Vector[E]) => Z,
-    ifEnd: A => Z
-  ): Z
+  def fold[Z](ifCont: (NonEmptyVector[E] => F[Step[F, E, A]]) => Z, ifDone: (A, Vector[E]) => Z): Z
 
   def isDone: Boolean
 
