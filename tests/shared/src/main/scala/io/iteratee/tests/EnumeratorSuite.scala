@@ -18,53 +18,53 @@ abstract class EnumeratorSuite[F[_]: Monad] extends ModuleSuite[F] {
 
   test("liftM") {
     check { (i: Int) =>
-      liftToEnumerator(F.pure(i)).drain === F.pure(Vector(i))
+      liftToEnumerator(F.pure(i)).toVector === F.pure(Vector(i))
     }
   }
 
   test("empty") {
-    empty[Int].drain === F.pure(Vector.empty)
+    empty[Int].toVector === F.pure(Vector.empty)
   }
 
   test("enumOne") {
     check { (i: Int) =>
-      enumOne(i).drain === F.pure(Vector(i))
+      enumOne(i).toVector === F.pure(Vector(i))
     }
   }
 
   test("enumStream") {
     check { (xs: Stream[Int]) =>
-      enumStream(xs).drain === F.pure(xs.toVector)
+      enumStream(xs).toVector === F.pure(xs.toVector)
     }
   }
 
   test("enumList") {
     check { (xs: List[Int]) =>
-      enumList(xs).drain === F.pure(xs.toVector)
+      enumList(xs).toVector === F.pure(xs.toVector)
     }
   }
 
   test("enumVector") {
     check { (xs: Vector[Int]) =>
-      enumVector(xs).drain === F.pure(xs)
+      enumVector(xs).toVector === F.pure(xs)
     }
   }
 
   test("enumVector with single element") {
     check { (x: Int) =>
-      enumVector(Vector(x)).drain === F.pure(Vector(x))
+      enumVector(Vector(x)).toVector === F.pure(Vector(x))
     }
   }
 
   test("enumIndexedSeq") {
     check { (xs: Vector[Int], start: Int, count: Int) =>
-      enumIndexedSeq(xs, start, start + count).drain === F.pure(xs.slice(start, start + count))
+      enumIndexedSeq(xs, start, start + count).toVector === F.pure(xs.slice(start, start + count))
     }
   }
 
   test("enumIndexedSeq with given slice") {
     check { (xs: Vector[Int]) =>
-      enumIndexedSeq(xs, 0, 100).drain === F.pure(xs.slice(0, 100))
+      enumIndexedSeq(xs, 0, 100).toVector === F.pure(xs.slice(0, 100))
     }
   }
 
@@ -87,21 +87,15 @@ abstract class EnumeratorSuite[F[_]: Monad] extends ModuleSuite[F] {
     }
   }
 
-  test("drain") {
+  test("toVector") {
     check { (eav: EnumeratorAndValues[Int]) =>
-      eav.enumerator.drain === F.pure(eav.values)
-    }
-  }
-
-  test("drainTo") {
-    check { (eav: EnumeratorAndValues[Int]) =>
-      eav.enumerator.drainTo[List] === F.pure(eav.values.toList)
+      eav.enumerator.toVector === F.pure(eav.values)
     }
   }
 
   test("prepend") {
     check { (eav: EnumeratorAndValues[Int], v: Int) =>
-      eav.enumerator.prepend(v).drain === F.pure(v +: eav.values)
+      eav.enumerator.prepend(v).toVector === F.pure(v +: eav.values)
     }
   }
 
@@ -119,7 +113,7 @@ abstract class EnumeratorSuite[F[_]: Monad] extends ModuleSuite[F] {
       val enumeratorF: F[Option[Enumerator[F, String]]] =
         eav.enumerator.bindM(v => Option(enumOne(v.toString)))
 
-      E.eqv(enumeratorF.map(_.map(_.drain)), F.pure(Option(F.pure(eav.values.map(_.toString)))))
+      E.eqv(enumeratorF.map(_.map(_.toVector)), F.pure(Option(F.pure(eav.values.map(_.toString)))))
     }
   }
 
@@ -127,25 +121,25 @@ abstract class EnumeratorSuite[F[_]: Monad] extends ModuleSuite[F] {
     import syntax._
 
     check { (i: Int) =>
-      F.pure(i).intoEnumerator.drain === F.pure(Vector(i))
+      F.pure(i).intoEnumerator.toVector === F.pure(Vector(i))
     }
   }
 
   test("flatten") {
     check { (v: Int) =>
-      enumOne(F.pure(v)).flatten[Int].drain === F.pure(Vector(v))
+      enumOne(F.pure(v)).flatten[Int].toVector === F.pure(Vector(v))
     }
   }
 
   test("reduced") {
     check { (eav: EnumeratorAndValues[Int]) =>
-      eav.enumerator.reduced(Vector.empty[Int])(_ :+ _).drain === F.pure(Vector(eav.values))
+      eav.enumerator.reduced(Vector.empty[Int])(_ :+ _).toVector === F.pure(Vector(eav.values))
     }
   }
 
   test("map") {
     check { (eav: EnumeratorAndValues[Int]) =>
-      eav.enumerator.map(_ + 1).drain === F.pure(eav.values.map(_ + 1))
+      eav.enumerator.map(_ + 1).toVector === F.pure(eav.values.map(_ + 1))
     }
   }
 
@@ -153,88 +147,7 @@ abstract class EnumeratorSuite[F[_]: Monad] extends ModuleSuite[F] {
     check { (eav: EnumeratorAndValues[Int]) =>
       val enumerator = eav.enumerator.flatMap(v => enumVector(Vector(v, v)))
 
-      enumerator.drain === F.pure(eav.values.flatMap(v => Vector(v, v)))
-    }
-  }
-
-  /**
-   * We skip this test on Scala 2.10 because of weird "Bad invokespecial instruction" exceptions
-   * that I wasn't able to reproduce in other contexts.
-   */
-  test("collect", NoScala210Test) {
-    check { (eav: EnumeratorAndValues[Int]) =>
-      val pf: PartialFunction[Int, Int] = {
-        case v if v % 2 == 0 => v + 1
-      }
-
-      eav.enumerator.collect(pf).drain === F.pure(eav.values.collect(pf))
-    }
-  }
-
-  test("filter") {
-    check { (eav: EnumeratorAndValues[Int]) =>
-      val p: Int => Boolean = _ % 2 == 0
-
-      eav.enumerator.filter(p).drain === F.pure(eav.values.filter(p))
-    }
-  }
-
-  test("sequenceI") {
-    check { (eav: EnumeratorAndValues[Int]) =>
-      Prop.forAll(Gen.posNum[Int]) { n =>
-        eav.enumerator.sequenceI(take(n)).drain === F.pure(eav.values.grouped(n).toVector)
-      }
-    }
-  }
-
-  test("uniq") {
-    check { (xs: Vector[Int]) =>
-      val sorted = xs.sorted
-
-      enumVector(sorted).uniq.drain === F.pure(sorted.distinct)
-    }
-  }
-
-  test("zipWithIndex") {
-    check { (eav: EnumeratorAndValues[Int]) =>
-      val result = eav.values.zipWithIndex.map {
-        case (v, i) => (v, i.toLong)
-      }
-
-      eav.enumerator.zipWithIndex.drain === F.pure(result)
-    }
-  }
-
-  test("grouped") {
-    check { (eav: EnumeratorAndValues[Int]) =>
-      Prop.forAll(Gen.posNum[Int]) { n =>
-        eav.enumerator.grouped(n).drain === F.pure(eav.values.grouped(n).toVector)
-      }
-    }
-  }
-
-  test("splitOn") {
-    check { (eav: EnumeratorAndValues[Int]) =>
-      val p: Int => Boolean = _ % 2 == 0
-
-      def splitOnEvens(xs: Vector[Int]): Vector[Vector[Int]] = if (xs.isEmpty) Vector.empty else {
-        val (before, after) = xs.span(x => !p(x))
-
-        before +: splitOnEvens(after.drop(1))
-      }
-
-      eav.enumerator.splitOn(p).drain === F.pure(splitOnEvens(eav.values))
-    }
-  }
-
-  test("cross") {
-    check { (eav1: EnumeratorAndValues[Int], eav2: EnumeratorAndValues[Int]) =>
-      val result = for {
-        v1 <- eav1.values
-        v2 <- eav2.values
-      } yield (v1, v2)
-
-      eav1.enumerator.cross(eav2.enumerator).drain === F.pure(result)
+      enumerator.toVector === F.pure(eav.values.flatMap(v => Vector(v, v)))
     }
   }
 }

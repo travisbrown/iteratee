@@ -13,7 +13,7 @@ abstract class EnumerateeSuite[F[_]: Monad] extends ModuleSuite[F] {
 
   test("map") {
     check { (eav: EnumeratorAndValues[Int]) =>
-      eav.enumerator.mapE(map(_ + 1)).drain === F.pure(eav.values.map(_ + 1))
+      eav.enumerator.mapE(map(_ + 1)).toVector === F.pure(eav.values.map(_ + 1))
     }
   }
 
@@ -21,7 +21,7 @@ abstract class EnumerateeSuite[F[_]: Monad] extends ModuleSuite[F] {
     check { (eav: EnumeratorAndValues[Int]) =>
       val enumerator = eav.enumerator.mapE(flatMap(v => enumVector(Vector(v, v))))
 
-      enumerator.drain === F.pure(eav.values.flatMap(v => Vector(v, v)))
+      enumerator.toVector === F.pure(eav.values.flatMap(v => Vector(v, v)))
     }
   }
 
@@ -43,7 +43,7 @@ abstract class EnumerateeSuite[F[_]: Monad] extends ModuleSuite[F] {
         case v if v % 2 == 0 => v + 1
       }
 
-      eav.enumerator.mapE(collect(pf)).drain === F.pure(eav.values.collect(pf))
+      eav.enumerator.mapE(collect(pf)).toVector === F.pure(eav.values.collect(pf))
     }
   }
 
@@ -51,14 +51,14 @@ abstract class EnumerateeSuite[F[_]: Monad] extends ModuleSuite[F] {
     check { (eav: EnumeratorAndValues[Int]) =>
       val p: Int => Boolean = _ % 2 == 0
 
-      eav.enumerator.mapE(filter(p)).drain === F.pure(eav.values.filter(p))
+      eav.enumerator.mapE(filter(p)).toVector === F.pure(eav.values.filter(p))
     }
   }
 
   test("sequenceI") {
     check { (eav: EnumeratorAndValues[Int]) =>
       Prop.forAll(Gen.posNum[Int]) { n =>
-        eav.enumerator.mapE(sequenceI(take(n))).drain === F.pure(eav.values.grouped(n).toVector)
+        eav.enumerator.mapE(sequenceI(take(n))).toVector === F.pure(eav.values.grouped(n).toVector)
       }
     }
   }
@@ -75,7 +75,7 @@ abstract class EnumerateeSuite[F[_]: Monad] extends ModuleSuite[F] {
     check { (xs: Vector[Int]) =>
       val sorted = xs.sorted
 
-      enumVector(sorted).mapE(uniq).drain === F.pure(sorted.distinct)
+      enumVector(sorted).mapE(uniq).toVector === F.pure(sorted.distinct)
     }
   }
 
@@ -96,7 +96,7 @@ abstract class EnumerateeSuite[F[_]: Monad] extends ModuleSuite[F] {
       .append(enumVector(Vector(9, 10)))
     val result = Vector(1, 2, 3, 4, 5, 6, 7, 8, 9, 10)
 
-    assert(enumerator.mapE(uniq).drain === F.pure(result))
+    assert(enumerator.mapE(uniq).toVector === F.pure(result))
   }
 
   test("zipWithIndex") {
@@ -105,7 +105,7 @@ abstract class EnumerateeSuite[F[_]: Monad] extends ModuleSuite[F] {
         case (v, i) => (v, i.toLong)
       }
 
-      eav.enumerator.mapE(zipWithIndex).drain === F.pure(result)
+      eav.enumerator.mapE(zipWithIndex).toVector === F.pure(result)
     }
   }
 
@@ -122,7 +122,7 @@ abstract class EnumerateeSuite[F[_]: Monad] extends ModuleSuite[F] {
   test("grouped") {
     check { (eav: EnumeratorAndValues[Int]) =>
       Prop.forAll(Gen.posNum[Int]) { n =>
-        eav.enumerator.mapE(grouped(n)).drain === F.pure(eav.values.grouped(n).toVector)
+        eav.enumerator.mapE(grouped(n)).toVector === F.pure(eav.values.grouped(n).toVector)
       }
     }
   }
@@ -137,7 +137,7 @@ abstract class EnumerateeSuite[F[_]: Monad] extends ModuleSuite[F] {
         before +: splitOnEvens(after.drop(1))
       }
 
-      eav.enumerator.mapE(splitOn(p)).drain === F.pure(splitOnEvens(eav.values))
+      eav.enumerator.mapE(splitOn(p)).toVector === F.pure(splitOnEvens(eav.values))
     }
   }
 
@@ -148,7 +148,7 @@ abstract class EnumerateeSuite[F[_]: Monad] extends ModuleSuite[F] {
         v2 <- eav2.values
       } yield (v1, v2)
 
-      eav1.enumerator.mapE(cross(eav2.enumerator)).drain === F.pure(result)
+      eav1.enumerator.mapE(cross(eav2.enumerator)).toVector === F.pure(result)
     }
   }
 }

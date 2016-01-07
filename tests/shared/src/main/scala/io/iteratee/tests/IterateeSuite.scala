@@ -74,7 +74,7 @@ abstract class BaseIterateeSuite[F[_]: Monad] extends ModuleSuite[F] {
         F.pure(acc)
       )
 
-      eav.enumerator.run(myDrain(Nil)) === F.map(eav.enumerator.drain)(_.toList)
+      eav.enumerator.run(myDrain(Nil)) === F.map(eav.enumerator.toVector)(_.toList)
     }
   }
 

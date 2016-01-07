@@ -19,7 +19,7 @@ class XorEnumeratorTests extends EnumeratorSuite[({ type L[x] = XorT[Eval, Throw
       val action = XorT.right[Eval, Throwable, Unit](Eval.always(counter += 1))
       val enumerator = eav.enumerator.ensure(action)
 
-      counter == 0 && enumerator.drain === F.pure(eav.values) && counter === 1
+      counter == 0 && enumerator.toVector === F.pure(eav.values) && counter === 1
     }
   }
 
@@ -30,7 +30,7 @@ class XorEnumeratorTests extends EnumeratorSuite[({ type L[x] = XorT[Eval, Throw
       val action = XorT.right[Eval, Throwable, Unit](Eval.always(counter += 1))
       val enumerator = failEnumerator(error).append(eav.enumerator).ensure(action)
 
-      counter == 0 && enumerator.drain.value.value === Xor.left(error) && counter === 1
+      counter == 0 && enumerator.toVector.value.value === Xor.left(error) && counter === 1
     }
   }
 
@@ -49,7 +49,7 @@ class XorEnumeratorTests extends EnumeratorSuite[({ type L[x] = XorT[Eval, Throw
     check { (eav: EnumeratorAndValues[Int], message: String) =>
       val error: Throwable = new Exception(message)
 
-      eav.enumerator.append(failEnumerator(error)).drain.value.value === Xor.left(error)
+      eav.enumerator.append(failEnumerator(error)).toVector.value.value === Xor.left(error)
     }
   }
 
@@ -58,7 +58,7 @@ class XorEnumeratorTests extends EnumeratorSuite[({ type L[x] = XorT[Eval, Throw
       val error: Throwable = new Exception(message)
       val enumerator = failEnumerator(error).handleErrorWith[Throwable](_ => eav.enumerator)
 
-      enumerator.drain.value.value === Xor.right(eav.values)
+      enumerator.toVector.value.value === Xor.right(eav.values)
     }
   }
 }
@@ -66,50 +66,6 @@ class XorEnumeratorTests extends EnumeratorSuite[({ type L[x] = XorT[Eval, Throw
 class XorIterateeTests extends IterateeErrorSuite[({ type L[x] = XorT[Eval, Throwable, x] })#L, Throwable]
   with XorSuite {
   type XTE[A] = XorT[Eval, Throwable, A]
-
-  /*implicit val monadError: MonadError[VectorIntFoldingIteratee, Throwable] =
-    Iteratee.iterateeMonadError[
-    ({ type L[x] = XorT[Eval, Throwable, x] })#L,
-    Throwable,
-    Vector[Int]
-  ]
-
-  implicit val arbitraryVectorIntFoldingIteratee: Arbitrary[
-    VectorIntFoldingIteratee[Vector[Int]]
-  ] = arbitraryVectorIteratee[({ type L[x] = XorT[Eval, Throwable, x] })#L, Int]
-
-  implicit val eqVectorIntIteratee: Eq[
-    VectorIntFoldingIteratee[Vector[Int]]
-  ] = eqIteratee[XTE, Vector[Int], Vector[Int]]
-
-  implicit val eqXorUnitIteratee: Eq[
-    VectorIntFoldingIteratee[Xor[Throwable, Unit]]
-  ] = eqIteratee[XTE, Vector[Int], Xor[Throwable, Unit]]
-
-  implicit val eqXorVectorIntIteratee: Eq[
-    VectorIntFoldingIteratee[Xor[Throwable, Vector[Int]]]
-  ] = eqIteratee[XTE, Vector[Int], Xor[Throwable, Vector[Int]]]
-
-  implicit val eqXorTVectorInt3Iteratee: Eq[
-    VectorIntFoldingIteratee[(Vector[Int], Vector[Int], Vector[Int])]
-  ] = eqIteratee[XTE, Vector[Int], (Vector[Int], Vector[Int], Vector[Int])]
-
-  implicit val eqXorTVectorInt: Eq[
-    XorT[({ type L[x] = Iteratee[XTE, Vector[Int], x] })#L, Throwable, Vector[Int]]
-  ] = XorT.xorTEq(eqXorVectorIntIteratee)
-
-  implicit val arbitraryVectorIntFunctionIteratee: Arbitrary[
-    VectorIntFoldingIteratee[Vector[Int] => Vector[Int]]
-  ] = arbitraryFunctionIteratee[XTE, Vector[Int]]
-
-  checkAll(
-    s"Iteratee[$monadName, Vector[Int], Vector[Int]]",
-    MonadErrorTests[VectorIntFoldingIteratee, Throwable].monadError[
-      Vector[Int],
-      Vector[Int],
-      Vector[Int]
-    ]
-  )*/
 
   test("failIteratee") {
     check { (eav: EnumeratorAndValues[Int], message: String) =>
