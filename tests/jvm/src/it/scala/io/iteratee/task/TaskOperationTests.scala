@@ -38,19 +38,19 @@ class TaskOperationTest extends BaseSuite {
     val dir = new File(getClass.getResource("/io/iteratee/examples/pg/11231").toURI)
     val result = Vector("11231.txt", "11231.zip")
 
-    assert(listContents(dir).drain.run.map(_.getName).sorted === result)
+    assert(listContents(dir).toVector.run.map(_.getName).sorted === result)
   }
 
   test("listContents on file") {
     val notDir = new File(getClass.getResource("/io/iteratee/examples/pg/11231/11231.txt").toURI)
 
-    assert(listContents(notDir).drain.run.isEmpty)
+    assert(listContents(notDir).toVector.run.isEmpty)
   }
 
   test("listAllFiles") {
     val dir = new File(getClass.getResource("/io/iteratee/examples/pg").toURI)
     val result = Vector("11231.txt", "11231.zip")
 
-    assert(listAllFiles(dir).drain.run.map(_.getName).sorted === result)
+    assert(listAllFiles(dir).toVector.run.map(_.getName).sorted === result)
   }
 }

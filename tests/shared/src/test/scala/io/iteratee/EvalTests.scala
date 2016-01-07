@@ -12,7 +12,7 @@ class EvalEnumeratorTests extends EnumeratorSuite[Eval] with EvalSuite {
       val action = perform[Int](Eval.always(counter += 1))
       val enumerator = action.append(eav.enumerator).append(action)
 
-      counter === 0 && enumerator.drain === F.pure(eav.values) && counter === 2
+      counter === 0 && enumerator.toVector === F.pure(eav.values) && counter === 2
     }
   }
 }
