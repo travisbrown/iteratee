@@ -49,7 +49,7 @@
       </span>
       </h4>
       
-          <div id="comment" class="fullcommenttop"><div class="toggleContainer block">
+          <div id="comment" class="fullcommenttop"><div class="comment cmt"></div><dl class="attributes block"> <dt>Source</dt><dd><a href="https://github.com/travisbrown/iteratee/tree/master/core/src/main/scala/io/iteratee/EnumeratorModule.scala" target="_blank">EnumeratorModule.scala</a></dd></dl><div class="toggleContainer block">
           <span class="toggle">Linear Supertypes</span>
           <div class="superTypes hiddenContent"><a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a>, <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Any" class="extype" target="_top">Any</a></div>
         </div><div class="toggleContainer block">
@@ -63,7 +63,7 @@
         <div id="order">
               <span class="filtertype">Ordering</span>
               <ol>
-                
+                <li class="group out"><span>Grouped</span></li>
                 <li class="alpha in"><span>Alphabetic</span></li>
                 <li class="inherit out"><span>By inheritance</span></li>
               </ol>
@@ -98,12 +98,29 @@
 
         <div id="types" class="types members">
               <h3>Type Members</h3>
-              <ol><li name="io.iteratee.EnumeratorModule.PerformPartiallyApplied" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+              <ol><li name="io.iteratee.EnumeratorModule.FailEnumeratorPartiallyApplied" visbl="pub" data-isabs="false" fullComment="no" group="Helpers">
+      <a id="FailEnumeratorPartiallyApplied[E]extendsAnyRef"></a>
+      <a id="FailEnumeratorPartiallyApplied[E]:FailEnumeratorPartiallyApplied[E]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">sealed </span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="EnumeratorModule$FailEnumeratorPartiallyApplied.html"><span class="name">FailEnumeratorPartiallyApplied</span></a><span class="tparams">[<span name="E">E</span>]</span><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.iteratee.EnumeratorModule@FailEnumeratorPartiallyApplied[E]extendsAnyRef" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt"></p>
+    </li><li name="io.iteratee.EnumeratorModule.PerformPartiallyApplied" visbl="pub" data-isabs="false" fullComment="no" group="Helpers">
       <a id="PerformPartiallyApplied[E]extendsAnyRef"></a>
       <a id="PerformPartiallyApplied[E]:PerformPartiallyApplied[E]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
-        <span class="modifier"></span>
+        <span class="modifier">sealed </span>
         <span class="kind">class</span>
       </span>
       <span class="symbol">
@@ -114,7 +131,7 @@
         <img src="../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
-      
+      <p class="shortcomment cmt"></p>
     </li></ol>
             </div>
 
@@ -258,7 +275,7 @@
     </span>)</span>
               
         </dd></dl></div>
-    </li><li name="io.iteratee.EnumeratorModule#empty" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+    </li><li name="io.iteratee.EnumeratorModule#empty" visbl="pub" data-isabs="false" fullComment="no" group="Enumerators">
       <a id="empty[E](implicitF:cats.Applicative[F]):io.iteratee.Enumerator[F,E]"></a>
       <a id="empty[E](Applicative[F]):Enumerator[F,E]"></a>
       <h4 class="signature">
@@ -274,7 +291,7 @@
         <img src="../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
-      
+      <p class="shortcomment cmt">An empty enumerator.</p>
     </li><li name="scala.Predef.Ensuring#ensuring" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="ensuring(cond:A=&gt;Boolean,msg:=&gt;Any):A"></a>
       <a id="ensuring((EnumeratorModule[F])⇒Boolean,⇒Any):EnumeratorModule[F]"></a>
@@ -359,24 +376,7 @@
             <span class="extype" name="scala.Predef.Ensuring">Ensuring</span>[<a href="" class="extype" name="io.iteratee.EnumeratorModule">EnumeratorModule</a>[<span class="extype" name="io.iteratee.EnumeratorModule.F">F</span>]] performed by method Ensuring in scala.Predef.
             
           </dd><dt>Definition Classes</dt><dd>Ensuring</dd></dl></div>
-    </li><li name="io.iteratee.EnumeratorModule#enumEnd" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="enumEnd[E](implicitF:cats.Applicative[F]):io.iteratee.Enumerator[F,E]"></a>
-      <a id="enumEnd[E](Applicative[F]):Enumerator[F,E]"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier">final </span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">enumEnd</span><span class="tparams">[<span name="E">E</span>]</span><span class="params">(<span class="implicit">implicit </span><span name="F">F: <a href="https://non.github.io/cats/api/index.html#cats.Applicative" class="extype" target="_top">Applicative</a>[<span class="extype" name="io.iteratee.EnumeratorModule.F">F</span>]</span>)</span><span class="result">: <a href="Enumerator.html" class="extype" name="io.iteratee.Enumerator">Enumerator</a>[<span class="extype" name="io.iteratee.EnumeratorModule.F">F</span>, <span class="extype" name="io.iteratee.EnumeratorModule.enumEnd.E">E</span>]</span>
-      </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#io.iteratee.EnumeratorModule@enumEnd[E](implicitF:cats.Applicative[F]):io.iteratee.Enumerator[F,E]" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
-      <p class="shortcomment cmt">An enumerator that is at EOF.</p>
-    </li><li name="io.iteratee.EnumeratorModule#enumIndexedSeq" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+    </li><li name="io.iteratee.EnumeratorModule#enumIndexedSeq" visbl="pub" data-isabs="false" fullComment="no" group="Enumerators">
       <a id="enumIndexedSeq[E](es:IndexedSeq[E],min:Int,max:Int)(implicitF:cats.Monad[F]):io.iteratee.Enumerator[F,E]"></a>
       <a id="enumIndexedSeq[E](IndexedSeq[E],Int,Int)(Monad[F]):Enumerator[F,E]"></a>
       <h4 class="signature">
@@ -393,7 +393,7 @@
       </a>
     </span>
       <p class="shortcomment cmt">An enumerator that produces values from a slice of an indexed sequence.</p>
-    </li><li name="io.iteratee.EnumeratorModule#enumList" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+    </li><li name="io.iteratee.EnumeratorModule#enumList" visbl="pub" data-isabs="false" fullComment="no" group="Enumerators">
       <a id="enumList[E](es:List[E])(implicitF:cats.Monad[F]):io.iteratee.Enumerator[F,E]"></a>
       <a id="enumList[E](List[E])(Monad[F]):Enumerator[F,E]"></a>
       <h4 class="signature">
@@ -410,7 +410,7 @@
       </a>
     </span>
       <p class="shortcomment cmt">An enumerator that produces values from a list.</p>
-    </li><li name="io.iteratee.EnumeratorModule#enumOne" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+    </li><li name="io.iteratee.EnumeratorModule#enumOne" visbl="pub" data-isabs="false" fullComment="no" group="Enumerators">
       <a id="enumOne[E](e:E)(implicitF:cats.Applicative[F]):io.iteratee.Enumerator[F,E]"></a>
       <a id="enumOne[E](E)(Applicative[F]):Enumerator[F,E]"></a>
       <h4 class="signature">
@@ -427,7 +427,7 @@
       </a>
     </span>
       <p class="shortcomment cmt">An enumerator that produces a single value.</p>
-    </li><li name="io.iteratee.EnumeratorModule#enumStream" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+    </li><li name="io.iteratee.EnumeratorModule#enumStream" visbl="pub" data-isabs="false" fullComment="no" group="Enumerators">
       <a id="enumStream[E](es:Stream[E])(implicitF:cats.Monad[F]):io.iteratee.Enumerator[F,E]"></a>
       <a id="enumStream[E](Stream[E])(Monad[F]):Enumerator[F,E]"></a>
       <h4 class="signature">
@@ -444,7 +444,7 @@
       </a>
     </span>
       <p class="shortcomment cmt">An enumerator that produces values from a stream.</p>
-    </li><li name="io.iteratee.EnumeratorModule#enumVector" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+    </li><li name="io.iteratee.EnumeratorModule#enumVector" visbl="pub" data-isabs="false" fullComment="no" group="Enumerators">
       <a id="enumVector[E](es:Vector[E])(implicitF:cats.Monad[F]):io.iteratee.Enumerator[F,E]"></a>
       <a id="enumVector[E](Vector[E])(Monad[F]):Enumerator[F,E]"></a>
       <h4 class="signature">
@@ -495,6 +495,23 @@
       </a>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+    </li><li name="io.iteratee.EnumeratorModule#failEnumerator" visbl="pub" data-isabs="false" fullComment="no" group="Enumerators">
+      <a id="failEnumerator[E]:EnumeratorModule.this.FailEnumeratorPartiallyApplied[E]"></a>
+      <a id="failEnumerator[E]:FailEnumeratorPartiallyApplied[E]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">failEnumerator</span><span class="tparams">[<span name="E">E</span>]</span><span class="result">: <a href="EnumeratorModule$FailEnumeratorPartiallyApplied.html" class="extype" name="io.iteratee.EnumeratorModule.FailEnumeratorPartiallyApplied">FailEnumeratorPartiallyApplied</a>[<span class="extype" name="io.iteratee.EnumeratorModule.failEnumerator.E">E</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.iteratee.EnumeratorModule@failEnumerator[E]:EnumeratorModule.this.FailEnumeratorPartiallyApplied[E]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Create a failed enumerator with the given error.</p>
     </li><li name="scala.AnyRef#finalize" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="finalize():Unit"></a>
       <a id="finalize():Unit"></a>
@@ -593,7 +610,7 @@
       </a>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
-    </li><li name="io.iteratee.EnumeratorModule#iterate" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+    </li><li name="io.iteratee.EnumeratorModule#iterate" visbl="pub" data-isabs="false" fullComment="no" group="Enumerators">
       <a id="iterate[E](init:E)(f:E=&gt;E)(implicitF:cats.Monad[F]):io.iteratee.Enumerator[F,E]"></a>
       <a id="iterate[E](E)((E)⇒E)(Monad[F]):Enumerator[F,E]"></a>
       <h4 class="signature">
@@ -609,8 +626,27 @@
         <img src="../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
-      <p class="shortcomment cmt">An enumerator that iteratively performs an operation.</p>
-    </li><li name="io.iteratee.EnumeratorModule#liftToEnumerator" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <p class="shortcomment cmt">An enumerator that iteratively performs an operation and returns the
+results.</p>
+    </li><li name="io.iteratee.EnumeratorModule#iterateM" visbl="pub" data-isabs="false" fullComment="no" group="Enumerators">
+      <a id="iterateM[E](init:E)(f:E=&gt;F[E])(implicitF:cats.Monad[F]):io.iteratee.Enumerator[F,E]"></a>
+      <a id="iterateM[E](E)((E)⇒F[E])(Monad[F]):Enumerator[F,E]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">iterateM</span><span class="tparams">[<span name="E">E</span>]</span><span class="params">(<span name="init">init: <span class="extype" name="io.iteratee.EnumeratorModule.iterateM.E">E</span></span>)</span><span class="params">(<span name="f">f: (<span class="extype" name="io.iteratee.EnumeratorModule.iterateM.E">E</span>) ⇒ <span class="extype" name="io.iteratee.EnumeratorModule.F">F</span>[<span class="extype" name="io.iteratee.EnumeratorModule.iterateM.E">E</span>]</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="F">F: <a href="https://non.github.io/cats/api/index.html#cats.Monad" class="extype" target="_top">Monad</a>[<span class="extype" name="io.iteratee.EnumeratorModule.F">F</span>]</span>)</span><span class="result">: <a href="Enumerator.html" class="extype" name="io.iteratee.Enumerator">Enumerator</a>[<span class="extype" name="io.iteratee.EnumeratorModule.F">F</span>, <span class="extype" name="io.iteratee.EnumeratorModule.iterateM.E">E</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.iteratee.EnumeratorModule@iterateM[E](init:E)(f:E=&gt;F[E])(implicitF:cats.Monad[F]):io.iteratee.Enumerator[F,E]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">An enumerator that iteratively performs an effectful operation and returns
+the results.</p>
+    </li><li name="io.iteratee.EnumeratorModule#liftToEnumerator" visbl="pub" data-isabs="false" fullComment="no" group="Enumerators">
       <a id="liftToEnumerator[E](fe:F[E])(implicitF:cats.Monad[F]):io.iteratee.Enumerator[F,E]"></a>
       <a id="liftToEnumerator[E](F[E])(Monad[F]):Enumerator[F,E]"></a>
       <h4 class="signature">
@@ -678,7 +714,7 @@
       </a>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
-    </li><li name="io.iteratee.EnumeratorModule#perform" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+    </li><li name="io.iteratee.EnumeratorModule#perform" visbl="pub" data-isabs="false" fullComment="no" group="Enumerators">
       <a id="perform[E]:EnumeratorModule.this.PerformPartiallyApplied[E]"></a>
       <a id="perform[E]:PerformPartiallyApplied[E]"></a>
       <h4 class="signature">
@@ -695,7 +731,7 @@
       </a>
     </span>
       <p class="shortcomment cmt">An enumerator that forces the evaluation of an effect when it is consumed.</p>
-    </li><li name="io.iteratee.EnumeratorModule#repeat" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+    </li><li name="io.iteratee.EnumeratorModule#repeat" visbl="pub" data-isabs="false" fullComment="no" group="Enumerators">
       <a id="repeat[E](e:E)(implicitF:cats.Monad[F]):io.iteratee.Enumerator[F,E]"></a>
       <a id="repeat[E](E)(Monad[F]):Enumerator[F,E]"></a>
       <h4 class="signature">
@@ -711,7 +747,7 @@
         <img src="../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
-      <p class="shortcomment cmt">An enumerator that repeats a given value indefinitely.</p>
+      <p class="shortcomment cmt">An enumerator that repeats the given value indefinitely.</p>
     </li><li name="scala.AnyRef#synchronized" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="synchronized[T0](x$1:=&gt;T0):T0"></a>
       <a id="synchronized[T0](⇒T0):T0"></a>
@@ -870,7 +906,13 @@
         </div>
 
         <div id="groupedMembers">
-        <div class="group" name="Ungrouped">
+        <div class="group" name="Enumerators">
+              <h3>Enumerators</h3>
+              
+            </div><div class="group" name="Helpers">
+              <h3>Helper classes</h3>
+              
+            </div><div class="group" name="Ungrouped">
               <h3>Ungrouped</h3>
               
             </div>

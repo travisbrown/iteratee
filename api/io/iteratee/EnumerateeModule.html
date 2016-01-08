@@ -49,7 +49,7 @@
       </span>
       </h4>
       
-          <div id="comment" class="fullcommenttop"><div class="toggleContainer block">
+          <div id="comment" class="fullcommenttop"><div class="comment cmt"></div><dl class="attributes block"> <dt>Source</dt><dd><a href="https://github.com/travisbrown/iteratee/tree/master/core/src/main/scala/io/iteratee/EnumerateeModule.scala" target="_blank">EnumerateeModule.scala</a></dd></dl><div class="toggleContainer block">
           <span class="toggle">Linear Supertypes</span>
           <div class="superTypes hiddenContent"><a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a>, <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Any" class="extype" target="_top">Any</a></div>
         </div><div class="toggleContainer block">
@@ -63,7 +63,7 @@
         <div id="order">
               <span class="filtertype">Ordering</span>
               <ol>
-                
+                <li class="group out"><span>Grouped</span></li>
                 <li class="alpha in"><span>Alphabetic</span></li>
                 <li class="inherit out"><span>By inheritance</span></li>
               </ol>
@@ -238,7 +238,7 @@
     </span>)</span>
               
         </dd></dl></div>
-    </li><li name="io.iteratee.EnumerateeModule#collect" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+    </li><li name="io.iteratee.EnumerateeModule#collect" visbl="pub" data-isabs="false" fullComment="no" group="Enumeratees">
       <a id="collect[O,I](pf:PartialFunction[O,I])(implicitF:cats.Monad[F]):io.iteratee.Enumeratee[F,O,I]"></a>
       <a id="collect[O,I](PartialFunction[O,I])(Monad[F]):Enumeratee[F,O,I]"></a>
       <h4 class="signature">
@@ -254,8 +254,9 @@
         <img src="../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
-      
-    </li><li name="io.iteratee.EnumerateeModule#cross" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <p class="shortcomment cmt">Transform values using a <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.PartialFunction" class="extype" target="_top">scala.PartialFunction</a> and drop values that
+aren't matched.</p>
+    </li><li name="io.iteratee.EnumerateeModule#cross" visbl="pub" data-isabs="false" fullComment="no" group="Enumeratees">
       <a id="cross[E1,E2](e2:io.iteratee.Enumerator[F,E2])(implicitF:cats.Monad[F]):io.iteratee.Enumeratee[F,E1,(E1,E2)]"></a>
       <a id="cross[E1,E2](Enumerator[F,E2])(Monad[F]):Enumeratee[F,E1,(E1,E2)]"></a>
       <h4 class="signature">
@@ -271,7 +272,8 @@
         <img src="../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
-      
+      <p class="shortcomment cmt">Transform a stream by taking the cross-product with the given
+<a href="Enumerator.html" class="extype" name="io.iteratee.Enumerator">Enumerator</a>.</p>
     </li><li name="scala.Predef.Ensuring#ensuring" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="ensuring(cond:A=&gt;Boolean,msg:=&gt;Any):A"></a>
       <a id="ensuring((EnumerateeModule[F])⇒Boolean,⇒Any):EnumerateeModule[F]"></a>
@@ -390,7 +392,7 @@
       </a>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
-    </li><li name="io.iteratee.EnumerateeModule#filter" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+    </li><li name="io.iteratee.EnumerateeModule#filter" visbl="pub" data-isabs="false" fullComment="no" group="Enumeratees">
       <a id="filter[E](p:E=&gt;Boolean)(implicitF:cats.Monad[F]):io.iteratee.Enumeratee[F,E,E]"></a>
       <a id="filter[E]((E)⇒Boolean)(Monad[F]):Enumeratee[F,E,E]"></a>
       <h4 class="signature">
@@ -406,7 +408,7 @@
         <img src="../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
-      
+      <p class="shortcomment cmt">Drop values that do not satisfy the given predicate.</p>
     </li><li name="scala.AnyRef#finalize" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="finalize():Unit"></a>
       <a id="finalize():Unit"></a>
@@ -430,7 +432,7 @@
     </span>)</span>
               
         </dd></dl></div>
-    </li><li name="io.iteratee.EnumerateeModule#flatMap" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+    </li><li name="io.iteratee.EnumerateeModule#flatMap" visbl="pub" data-isabs="false" fullComment="no" group="Enumeratees">
       <a id="flatMap[O,I](f:O=&gt;io.iteratee.Enumerator[F,I])(implicitF:cats.Monad[F]):io.iteratee.Enumeratee[F,O,I]"></a>
       <a id="flatMap[O,I]((O)⇒Enumerator[F,I])(Monad[F]):Enumeratee[F,O,I]"></a>
       <h4 class="signature">
@@ -446,7 +448,8 @@
         <img src="../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
-      
+      <p class="shortcomment cmt">Map a function returning an <a href="Enumerator.html" class="extype" name="io.iteratee.Enumerator">Enumerator</a> over a stream and flatten the
+results.</p>
     </li><li name="scala.Predef.StringFormat#formatted" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="formatted(fmtstr:String):String"></a>
       <a id="formatted(String):String"></a>
@@ -488,7 +491,7 @@
       </a>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
-    </li><li name="io.iteratee.EnumerateeModule#grouped" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+    </li><li name="io.iteratee.EnumerateeModule#grouped" visbl="pub" data-isabs="false" fullComment="no" group="Enumeratees">
       <a id="grouped[E](n:Int)(implicitF:cats.Monad[F]):io.iteratee.Enumeratee[F,E,Vector[E]]"></a>
       <a id="grouped[E](Int)(Monad[F]):Enumeratee[F,E,Vector[E]]"></a>
       <h4 class="signature">
@@ -504,7 +507,7 @@
         <img src="../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
-      
+      <p class="shortcomment cmt">Split the stream into groups of a given length.</p>
     </li><li name="scala.AnyRef#hashCode" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="hashCode():Int"></a>
       <a id="hashCode():Int"></a>
@@ -539,7 +542,7 @@
       </a>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
-    </li><li name="io.iteratee.EnumerateeModule#map" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+    </li><li name="io.iteratee.EnumerateeModule#map" visbl="pub" data-isabs="false" fullComment="no" group="Enumeratees">
       <a id="map[O,I](f:O=&gt;I)(implicitF:cats.Monad[F]):io.iteratee.Enumeratee[F,O,I]"></a>
       <a id="map[O,I]((O)⇒I)(Monad[F]):Enumeratee[F,O,I]"></a>
       <h4 class="signature">
@@ -555,7 +558,24 @@
         <img src="../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
-      <p class="shortcomment cmt">Applies a function to each input element and feeds the resulting outputs to the inner iteratee.</p>
+      <p class="shortcomment cmt">Map a function over a stream.</p>
+    </li><li name="io.iteratee.EnumerateeModule#mapK" visbl="pub" data-isabs="false" fullComment="no" group="Enumeratees">
+      <a id="mapK[O,I](f:O=&gt;F[I])(implicitF:cats.Monad[F]):io.iteratee.Enumeratee[F,O,I]"></a>
+      <a id="mapK[O,I]((O)⇒F[I])(Monad[F]):Enumeratee[F,O,I]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">mapK</span><span class="tparams">[<span name="O">O</span>, <span name="I">I</span>]</span><span class="params">(<span name="f">f: (<span class="extype" name="io.iteratee.EnumerateeModule.mapK.O">O</span>) ⇒ <span class="extype" name="io.iteratee.EnumerateeModule.F">F</span>[<span class="extype" name="io.iteratee.EnumerateeModule.mapK.I">I</span>]</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="F">F: <a href="https://non.github.io/cats/api/index.html#cats.Monad" class="extype" target="_top">Monad</a>[<span class="extype" name="io.iteratee.EnumerateeModule.F">F</span>]</span>)</span><span class="result">: <a href="Enumeratee.html" class="extype" name="io.iteratee.Enumeratee">Enumeratee</a>[<span class="extype" name="io.iteratee.EnumerateeModule.F">F</span>, <span class="extype" name="io.iteratee.EnumerateeModule.mapK.O">O</span>, <span class="extype" name="io.iteratee.EnumerateeModule.mapK.I">I</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.iteratee.EnumerateeModule@mapK[O,I](f:O=&gt;F[I])(implicitF:cats.Monad[F]):io.iteratee.Enumeratee[F,O,I]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Map a function returning a value in a context over a stream.</p>
     </li><li name="scala.AnyRef#ne" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="ne(x$1:AnyRef):Boolean"></a>
       <a id="ne(AnyRef):Boolean"></a>
@@ -607,7 +627,7 @@
       </a>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
-    </li><li name="io.iteratee.EnumerateeModule#sequenceI" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+    </li><li name="io.iteratee.EnumerateeModule#sequenceI" visbl="pub" data-isabs="false" fullComment="no" group="Enumeratees">
       <a id="sequenceI[O,I](iteratee:io.iteratee.Iteratee[F,O,I])(implicitF:cats.Monad[F]):io.iteratee.Enumeratee[F,O,I]"></a>
       <a id="sequenceI[O,I](Iteratee[F,O,I])(Monad[F]):Enumeratee[F,O,I]"></a>
       <h4 class="signature">
@@ -623,8 +643,8 @@
         <img src="../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
-      
-    </li><li name="io.iteratee.EnumerateeModule#splitOn" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <p class="shortcomment cmt">Apply the given <a href="Iteratee.html" class="extype" name="io.iteratee.Iteratee">Iteratee</a> repeatedly.</p>
+    </li><li name="io.iteratee.EnumerateeModule#splitOn" visbl="pub" data-isabs="false" fullComment="no" group="Enumeratees">
       <a id="splitOn[E](p:E=&gt;Boolean)(implicitF:cats.Monad[F]):io.iteratee.Enumeratee[F,E,Vector[E]]"></a>
       <a id="splitOn[E]((E)⇒Boolean)(Monad[F]):Enumeratee[F,E,Vector[E]]"></a>
       <h4 class="signature">
@@ -640,7 +660,7 @@
         <img src="../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
-      
+      <p class="shortcomment cmt">Split the stream using the given predicate to identify delimiters.</p>
     </li><li name="scala.AnyRef#synchronized" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="synchronized[T0](x$1:=&gt;T0):T0"></a>
       <a id="synchronized[T0](⇒T0):T0"></a>
@@ -675,7 +695,7 @@
       </a>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
-    </li><li name="io.iteratee.EnumerateeModule#uniq" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+    </li><li name="io.iteratee.EnumerateeModule#uniq" visbl="pub" data-isabs="false" fullComment="yes" group="Enumeratees">
       <a id="uniq[E](implicitevidence$1:algebra.Eq[E],implicitF:cats.Monad[F]):io.iteratee.Enumeratee[F,E,E]"></a>
       <a id="uniq[E](Eq[E],Monad[F]):Enumeratee[F,E,E]"></a>
       <h4 class="signature">
@@ -691,8 +711,8 @@
         <img src="../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
-      <p class="shortcomment cmt">Uniqueness filter.</p><div class="fullcomment"><div class="comment cmt"><p>Uniqueness filter. Assumes that the input enumerator is already sorted.
-</p></div></div>
+      <p class="shortcomment cmt">Collapse consecutive duplicates.</p><div class="fullcomment"><div class="comment cmt"><p>Collapse consecutive duplicates.
+</p></div><dl class="attributes block"> <dt>Note</dt><dd><span class="cmt"><p>Assumes that the stream is sorted.</p></span></dd></dl></div>
     </li><li name="scala.AnyRef#wait" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="wait():Unit"></a>
       <a id="wait():Unit"></a>
@@ -762,7 +782,7 @@
     </span>)</span>
               
         </dd></dl></div>
-    </li><li name="io.iteratee.EnumerateeModule#zipWithIndex" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+    </li><li name="io.iteratee.EnumerateeModule#zipWithIndex" visbl="pub" data-isabs="false" fullComment="no" group="Enumeratees">
       <a id="zipWithIndex[E](implicitF:cats.Monad[F]):io.iteratee.Enumeratee[F,E,(E,Long)]"></a>
       <a id="zipWithIndex[E](Monad[F]):Enumeratee[F,E,(E,Long)]"></a>
       <h4 class="signature">
@@ -778,7 +798,7 @@
         <img src="../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
-      <p class="shortcomment cmt">Zip with the count of elements that have been encountered.</p>
+      <p class="shortcomment cmt">Zip with the number of elements that have been encountered.</p>
     </li><li name="scala.Predef.ArrowAssoc#→" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="→[B](y:B):(A,B)"></a>
       <a id="→[B](B):(EnumerateeModule[F],B)"></a>
@@ -834,7 +854,10 @@
         </div>
 
         <div id="groupedMembers">
-        <div class="group" name="Ungrouped">
+        <div class="group" name="Enumeratees">
+              <h3>Enumeratees</h3>
+              
+            </div><div class="group" name="Ungrouped">
               <h3>Ungrouped</h3>
               
             </div>

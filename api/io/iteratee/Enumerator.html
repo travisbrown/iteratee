@@ -51,7 +51,7 @@
       </span>
       </h4>
       
-          <div id="comment" class="fullcommenttop"><dl class="attributes block"> <dt>Self Type</dt><dd><a href="" class="extype" name="io.iteratee.Enumerator">Enumerator</a>[<span class="extype" name="io.iteratee.Enumerator.F">F</span>, <span class="extype" name="io.iteratee.Enumerator.E">E</span>]</dd></dl><div class="toggleContainer block">
+          <div id="comment" class="fullcommenttop"><dl class="attributes block"> <dt>Self Type</dt><dd><a href="" class="extype" name="io.iteratee.Enumerator">Enumerator</a>[<span class="extype" name="io.iteratee.Enumerator.F">F</span>, <span class="extype" name="io.iteratee.Enumerator.E">E</span>]</dd><dt>Source</dt><dd><a href="https://github.com/travisbrown/iteratee/tree/master/core/src/main/scala/io/iteratee/Enumerator.scala" target="_blank">Enumerator.scala</a></dd></dl><div class="toggleContainer block">
           <span class="toggle">Linear Supertypes</span>
           <div class="superTypes hiddenContent"><a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Serializable" class="extype" target="_top">Serializable</a>, <span class="extype" name="java.io.Serializable">Serializable</span>, <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a>, <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Any" class="extype" target="_top">Any</a></div>
         </div></div>
@@ -120,18 +120,18 @@
         <div id="values" class="values members">
               <h3>Abstract Value Members</h3>
               <ol><li name="io.iteratee.Enumerator#apply" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
-      <a id="apply[A](s:io.iteratee.Step[F,E,A]):io.iteratee.Iteratee[F,E,A]"></a>
-      <a id="apply[A](Step[F,E,A]):Iteratee[F,E,A]"></a>
+      <a id="apply[A](s:io.iteratee.internal.Step[F,E,A]):F[io.iteratee.internal.Step[F,E,A]]"></a>
+      <a id="apply[A](Step[F,E,A]):F[Step[F,E,A]]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier">abstract </span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">apply</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span name="s">s: <a href="Step.html" class="extype" name="io.iteratee.Step">Step</a>[<span class="extype" name="io.iteratee.Enumerator.F">F</span>, <span class="extype" name="io.iteratee.Enumerator.E">E</span>, <span class="extype" name="io.iteratee.Enumerator.apply.A">A</span>]</span>)</span><span class="result">: <a href="Iteratee.html" class="extype" name="io.iteratee.Iteratee">Iteratee</a>[<span class="extype" name="io.iteratee.Enumerator.F">F</span>, <span class="extype" name="io.iteratee.Enumerator.E">E</span>, <span class="extype" name="io.iteratee.Enumerator.apply.A">A</span>]</span>
+        <span class="name">apply</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span name="s">s: <a href="internal/Step.html" class="extype" name="io.iteratee.internal.Step">Step</a>[<span class="extype" name="io.iteratee.Enumerator.F">F</span>, <span class="extype" name="io.iteratee.Enumerator.E">E</span>, <span class="extype" name="io.iteratee.Enumerator.apply.A">A</span>]</span>)</span><span class="result">: <span class="extype" name="io.iteratee.Enumerator.F">F</span>[<a href="internal/Step.html" class="extype" name="io.iteratee.internal.Step">Step</a>[<span class="extype" name="io.iteratee.Enumerator.F">F</span>, <span class="extype" name="io.iteratee.Enumerator.E">E</span>, <span class="extype" name="io.iteratee.Enumerator.apply.A">A</span>]]</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../index.html#io.iteratee.Enumerator@apply[A](s:io.iteratee.Step[F,E,A]):io.iteratee.Iteratee[F,E,A]" title="Permalink" target="_top">
+      <a href="../../index.html#io.iteratee.Enumerator@apply[A](s:io.iteratee.internal.Step[F,E,A]):F[io.iteratee.internal.Step[F,E,A]]" title="Permalink" target="_top">
         <img src="../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
@@ -311,74 +311,6 @@
     </span>)</span>
               
         </dd></dl></div>
-    </li><li name="io.iteratee.Enumerator#collect" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="collect[B](pf:PartialFunction[E,B])(implicitF:cats.Monad[F]):io.iteratee.Enumerator[F,B]"></a>
-      <a id="collect[B](PartialFunction[E,B])(Monad[F]):Enumerator[F,B]"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier">final </span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">collect</span><span class="tparams">[<span name="B">B</span>]</span><span class="params">(<span name="pf">pf: <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.PartialFunction" class="extype" target="_top">PartialFunction</a>[<span class="extype" name="io.iteratee.Enumerator.E">E</span>, <span class="extype" name="io.iteratee.Enumerator.collect.B">B</span>]</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="F">F: <a href="https://non.github.io/cats/api/index.html#cats.Monad" class="extype" target="_top">Monad</a>[<span class="extype" name="io.iteratee.Enumerator.F">F</span>]</span>)</span><span class="result">: <a href="" class="extype" name="io.iteratee.Enumerator">Enumerator</a>[<span class="extype" name="io.iteratee.Enumerator.F">F</span>, <span class="extype" name="io.iteratee.Enumerator.collect.B">B</span>]</span>
-      </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#io.iteratee.Enumerator@collect[B](pf:PartialFunction[E,B])(implicitF:cats.Monad[F]):io.iteratee.Enumerator[F,B]" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
-      
-    </li><li name="io.iteratee.Enumerator#cross" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="cross[E2](e2:io.iteratee.Enumerator[F,E2])(implicitM:cats.Monad[F]):io.iteratee.Enumerator[F,(E,E2)]"></a>
-      <a id="cross[E2](Enumerator[F,E2])(Monad[F]):Enumerator[F,(E,E2)]"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier">final </span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">cross</span><span class="tparams">[<span name="E2">E2</span>]</span><span class="params">(<span name="e2">e2: <a href="" class="extype" name="io.iteratee.Enumerator">Enumerator</a>[<span class="extype" name="io.iteratee.Enumerator.F">F</span>, <span class="extype" name="io.iteratee.Enumerator.cross.E2">E2</span>]</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="M">M: <a href="https://non.github.io/cats/api/index.html#cats.Monad" class="extype" target="_top">Monad</a>[<span class="extype" name="io.iteratee.Enumerator.F">F</span>]</span>)</span><span class="result">: <a href="" class="extype" name="io.iteratee.Enumerator">Enumerator</a>[<span class="extype" name="io.iteratee.Enumerator.F">F</span>, (<span class="extype" name="io.iteratee.Enumerator.E">E</span>, <span class="extype" name="io.iteratee.Enumerator.cross.E2">E2</span>)]</span>
-      </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#io.iteratee.Enumerator@cross[E2](e2:io.iteratee.Enumerator[F,E2])(implicitM:cats.Monad[F]):io.iteratee.Enumerator[F,(E,E2)]" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
-      
-    </li><li name="io.iteratee.Enumerator#drain" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="drain(implicitF:cats.Monad[F]):F[Vector[E]]"></a>
-      <a id="drain(Monad[F]):F[Vector[E]]"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier">final </span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">drain</span><span class="params">(<span class="implicit">implicit </span><span name="F">F: <a href="https://non.github.io/cats/api/index.html#cats.Monad" class="extype" target="_top">Monad</a>[<span class="extype" name="io.iteratee.Enumerator.F">F</span>]</span>)</span><span class="result">: <span class="extype" name="io.iteratee.Enumerator.F">F</span>[<span class="extype" name="scala.Vector">Vector</span>[<span class="extype" name="io.iteratee.Enumerator.E">E</span>]]</span>
-      </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#io.iteratee.Enumerator@drain(implicitF:cats.Monad[F]):F[Vector[E]]" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
-      
-    </li><li name="io.iteratee.Enumerator#drainTo" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="drainTo[M[_]](implicitM:cats.Monad[F],implicitP:cats.MonoidK[M],implicitZ:cats.Applicative[M]):F[M[E]]"></a>
-      <a id="drainTo[M[_]](Monad[F],MonoidK[M],Applicative[M]):F[M[E]]"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier">final </span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">drainTo</span><span class="tparams">[<span name="M">M<span class="tparams">[<span name="_">_</span>]</span></span>]</span><span class="params">(<span class="implicit">implicit </span><span name="M">M: <a href="https://non.github.io/cats/api/index.html#cats.Monad" class="extype" target="_top">Monad</a>[<span class="extype" name="io.iteratee.Enumerator.F">F</span>]</span>, <span name="P">P: <a href="https://non.github.io/cats/api/index.html#cats.MonoidK" class="extype" target="_top">MonoidK</a>[<span class="extype" name="io.iteratee.Enumerator.drainTo.M">M</span>]</span>, <span name="Z">Z: <a href="https://non.github.io/cats/api/index.html#cats.Applicative" class="extype" target="_top">Applicative</a>[<span class="extype" name="io.iteratee.Enumerator.drainTo.M">M</span>]</span>)</span><span class="result">: <span class="extype" name="io.iteratee.Enumerator.F">F</span>[<span class="extype" name="io.iteratee.Enumerator.drainTo.M">M</span>[<span class="extype" name="io.iteratee.Enumerator.E">E</span>]]</span>
-      </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#io.iteratee.Enumerator@drainTo[M[_]](implicitM:cats.Monad[F],implicitP:cats.MonoidK[M],implicitZ:cats.Applicative[M]):F[M[E]]" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
-      
     </li><li name="io.iteratee.Enumerator#ensure" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="ensure[T](action:F[Unit])(implicitF:cats.MonadError[F,T]):io.iteratee.Enumerator[F,E]"></a>
       <a id="ensure[T](F[Unit])(MonadError[F,T]):Enumerator[F,E]"></a>
@@ -514,23 +446,6 @@
       </a>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
-    </li><li name="io.iteratee.Enumerator#filter" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="filter(p:E=&gt;Boolean)(implicitF:cats.Monad[F]):io.iteratee.Enumerator[F,E]"></a>
-      <a id="filter((E)⇒Boolean)(Monad[F]):Enumerator[F,E]"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier">final </span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">filter</span><span class="params">(<span name="p">p: (<span class="extype" name="io.iteratee.Enumerator.E">E</span>) ⇒ <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Boolean" class="extype" target="_top">Boolean</a></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="F">F: <a href="https://non.github.io/cats/api/index.html#cats.Monad" class="extype" target="_top">Monad</a>[<span class="extype" name="io.iteratee.Enumerator.F">F</span>]</span>)</span><span class="result">: <a href="" class="extype" name="io.iteratee.Enumerator">Enumerator</a>[<span class="extype" name="io.iteratee.Enumerator.F">F</span>, <span class="extype" name="io.iteratee.Enumerator.E">E</span>]</span>
-      </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#io.iteratee.Enumerator@filter(p:E=&gt;Boolean)(implicitF:cats.Monad[F]):io.iteratee.Enumerator[F,E]" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
-      
     </li><li name="scala.AnyRef#finalize" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="finalize():Unit"></a>
       <a id="finalize():Unit"></a>
@@ -588,23 +503,6 @@
       </a>
     </span>
       
-    </li><li name="io.iteratee.Enumerator#fold" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="fold[A](iteratee:io.iteratee.Iteratee[F,E,A])(implicitF:cats.Monad[F]):F[A]"></a>
-      <a id="fold[A](Iteratee[F,E,A])(Monad[F]):F[A]"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier">final </span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">fold</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span name="iteratee">iteratee: <a href="Iteratee.html" class="extype" name="io.iteratee.Iteratee">Iteratee</a>[<span class="extype" name="io.iteratee.Enumerator.F">F</span>, <span class="extype" name="io.iteratee.Enumerator.E">E</span>, <span class="extype" name="io.iteratee.Enumerator.fold.A">A</span>]</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="F">F: <a href="https://non.github.io/cats/api/index.html#cats.Monad" class="extype" target="_top">Monad</a>[<span class="extype" name="io.iteratee.Enumerator.F">F</span>]</span>)</span><span class="result">: <span class="extype" name="io.iteratee.Enumerator.F">F</span>[<span class="extype" name="io.iteratee.Enumerator.fold.A">A</span>]</span>
-      </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#io.iteratee.Enumerator@fold[A](iteratee:io.iteratee.Iteratee[F,E,A])(implicitF:cats.Monad[F]):F[A]" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
-      
     </li><li name="scala.Predef.StringFormat#formatted" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="formatted(fmtstr:String):String"></a>
       <a id="formatted(String):String"></a>
@@ -646,19 +544,19 @@
       </a>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
-    </li><li name="io.iteratee.Enumerator#grouped" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="grouped(n:Int)(implicitF:cats.Monad[F]):io.iteratee.Enumerator[F,Vector[E]]"></a>
-      <a id="grouped(Int)(Monad[F]):Enumerator[F,Vector[E]]"></a>
+    </li><li name="io.iteratee.Enumerator#handleErrorWith" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="handleErrorWith[T](f:T=&gt;io.iteratee.Enumerator[F,E])(implicitF:cats.MonadError[F,T]):io.iteratee.Enumerator[F,E]"></a>
+      <a id="handleErrorWith[T]((T)⇒Enumerator[F,E])(MonadError[F,T]):Enumerator[F,E]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier">final </span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">grouped</span><span class="params">(<span name="n">n: <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Int" class="extype" target="_top">Int</a></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="F">F: <a href="https://non.github.io/cats/api/index.html#cats.Monad" class="extype" target="_top">Monad</a>[<span class="extype" name="io.iteratee.Enumerator.F">F</span>]</span>)</span><span class="result">: <a href="" class="extype" name="io.iteratee.Enumerator">Enumerator</a>[<span class="extype" name="io.iteratee.Enumerator.F">F</span>, <span class="extype" name="scala.Vector">Vector</span>[<span class="extype" name="io.iteratee.Enumerator.E">E</span>]]</span>
+        <span class="name">handleErrorWith</span><span class="tparams">[<span name="T">T</span>]</span><span class="params">(<span name="f">f: (<span class="extype" name="io.iteratee.Enumerator.handleErrorWith.T">T</span>) ⇒ <a href="" class="extype" name="io.iteratee.Enumerator">Enumerator</a>[<span class="extype" name="io.iteratee.Enumerator.F">F</span>, <span class="extype" name="io.iteratee.Enumerator.E">E</span>]</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="F">F: <a href="https://non.github.io/cats/api/index.html#cats.MonadError" class="extype" target="_top">MonadError</a>[<span class="extype" name="io.iteratee.Enumerator.F">F</span>, <span class="extype" name="io.iteratee.Enumerator.handleErrorWith.T">T</span>]</span>)</span><span class="result">: <a href="" class="extype" name="io.iteratee.Enumerator">Enumerator</a>[<span class="extype" name="io.iteratee.Enumerator.F">F</span>, <span class="extype" name="io.iteratee.Enumerator.E">E</span>]</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../index.html#io.iteratee.Enumerator@grouped(n:Int)(implicitF:cats.Monad[F]):io.iteratee.Enumerator[F,Vector[E]]" title="Permalink" target="_top">
+      <a href="../../index.html#io.iteratee.Enumerator@handleErrorWith[T](f:T=&gt;io.iteratee.Enumerator[F,E])(implicitF:cats.MonadError[F,T]):io.iteratee.Enumerator[F,E]" title="Permalink" target="_top">
         <img src="../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
@@ -727,6 +625,23 @@
       </span>
       </h4><span class="permalink">
       <a href="../../index.html#io.iteratee.Enumerator@mapE[I](enumeratee:io.iteratee.Enumeratee[F,E,I])(implicitM:cats.Monad[F]):io.iteratee.Enumerator[F,I]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="io.iteratee.Enumerator#mapK" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="mapK[B](f:E=&gt;F[B])(implicitF:cats.Monad[F]):io.iteratee.Enumerator[F,B]"></a>
+      <a id="mapK[B]((E)⇒F[B])(Monad[F]):Enumerator[F,B]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">mapK</span><span class="tparams">[<span name="B">B</span>]</span><span class="params">(<span name="f">f: (<span class="extype" name="io.iteratee.Enumerator.E">E</span>) ⇒ <span class="extype" name="io.iteratee.Enumerator.F">F</span>[<span class="extype" name="io.iteratee.Enumerator.mapK.B">B</span>]</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="F">F: <a href="https://non.github.io/cats/api/index.html#cats.Monad" class="extype" target="_top">Monad</a>[<span class="extype" name="io.iteratee.Enumerator.F">F</span>]</span>)</span><span class="result">: <a href="" class="extype" name="io.iteratee.Enumerator">Enumerator</a>[<span class="extype" name="io.iteratee.Enumerator.F">F</span>, <span class="extype" name="io.iteratee.Enumerator.mapK.B">B</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.iteratee.Enumerator@mapK[B](f:E=&gt;F[B])(implicitF:cats.Monad[F]):io.iteratee.Enumerator[F,B]" title="Permalink" target="_top">
         <img src="../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
@@ -800,7 +715,7 @@
     </span>
       
     </li><li name="io.iteratee.Enumerator#reduced" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="reduced[B](b:B)(f:(B,E)=&gt;B)(implicitM:cats.Monad[F]):io.iteratee.Enumerator[F,B]"></a>
+      <a id="reduced[B](b:B)(f:(B,E)=&gt;B)(implicitF:cats.Monad[F]):io.iteratee.Enumerator[F,B]"></a>
       <a id="reduced[B](B)((B,E)⇒B)(Monad[F]):Enumerator[F,B]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -808,44 +723,44 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">reduced</span><span class="tparams">[<span name="B">B</span>]</span><span class="params">(<span name="b">b: <span class="extype" name="io.iteratee.Enumerator.reduced.B">B</span></span>)</span><span class="params">(<span name="f">f: (<span class="extype" name="io.iteratee.Enumerator.reduced.B">B</span>, <span class="extype" name="io.iteratee.Enumerator.E">E</span>) ⇒ <span class="extype" name="io.iteratee.Enumerator.reduced.B">B</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="M">M: <a href="https://non.github.io/cats/api/index.html#cats.Monad" class="extype" target="_top">Monad</a>[<span class="extype" name="io.iteratee.Enumerator.F">F</span>]</span>)</span><span class="result">: <a href="" class="extype" name="io.iteratee.Enumerator">Enumerator</a>[<span class="extype" name="io.iteratee.Enumerator.F">F</span>, <span class="extype" name="io.iteratee.Enumerator.reduced.B">B</span>]</span>
+        <span class="name">reduced</span><span class="tparams">[<span name="B">B</span>]</span><span class="params">(<span name="b">b: <span class="extype" name="io.iteratee.Enumerator.reduced.B">B</span></span>)</span><span class="params">(<span name="f">f: (<span class="extype" name="io.iteratee.Enumerator.reduced.B">B</span>, <span class="extype" name="io.iteratee.Enumerator.E">E</span>) ⇒ <span class="extype" name="io.iteratee.Enumerator.reduced.B">B</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="F">F: <a href="https://non.github.io/cats/api/index.html#cats.Monad" class="extype" target="_top">Monad</a>[<span class="extype" name="io.iteratee.Enumerator.F">F</span>]</span>)</span><span class="result">: <a href="" class="extype" name="io.iteratee.Enumerator">Enumerator</a>[<span class="extype" name="io.iteratee.Enumerator.F">F</span>, <span class="extype" name="io.iteratee.Enumerator.reduced.B">B</span>]</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../index.html#io.iteratee.Enumerator@reduced[B](b:B)(f:(B,E)=&gt;B)(implicitM:cats.Monad[F]):io.iteratee.Enumerator[F,B]" title="Permalink" target="_top">
+      <a href="../../index.html#io.iteratee.Enumerator@reduced[B](b:B)(f:(B,E)=&gt;B)(implicitF:cats.Monad[F]):io.iteratee.Enumerator[F,B]" title="Permalink" target="_top">
         <img src="../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
       
-    </li><li name="io.iteratee.Enumerator#sequenceI" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="sequenceI[I](iteratee:io.iteratee.Iteratee[F,E,I])(implicitF:cats.Monad[F]):io.iteratee.Enumerator[F,I]"></a>
-      <a id="sequenceI[I](Iteratee[F,E,I])(Monad[F]):Enumerator[F,I]"></a>
+    </li><li name="io.iteratee.Enumerator#run" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="run[A](iteratee:io.iteratee.Iteratee[F,E,A])(implicitF:cats.Monad[F]):F[A]"></a>
+      <a id="run[A](Iteratee[F,E,A])(Monad[F]):F[A]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier">final </span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">sequenceI</span><span class="tparams">[<span name="I">I</span>]</span><span class="params">(<span name="iteratee">iteratee: <a href="Iteratee.html" class="extype" name="io.iteratee.Iteratee">Iteratee</a>[<span class="extype" name="io.iteratee.Enumerator.F">F</span>, <span class="extype" name="io.iteratee.Enumerator.E">E</span>, <span class="extype" name="io.iteratee.Enumerator.sequenceI.I">I</span>]</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="F">F: <a href="https://non.github.io/cats/api/index.html#cats.Monad" class="extype" target="_top">Monad</a>[<span class="extype" name="io.iteratee.Enumerator.F">F</span>]</span>)</span><span class="result">: <a href="" class="extype" name="io.iteratee.Enumerator">Enumerator</a>[<span class="extype" name="io.iteratee.Enumerator.F">F</span>, <span class="extype" name="io.iteratee.Enumerator.sequenceI.I">I</span>]</span>
+        <span class="name">run</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span name="iteratee">iteratee: <a href="Iteratee.html" class="extype" name="io.iteratee.Iteratee">Iteratee</a>[<span class="extype" name="io.iteratee.Enumerator.F">F</span>, <span class="extype" name="io.iteratee.Enumerator.E">E</span>, <span class="extype" name="io.iteratee.Enumerator.run.A">A</span>]</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="F">F: <a href="https://non.github.io/cats/api/index.html#cats.Monad" class="extype" target="_top">Monad</a>[<span class="extype" name="io.iteratee.Enumerator.F">F</span>]</span>)</span><span class="result">: <span class="extype" name="io.iteratee.Enumerator.F">F</span>[<span class="extype" name="io.iteratee.Enumerator.run.A">A</span>]</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../index.html#io.iteratee.Enumerator@sequenceI[I](iteratee:io.iteratee.Iteratee[F,E,I])(implicitF:cats.Monad[F]):io.iteratee.Enumerator[F,I]" title="Permalink" target="_top">
+      <a href="../../index.html#io.iteratee.Enumerator@run[A](iteratee:io.iteratee.Iteratee[F,E,A])(implicitF:cats.Monad[F]):F[A]" title="Permalink" target="_top">
         <img src="../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
       
-    </li><li name="io.iteratee.Enumerator#splitOn" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="splitOn(p:E=&gt;Boolean)(implicitF:cats.Monad[F]):io.iteratee.Enumerator[F,Vector[E]]"></a>
-      <a id="splitOn((E)⇒Boolean)(Monad[F]):Enumerator[F,Vector[E]]"></a>
+    </li><li name="io.iteratee.Enumerator#runStep" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="runStep[A](s:io.iteratee.internal.Step[F,E,A])(implicitF:cats.Monad[F]):F[A]"></a>
+      <a id="runStep[A](Step[F,E,A])(Monad[F]):F[A]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier">final </span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">splitOn</span><span class="params">(<span name="p">p: (<span class="extype" name="io.iteratee.Enumerator.E">E</span>) ⇒ <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Boolean" class="extype" target="_top">Boolean</a></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="F">F: <a href="https://non.github.io/cats/api/index.html#cats.Monad" class="extype" target="_top">Monad</a>[<span class="extype" name="io.iteratee.Enumerator.F">F</span>]</span>)</span><span class="result">: <a href="" class="extype" name="io.iteratee.Enumerator">Enumerator</a>[<span class="extype" name="io.iteratee.Enumerator.F">F</span>, <span class="extype" name="scala.Vector">Vector</span>[<span class="extype" name="io.iteratee.Enumerator.E">E</span>]]</span>
+        <span class="name">runStep</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span name="s">s: <a href="internal/Step.html" class="extype" name="io.iteratee.internal.Step">Step</a>[<span class="extype" name="io.iteratee.Enumerator.F">F</span>, <span class="extype" name="io.iteratee.Enumerator.E">E</span>, <span class="extype" name="io.iteratee.Enumerator.runStep.A">A</span>]</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="F">F: <a href="https://non.github.io/cats/api/index.html#cats.Monad" class="extype" target="_top">Monad</a>[<span class="extype" name="io.iteratee.Enumerator.F">F</span>]</span>)</span><span class="result">: <span class="extype" name="io.iteratee.Enumerator.F">F</span>[<span class="extype" name="io.iteratee.Enumerator.runStep.A">A</span>]</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../index.html#io.iteratee.Enumerator@splitOn(p:E=&gt;Boolean)(implicitF:cats.Monad[F]):io.iteratee.Enumerator[F,Vector[E]]" title="Permalink" target="_top">
+      <a href="../../index.html#io.iteratee.Enumerator@runStep[A](s:io.iteratee.internal.Step[F,E,A])(implicitF:cats.Monad[F]):F[A]" title="Permalink" target="_top">
         <img src="../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
@@ -884,19 +799,19 @@
       </a>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
-    </li><li name="io.iteratee.Enumerator#uniq" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="uniq(implicitF:cats.Monad[F],implicitE:algebra.Order[E]):io.iteratee.Enumerator[F,E]"></a>
-      <a id="uniq(Monad[F],Order[E]):Enumerator[F,E]"></a>
+    </li><li name="io.iteratee.Enumerator#toVector" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="toVector(implicitF:cats.Monad[F]):F[Vector[E]]"></a>
+      <a id="toVector(Monad[F]):F[Vector[E]]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier">final </span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">uniq</span><span class="params">(<span class="implicit">implicit </span><span name="F">F: <a href="https://non.github.io/cats/api/index.html#cats.Monad" class="extype" target="_top">Monad</a>[<span class="extype" name="io.iteratee.Enumerator.F">F</span>]</span>, <span name="E">E: <a href="https://non.github.io/algebra/api/index.html#algebra.Order" class="extype" target="_top">Order</a>[<span class="extype" name="io.iteratee.Enumerator.E">E</span>]</span>)</span><span class="result">: <a href="" class="extype" name="io.iteratee.Enumerator">Enumerator</a>[<span class="extype" name="io.iteratee.Enumerator.F">F</span>, <span class="extype" name="io.iteratee.Enumerator.E">E</span>]</span>
+        <span class="name">toVector</span><span class="params">(<span class="implicit">implicit </span><span name="F">F: <a href="https://non.github.io/cats/api/index.html#cats.Monad" class="extype" target="_top">Monad</a>[<span class="extype" name="io.iteratee.Enumerator.F">F</span>]</span>)</span><span class="result">: <span class="extype" name="io.iteratee.Enumerator.F">F</span>[<span class="extype" name="scala.Vector">Vector</span>[<span class="extype" name="io.iteratee.Enumerator.E">E</span>]]</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../index.html#io.iteratee.Enumerator@uniq(implicitF:cats.Monad[F],implicitE:algebra.Order[E]):io.iteratee.Enumerator[F,E]" title="Permalink" target="_top">
+      <a href="../../index.html#io.iteratee.Enumerator@toVector(implicitF:cats.Monad[F]):F[Vector[E]]" title="Permalink" target="_top">
         <img src="../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
@@ -970,23 +885,6 @@
     </span>)</span>
               
         </dd></dl></div>
-    </li><li name="io.iteratee.Enumerator#zipWithIndex" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="zipWithIndex(implicitF:cats.Monad[F]):io.iteratee.Enumerator[F,(E,Long)]"></a>
-      <a id="zipWithIndex(Monad[F]):Enumerator[F,(E,Long)]"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier">final </span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">zipWithIndex</span><span class="params">(<span class="implicit">implicit </span><span name="F">F: <a href="https://non.github.io/cats/api/index.html#cats.Monad" class="extype" target="_top">Monad</a>[<span class="extype" name="io.iteratee.Enumerator.F">F</span>]</span>)</span><span class="result">: <a href="" class="extype" name="io.iteratee.Enumerator">Enumerator</a>[<span class="extype" name="io.iteratee.Enumerator.F">F</span>, (<span class="extype" name="io.iteratee.Enumerator.E">E</span>, <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Long" class="extype" target="_top">Long</a>)]</span>
-      </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#io.iteratee.Enumerator@zipWithIndex(implicitF:cats.Monad[F]):io.iteratee.Enumerator[F,(E,Long)]" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
-      
     </li><li name="scala.Predef.ArrowAssoc#→" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="→[B](y:B):(A,B)"></a>
       <a id="→[B](B):(Enumerator[F,E],B)"></a>

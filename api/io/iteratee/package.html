@@ -47,7 +47,7 @@
       </span>
       </h4>
       
-          <div id="comment" class="fullcommenttop"><div class="toggleContainer block">
+          <div id="comment" class="fullcommenttop"><dl class="attributes block"> <dt>Source</dt><dd><a href="https://github.com/travisbrown/iteratee/tree/master/core/src/main/scala/io/iteratee/package.scala" target="_blank">package.scala</a></dd></dl><div class="toggleContainer block">
           <span class="toggle">Linear Supertypes</span>
           <div class="superTypes hiddenContent"><a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a>, <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Any" class="extype" target="_top">Any</a></div>
         </div></div>
@@ -121,7 +121,7 @@
         <img src="../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
-      
+      <p class="shortcomment cmt"></p>
     </li><li name="io.iteratee.Enumerator" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
       <a id="Enumerator[F[_],E]extendsSerializable"></a>
       <a id="Enumerator[F[_],E]:Enumerator[F,E]"></a>
@@ -155,77 +155,7 @@
         <img src="../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
-      
-    </li><li name="io.iteratee.FolderEnumeratee" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
-      <a id="FolderEnumeratee[F[_],O,I]extendsLoopingEnumeratee[F,O,I]"></a>
-      <a id="FolderEnumeratee[F[_],O,I]:FolderEnumeratee[F,O,I]"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier">abstract </span>
-        <span class="kind">class</span>
-      </span>
-      <span class="symbol">
-        <a href="FolderEnumeratee.html"><span class="name">FolderEnumeratee</span></a><span class="tparams">[<span name="F">F<span class="tparams">[<span name="_">_</span>]</span></span>, <span name="O">O</span>, <span name="I">I</span>]</span><span class="result"> extends <a href="LoopingEnumeratee.html" class="extype" name="io.iteratee.LoopingEnumeratee">LoopingEnumeratee</a>[<span class="extype" name="io.iteratee.FolderEnumeratee.F">F</span>, <span class="extype" name="io.iteratee.FolderEnumeratee.O">O</span>, <span class="extype" name="io.iteratee.FolderEnumeratee.I">I</span>]</span>
-      </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#io.iteratee.package@FolderEnumeratee[F[_],O,I]extendsLoopingEnumeratee[F,O,I]" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
-      
-    </li><li name="io.iteratee.Input" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
-      <a id="Input[E]extendsSerializable"></a>
-      <a id="Input[E]:Input[E]"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier">sealed abstract </span>
-        <span class="kind">class</span>
-      </span>
-      <span class="symbol">
-        <a href="Input.html"><span class="name">Input</span></a><span class="tparams">[<span name="E">E</span>]</span><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Serializable" class="extype" target="_top">Serializable</a></span>
-      </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#io.iteratee.package@Input[E]extendsSerializable" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
-      <p class="shortcomment cmt">Input to an <a href="Iteratee.html" class="extype" name="io.iteratee.Iteratee">Iteratee</a>.</p>
-    </li><li name="io.iteratee.InputFolder" visbl="pub" data-isabs="true" fullComment="yes" group="Ungrouped">
-      <a id="InputFolder[E,A]extendsSerializable"></a>
-      <a id="InputFolder[E,A]:InputFolder[E,A]"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier">abstract </span>
-        <span class="kind">class</span>
-      </span>
-      <span class="symbol">
-        <a href="InputFolder.html"><span class="name">InputFolder</span></a><span class="tparams">[<span name="E">E</span>, <span name="A">A</span>]</span><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Serializable" class="extype" target="_top">Serializable</a></span>
-      </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#io.iteratee.package@InputFolder[E,A]extendsSerializable" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
-      <p class="shortcomment cmt">Represents four functions that can be used to reduce an <a href="Input.html" class="extype" name="io.iteratee.Input">Input</a> to a value.</p><div class="fullcomment"><div class="comment cmt"><p>Represents four functions that can be used to reduce an <a href="Input.html" class="extype" name="io.iteratee.Input">Input</a> to a value.</p><p>Combining two &quot;functions&quot; into a single class allows us to save allocations. <code>onEmpty</code> and <code>onEl</code>
-may be overriden to avoid unnecessary allocations, but should be consistent with <code>onChunk</code>.
-</p></div></div>
-    </li><li name="io.iteratee.InputInstances" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
-      <a id="InputInstancesextendsVectorInstances"></a>
-      <a id="InputInstances:InputInstances"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">trait</span>
-      </span>
-      <span class="symbol">
-        <a href="InputInstances.html"><span class="name">InputInstances</span></a><span class="result"> extends <a href="https://non.github.io/cats/api/index.html#cats.std.VectorInstances" class="extype" target="_top">VectorInstances</a></span>
-      </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#io.iteratee.package@InputInstancesextendsVectorInstances" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
-      
+      <p class="shortcomment cmt"></p>
     </li><li name="io.iteratee.Iteratee" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="Iteratee[F[_],E,A]extendsSerializable"></a>
       <a id="Iteratee[F[_],E,A]:Iteratee[F,E,A]"></a>
@@ -242,42 +172,10 @@ may be overriden to avoid unnecessary allocations, but should be consistent with
         <img src="../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
-      <p class="shortcomment cmt">An iteratee processes a stream of elements of type <code>E</code> and may produce a value of type <code>F[A]</code>.</p><div class="fullcomment"><div class="comment cmt"><p>An iteratee processes a stream of elements of type <code>E</code> and may produce a value of type <code>F[A]</code>.
-</p></div><dl class="paramcmts block"><dt class="tparam">F</dt><dd class="cmt"><p>A type constructor representing a context for effects</p></dd><dt class="tparam">E</dt><dd class="cmt"><p>The type of the input data</p></dd><dt class="tparam">A</dt><dd class="cmt"><p>The type of the calculated result</p></dd></dl><dl class="attributes block"> <dt>See also</dt><dd><span class="cmt"><p><a href="Step.html" class="extype" name="io.iteratee.Step">Step</a></p></span></dd></dl></div>
-    </li><li name="io.iteratee.IterateeInstances" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
-      <a id="IterateeInstancesextendsIterateeInstances0"></a>
-      <a id="IterateeInstances:IterateeInstances"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier">sealed abstract </span>
-        <span class="kind">class</span>
-      </span>
-      <span class="symbol">
-        <a href="IterateeInstances.html"><span class="name">IterateeInstances</span></a><span class="result"> extends <a href="IterateeInstances0.html" class="extype" name="io.iteratee.IterateeInstances0">IterateeInstances0</a></span>
-      </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#io.iteratee.package@IterateeInstancesextendsIterateeInstances0" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
-      
-    </li><li name="io.iteratee.IterateeInstances0" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
-      <a id="IterateeInstances0extendsAnyRef"></a>
-      <a id="IterateeInstances0:IterateeInstances0"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier">sealed abstract </span>
-        <span class="kind">class</span>
-      </span>
-      <span class="symbol">
-        <a href="IterateeInstances0.html"><span class="name">IterateeInstances0</span></a><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a></span>
-      </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#io.iteratee.package@IterateeInstances0extendsAnyRef" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
-      
+      <p class="shortcomment cmt">An iteratee processes a stream of elements of type <code>E</code> and returns a value of
+type <code>F[A]</code>.</p><div class="fullcomment"><div class="comment cmt"><p>An iteratee processes a stream of elements of type <code>E</code> and returns a value of
+type <code>F[A]</code>.
+</p></div><dl class="paramcmts block"><dt class="tparam">F</dt><dd class="cmt"><p>A type constructor representing a context for effects</p></dd><dt class="tparam">E</dt><dd class="cmt"><p>The type of the input data</p></dd><dt class="tparam">A</dt><dd class="cmt"><p>The type of the calculated result</p></dd></dl><dl class="attributes block"> <dt>See also</dt><dd><span class="cmt"><p><a href="internal/Step.html" class="extype" name="io.iteratee.internal.Step">io.iteratee.internal.Step</a></p></span></dd></dl></div>
     </li><li name="io.iteratee.IterateeModule" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
       <a id="IterateeModule[F[_]]extendsAnyRef"></a>
       <a id="IterateeModule[F[_]]:IterateeModule[F]"></a>
@@ -294,41 +192,7 @@ may be overriden to avoid unnecessary allocations, but should be consistent with
         <img src="../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
-      
-    </li><li name="io.iteratee.LoopingEnumeratee" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
-      <a id="LoopingEnumeratee[F[_],O,I]extendsEnumeratee[F,O,I]"></a>
-      <a id="LoopingEnumeratee[F[_],O,I]:LoopingEnumeratee[F,O,I]"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier">abstract </span>
-        <span class="kind">class</span>
-      </span>
-      <span class="symbol">
-        <a href="LoopingEnumeratee.html"><span class="name">LoopingEnumeratee</span></a><span class="tparams">[<span name="F">F<span class="tparams">[<span name="_">_</span>]</span></span>, <span name="O">O</span>, <span name="I">I</span>]</span><span class="result"> extends <a href="Enumeratee.html" class="extype" name="io.iteratee.Enumeratee">Enumeratee</a>[<span class="extype" name="io.iteratee.LoopingEnumeratee.F">F</span>, <span class="extype" name="io.iteratee.LoopingEnumeratee.O">O</span>, <span class="extype" name="io.iteratee.LoopingEnumeratee.I">I</span>]</span>
-      </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#io.iteratee.package@LoopingEnumeratee[F[_],O,I]extendsEnumeratee[F,O,I]" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
-      
-    </li><li name="io.iteratee.MapContStepFolder" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
-      <a id="MapContStepFolder[F[_],E,A]extendsStepFolder[F,E,A,io.iteratee.Iteratee[F,E,A]]"></a>
-      <a id="MapContStepFolder[F[_],E,A]:MapContStepFolder[F,E,A]"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier">abstract </span>
-        <span class="kind">class</span>
-      </span>
-      <span class="symbol">
-        <a href="MapContStepFolder.html"><span class="name">MapContStepFolder</span></a><span class="tparams">[<span name="F">F<span class="tparams">[<span name="_">_</span>]</span></span>, <span name="E">E</span>, <span name="A">A</span>]</span><span class="result"> extends <a href="StepFolder.html" class="extype" name="io.iteratee.StepFolder">StepFolder</a>[<span class="extype" name="io.iteratee.MapContStepFolder.F">F</span>, <span class="extype" name="io.iteratee.MapContStepFolder.E">E</span>, <span class="extype" name="io.iteratee.MapContStepFolder.A">A</span>, <a href="Iteratee.html" class="extype" name="io.iteratee.Iteratee">Iteratee</a>[<span class="extype" name="io.iteratee.MapContStepFolder.F">F</span>, <span class="extype" name="io.iteratee.MapContStepFolder.E">E</span>, <span class="extype" name="io.iteratee.MapContStepFolder.A">A</span>]]</span>
-      </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#io.iteratee.package@MapContStepFolder[F[_],E,A]extendsStepFolder[F,E,A,io.iteratee.Iteratee[F,E,A]]" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
-      
+      <p class="shortcomment cmt"></p>
     </li><li name="io.iteratee.Module" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
       <a id="Module[F[_]]extendsEnumerateeModule[F]withEnumeratorModule[F]withIterateeModule[F]"></a>
       <a id="Module[F[_]]:Module[F]"></a>
@@ -345,44 +209,7 @@ may be overriden to avoid unnecessary allocations, but should be consistent with
         <img src="../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
-      
-    </li><li name="io.iteratee.Step" visbl="pub" data-isabs="true" fullComment="yes" group="Ungrouped">
-      <a id="Step[F[_],E,A]extendsSerializable"></a>
-      <a id="Step[F[_],E,A]:Step[F,E,A]"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier">sealed abstract </span>
-        <span class="kind">class</span>
-      </span>
-      <span class="symbol">
-        <a href="Step.html"><span class="name">Step</span></a><span class="tparams">[<span name="F">F<span class="tparams">[<span name="_">_</span>]</span></span>, <span name="E">E</span>, <span name="A">A</span>]</span><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Serializable" class="extype" target="_top">Serializable</a></span>
-      </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#io.iteratee.package@Step[F[_],E,A]extendsSerializable" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
-      <p class="shortcomment cmt">Represents the current state of an <a href="Iteratee.html" class="extype" name="io.iteratee.Iteratee">Iteratee</a>.</p><div class="fullcomment"><div class="comment cmt"><p>Represents the current state of an <a href="Iteratee.html" class="extype" name="io.iteratee.Iteratee">Iteratee</a>.</p><p>An <a href="Iteratee.html" class="extype" name="io.iteratee.Iteratee">Iteratee</a> has either already calculated a result (<a href="Step$.html#done[F[_],E,A](value:A,remaining:io.iteratee.Input[E]):io.iteratee.Step[F,E,A]" class="extmbr" name="io.iteratee.Step#done">Step.done</a>) or is waiting for more
-data (<a href="Step$.html#cont[F[_],E,A](k:io.iteratee.Input[E]=&gt;io.iteratee.Iteratee[F,E,A]):io.iteratee.Step[F,E,A]" class="extmbr" name="io.iteratee.Step#cont">Step.cont</a>).
-</p></div><dl class="paramcmts block"><dt class="tparam">F</dt><dd class="cmt"><p>The effect type constructor</p></dd><dt class="tparam">E</dt><dd class="cmt"><p>The type of the input data</p></dd><dt class="tparam">A</dt><dd class="cmt"><p>The type of the result calculated by the <a href="Iteratee.html" class="extype" name="io.iteratee.Iteratee">Iteratee</a></p></dd></dl></div>
-    </li><li name="io.iteratee.StepFolder" visbl="pub" data-isabs="true" fullComment="yes" group="Ungrouped">
-      <a id="StepFolder[F[_],E,A,B]extendsSerializable"></a>
-      <a id="StepFolder[F[_],E,A,B]:StepFolder[F,E,A,B]"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier">abstract </span>
-        <span class="kind">class</span>
-      </span>
-      <span class="symbol">
-        <a href="StepFolder.html"><span class="name">StepFolder</span></a><span class="tparams">[<span name="F">F<span class="tparams">[<span name="_">_</span>]</span></span>, <span name="E">E</span>, <span name="A">A</span>, <span name="B">B</span>]</span><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Serializable" class="extype" target="_top">Serializable</a></span>
-      </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#io.iteratee.package@StepFolder[F[_],E,A,B]extendsSerializable" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
-      <p class="shortcomment cmt">Represents a pair of functions that can be used to reduce a <a href="Step.html" class="extype" name="io.iteratee.Step">Step</a> to a value.</p><div class="fullcomment"><div class="comment cmt"><p>Represents a pair of functions that can be used to reduce a <a href="Step.html" class="extype" name="io.iteratee.Step">Step</a> to a value.</p><p>Combining two &quot;functions&quot; into a single class allows us to save allocations.
-</p></div><dl class="paramcmts block"><dt class="tparam">F</dt><dd class="cmt"><p>The effect type constructor</p></dd><dt class="tparam">E</dt><dd class="cmt"><p>The type of the input data</p></dd><dt class="tparam">A</dt><dd class="cmt"><p>The type of the result calculated by the <a href="Iteratee.html" class="extype" name="io.iteratee.Iteratee">Iteratee</a></p></dd><dt class="tparam">B</dt><dd class="cmt"><p>The type of the result of the fold</p></dd></dl></div>
+      <p class="shortcomment cmt"></p>
     </li></ol>
             </div>
 
@@ -399,7 +226,7 @@ data (<a href="Step$.html#cont[F[_],E,A](k:io.iteratee.Input[E]=&gt;io.iteratee.
         <span class="kind">object</span>
       </span>
       <span class="symbol">
-        <a href="Enumeratee$.html"><span class="name">Enumeratee</span></a><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Serializable" class="extype" target="_top">Serializable</a></span>
+        <a href="Enumeratee$.html"><span class="name">Enumeratee</span></a><span class="result"> extends <span class="extype" name="io.iteratee.EnumerateeInstances">EnumerateeInstances</span> with <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Serializable" class="extype" target="_top">Serializable</a></span>
       </span>
       </h4><span class="permalink">
       <a href="../../index.html#io.iteratee.package@Enumeratee" title="Permalink" target="_top">
@@ -424,23 +251,6 @@ data (<a href="Step$.html#cont[F[_],E,A](k:io.iteratee.Input[E]=&gt;io.iteratee.
       </a>
     </span>
       
-    </li><li name="io.iteratee.Input" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="Input"></a>
-      <a id="Input:Input"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">object</span>
-      </span>
-      <span class="symbol">
-        <a href="Input$.html"><span class="name">Input</span></a><span class="result"> extends <a href="InputInstances.html" class="extype" name="io.iteratee.InputInstances">InputInstances</a> with <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Serializable" class="extype" target="_top">Serializable</a></span>
-      </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#io.iteratee.package@Input" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
-      
     </li><li name="io.iteratee.Iteratee" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="Iteratee"></a>
       <a id="Iteratee:Iteratee"></a>
@@ -450,48 +260,14 @@ data (<a href="Step$.html#cont[F[_],E,A](k:io.iteratee.Input[E]=&gt;io.iteratee.
         <span class="kind">object</span>
       </span>
       <span class="symbol">
-        <a href="Iteratee$.html"><span class="name">Iteratee</span></a><span class="result"> extends <a href="IterateeInstances.html" class="extype" name="io.iteratee.IterateeInstances">IterateeInstances</a> with <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Serializable" class="extype" target="_top">Serializable</a></span>
+        <a href="Iteratee$.html"><span class="name">Iteratee</span></a><span class="result"> extends <span class="extype" name="io.iteratee.IterateeInstances">IterateeInstances</span> with <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Serializable" class="extype" target="_top">Serializable</a></span>
       </span>
       </h4><span class="permalink">
       <a href="../../index.html#io.iteratee.package@Iteratee" title="Permalink" target="_top">
         <img src="../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
-      
-    </li><li name="io.iteratee.Step" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="Step"></a>
-      <a id="Step:Step"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">object</span>
-      </span>
-      <span class="symbol">
-        <a href="Step$.html"><span class="name">Step</span></a><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Serializable" class="extype" target="_top">Serializable</a></span>
-      </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#io.iteratee.package@Step" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
-      
-    </li><li name="io.iteratee.benchmark" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="benchmark"></a>
-      <a id="benchmark:benchmark"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">package</span>
-      </span>
-      <span class="symbol">
-        <a href="benchmark/package.html"><span class="name">benchmark</span></a>
-      </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#io.iteratee.package@benchmark" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
-      
+      <p class="shortcomment cmt"></p>
     </li><li name="io.iteratee.eval" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="eval"></a>
       <a id="eval:eval"></a>
@@ -509,6 +285,27 @@ data (<a href="Step$.html#cont[F[_],E,A](k:io.iteratee.Input[E]=&gt;io.iteratee.
       </a>
     </span>
       
+    </li><li name="io.iteratee.internal" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="internal"></a>
+      <a id="internal:internal"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">package</span>
+      </span>
+      <span class="symbol">
+        <a href="internal/package.html"><span class="name">internal</span></a>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.iteratee.package@internal" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Internal types and utilities.</p><div class="fullcomment"><div class="comment cmt"><p>Internal types and utilities.</p><p>While some of these types and utilities are part of the public API and are
+used in the implementation of <a href="" class="extype" name="io.iteratee">io.iteratee</a>, they are not designed for
+clarity or ease-of-use, and should never be needed for idiomatic use of the
+library.
+</p></div></div>
     </li><li name="io.iteratee.option" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="option"></a>
       <a id="option:option"></a>
@@ -539,6 +336,23 @@ data (<a href="Step$.html#cont[F[_],E,A](k:io.iteratee.Input[E]=&gt;io.iteratee.
       </span>
       </h4><span class="permalink">
       <a href="../../index.html#io.iteratee.package@pure" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="io.iteratee.task" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="task"></a>
+      <a id="task:task"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">package</span>
+      </span>
+      <span class="symbol">
+        <a href="task/package.html"><span class="name">task</span></a>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.iteratee.package@task" title="Permalink" target="_top">
         <img src="../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>

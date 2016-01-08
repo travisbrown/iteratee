@@ -1,22 +1,22 @@
 <!DOCTYPE html >
 <html>
         <head>
-          <title>Step - io.iteratee.Step</title>
-          <meta name="description" content="Step - io.iteratee.Step" />
-          <meta name="keywords" content="Step io.iteratee.Step" />
+          <title>Folder - io.iteratee.internal.Input.Folder</title>
+          <meta name="description" content="Folder - io.iteratee.internal.Input.Folder" />
+          <meta name="keywords" content="Folder io.iteratee.internal.Input.Folder" />
           <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
           
-      <link href="../../lib/template.css" media="screen" type="text/css" rel="stylesheet" />
-      <link href="../../lib/diagrams.css" media="screen" type="text/css" rel="stylesheet" id="diagrams-css" />
-      <script type="text/javascript" src="../../lib/jquery.js" id="jquery-js"></script>
-      <script type="text/javascript" src="../../lib/jquery-ui.js"></script>
-      <script type="text/javascript" src="../../lib/template.js"></script>
-      <script type="text/javascript" src="../../lib/tools.tooltip.js"></script>
+      <link href="../../../lib/template.css" media="screen" type="text/css" rel="stylesheet" />
+      <link href="../../../lib/diagrams.css" media="screen" type="text/css" rel="stylesheet" id="diagrams-css" />
+      <script type="text/javascript" src="../../../lib/jquery.js" id="jquery-js"></script>
+      <script type="text/javascript" src="../../../lib/jquery-ui.js"></script>
+      <script type="text/javascript" src="../../../lib/template.js"></script>
+      <script type="text/javascript" src="../../../lib/tools.tooltip.js"></script>
       
       <script type="text/javascript">
          if(top === self) {
-            var url = '../../index.html';
-            var hash = 'io.iteratee.Step';
+            var url = '../../../index.html';
+            var hash = 'io.iteratee.internal.Input$$Folder';
             var anchor = window.location.hash;
             var anchor_opt = '';
             if (anchor.length >= 1)
@@ -28,35 +28,37 @@
         </head>
         <body class="type">
       <div id="definition">
-        <a href="Step$.html" title="See companion object"><img alt="Class/Object" src="../../lib/class_to_object_big.png" /></a>
-        <p id="owner"><a href="../package.html" class="extype" name="io">io</a>.<a href="package.html" class="extype" name="io.iteratee">iteratee</a></p>
-        <h1><a href="Step$.html" title="See companion object">Step</a></h1><h3><span class="morelinks"><div>
-            Related Docs:
-            <a href="Step$.html" title="See companion object">object Step</a>
-            | <a href="package.html" class="extype" name="io.iteratee">package iteratee</a>
+        <img alt="Trait" src="../../../lib/trait_big.png" />
+        <p id="owner"><a href="../../package.html" class="extype" name="io">io</a>.<a href="../package.html" class="extype" name="io.iteratee">iteratee</a>.<a href="package.html" class="extype" name="io.iteratee.internal">internal</a>.<a href="Input$.html" class="extype" name="io.iteratee.internal.Input">Input</a></p>
+        <h1>Folder</h1><h3><span class="morelinks"><div>Related Doc:
+            <a href="Input$.html" class="extype" name="io.iteratee.internal.Input">package Input</a>
           </div></span></h3><span class="permalink">
-      <a href="../../index.html#io.iteratee.Step" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
+      <a href="../../../index.html#io.iteratee.internal.Input$$Folder" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
       </div>
 
       <h4 id="signature" class="signature">
       <span class="modifier_kind">
-        <span class="modifier">sealed abstract </span>
-        <span class="kind">class</span>
+        <span class="modifier"></span>
+        <span class="kind">trait</span>
       </span>
       <span class="symbol">
-        <span class="name">Step</span><span class="tparams">[<span name="F">F<span class="tparams">[<span name="_">_</span>]</span></span>, <span name="E">E</span>, <span name="A">A</span>]</span><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Serializable" class="extype" target="_top">Serializable</a></span>
+        <span class="name">Folder</span><span class="tparams">[<span name="E">E</span>, <span name="Z">Z</span>]</span><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a></span>
       </span>
       </h4>
       
-          <div id="comment" class="fullcommenttop"><div class="comment cmt"><p>Represents the current state of an <a href="Iteratee.html" class="extype" name="io.iteratee.Iteratee">Iteratee</a>.</p><p>An <a href="Iteratee.html" class="extype" name="io.iteratee.Iteratee">Iteratee</a> has either already calculated a result (<a href="Step$.html#done[F[_],E,A](value:A,remaining:io.iteratee.Input[E]):io.iteratee.Step[F,E,A]" class="extmbr" name="io.iteratee.Step#done">Step.done</a>) or is waiting for more
-data (<a href="Step$.html#cont[F[_],E,A](k:io.iteratee.Input[E]=&gt;io.iteratee.Iteratee[F,E,A]):io.iteratee.Step[F,E,A]" class="extmbr" name="io.iteratee.Step#cont">Step.cont</a>).
-</p></div><dl class="paramcmts block"><dt class="tparam">F</dt><dd class="cmt"><p>The effect type constructor</p></dd><dt class="tparam">E</dt><dd class="cmt"><p>The type of the input data</p></dd><dt class="tparam">A</dt><dd class="cmt"><p>The type of the result calculated by the <a href="Iteratee.html" class="extype" name="io.iteratee.Iteratee">Iteratee</a></p></dd></dl><div class="toggleContainer block">
+          <div id="comment" class="fullcommenttop"><div class="comment cmt"><p>Represents two functions that can be used to reduce an <a href="Input.html" class="extype" name="io.iteratee.internal.Input">Input</a> to a
+value.</p><p>Combining these &quot;functions&quot; into a single trait allows us to let objects
+we're already creating (e.g. a <a href="Step.html" class="extype" name="io.iteratee.internal.Step">Step</a>) play this role for us.
+</p></div><dl class="paramcmts block"><dt class="tparam">E</dt><dd class="cmt"><p>The element type</p></dd><dt class="tparam">Z</dt><dd class="cmt"><p>The result type</p></dd></dl><dl class="attributes block"> <dt>Source</dt><dd><a href="https://github.com/travisbrown/iteratee/tree/master/core/src/main/scala/io/iteratee/internal/Input.scala" target="_blank">Input.scala</a></dd></dl><div class="toggleContainer block">
           <span class="toggle">Linear Supertypes</span>
-          <div class="superTypes hiddenContent"><a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Serializable" class="extype" target="_top">Serializable</a>, <span class="extype" name="java.io.Serializable">Serializable</span>, <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a>, <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Any" class="extype" target="_top">Any</a></div>
-        </div></div>
+          <div class="superTypes hiddenContent"><a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a>, <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Any" class="extype" target="_top">Any</a></div>
+        </div><div class="toggleContainer block">
+            <span class="toggle">Known Subclasses</span>
+            <div class="subClasses hiddenContent"><a href="Step$$Cont.html" class="extype" name="io.iteratee.internal.Step.Cont">Cont</a>, <a href="Step$$PureCont.html" class="extype" name="io.iteratee.internal.Step.PureCont">PureCont</a>, <a href="Step$$PureCont$$WithValue.html" class="extype" name="io.iteratee.internal.Step.PureCont.WithValue">WithValue</a>, <a href="Step$$Cont$$WithValue.html" class="extype" name="io.iteratee.internal.Step.Cont.WithValue">WithValue</a></div>
+          </div></div>
         
 
       <div id="mbrsel">
@@ -73,7 +75,7 @@ data (<a href="Step$.html#cont[F[_],E,A](k:io.iteratee.Input[E]=&gt;io.iteratee.
                 <span class="filtertype">Inherited<br />
                 </span>
                 <ol id="linearization">
-                  <li class="in" name="io.iteratee.Step"><span>Step</span></li><li class="in" name="scala.Serializable"><span>Serializable</span></li><li class="in" name="java.io.Serializable"><span>Serializable</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
+                  <li class="in" name="io.iteratee.internal.Input.Folder"><span>Folder</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
                 </ol>
               </div><div id="ancestors">
                 <span class="filtertype">Implicitly<br />
@@ -101,37 +103,37 @@ data (<a href="Step$.html#cont[F[_],E,A](k:io.iteratee.Input[E]=&gt;io.iteratee.
 
         <div id="values" class="values members">
               <h3>Abstract Value Members</h3>
-              <ol><li name="io.iteratee.Step#foldWith" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
-      <a id="foldWith[B](folder:io.iteratee.StepFolder[F,E,A,B]):B"></a>
-      <a id="foldWith[B](StepFolder[F,E,A,B]):B"></a>
+              <ol><li name="io.iteratee.internal.Input.Folder#onChunk" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="onChunk(h1:E,h2:E,t:Vector[E]):Z"></a>
+      <a id="onChunk(E,E,Vector[E]):Z"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier">abstract </span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">foldWith</span><span class="tparams">[<span name="B">B</span>]</span><span class="params">(<span name="folder">folder: <a href="StepFolder.html" class="extype" name="io.iteratee.StepFolder">StepFolder</a>[<span class="extype" name="io.iteratee.Step.F">F</span>, <span class="extype" name="io.iteratee.Step.E">E</span>, <span class="extype" name="io.iteratee.Step.A">A</span>, <span class="extype" name="io.iteratee.Step.foldWith.B">B</span>]</span>)</span><span class="result">: <span class="extype" name="io.iteratee.Step.foldWith.B">B</span></span>
+        <span class="name">onChunk</span><span class="params">(<span name="h1">h1: <span class="extype" name="io.iteratee.internal.Input.Folder.E">E</span></span>, <span name="h2">h2: <span class="extype" name="io.iteratee.internal.Input.Folder.E">E</span></span>, <span name="t">t: <span class="extype" name="scala.Vector">Vector</span>[<span class="extype" name="io.iteratee.internal.Input.Folder.E">E</span>]</span>)</span><span class="result">: <span class="extype" name="io.iteratee.internal.Input.Folder.Z">Z</span></span>
       </span>
       </h4><span class="permalink">
-      <a href="../../index.html#io.iteratee.Step@foldWith[B](folder:io.iteratee.StepFolder[F,E,A,B]):B" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
+      <a href="../../../index.html#io.iteratee.internal.Input$$Folder@onChunk(h1:E,h2:E,t:Vector[E]):Z" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
-      <p class="shortcomment cmt">Reduce this <a href="" class="extype" name="io.iteratee.Step">Step</a> to a value using the given pair of functions.</p>
-    </li><li name="io.iteratee.Step#isDone" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
-      <a id="isDone:Boolean"></a>
-      <a id="isDone:Boolean"></a>
+      
+    </li><li name="io.iteratee.internal.Input.Folder#onEl" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="onEl(e:E):Z"></a>
+      <a id="onEl(E):Z"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier">abstract </span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">isDone</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Boolean" class="extype" target="_top">Boolean</a></span>
+        <span class="name">onEl</span><span class="params">(<span name="e">e: <span class="extype" name="io.iteratee.internal.Input.Folder.E">E</span></span>)</span><span class="result">: <span class="extype" name="io.iteratee.internal.Input.Folder.Z">Z</span></span>
       </span>
       </h4><span class="permalink">
-      <a href="../../index.html#io.iteratee.Step@isDone:Boolean" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
+      <a href="../../../index.html#io.iteratee.internal.Input$$Folder@onEl(e:E):Z" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
       
@@ -152,8 +154,8 @@ data (<a href="Step$.html#cont[F[_],E,A](k:io.iteratee.Input[E]=&gt;io.iteratee.
         <span title="gt4s: $bang$eq" class="name">!=</span><span class="params">(<span name="arg0">arg0: <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Any" class="extype" target="_top">Any</a></span>)</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Boolean" class="extype" target="_top">Boolean</a></span>
       </span>
       </h4><span class="permalink">
-      <a href="../../index.html#io.iteratee.Step@!=(x$1:Any):Boolean" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
+      <a href="../../../index.html#io.iteratee.internal.Input$$Folder@!=(x$1:Any):Boolean" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
@@ -169,8 +171,8 @@ data (<a href="Step$.html#cont[F[_],E,A](k:io.iteratee.Input[E]=&gt;io.iteratee.
         <span title="gt4s: $hash$hash" class="name">##</span><span class="params">()</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Int" class="extype" target="_top">Int</a></span>
       </span>
       </h4><span class="permalink">
-      <a href="../../index.html#io.iteratee.Step@##():Int" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
+      <a href="../../../index.html#io.iteratee.internal.Input$$Folder@##():Int" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
@@ -186,34 +188,34 @@ data (<a href="Step$.html#cont[F[_],E,A](k:io.iteratee.Input[E]=&gt;io.iteratee.
         <span title="gt4s: $plus" class="implicit">+</span><span class="params">(<span name="other">other: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result">: <span class="extype" name="scala.Predef.String">String</span></span>
       </span>
       </h4><span class="permalink">
-      <a href="../../index.html#io.iteratee.Step@+(other:String):String" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
+      <a href="../../../index.html#io.iteratee.internal.Input$$Folder@+(other:String):String" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt class="implicit">Implicit information</dt><dd>
-            This member is added by an implicit conversion from <a href="" class="extype" name="io.iteratee.Step">Step</a>[<span class="extype" name="io.iteratee.Step.F">F</span>, <span class="extype" name="io.iteratee.Step.E">E</span>, <span class="extype" name="io.iteratee.Step.A">A</span>] to
-            <span class="extype" name="scala.Predef.any2stringadd">any2stringadd</span>[<a href="" class="extype" name="io.iteratee.Step">Step</a>[<span class="extype" name="io.iteratee.Step.F">F</span>, <span class="extype" name="io.iteratee.Step.E">E</span>, <span class="extype" name="io.iteratee.Step.A">A</span>]] performed by method any2stringadd in scala.Predef.
+            This member is added by an implicit conversion from <a href="" class="extype" name="io.iteratee.internal.Input.Folder">Folder</a>[<span class="extype" name="io.iteratee.internal.Input.Folder.E">E</span>, <span class="extype" name="io.iteratee.internal.Input.Folder.Z">Z</span>] to
+            <span class="extype" name="scala.Predef.any2stringadd">any2stringadd</span>[<a href="" class="extype" name="io.iteratee.internal.Input.Folder">Folder</a>[<span class="extype" name="io.iteratee.internal.Input.Folder.E">E</span>, <span class="extype" name="io.iteratee.internal.Input.Folder.Z">Z</span>]] performed by method any2stringadd in scala.Predef.
             
           </dd><dt>Definition Classes</dt><dd>any2stringadd</dd></dl></div>
     </li><li name="scala.Predef.ArrowAssoc#-&gt;" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="-&gt;[B](y:B):(A,B)"></a>
-      <a id="-&gt;[B](B):(Step[F,E,A],B)"></a>
+      <a id="-&gt;[B](B):(Folder[E,Z],B)"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span title="gt4s: $minus$greater" class="implicit">-&gt;</span><span class="tparams">[<span name="B">B</span>]</span><span class="params">(<span name="y">y: <span class="extype" name="scala.Predef.ArrowAssoc.-&gt;.B">B</span></span>)</span><span class="result">: (<a href="" class="extype" name="io.iteratee.Step">Step</a>[<span class="extype" name="io.iteratee.Step.F">F</span>, <span class="extype" name="io.iteratee.Step.E">E</span>, <span class="extype" name="io.iteratee.Step.A">A</span>], <span class="extype" name="scala.Predef.ArrowAssoc.-&gt;.B">B</span>)</span>
+        <span title="gt4s: $minus$greater" class="implicit">-&gt;</span><span class="tparams">[<span name="B">B</span>]</span><span class="params">(<span name="y">y: <span class="extype" name="scala.Predef.ArrowAssoc.-&gt;.B">B</span></span>)</span><span class="result">: (<a href="" class="extype" name="io.iteratee.internal.Input.Folder">Folder</a>[<span class="extype" name="io.iteratee.internal.Input.Folder.E">E</span>, <span class="extype" name="io.iteratee.internal.Input.Folder.Z">Z</span>], <span class="extype" name="scala.Predef.ArrowAssoc.-&gt;.B">B</span>)</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../index.html#io.iteratee.Step@-&gt;[B](y:B):(A,B)" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
+      <a href="../../../index.html#io.iteratee.internal.Input$$Folder@-&gt;[B](y:B):(A,B)" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt class="implicit">Implicit information</dt><dd>
-            This member is added by an implicit conversion from <a href="" class="extype" name="io.iteratee.Step">Step</a>[<span class="extype" name="io.iteratee.Step.F">F</span>, <span class="extype" name="io.iteratee.Step.E">E</span>, <span class="extype" name="io.iteratee.Step.A">A</span>] to
-            <span class="extype" name="scala.Predef.ArrowAssoc">ArrowAssoc</span>[<a href="" class="extype" name="io.iteratee.Step">Step</a>[<span class="extype" name="io.iteratee.Step.F">F</span>, <span class="extype" name="io.iteratee.Step.E">E</span>, <span class="extype" name="io.iteratee.Step.A">A</span>]] performed by method ArrowAssoc in scala.Predef.
+            This member is added by an implicit conversion from <a href="" class="extype" name="io.iteratee.internal.Input.Folder">Folder</a>[<span class="extype" name="io.iteratee.internal.Input.Folder.E">E</span>, <span class="extype" name="io.iteratee.internal.Input.Folder.Z">Z</span>] to
+            <span class="extype" name="scala.Predef.ArrowAssoc">ArrowAssoc</span>[<a href="" class="extype" name="io.iteratee.internal.Input.Folder">Folder</a>[<span class="extype" name="io.iteratee.internal.Input.Folder.E">E</span>, <span class="extype" name="io.iteratee.internal.Input.Folder.Z">Z</span>]] performed by method ArrowAssoc in scala.Predef.
             
           </dd><dt>Definition Classes</dt><dd>ArrowAssoc</dd><dt>Annotations</dt><dd>
                 <span class="name">@inline</span><span class="args">()</span>
@@ -231,8 +233,8 @@ data (<a href="Step$.html#cont[F[_],E,A](k:io.iteratee.Input[E]=&gt;io.iteratee.
         <span title="gt4s: $eq$eq" class="name">==</span><span class="params">(<span name="arg0">arg0: <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Any" class="extype" target="_top">Any</a></span>)</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Boolean" class="extype" target="_top">Boolean</a></span>
       </span>
       </h4><span class="permalink">
-      <a href="../../index.html#io.iteratee.Step@==(x$1:Any):Boolean" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
+      <a href="../../../index.html#io.iteratee.internal.Input$$Folder@==(x$1:Any):Boolean" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
@@ -248,8 +250,8 @@ data (<a href="Step$.html#cont[F[_],E,A](k:io.iteratee.Input[E]=&gt;io.iteratee.
         <span class="name">asInstanceOf</span><span class="tparams">[<span name="T0">T0</span>]</span><span class="result">: <span class="extype" name="scala.Any.asInstanceOf.T0">T0</span></span>
       </span>
       </h4><span class="permalink">
-      <a href="../../index.html#io.iteratee.Step@asInstanceOf[T0]:T0" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
+      <a href="../../../index.html#io.iteratee.internal.Input$$Folder@asInstanceOf[T0]:T0" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
@@ -265,11 +267,11 @@ data (<a href="Step$.html#cont[F[_],E,A](k:io.iteratee.Input[E]=&gt;io.iteratee.
         <span class="name">clone</span><span class="params">()</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a></span>
       </span>
       </h4><span class="permalink">
-      <a href="../../index.html#io.iteratee.Step@clone():Object" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
+      <a href="../../../index.html#io.iteratee.internal.Input$$Folder@clone():Object" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<a href="../../java$lang.html" class="extype" name="java.lang">java.lang</a>] </dd><dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<a href="../../../java$lang.html" class="extype" name="java.lang">java.lang</a>] </dd><dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
                 <span class="name">@throws</span><span class="args">(<span>
       
       <span class="defval" name="classOf[java.lang.CloneNotSupportedException]">...</span>
@@ -278,86 +280,86 @@ data (<a href="Step$.html#cont[F[_],E,A](k:io.iteratee.Input[E]=&gt;io.iteratee.
         </dd></dl></div>
     </li><li name="scala.Predef.Ensuring#ensuring" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="ensuring(cond:A=&gt;Boolean,msg:=&gt;Any):A"></a>
-      <a id="ensuring((Step[F,E,A])⇒Boolean,⇒Any):Step[F,E,A]"></a>
+      <a id="ensuring((Folder[E,Z])⇒Boolean,⇒Any):Folder[E,Z]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="implicit">ensuring</span><span class="params">(<span name="cond">cond: (<a href="" class="extype" name="io.iteratee.Step">Step</a>[<span class="extype" name="io.iteratee.Step.F">F</span>, <span class="extype" name="io.iteratee.Step.E">E</span>, <span class="extype" name="io.iteratee.Step.A">A</span>]) ⇒ <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Boolean" class="extype" target="_top">Boolean</a></span>, <span name="msg">msg: ⇒ <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Any" class="extype" target="_top">Any</a></span>)</span><span class="result">: <a href="" class="extype" name="io.iteratee.Step">Step</a>[<span class="extype" name="io.iteratee.Step.F">F</span>, <span class="extype" name="io.iteratee.Step.E">E</span>, <span class="extype" name="io.iteratee.Step.A">A</span>]</span>
+        <span class="implicit">ensuring</span><span class="params">(<span name="cond">cond: (<a href="" class="extype" name="io.iteratee.internal.Input.Folder">Folder</a>[<span class="extype" name="io.iteratee.internal.Input.Folder.E">E</span>, <span class="extype" name="io.iteratee.internal.Input.Folder.Z">Z</span>]) ⇒ <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Boolean" class="extype" target="_top">Boolean</a></span>, <span name="msg">msg: ⇒ <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Any" class="extype" target="_top">Any</a></span>)</span><span class="result">: <a href="" class="extype" name="io.iteratee.internal.Input.Folder">Folder</a>[<span class="extype" name="io.iteratee.internal.Input.Folder.E">E</span>, <span class="extype" name="io.iteratee.internal.Input.Folder.Z">Z</span>]</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../index.html#io.iteratee.Step@ensuring(cond:A=&gt;Boolean,msg:=&gt;Any):A" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
+      <a href="../../../index.html#io.iteratee.internal.Input$$Folder@ensuring(cond:A=&gt;Boolean,msg:=&gt;Any):A" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt class="implicit">Implicit information</dt><dd>
-            This member is added by an implicit conversion from <a href="" class="extype" name="io.iteratee.Step">Step</a>[<span class="extype" name="io.iteratee.Step.F">F</span>, <span class="extype" name="io.iteratee.Step.E">E</span>, <span class="extype" name="io.iteratee.Step.A">A</span>] to
-            <span class="extype" name="scala.Predef.Ensuring">Ensuring</span>[<a href="" class="extype" name="io.iteratee.Step">Step</a>[<span class="extype" name="io.iteratee.Step.F">F</span>, <span class="extype" name="io.iteratee.Step.E">E</span>, <span class="extype" name="io.iteratee.Step.A">A</span>]] performed by method Ensuring in scala.Predef.
+            This member is added by an implicit conversion from <a href="" class="extype" name="io.iteratee.internal.Input.Folder">Folder</a>[<span class="extype" name="io.iteratee.internal.Input.Folder.E">E</span>, <span class="extype" name="io.iteratee.internal.Input.Folder.Z">Z</span>] to
+            <span class="extype" name="scala.Predef.Ensuring">Ensuring</span>[<a href="" class="extype" name="io.iteratee.internal.Input.Folder">Folder</a>[<span class="extype" name="io.iteratee.internal.Input.Folder.E">E</span>, <span class="extype" name="io.iteratee.internal.Input.Folder.Z">Z</span>]] performed by method Ensuring in scala.Predef.
             
           </dd><dt>Definition Classes</dt><dd>Ensuring</dd></dl></div>
     </li><li name="scala.Predef.Ensuring#ensuring" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="ensuring(cond:A=&gt;Boolean):A"></a>
-      <a id="ensuring((Step[F,E,A])⇒Boolean):Step[F,E,A]"></a>
+      <a id="ensuring((Folder[E,Z])⇒Boolean):Folder[E,Z]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="implicit">ensuring</span><span class="params">(<span name="cond">cond: (<a href="" class="extype" name="io.iteratee.Step">Step</a>[<span class="extype" name="io.iteratee.Step.F">F</span>, <span class="extype" name="io.iteratee.Step.E">E</span>, <span class="extype" name="io.iteratee.Step.A">A</span>]) ⇒ <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Boolean" class="extype" target="_top">Boolean</a></span>)</span><span class="result">: <a href="" class="extype" name="io.iteratee.Step">Step</a>[<span class="extype" name="io.iteratee.Step.F">F</span>, <span class="extype" name="io.iteratee.Step.E">E</span>, <span class="extype" name="io.iteratee.Step.A">A</span>]</span>
+        <span class="implicit">ensuring</span><span class="params">(<span name="cond">cond: (<a href="" class="extype" name="io.iteratee.internal.Input.Folder">Folder</a>[<span class="extype" name="io.iteratee.internal.Input.Folder.E">E</span>, <span class="extype" name="io.iteratee.internal.Input.Folder.Z">Z</span>]) ⇒ <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Boolean" class="extype" target="_top">Boolean</a></span>)</span><span class="result">: <a href="" class="extype" name="io.iteratee.internal.Input.Folder">Folder</a>[<span class="extype" name="io.iteratee.internal.Input.Folder.E">E</span>, <span class="extype" name="io.iteratee.internal.Input.Folder.Z">Z</span>]</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../index.html#io.iteratee.Step@ensuring(cond:A=&gt;Boolean):A" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
+      <a href="../../../index.html#io.iteratee.internal.Input$$Folder@ensuring(cond:A=&gt;Boolean):A" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt class="implicit">Implicit information</dt><dd>
-            This member is added by an implicit conversion from <a href="" class="extype" name="io.iteratee.Step">Step</a>[<span class="extype" name="io.iteratee.Step.F">F</span>, <span class="extype" name="io.iteratee.Step.E">E</span>, <span class="extype" name="io.iteratee.Step.A">A</span>] to
-            <span class="extype" name="scala.Predef.Ensuring">Ensuring</span>[<a href="" class="extype" name="io.iteratee.Step">Step</a>[<span class="extype" name="io.iteratee.Step.F">F</span>, <span class="extype" name="io.iteratee.Step.E">E</span>, <span class="extype" name="io.iteratee.Step.A">A</span>]] performed by method Ensuring in scala.Predef.
+            This member is added by an implicit conversion from <a href="" class="extype" name="io.iteratee.internal.Input.Folder">Folder</a>[<span class="extype" name="io.iteratee.internal.Input.Folder.E">E</span>, <span class="extype" name="io.iteratee.internal.Input.Folder.Z">Z</span>] to
+            <span class="extype" name="scala.Predef.Ensuring">Ensuring</span>[<a href="" class="extype" name="io.iteratee.internal.Input.Folder">Folder</a>[<span class="extype" name="io.iteratee.internal.Input.Folder.E">E</span>, <span class="extype" name="io.iteratee.internal.Input.Folder.Z">Z</span>]] performed by method Ensuring in scala.Predef.
             
           </dd><dt>Definition Classes</dt><dd>Ensuring</dd></dl></div>
     </li><li name="scala.Predef.Ensuring#ensuring" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="ensuring(cond:Boolean,msg:=&gt;Any):A"></a>
-      <a id="ensuring(Boolean,⇒Any):Step[F,E,A]"></a>
+      <a id="ensuring(Boolean,⇒Any):Folder[E,Z]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="implicit">ensuring</span><span class="params">(<span name="cond">cond: <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Boolean" class="extype" target="_top">Boolean</a></span>, <span name="msg">msg: ⇒ <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Any" class="extype" target="_top">Any</a></span>)</span><span class="result">: <a href="" class="extype" name="io.iteratee.Step">Step</a>[<span class="extype" name="io.iteratee.Step.F">F</span>, <span class="extype" name="io.iteratee.Step.E">E</span>, <span class="extype" name="io.iteratee.Step.A">A</span>]</span>
+        <span class="implicit">ensuring</span><span class="params">(<span name="cond">cond: <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Boolean" class="extype" target="_top">Boolean</a></span>, <span name="msg">msg: ⇒ <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Any" class="extype" target="_top">Any</a></span>)</span><span class="result">: <a href="" class="extype" name="io.iteratee.internal.Input.Folder">Folder</a>[<span class="extype" name="io.iteratee.internal.Input.Folder.E">E</span>, <span class="extype" name="io.iteratee.internal.Input.Folder.Z">Z</span>]</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../index.html#io.iteratee.Step@ensuring(cond:Boolean,msg:=&gt;Any):A" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
+      <a href="../../../index.html#io.iteratee.internal.Input$$Folder@ensuring(cond:Boolean,msg:=&gt;Any):A" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt class="implicit">Implicit information</dt><dd>
-            This member is added by an implicit conversion from <a href="" class="extype" name="io.iteratee.Step">Step</a>[<span class="extype" name="io.iteratee.Step.F">F</span>, <span class="extype" name="io.iteratee.Step.E">E</span>, <span class="extype" name="io.iteratee.Step.A">A</span>] to
-            <span class="extype" name="scala.Predef.Ensuring">Ensuring</span>[<a href="" class="extype" name="io.iteratee.Step">Step</a>[<span class="extype" name="io.iteratee.Step.F">F</span>, <span class="extype" name="io.iteratee.Step.E">E</span>, <span class="extype" name="io.iteratee.Step.A">A</span>]] performed by method Ensuring in scala.Predef.
+            This member is added by an implicit conversion from <a href="" class="extype" name="io.iteratee.internal.Input.Folder">Folder</a>[<span class="extype" name="io.iteratee.internal.Input.Folder.E">E</span>, <span class="extype" name="io.iteratee.internal.Input.Folder.Z">Z</span>] to
+            <span class="extype" name="scala.Predef.Ensuring">Ensuring</span>[<a href="" class="extype" name="io.iteratee.internal.Input.Folder">Folder</a>[<span class="extype" name="io.iteratee.internal.Input.Folder.E">E</span>, <span class="extype" name="io.iteratee.internal.Input.Folder.Z">Z</span>]] performed by method Ensuring in scala.Predef.
             
           </dd><dt>Definition Classes</dt><dd>Ensuring</dd></dl></div>
     </li><li name="scala.Predef.Ensuring#ensuring" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="ensuring(cond:Boolean):A"></a>
-      <a id="ensuring(Boolean):Step[F,E,A]"></a>
+      <a id="ensuring(Boolean):Folder[E,Z]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="implicit">ensuring</span><span class="params">(<span name="cond">cond: <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Boolean" class="extype" target="_top">Boolean</a></span>)</span><span class="result">: <a href="" class="extype" name="io.iteratee.Step">Step</a>[<span class="extype" name="io.iteratee.Step.F">F</span>, <span class="extype" name="io.iteratee.Step.E">E</span>, <span class="extype" name="io.iteratee.Step.A">A</span>]</span>
+        <span class="implicit">ensuring</span><span class="params">(<span name="cond">cond: <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Boolean" class="extype" target="_top">Boolean</a></span>)</span><span class="result">: <a href="" class="extype" name="io.iteratee.internal.Input.Folder">Folder</a>[<span class="extype" name="io.iteratee.internal.Input.Folder.E">E</span>, <span class="extype" name="io.iteratee.internal.Input.Folder.Z">Z</span>]</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../index.html#io.iteratee.Step@ensuring(cond:Boolean):A" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
+      <a href="../../../index.html#io.iteratee.internal.Input$$Folder@ensuring(cond:Boolean):A" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt class="implicit">Implicit information</dt><dd>
-            This member is added by an implicit conversion from <a href="" class="extype" name="io.iteratee.Step">Step</a>[<span class="extype" name="io.iteratee.Step.F">F</span>, <span class="extype" name="io.iteratee.Step.E">E</span>, <span class="extype" name="io.iteratee.Step.A">A</span>] to
-            <span class="extype" name="scala.Predef.Ensuring">Ensuring</span>[<a href="" class="extype" name="io.iteratee.Step">Step</a>[<span class="extype" name="io.iteratee.Step.F">F</span>, <span class="extype" name="io.iteratee.Step.E">E</span>, <span class="extype" name="io.iteratee.Step.A">A</span>]] performed by method Ensuring in scala.Predef.
+            This member is added by an implicit conversion from <a href="" class="extype" name="io.iteratee.internal.Input.Folder">Folder</a>[<span class="extype" name="io.iteratee.internal.Input.Folder.E">E</span>, <span class="extype" name="io.iteratee.internal.Input.Folder.Z">Z</span>] to
+            <span class="extype" name="scala.Predef.Ensuring">Ensuring</span>[<a href="" class="extype" name="io.iteratee.internal.Input.Folder">Folder</a>[<span class="extype" name="io.iteratee.internal.Input.Folder.E">E</span>, <span class="extype" name="io.iteratee.internal.Input.Folder.Z">Z</span>]] performed by method Ensuring in scala.Predef.
             
           </dd><dt>Definition Classes</dt><dd>Ensuring</dd></dl></div>
     </li><li name="scala.AnyRef#eq" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
@@ -372,8 +374,8 @@ data (<a href="Step$.html#cont[F[_],E,A](k:io.iteratee.Input[E]=&gt;io.iteratee.
         <span class="name">eq</span><span class="params">(<span name="arg0">arg0: <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a></span>)</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Boolean" class="extype" target="_top">Boolean</a></span>
       </span>
       </h4><span class="permalink">
-      <a href="../../index.html#io.iteratee.Step@eq(x$1:AnyRef):Boolean" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
+      <a href="../../../index.html#io.iteratee.internal.Input$$Folder@eq(x$1:AnyRef):Boolean" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
@@ -389,8 +391,8 @@ data (<a href="Step$.html#cont[F[_],E,A](k:io.iteratee.Input[E]=&gt;io.iteratee.
         <span class="name">equals</span><span class="params">(<span name="arg0">arg0: <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Any" class="extype" target="_top">Any</a></span>)</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Boolean" class="extype" target="_top">Boolean</a></span>
       </span>
       </h4><span class="permalink">
-      <a href="../../index.html#io.iteratee.Step@equals(x$1:Any):Boolean" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
+      <a href="../../../index.html#io.iteratee.internal.Input$$Folder@equals(x$1:Any):Boolean" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
@@ -406,11 +408,11 @@ data (<a href="Step$.html#cont[F[_],E,A](k:io.iteratee.Input[E]=&gt;io.iteratee.
         <span class="name">finalize</span><span class="params">()</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Unit" class="extype" target="_top">Unit</a></span>
       </span>
       </h4><span class="permalink">
-      <a href="../../index.html#io.iteratee.Step@finalize():Unit" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
+      <a href="../../../index.html#io.iteratee.internal.Input$$Folder@finalize():Unit" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<a href="../../java$lang.html" class="extype" name="java.lang">java.lang</a>] </dd><dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<a href="../../../java$lang.html" class="extype" name="java.lang">java.lang</a>] </dd><dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
                 <span class="name">@throws</span><span class="args">(<span>
       
       <span class="symbol">classOf[java.lang.Throwable]</span>
@@ -429,13 +431,13 @@ data (<a href="Step$.html#cont[F[_],E,A](k:io.iteratee.Input[E]=&gt;io.iteratee.
         <span class="implicit">formatted</span><span class="params">(<span name="fmtstr">fmtstr: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result">: <span class="extype" name="scala.Predef.String">String</span></span>
       </span>
       </h4><span class="permalink">
-      <a href="../../index.html#io.iteratee.Step@formatted(fmtstr:String):String" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
+      <a href="../../../index.html#io.iteratee.internal.Input$$Folder@formatted(fmtstr:String):String" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt class="implicit">Implicit information</dt><dd>
-            This member is added by an implicit conversion from <a href="" class="extype" name="io.iteratee.Step">Step</a>[<span class="extype" name="io.iteratee.Step.F">F</span>, <span class="extype" name="io.iteratee.Step.E">E</span>, <span class="extype" name="io.iteratee.Step.A">A</span>] to
-            <span class="extype" name="scala.Predef.StringFormat">StringFormat</span>[<a href="" class="extype" name="io.iteratee.Step">Step</a>[<span class="extype" name="io.iteratee.Step.F">F</span>, <span class="extype" name="io.iteratee.Step.E">E</span>, <span class="extype" name="io.iteratee.Step.A">A</span>]] performed by method StringFormat in scala.Predef.
+            This member is added by an implicit conversion from <a href="" class="extype" name="io.iteratee.internal.Input.Folder">Folder</a>[<span class="extype" name="io.iteratee.internal.Input.Folder.E">E</span>, <span class="extype" name="io.iteratee.internal.Input.Folder.Z">Z</span>] to
+            <span class="extype" name="scala.Predef.StringFormat">StringFormat</span>[<a href="" class="extype" name="io.iteratee.internal.Input.Folder">Folder</a>[<span class="extype" name="io.iteratee.internal.Input.Folder.E">E</span>, <span class="extype" name="io.iteratee.internal.Input.Folder.Z">Z</span>]] performed by method StringFormat in scala.Predef.
             
           </dd><dt>Definition Classes</dt><dd>StringFormat</dd><dt>Annotations</dt><dd>
                 <span class="name">@inline</span><span class="args">()</span>
@@ -453,8 +455,8 @@ data (<a href="Step$.html#cont[F[_],E,A](k:io.iteratee.Input[E]=&gt;io.iteratee.
         <span class="name">getClass</span><span class="params">()</span><span class="result">: <span class="extype" name="java.lang.Class">Class</span>[_]</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../index.html#io.iteratee.Step@getClass():Class[_]" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
+      <a href="../../../index.html#io.iteratee.internal.Input$$Folder@getClass():Class[_]" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
@@ -470,8 +472,8 @@ data (<a href="Step$.html#cont[F[_],E,A](k:io.iteratee.Input[E]=&gt;io.iteratee.
         <span class="name">hashCode</span><span class="params">()</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Int" class="extype" target="_top">Int</a></span>
       </span>
       </h4><span class="permalink">
-      <a href="../../index.html#io.iteratee.Step@hashCode():Int" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
+      <a href="../../../index.html#io.iteratee.internal.Input$$Folder@hashCode():Int" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
@@ -487,8 +489,8 @@ data (<a href="Step$.html#cont[F[_],E,A](k:io.iteratee.Input[E]=&gt;io.iteratee.
         <span class="name">isInstanceOf</span><span class="tparams">[<span name="T0">T0</span>]</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Boolean" class="extype" target="_top">Boolean</a></span>
       </span>
       </h4><span class="permalink">
-      <a href="../../index.html#io.iteratee.Step@isInstanceOf[T0]:Boolean" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
+      <a href="../../../index.html#io.iteratee.internal.Input$$Folder@isInstanceOf[T0]:Boolean" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
@@ -504,8 +506,8 @@ data (<a href="Step$.html#cont[F[_],E,A](k:io.iteratee.Input[E]=&gt;io.iteratee.
         <span class="name">ne</span><span class="params">(<span name="arg0">arg0: <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a></span>)</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Boolean" class="extype" target="_top">Boolean</a></span>
       </span>
       </h4><span class="permalink">
-      <a href="../../index.html#io.iteratee.Step@ne(x$1:AnyRef):Boolean" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
+      <a href="../../../index.html#io.iteratee.internal.Input$$Folder@ne(x$1:AnyRef):Boolean" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
@@ -521,8 +523,8 @@ data (<a href="Step$.html#cont[F[_],E,A](k:io.iteratee.Input[E]=&gt;io.iteratee.
         <span class="name">notify</span><span class="params">()</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Unit" class="extype" target="_top">Unit</a></span>
       </span>
       </h4><span class="permalink">
-      <a href="../../index.html#io.iteratee.Step@notify():Unit" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
+      <a href="../../../index.html#io.iteratee.internal.Input$$Folder@notify():Unit" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
@@ -538,28 +540,11 @@ data (<a href="Step$.html#cont[F[_],E,A](k:io.iteratee.Input[E]=&gt;io.iteratee.
         <span class="name">notifyAll</span><span class="params">()</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Unit" class="extype" target="_top">Unit</a></span>
       </span>
       </h4><span class="permalink">
-      <a href="../../index.html#io.iteratee.Step@notifyAll():Unit" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
+      <a href="../../../index.html#io.iteratee.internal.Input$$Folder@notifyAll():Unit" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
-    </li><li name="io.iteratee.Step#pointI" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="pointI(implicitF:cats.Applicative[F]):io.iteratee.Iteratee[F,E,A]"></a>
-      <a id="pointI(Applicative[F]):Iteratee[F,E,A]"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier">final </span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">pointI</span><span class="params">(<span class="implicit">implicit </span><span name="F">F: <a href="https://non.github.io/cats/api/index.html#cats.Applicative" class="extype" target="_top">Applicative</a>[<span class="extype" name="io.iteratee.Step.F">F</span>]</span>)</span><span class="result">: <a href="Iteratee.html" class="extype" name="io.iteratee.Iteratee">Iteratee</a>[<span class="extype" name="io.iteratee.Step.F">F</span>, <span class="extype" name="io.iteratee.Step.E">E</span>, <span class="extype" name="io.iteratee.Step.A">A</span>]</span>
-      </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#io.iteratee.Step@pointI(implicitF:cats.Applicative[F]):io.iteratee.Iteratee[F,E,A]" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
-      <p class="shortcomment cmt">Create an <a href="Iteratee.html" class="extype" name="io.iteratee.Iteratee">Iteratee</a> with this <a href="" class="extype" name="io.iteratee.Step">Step</a> as its state.</p>
     </li><li name="scala.AnyRef#synchronized" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="synchronized[T0](x$1:=&gt;T0):T0"></a>
       <a id="synchronized[T0](⇒T0):T0"></a>
@@ -572,8 +557,8 @@ data (<a href="Step$.html#cont[F[_],E,A](k:io.iteratee.Input[E]=&gt;io.iteratee.
         <span class="name">synchronized</span><span class="tparams">[<span name="T0">T0</span>]</span><span class="params">(<span name="arg0">arg0: ⇒ <span class="extype" name="java.lang.AnyRef.synchronized.T0">T0</span></span>)</span><span class="result">: <span class="extype" name="java.lang.AnyRef.synchronized.T0">T0</span></span>
       </span>
       </h4><span class="permalink">
-      <a href="../../index.html#io.iteratee.Step@synchronized[T0](x$1:=&gt;T0):T0" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
+      <a href="../../../index.html#io.iteratee.internal.Input$$Folder@synchronized[T0](x$1:=&gt;T0):T0" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
@@ -589,8 +574,8 @@ data (<a href="Step$.html#cont[F[_],E,A](k:io.iteratee.Input[E]=&gt;io.iteratee.
         <span class="name">toString</span><span class="params">()</span><span class="result">: <span class="extype" name="java.lang.String">String</span></span>
       </span>
       </h4><span class="permalink">
-      <a href="../../index.html#io.iteratee.Step@toString():String" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
+      <a href="../../../index.html#io.iteratee.internal.Input$$Folder@toString():String" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
@@ -606,8 +591,8 @@ data (<a href="Step$.html#cont[F[_],E,A](k:io.iteratee.Input[E]=&gt;io.iteratee.
         <span class="name">wait</span><span class="params">()</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Unit" class="extype" target="_top">Unit</a></span>
       </span>
       </h4><span class="permalink">
-      <a href="../../index.html#io.iteratee.Step@wait():Unit" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
+      <a href="../../../index.html#io.iteratee.internal.Input$$Folder@wait():Unit" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
@@ -629,8 +614,8 @@ data (<a href="Step$.html#cont[F[_],E,A](k:io.iteratee.Input[E]=&gt;io.iteratee.
         <span class="name">wait</span><span class="params">(<span name="arg0">arg0: <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Long" class="extype" target="_top">Long</a></span>, <span name="arg1">arg1: <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Int" class="extype" target="_top">Int</a></span>)</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Unit" class="extype" target="_top">Unit</a></span>
       </span>
       </h4><span class="permalink">
-      <a href="../../index.html#io.iteratee.Step@wait(x$1:Long,x$2:Int):Unit" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
+      <a href="../../../index.html#io.iteratee.internal.Input$$Folder@wait(x$1:Long,x$2:Int):Unit" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
@@ -652,8 +637,8 @@ data (<a href="Step$.html#cont[F[_],E,A](k:io.iteratee.Input[E]=&gt;io.iteratee.
         <span class="name">wait</span><span class="params">(<span name="arg0">arg0: <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Long" class="extype" target="_top">Long</a></span>)</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Unit" class="extype" target="_top">Unit</a></span>
       </span>
       </h4><span class="permalink">
-      <a href="../../index.html#io.iteratee.Step@wait(x$1:Long):Unit" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
+      <a href="../../../index.html#io.iteratee.internal.Input$$Folder@wait(x$1:Long):Unit" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
@@ -665,23 +650,23 @@ data (<a href="Step$.html#cont[F[_],E,A](k:io.iteratee.Input[E]=&gt;io.iteratee.
         </dd></dl></div>
     </li><li name="scala.Predef.ArrowAssoc#→" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="→[B](y:B):(A,B)"></a>
-      <a id="→[B](B):(Step[F,E,A],B)"></a>
+      <a id="→[B](B):(Folder[E,Z],B)"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span title="gt4s: $u2192" class="implicit">→</span><span class="tparams">[<span name="B">B</span>]</span><span class="params">(<span name="y">y: <span class="extype" name="scala.Predef.ArrowAssoc.→.B">B</span></span>)</span><span class="result">: (<a href="" class="extype" name="io.iteratee.Step">Step</a>[<span class="extype" name="io.iteratee.Step.F">F</span>, <span class="extype" name="io.iteratee.Step.E">E</span>, <span class="extype" name="io.iteratee.Step.A">A</span>], <span class="extype" name="scala.Predef.ArrowAssoc.→.B">B</span>)</span>
+        <span title="gt4s: $u2192" class="implicit">→</span><span class="tparams">[<span name="B">B</span>]</span><span class="params">(<span name="y">y: <span class="extype" name="scala.Predef.ArrowAssoc.→.B">B</span></span>)</span><span class="result">: (<a href="" class="extype" name="io.iteratee.internal.Input.Folder">Folder</a>[<span class="extype" name="io.iteratee.internal.Input.Folder.E">E</span>, <span class="extype" name="io.iteratee.internal.Input.Folder.Z">Z</span>], <span class="extype" name="scala.Predef.ArrowAssoc.→.B">B</span>)</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../index.html#io.iteratee.Step@→[B](y:B):(A,B)" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
+      <a href="../../../index.html#io.iteratee.internal.Input$$Folder@→[B](y:B):(A,B)" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt class="implicit">Implicit information</dt><dd>
-            This member is added by an implicit conversion from <a href="" class="extype" name="io.iteratee.Step">Step</a>[<span class="extype" name="io.iteratee.Step.F">F</span>, <span class="extype" name="io.iteratee.Step.E">E</span>, <span class="extype" name="io.iteratee.Step.A">A</span>] to
-            <span class="extype" name="scala.Predef.ArrowAssoc">ArrowAssoc</span>[<a href="" class="extype" name="io.iteratee.Step">Step</a>[<span class="extype" name="io.iteratee.Step.F">F</span>, <span class="extype" name="io.iteratee.Step.E">E</span>, <span class="extype" name="io.iteratee.Step.A">A</span>]] performed by method ArrowAssoc in scala.Predef.
+            This member is added by an implicit conversion from <a href="" class="extype" name="io.iteratee.internal.Input.Folder">Folder</a>[<span class="extype" name="io.iteratee.internal.Input.Folder.E">E</span>, <span class="extype" name="io.iteratee.internal.Input.Folder.Z">Z</span>] to
+            <span class="extype" name="scala.Predef.ArrowAssoc">ArrowAssoc</span>[<a href="" class="extype" name="io.iteratee.internal.Input.Folder">Folder</a>[<span class="extype" name="io.iteratee.internal.Input.Folder.E">E</span>, <span class="extype" name="io.iteratee.internal.Input.Folder.Z">Z</span>]] performed by method ArrowAssoc in scala.Predef.
             
           </dd><dt>Definition Classes</dt><dd>ArrowAssoc</dd></dl></div>
     </li></ol>
@@ -693,30 +678,26 @@ data (<a href="Step$.html#cont[F[_],E,A](k:io.iteratee.Input[E]=&gt;io.iteratee.
         </div>
 
         <div id="inheritedMembers">
-        <div class="parent" name="scala.Serializable">
-              <h3>Inherited from <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Serializable" class="extype" target="_top">Serializable</a></h3>
-            </div><div class="parent" name="java.io.Serializable">
-              <h3>Inherited from <span class="extype" name="java.io.Serializable">Serializable</span></h3>
-            </div><div class="parent" name="scala.AnyRef">
+        <div class="parent" name="scala.AnyRef">
               <h3>Inherited from <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a></h3>
             </div><div class="parent" name="scala.Any">
               <h3>Inherited from <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Any" class="extype" target="_top">Any</a></h3>
             </div>
         <div class="conversion" name="scala.Predef.any2stringadd">
               <h3>Inherited by implicit conversion any2stringadd from
-                <a href="" class="extype" name="io.iteratee.Step">Step</a>[<span class="extype" name="io.iteratee.Step.F">F</span>, <span class="extype" name="io.iteratee.Step.E">E</span>, <span class="extype" name="io.iteratee.Step.A">A</span>] to <span class="extype" name="scala.Predef.any2stringadd">any2stringadd</span>[<a href="" class="extype" name="io.iteratee.Step">Step</a>[<span class="extype" name="io.iteratee.Step.F">F</span>, <span class="extype" name="io.iteratee.Step.E">E</span>, <span class="extype" name="io.iteratee.Step.A">A</span>]]
+                <a href="" class="extype" name="io.iteratee.internal.Input.Folder">Folder</a>[<span class="extype" name="io.iteratee.internal.Input.Folder.E">E</span>, <span class="extype" name="io.iteratee.internal.Input.Folder.Z">Z</span>] to <span class="extype" name="scala.Predef.any2stringadd">any2stringadd</span>[<a href="" class="extype" name="io.iteratee.internal.Input.Folder">Folder</a>[<span class="extype" name="io.iteratee.internal.Input.Folder.E">E</span>, <span class="extype" name="io.iteratee.internal.Input.Folder.Z">Z</span>]]
               </h3>
             </div><div class="conversion" name="scala.Predef.StringFormat">
               <h3>Inherited by implicit conversion StringFormat from
-                <a href="" class="extype" name="io.iteratee.Step">Step</a>[<span class="extype" name="io.iteratee.Step.F">F</span>, <span class="extype" name="io.iteratee.Step.E">E</span>, <span class="extype" name="io.iteratee.Step.A">A</span>] to <span class="extype" name="scala.Predef.StringFormat">StringFormat</span>[<a href="" class="extype" name="io.iteratee.Step">Step</a>[<span class="extype" name="io.iteratee.Step.F">F</span>, <span class="extype" name="io.iteratee.Step.E">E</span>, <span class="extype" name="io.iteratee.Step.A">A</span>]]
+                <a href="" class="extype" name="io.iteratee.internal.Input.Folder">Folder</a>[<span class="extype" name="io.iteratee.internal.Input.Folder.E">E</span>, <span class="extype" name="io.iteratee.internal.Input.Folder.Z">Z</span>] to <span class="extype" name="scala.Predef.StringFormat">StringFormat</span>[<a href="" class="extype" name="io.iteratee.internal.Input.Folder">Folder</a>[<span class="extype" name="io.iteratee.internal.Input.Folder.E">E</span>, <span class="extype" name="io.iteratee.internal.Input.Folder.Z">Z</span>]]
               </h3>
             </div><div class="conversion" name="scala.Predef.Ensuring">
               <h3>Inherited by implicit conversion Ensuring from
-                <a href="" class="extype" name="io.iteratee.Step">Step</a>[<span class="extype" name="io.iteratee.Step.F">F</span>, <span class="extype" name="io.iteratee.Step.E">E</span>, <span class="extype" name="io.iteratee.Step.A">A</span>] to <span class="extype" name="scala.Predef.Ensuring">Ensuring</span>[<a href="" class="extype" name="io.iteratee.Step">Step</a>[<span class="extype" name="io.iteratee.Step.F">F</span>, <span class="extype" name="io.iteratee.Step.E">E</span>, <span class="extype" name="io.iteratee.Step.A">A</span>]]
+                <a href="" class="extype" name="io.iteratee.internal.Input.Folder">Folder</a>[<span class="extype" name="io.iteratee.internal.Input.Folder.E">E</span>, <span class="extype" name="io.iteratee.internal.Input.Folder.Z">Z</span>] to <span class="extype" name="scala.Predef.Ensuring">Ensuring</span>[<a href="" class="extype" name="io.iteratee.internal.Input.Folder">Folder</a>[<span class="extype" name="io.iteratee.internal.Input.Folder.E">E</span>, <span class="extype" name="io.iteratee.internal.Input.Folder.Z">Z</span>]]
               </h3>
             </div><div class="conversion" name="scala.Predef.ArrowAssoc">
               <h3>Inherited by implicit conversion ArrowAssoc from
-                <a href="" class="extype" name="io.iteratee.Step">Step</a>[<span class="extype" name="io.iteratee.Step.F">F</span>, <span class="extype" name="io.iteratee.Step.E">E</span>, <span class="extype" name="io.iteratee.Step.A">A</span>] to <span class="extype" name="scala.Predef.ArrowAssoc">ArrowAssoc</span>[<a href="" class="extype" name="io.iteratee.Step">Step</a>[<span class="extype" name="io.iteratee.Step.F">F</span>, <span class="extype" name="io.iteratee.Step.E">E</span>, <span class="extype" name="io.iteratee.Step.A">A</span>]]
+                <a href="" class="extype" name="io.iteratee.internal.Input.Folder">Folder</a>[<span class="extype" name="io.iteratee.internal.Input.Folder.E">E</span>, <span class="extype" name="io.iteratee.internal.Input.Folder.Z">Z</span>] to <span class="extype" name="scala.Predef.ArrowAssoc">ArrowAssoc</span>[<a href="" class="extype" name="io.iteratee.internal.Input.Folder">Folder</a>[<span class="extype" name="io.iteratee.internal.Input.Folder.E">E</span>, <span class="extype" name="io.iteratee.internal.Input.Folder.Z">Z</span>]]
               </h3>
             </div>
         </div>

@@ -49,7 +49,7 @@
       </span>
       </h4>
       
-          <div id="comment" class="fullcommenttop"><div class="toggleContainer block">
+          <div id="comment" class="fullcommenttop"><div class="comment cmt"></div><dl class="attributes block"> <dt>Source</dt><dd><a href="https://github.com/travisbrown/iteratee/tree/master/core/src/main/scala/io/iteratee/IterateeModule.scala" target="_blank">IterateeModule.scala</a></dd></dl><div class="toggleContainer block">
           <span class="toggle">Linear Supertypes</span>
           <div class="superTypes hiddenContent"><a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a>, <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Any" class="extype" target="_top">Any</a></div>
         </div><div class="toggleContainer block">
@@ -63,7 +63,7 @@
         <div id="order">
               <span class="filtertype">Ordering</span>
               <ol>
-                
+                <li class="group out"><span>Grouped</span></li>
                 <li class="alpha in"><span>Alphabetic</span></li>
                 <li class="inherit out"><span>By inheritance</span></li>
               </ol>
@@ -98,12 +98,29 @@
 
         <div id="types" class="types members">
               <h3>Type Members</h3>
-              <ol><li name="io.iteratee.IterateeModule.LiftToIterateePartiallyApplied" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+              <ol><li name="io.iteratee.IterateeModule.FailIterateePartiallyApplied" visbl="pub" data-isabs="false" fullComment="no" group="Helpers">
+      <a id="FailIterateePartiallyApplied[E,A]extendsAnyRef"></a>
+      <a id="FailIterateePartiallyApplied[E,A]:FailIterateePartiallyApplied[E,A]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">sealed </span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="IterateeModule$FailIterateePartiallyApplied.html"><span class="name">FailIterateePartiallyApplied</span></a><span class="tparams">[<span name="E">E</span>, <span name="A">A</span>]</span><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.iteratee.IterateeModule@FailIterateePartiallyApplied[E,A]extendsAnyRef" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt"></p>
+    </li><li name="io.iteratee.IterateeModule.LiftToIterateePartiallyApplied" visbl="pub" data-isabs="false" fullComment="no" group="Helpers">
       <a id="LiftToIterateePartiallyApplied[E]extendsAnyRef"></a>
       <a id="LiftToIterateePartiallyApplied[E]:LiftToIterateePartiallyApplied[E]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
-        <span class="modifier"></span>
+        <span class="modifier">sealed </span>
         <span class="kind">class</span>
       </span>
       <span class="symbol">
@@ -114,7 +131,7 @@
         <img src="../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
-      
+      <p class="shortcomment cmt"></p>
     </li></ol>
             </div>
 
@@ -258,7 +275,7 @@
     </span>)</span>
               
         </dd></dl></div>
-    </li><li name="io.iteratee.IterateeModule#consume" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+    </li><li name="io.iteratee.IterateeModule#consume" visbl="pub" data-isabs="false" fullComment="no" group="Iteratees">
       <a id="consume[E](implicitF:cats.Monad[F]):io.iteratee.Iteratee[F,E,Vector[E]]"></a>
       <a id="consume[E](Monad[F]):Iteratee[F,E,Vector[E]]"></a>
       <h4 class="signature">
@@ -274,25 +291,62 @@
         <img src="../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
-      
-    </li><li name="io.iteratee.IterateeModule#consumeIn" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="consumeIn[E,A[_]](implicitevidence$1:cats.MonoidK[A],implicitevidence$2:cats.Applicative[A],implicitF:cats.Monad[F]):io.iteratee.Iteratee[F,E,A[E]]"></a>
-      <a id="consumeIn[E,A[_]](MonoidK[A],Applicative[A],Monad[F]):Iteratee[F,E,A[E]]"></a>
+      <p class="shortcomment cmt">An <a href="Iteratee.html" class="extype" name="io.iteratee.Iteratee">Iteratee</a> that collects all the elements in a stream in a vector.</p>
+    </li><li name="io.iteratee.IterateeModule#consumeIn" visbl="pub" data-isabs="false" fullComment="no" group="Iteratees">
+      <a id="consumeIn[E,C[_]](implicitevidence$1:cats.Applicative[C],implicitevidence$2:cats.MonoidK[C],implicitF:cats.Monad[F]):io.iteratee.Iteratee[F,E,C[E]]"></a>
+      <a id="consumeIn[E,C[_]](Applicative[C],MonoidK[C],Monad[F]):Iteratee[F,E,C[E]]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier">final </span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">consumeIn</span><span class="tparams">[<span name="E">E</span>, <span name="A">A<span class="tparams">[<span name="_">_</span>]</span></span>]</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <a href="https://non.github.io/cats/api/index.html#cats.MonoidK" class="extype" target="_top">MonoidK</a>[<span class="extype" name="io.iteratee.IterateeModule.consumeIn.A">A</span>]</span>, <span name="arg1">arg1: <a href="https://non.github.io/cats/api/index.html#cats.Applicative" class="extype" target="_top">Applicative</a>[<span class="extype" name="io.iteratee.IterateeModule.consumeIn.A">A</span>]</span>, <span name="F">F: <a href="https://non.github.io/cats/api/index.html#cats.Monad" class="extype" target="_top">Monad</a>[<span class="extype" name="io.iteratee.IterateeModule.F">F</span>]</span>)</span><span class="result">: <a href="Iteratee.html" class="extype" name="io.iteratee.Iteratee">Iteratee</a>[<span class="extype" name="io.iteratee.IterateeModule.F">F</span>, <span class="extype" name="io.iteratee.IterateeModule.consumeIn.E">E</span>, <span class="extype" name="io.iteratee.IterateeModule.consumeIn.A">A</span>[<span class="extype" name="io.iteratee.IterateeModule.consumeIn.E">E</span>]]</span>
+        <span class="name">consumeIn</span><span class="tparams">[<span name="E">E</span>, <span name="C">C<span class="tparams">[<span name="_">_</span>]</span></span>]</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <a href="https://non.github.io/cats/api/index.html#cats.Applicative" class="extype" target="_top">Applicative</a>[<span class="extype" name="io.iteratee.IterateeModule.consumeIn.C">C</span>]</span>, <span name="arg1">arg1: <a href="https://non.github.io/cats/api/index.html#cats.MonoidK" class="extype" target="_top">MonoidK</a>[<span class="extype" name="io.iteratee.IterateeModule.consumeIn.C">C</span>]</span>, <span name="F">F: <a href="https://non.github.io/cats/api/index.html#cats.Monad" class="extype" target="_top">Monad</a>[<span class="extype" name="io.iteratee.IterateeModule.F">F</span>]</span>)</span><span class="result">: <a href="Iteratee.html" class="extype" name="io.iteratee.Iteratee">Iteratee</a>[<span class="extype" name="io.iteratee.IterateeModule.F">F</span>, <span class="extype" name="io.iteratee.IterateeModule.consumeIn.E">E</span>, <span class="extype" name="io.iteratee.IterateeModule.consumeIn.C">C</span>[<span class="extype" name="io.iteratee.IterateeModule.consumeIn.E">E</span>]]</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../index.html#io.iteratee.IterateeModule@consumeIn[E,A[_]](implicitevidence$1:cats.MonoidK[A],implicitevidence$2:cats.Applicative[A],implicitF:cats.Monad[F]):io.iteratee.Iteratee[F,E,A[E]]" title="Permalink" target="_top">
+      <a href="../../index.html#io.iteratee.IterateeModule@consumeIn[E,C[_]](implicitevidence$1:cats.Applicative[C],implicitevidence$2:cats.MonoidK[C],implicitF:cats.Monad[F]):io.iteratee.Iteratee[F,E,C[E]]" title="Permalink" target="_top">
         <img src="../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
-      <p class="shortcomment cmt">An iteratee that consumes all of the input into something that is MonoidK and Applicative.</p>
-    </li><li name="io.iteratee.IterateeModule#drop" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <p class="shortcomment cmt">An <a href="Iteratee.html" class="extype" name="io.iteratee.Iteratee">Iteratee</a> that collects all the elements in a stream in a given
+collection type.</p>
+    </li><li name="io.iteratee.IterateeModule#cont" visbl="pub" data-isabs="false" fullComment="no" group="Constructors">
+      <a id="cont[E,A](ifInput:cats.data.NonEmptyVector[E]=&gt;io.iteratee.Iteratee[F,E,A],ifEnd:F[A])(implicitF:cats.Applicative[F]):io.iteratee.Iteratee[F,E,A]"></a>
+      <a id="cont[E,A]((NonEmptyVector[E])⇒Iteratee[F,E,A],F[A])(Applicative[F]):Iteratee[F,E,A]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">cont</span><span class="tparams">[<span name="E">E</span>, <span name="A">A</span>]</span><span class="params">(<span name="ifInput">ifInput: (<span class="extype" name="cats.data.NonEmptyVector">NonEmptyVector</span>[<span class="extype" name="io.iteratee.IterateeModule.cont.E">E</span>]) ⇒ <a href="Iteratee.html" class="extype" name="io.iteratee.Iteratee">Iteratee</a>[<span class="extype" name="io.iteratee.IterateeModule.F">F</span>, <span class="extype" name="io.iteratee.IterateeModule.cont.E">E</span>, <span class="extype" name="io.iteratee.IterateeModule.cont.A">A</span>]</span>, <span name="ifEnd">ifEnd: <span class="extype" name="io.iteratee.IterateeModule.F">F</span>[<span class="extype" name="io.iteratee.IterateeModule.cont.A">A</span>]</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="F">F: <a href="https://non.github.io/cats/api/index.html#cats.Applicative" class="extype" target="_top">Applicative</a>[<span class="extype" name="io.iteratee.IterateeModule.F">F</span>]</span>)</span><span class="result">: <a href="Iteratee.html" class="extype" name="io.iteratee.Iteratee">Iteratee</a>[<span class="extype" name="io.iteratee.IterateeModule.F">F</span>, <span class="extype" name="io.iteratee.IterateeModule.cont.E">E</span>, <span class="extype" name="io.iteratee.IterateeModule.cont.A">A</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.iteratee.IterateeModule@cont[E,A](ifInput:cats.data.NonEmptyVector[E]=&gt;io.iteratee.Iteratee[F,E,A],ifEnd:F[A])(implicitF:cats.Applicative[F]):io.iteratee.Iteratee[F,E,A]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Create an incomplete <a href="Iteratee.html" class="extype" name="io.iteratee.Iteratee">Iteratee</a> that will use the given function to
+process the next input.</p>
+    </li><li name="io.iteratee.IterateeModule#done" visbl="pub" data-isabs="false" fullComment="no" group="Constructors">
+      <a id="done[E,A](value:A,remaining:Vector[E])(implicitF:cats.Applicative[F]):io.iteratee.Iteratee[F,E,A]"></a>
+      <a id="done[E,A](A,Vector[E])(Applicative[F]):Iteratee[F,E,A]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">done</span><span class="tparams">[<span name="E">E</span>, <span name="A">A</span>]</span><span class="params">(<span name="value">value: <span class="extype" name="io.iteratee.IterateeModule.done.A">A</span></span>, <span name="remaining">remaining: <span class="extype" name="scala.Vector">Vector</span>[<span class="extype" name="io.iteratee.IterateeModule.done.E">E</span>] = <span class="symbol">Vector.empty</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="F">F: <a href="https://non.github.io/cats/api/index.html#cats.Applicative" class="extype" target="_top">Applicative</a>[<span class="extype" name="io.iteratee.IterateeModule.F">F</span>]</span>)</span><span class="result">: <a href="Iteratee.html" class="extype" name="io.iteratee.Iteratee">Iteratee</a>[<span class="extype" name="io.iteratee.IterateeModule.F">F</span>, <span class="extype" name="io.iteratee.IterateeModule.done.E">E</span>, <span class="extype" name="io.iteratee.IterateeModule.done.A">A</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.iteratee.IterateeModule@done[E,A](value:A,remaining:Vector[E])(implicitF:cats.Applicative[F]):io.iteratee.Iteratee[F,E,A]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Create a new completed <a href="Iteratee.html" class="extype" name="io.iteratee.Iteratee">Iteratee</a> with the given result and leftover
+input.</p>
+    </li><li name="io.iteratee.IterateeModule#drop" visbl="pub" data-isabs="false" fullComment="no" group="Iteratees">
       <a id="drop[E](n:Int)(implicitF:cats.Applicative[F]):io.iteratee.Iteratee[F,E,Unit]"></a>
       <a id="drop[E](Int)(Applicative[F]):Iteratee[F,E,Unit]"></a>
       <h4 class="signature">
@@ -308,8 +362,8 @@
         <img src="../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
-      <p class="shortcomment cmt">An iteratee that skips the first <code>n</code> elements of the input.</p>
-    </li><li name="io.iteratee.IterateeModule#dropWhile" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <p class="shortcomment cmt">An <a href="Iteratee.html" class="extype" name="io.iteratee.Iteratee">Iteratee</a> that drops a given number of the values from a stream.</p>
+    </li><li name="io.iteratee.IterateeModule#dropWhile" visbl="pub" data-isabs="false" fullComment="no" group="Iteratees">
       <a id="dropWhile[E](p:E=&gt;Boolean)(implicitF:cats.Applicative[F]):io.iteratee.Iteratee[F,E,Unit]"></a>
       <a id="dropWhile[E]((E)⇒Boolean)(Applicative[F]):Iteratee[F,E,Unit]"></a>
       <h4 class="signature">
@@ -325,7 +379,8 @@
         <img src="../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
-      <p class="shortcomment cmt">An iteratee that skips elements while the predicate evaluates to true.</p>
+      <p class="shortcomment cmt">An <a href="Iteratee.html" class="extype" name="io.iteratee.Iteratee">Iteratee</a> that drops values from a stream as long as they satisfy the
+given predicate.</p>
     </li><li name="scala.Predef.Ensuring#ensuring" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="ensuring(cond:A=&gt;Boolean,msg:=&gt;Any):A"></a>
       <a id="ensuring((IterateeModule[F])⇒Boolean,⇒Any):IterateeModule[F]"></a>
@@ -444,6 +499,23 @@
       </a>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+    </li><li name="io.iteratee.IterateeModule#failIteratee" visbl="pub" data-isabs="false" fullComment="no" group="Iteratees">
+      <a id="failIteratee[E,A]:IterateeModule.this.FailIterateePartiallyApplied[E,A]"></a>
+      <a id="failIteratee[E,A]:FailIterateePartiallyApplied[E,A]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">failIteratee</span><span class="tparams">[<span name="E">E</span>, <span name="A">A</span>]</span><span class="result">: <a href="IterateeModule$FailIterateePartiallyApplied.html" class="extype" name="io.iteratee.IterateeModule.FailIterateePartiallyApplied">FailIterateePartiallyApplied</a>[<span class="extype" name="io.iteratee.IterateeModule.failIteratee.E">E</span>, <span class="extype" name="io.iteratee.IterateeModule.failIteratee.A">A</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.iteratee.IterateeModule@failIteratee[E,A]:IterateeModule.this.FailIterateePartiallyApplied[E,A]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Create a failed iteratee with the given error.</p>
     </li><li name="scala.AnyRef#finalize" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="finalize():Unit"></a>
       <a id="finalize():Unit"></a>
@@ -467,7 +539,7 @@
     </span>)</span>
               
         </dd></dl></div>
-    </li><li name="io.iteratee.IterateeModule#fold" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+    </li><li name="io.iteratee.IterateeModule#fold" visbl="pub" data-isabs="false" fullComment="no" group="Iteratees">
       <a id="fold[E,A](init:A)(f:(A,E)=&gt;A)(implicitF:cats.Applicative[F]):io.iteratee.Iteratee[F,E,A]"></a>
       <a id="fold[E,A](A)((A,E)⇒A)(Applicative[F]):Iteratee[F,E,A]"></a>
       <h4 class="signature">
@@ -483,8 +555,9 @@
         <img src="../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
-      
-    </li><li name="io.iteratee.IterateeModule#foldM" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <p class="shortcomment cmt">An <a href="Iteratee.html" class="extype" name="io.iteratee.Iteratee">Iteratee</a> that folds a stream using an initial value and an
+accumulation function.</p>
+    </li><li name="io.iteratee.IterateeModule#foldM" visbl="pub" data-isabs="false" fullComment="no" group="Iteratees">
       <a id="foldM[E,A](init:A)(f:(A,E)=&gt;F[A])(implicitF:cats.Monad[F]):io.iteratee.Iteratee[F,E,A]"></a>
       <a id="foldM[E,A](A)((A,E)⇒F[A])(Monad[F]):Iteratee[F,E,A]"></a>
       <h4 class="signature">
@@ -500,7 +573,26 @@
         <img src="../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
-      
+      <p class="shortcomment cmt">An <a href="Iteratee.html" class="extype" name="io.iteratee.Iteratee">Iteratee</a> that folds a stream using an initial value and a monadic
+accumulation function.</p>
+    </li><li name="io.iteratee.IterateeModule#foldMap" visbl="pub" data-isabs="false" fullComment="no" group="Iteratees">
+      <a id="foldMap[E,A](f:E=&gt;A)(implicitF:cats.Monad[F],implicitA:algebra.Monoid[A]):io.iteratee.Iteratee[F,E,A]"></a>
+      <a id="foldMap[E,A]((E)⇒A)(Monad[F],Monoid[A]):Iteratee[F,E,A]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">foldMap</span><span class="tparams">[<span name="E">E</span>, <span name="A">A</span>]</span><span class="params">(<span name="f">f: (<span class="extype" name="io.iteratee.IterateeModule.foldMap.E">E</span>) ⇒ <span class="extype" name="io.iteratee.IterateeModule.foldMap.A">A</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="F">F: <a href="https://non.github.io/cats/api/index.html#cats.Monad" class="extype" target="_top">Monad</a>[<span class="extype" name="io.iteratee.IterateeModule.F">F</span>]</span>, <span name="A">A: <a href="https://non.github.io/algebra/api/index.html#algebra.Monoid" class="extype" target="_top">Monoid</a>[<span class="extype" name="io.iteratee.IterateeModule.foldMap.A">A</span>]</span>)</span><span class="result">: <a href="Iteratee.html" class="extype" name="io.iteratee.Iteratee">Iteratee</a>[<span class="extype" name="io.iteratee.IterateeModule.F">F</span>, <span class="extype" name="io.iteratee.IterateeModule.foldMap.E">E</span>, <span class="extype" name="io.iteratee.IterateeModule.foldMap.A">A</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.iteratee.IterateeModule@foldMap[E,A](f:E=&gt;A)(implicitF:cats.Monad[F],implicitA:algebra.Monoid[A]):io.iteratee.Iteratee[F,E,A]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">An <a href="Iteratee.html" class="extype" name="io.iteratee.Iteratee">Iteratee</a> that combines values using a function to a type with an
+<a href="https://non.github.io/algebra/api/index.html#algebra.Monoid" class="extype" target="_top">algebra.Monoid</a> instance.</p>
     </li><li name="scala.Predef.StringFormat#formatted" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="formatted(fmtstr:String):String"></a>
       <a id="formatted(String):String"></a>
@@ -559,7 +651,7 @@
       </a>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
-    </li><li name="io.iteratee.IterateeModule#head" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+    </li><li name="io.iteratee.IterateeModule#head" visbl="pub" data-isabs="false" fullComment="no" group="Iteratees">
       <a id="head[E](implicitF:cats.Applicative[F]):io.iteratee.Iteratee[F,E,Option[E]]"></a>
       <a id="head[E](Applicative[F]):Iteratee[F,E,Option[E]]"></a>
       <h4 class="signature">
@@ -575,8 +667,8 @@
         <img src="../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
-      <p class="shortcomment cmt">An iteratee that consumes the head of the input.</p>
-    </li><li name="io.iteratee.IterateeModule#identity" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <p class="shortcomment cmt">An <a href="Iteratee.html" class="extype" name="io.iteratee.Iteratee">Iteratee</a> that returns the first value in a stream.</p>
+    </li><li name="io.iteratee.IterateeModule#identity" visbl="pub" data-isabs="false" fullComment="no" group="Iteratees">
       <a id="identity[E](implicitF:cats.Applicative[F]):io.iteratee.Iteratee[F,E,Unit]"></a>
       <a id="identity[E](Applicative[F]):Iteratee[F,E,Unit]"></a>
       <h4 class="signature">
@@ -592,8 +684,8 @@
         <img src="../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
-      
-    </li><li name="io.iteratee.IterateeModule#isEnd" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <p class="shortcomment cmt">An iteratee that reads nothing from a stream.</p>
+    </li><li name="io.iteratee.IterateeModule#isEnd" visbl="pub" data-isabs="false" fullComment="no" group="Iteratees">
       <a id="isEnd[E](implicitF:cats.Applicative[F]):io.iteratee.Iteratee[F,E,Boolean]"></a>
       <a id="isEnd[E](Applicative[F]):Iteratee[F,E,Boolean]"></a>
       <h4 class="signature">
@@ -609,7 +701,7 @@
         <img src="../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
-      <p class="shortcomment cmt">An iteratee that checks if the input is EOF.</p>
+      <p class="shortcomment cmt">An <a href="Iteratee.html" class="extype" name="io.iteratee.Iteratee">Iteratee</a> that checks if the stream is at its end.</p>
     </li><li name="scala.Any#isInstanceOf" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="isInstanceOf[T0]:Boolean"></a>
       <a id="isInstanceOf[T0]:Boolean"></a>
@@ -627,7 +719,7 @@
       </a>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
-    </li><li name="io.iteratee.IterateeModule#length" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+    </li><li name="io.iteratee.IterateeModule#length" visbl="pub" data-isabs="false" fullComment="no" group="Iteratees">
       <a id="length[E](implicitF:cats.Applicative[F]):io.iteratee.Iteratee[F,E,Int]"></a>
       <a id="length[E](Applicative[F]):Iteratee[F,E,Int]"></a>
       <h4 class="signature">
@@ -643,9 +735,8 @@
         <img src="../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
-      <p class="shortcomment cmt">An iteratee that counts and consumes the elements of the input
-</p>
-    </li><li name="io.iteratee.IterateeModule#liftToIteratee" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <p class="shortcomment cmt">An <a href="Iteratee.html" class="extype" name="io.iteratee.Iteratee">Iteratee</a> that counts the number of values in a stream.</p>
+    </li><li name="io.iteratee.IterateeModule#liftToIteratee" visbl="pub" data-isabs="false" fullComment="no" group="Iteratees">
       <a id="liftToIteratee[E]:IterateeModule.this.LiftToIterateePartiallyApplied[E]"></a>
       <a id="liftToIteratee[E]:LiftToIterateePartiallyApplied[E]"></a>
       <h4 class="signature">
@@ -713,7 +804,7 @@
       </a>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
-    </li><li name="io.iteratee.IterateeModule#peek" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+    </li><li name="io.iteratee.IterateeModule#peek" visbl="pub" data-isabs="false" fullComment="no" group="Iteratees">
       <a id="peek[E](implicitF:cats.Applicative[F]):io.iteratee.Iteratee[F,E,Option[E]]"></a>
       <a id="peek[E](Applicative[F]):Iteratee[F,E,Option[E]]"></a>
       <h4 class="signature">
@@ -729,8 +820,9 @@
         <img src="../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
-      <p class="shortcomment cmt">An iteratee that returns the first element of the input.</p>
-    </li><li name="io.iteratee.IterateeModule#reversed" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <p class="shortcomment cmt">An <a href="Iteratee.html" class="extype" name="io.iteratee.Iteratee">Iteratee</a> that returns the first value in a stream without consuming
+it.</p>
+    </li><li name="io.iteratee.IterateeModule#reversed" visbl="pub" data-isabs="false" fullComment="no" group="Iteratees">
       <a id="reversed[E](implicitF:cats.Applicative[F]):io.iteratee.Iteratee[F,E,List[E]]"></a>
       <a id="reversed[E](Applicative[F]):Iteratee[F,E,List[E]]"></a>
       <h4 class="signature">
@@ -746,9 +838,8 @@
         <img src="../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
-      <p class="shortcomment cmt">Iteratee that collects all inputs in reverse with the given reducer.</p><div class="fullcomment"><div class="comment cmt"><p>Iteratee that collects all inputs in reverse with the given reducer.</p><p>This iteratee is useful for <code>F[_]</code> with efficient cons, e.g. <code>List</code>.
-</p></div></div>
-    </li><li name="io.iteratee.IterateeModule#sum" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <p class="shortcomment cmt">An <a href="Iteratee.html" class="extype" name="io.iteratee.Iteratee">Iteratee</a> that collects all inputs in reverse order.</p>
+    </li><li name="io.iteratee.IterateeModule#sum" visbl="pub" data-isabs="false" fullComment="no" group="Iteratees">
       <a id="sum[E](implicitevidence$3:algebra.Monoid[E],implicitF:cats.Monad[F]):io.iteratee.Iteratee[F,E,E]"></a>
       <a id="sum[E](Monoid[E],Monad[F]):Iteratee[F,E,E]"></a>
       <h4 class="signature">
@@ -764,7 +855,7 @@
         <img src="../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
-      
+      <p class="shortcomment cmt">An <a href="Iteratee.html" class="extype" name="io.iteratee.Iteratee">Iteratee</a> that combines values using an <a href="https://non.github.io/algebra/api/index.html#algebra.Monoid" class="extype" target="_top">algebra.Monoid</a> instance.</p>
     </li><li name="scala.AnyRef#synchronized" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="synchronized[T0](x$1:=&gt;T0):T0"></a>
       <a id="synchronized[T0](⇒T0):T0"></a>
@@ -782,7 +873,7 @@
       </a>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
-    </li><li name="io.iteratee.IterateeModule#take" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+    </li><li name="io.iteratee.IterateeModule#take" visbl="pub" data-isabs="false" fullComment="no" group="Iteratees">
       <a id="take[E](n:Int)(implicitF:cats.Applicative[F]):io.iteratee.Iteratee[F,E,Vector[E]]"></a>
       <a id="take[E](Int)(Applicative[F]):Iteratee[F,E,Vector[E]]"></a>
       <h4 class="signature">
@@ -798,8 +889,9 @@
         <img src="../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
-      <p class="shortcomment cmt">Iteratee that collects the first <code>n</code> inputs.</p>
-    </li><li name="io.iteratee.IterateeModule#takeWhile" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <p class="shortcomment cmt">An <a href="Iteratee.html" class="extype" name="io.iteratee.Iteratee">Iteratee</a> that returns a given number of the first values in a
+stream.</p>
+    </li><li name="io.iteratee.IterateeModule#takeWhile" visbl="pub" data-isabs="false" fullComment="no" group="Iteratees">
       <a id="takeWhile[E](p:E=&gt;Boolean)(implicitF:cats.Applicative[F]):io.iteratee.Iteratee[F,E,Vector[E]]"></a>
       <a id="takeWhile[E]((E)⇒Boolean)(Applicative[F]):Iteratee[F,E,Vector[E]]"></a>
       <h4 class="signature">
@@ -815,7 +907,8 @@
         <img src="../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
-      <p class="shortcomment cmt">Iteratee that collects inputs until the input element fails a test.</p>
+      <p class="shortcomment cmt">An <a href="Iteratee.html" class="extype" name="io.iteratee.Iteratee">Iteratee</a> that returns values from a stream as long as they satisfy
+the given predicate.</p>
     </li><li name="scala.AnyRef#toString" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="toString():String"></a>
       <a id="toString():String"></a>
@@ -957,7 +1050,16 @@
         </div>
 
         <div id="groupedMembers">
-        <div class="group" name="Ungrouped">
+        <div class="group" name="Constructors">
+              <h3>Constructors</h3>
+              
+            </div><div class="group" name="Iteratees">
+              <h3>Iteratees</h3>
+              
+            </div><div class="group" name="Helpers">
+              <h3>Helper classes</h3>
+              
+            </div><div class="group" name="Ungrouped">
               <h3>Ungrouped</h3>
               
             </div>
