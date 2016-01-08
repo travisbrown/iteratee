@@ -18,6 +18,12 @@ import io.iteratee.internal.{ Input, Step }
  */
 sealed class Iteratee[F[_], E, A] private[iteratee] (final val state: F[Step[F, E, A]]) extends Serializable { self =>
   /**
+   * Advance this [[Iteratee]] with the given [[Enumerator]].
+   */
+  final def apply(enumerator: Enumerator[F, E])(implicit F: Monad[F]): Iteratee[F, E, A] =
+    Iteratee.iteratee(F.flatMap(state)(enumerator(_)))
+
+  /**
    * Reduce this [[Iteratee]] to an effectful value using the given functions.
    */
   final def fold[Z](ifCont: (NonEmptyVector[E] => Iteratee[F, E, A]) => Z, ifDone: (A, Vector[E]) => Z)
