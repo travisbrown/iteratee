@@ -1,60 +1,64 @@
-# iteratee
+# iteratee.io
 
 [![Build status](https://img.shields.io/travis/travisbrown/iteratee/master.svg)](https://travis-ci.org/travisbrown/iteratee)
 [![Coverage status](https://img.shields.io/codecov/c/github/travisbrown/iteratee/master.svg)](https://codecov.io/github/travisbrown/iteratee)
 [![Gitter](https://img.shields.io/badge/gitter-join%20chat-green.svg)](https://gitter.im/travisbrown/iteratee)
 [![Maven Central](https://img.shields.io/maven-central/v/io.iteratee/iteratee-core_2.11.svg)](https://maven-badges.herokuapp.com/maven-central/io.iteratee/iteratee-core_2.11)
 
-This is a quick port of [Scalaz][scalaz]'s [iteratee implementation][scalaz-iteratee] to
-[cats][cats].
+This project is an iteratee implementation for [Cats][cats] that began as a port of
+[Scalaz][scalaz]'s [iteratee package][scalaz-iteratee], although the API and implementation are now
+very different from Scalaz's. There are [API docs][api-docs] (but they're a work in progress), and
+I've published a [blog post][intro] introducing the project.
 
 The motivations for the port are similar to those for [circe][circe]—in particular I'm aiming for a
 more consistent API, better performance, and better documentation.
 
-So far I've made two major optimizations: I've added chunking for input and `InputFolder` and
-`StepFolder` classes that combine "functions" for folds into a single object. The initial results
-look promising. For example, here are the throughput results for summing a sequence a numbers for
-the collections library (`C`), this library (`I`), scalaz-stream (`S`), and Scalaz iteratees (`Z`).
-Higher numbers are better.
+The initial performance benchmarks look promising. For example, here are the throughput results for
+summing a sequence of numbers with this library (`I`), Scalaz Stream (`S`), scalaz-iteratee (`Z`),
+[play-iteratee][play-iteratee] (`P`), and the collections library (`C`). Higher numbers are better.
 
 ```
-Benchmark                    Mode  Cnt      Score    Error  Units
-InMemoryBenchmark.sumIntsC  thrpt   40  13020.825 ± 38.522  ops/s
-InMemoryBenchmark.sumIntsI  thrpt   40   2783.060 ± 12.597  ops/s
-InMemoryBenchmark.sumIntsS  thrpt   40     71.098 ±  0.298  ops/s
-InMemoryBenchmark.sumIntsZ  thrpt   40    308.207 ±  2.400  ops/s
+Benchmark                       Mode  Cnt      Score    Error  Units
+InMemoryBenchmark.sumInts0I     thrpt   80  15105.537 ± 25.871  ops/s
+InMemoryBenchmark.sumInts1S     thrpt   80     78.947 ±  0.510  ops/s
+InMemoryBenchmark.sumInts2Z     thrpt   80    296.223 ±  1.971  ops/s
+InMemoryBenchmark.sumInts3P     thrpt   80     57.355 ±  0.745  ops/s
+InMemoryBenchmark.sumInts4C     thrpt   80  13056.163 ± 22.790  ops/s
 ```
 
 And the results for collecting the first 10,000 values from an infinite stream of non-negative
 numbers into a `Vector`:
 
 ```
-Benchmark                       Mode  Cnt     Score     Error  Units
-StreamingBenchmark.takeLongsC  thrpt   40  2898.525 ± 208.089  ops/s
-StreamingBenchmark.takeLongsI  thrpt   40   826.677 ±  27.975  ops/s
-StreamingBenchmark.takeLongsS  thrpt   40    61.036 ±   0.660  ops/s
-StreamingBenchmark.takeLongsZ  thrpt   40   333.113 ±   2.792  ops/s
+Benchmark                       Mode  Cnt      Score    Error  Units
+StreamingBenchmark.takeLongs0I  thrpt   80   1146.021 ±  6.539  ops/s
+StreamingBenchmark.takeLongs1S  thrpt   80     65.916 ±  0.182  ops/s
+StreamingBenchmark.takeLongs2Z  thrpt   80    198.919 ±  2.097  ops/s
+StreamingBenchmark.takeLongs3P  thrpt   80      1.447 ±  0.082  ops/s
+StreamingBenchmark.takeLongs4C  thrpt   80   3286.878 ± 37.967  ops/s
 ```
 
 And allocation rates (lower is better):
 
 ```
-Benchmark                                           Mode  Cnt         Score         Error   Units
-InMemoryBenchmark.sumIntsC:·gc.alloc.rate.norm     thrpt   20    159864.130 ±       0.251    B/op
-InMemoryBenchmark.sumIntsI:·gc.alloc.rate.norm     thrpt   20   1520760.659 ±       1.288    B/op
-InMemoryBenchmark.sumIntsS:·gc.alloc.rate.norm     thrpt   20  59373920.222 ±   35829.334    B/op
-InMemoryBenchmark.sumIntsZ:·gc.alloc.rate.norm     thrpt   20  14081129.846 ±      13.693    B/op
+Benchmark                                           Mode  Cnt             Score         Error   Units
+InMemoryBenchmark.sumInts0I:gc.alloc.rate.norm     thrpt   10      161688.037 ±        11.415    B/op
+InMemoryBenchmark.sumInts1S:gc.alloc.rate.norm     thrpt   10    58493412.522 ±   1083990.715    B/op
+InMemoryBenchmark.sumInts2Z:gc.alloc.rate.norm     thrpt   10    16881441.584 ±         0.044    B/op
+InMemoryBenchmark.sumInts3P:gc.alloc.rate.norm     thrpt   10    13468439.557 ±    267296.027    B/op
+InMemoryBenchmark.sumInts4C:gc.alloc.rate.norm     thrpt   10      159846.149 ±        29.299    B/op
 
-Benchmark                                           Mode  Cnt         Score         Error   Units
-StreamingBenchmark.takeLongsC:·gc.alloc.rate.norm  thrpt   20    526752.652 ±       1.256    B/op
-StreamingBenchmark.takeLongsI:·gc.alloc.rate.norm  thrpt   20   5284138.025 ±       3.949    B/op
-StreamingBenchmark.takeLongsS:·gc.alloc.rate.norm  thrpt   20  69766827.562 ±      53.377    B/op
-StreamingBenchmark.takeLongsZ:·gc.alloc.rate.norm  thrpt   20  13405965.216 ±   35697.982    B/op
+Benchmark                                           Mode  Cnt             Score         Error   Units
+StreamingBenchmark.takeLongs0I:gc.alloc.rate.norm  thrpt   10     5924322.065 ±        31.187    B/op
+StreamingBenchmark.takeLongs1S:gc.alloc.rate.norm  thrpt   10    70326819.219 ±    637512.439    B/op
+StreamingBenchmark.takeLongs2Z:gc.alloc.rate.norm  thrpt   10    28647967.493 ±    254993.412    B/op
+StreamingBenchmark.takeLongs3P:gc.alloc.rate.norm  thrpt   10  1206114735.600 ±      7941.695    B/op
+StreamingBenchmark.takeLongs4C:gc.alloc.rate.norm  thrpt   10      526752.174 ±         0.033    B/op
 ```
 
 ## License
 
-iteratee is licensed under the **[Apache License, Version 2.0][apache]** (the
+iteratee.io is licensed under the **[Apache License, Version 2.0][apache]** (the
 "License"); you may not use this software except in compliance with the License.
 
 Unless required by applicable law or agreed to in writing, software
@@ -64,7 +68,10 @@ See the License for the specific language governing permissions and
 limitations under the License.
 
 [apache]: http://www.apache.org/licenses/LICENSE-2.0
+[api-docs]: http://travisbrown.github.io/iteratee/api/#io.iteratee.package
 [cats]: https://github.com/non/cats
 [circe]: https://github.com/travisbrown/circe
+[intro]: https://meta.plasm.us/posts/2016/01/08/yet-another-iteratee-library/
+[play-iteratee]: https://www.playframework.com/documentation/2.5.x/Iteratees
 [scalaz]: https://github.com/scalaz/scalaz
 [scalaz-iteratee]: https://github.com/scalaz/scalaz/tree/series/7.2.x/iteratee/src/main/scala/scalaz/iteratee
