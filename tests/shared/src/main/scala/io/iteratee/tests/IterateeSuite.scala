@@ -109,17 +109,17 @@ abstract class BaseIterateeSuite[F[_]: Monad] extends ModuleSuite[F] {
     }
   }
 
-  test("drain") {
+  test("consume") {
     check { (eav: EnumeratorAndValues[Int]) =>
-      val result = eav.resultWithLeftovers(drain)
+      val result = eav.resultWithLeftovers(consume)
       result === F.pure((eav.values, Vector.empty)) &&
-      result === eav.resultWithLeftovers(identity.flatMap(_ => drain))
+      result === eav.resultWithLeftovers(identity.flatMap(_ => consume))
     }
   }
 
-  test("drainTo") {
+  test("consumeIn") {
     check { (eav: EnumeratorAndValues[Int]) =>
-      eav.resultWithLeftovers(drainTo[Int, List]) === F.pure((eav.values.toList, Vector.empty))
+      eav.resultWithLeftovers(consumeIn[Int, List]) === F.pure((eav.values.toList, Vector.empty))
     }
   }
 
@@ -184,7 +184,7 @@ abstract class BaseIterateeSuite[F[_]: Monad] extends ModuleSuite[F] {
   test("dropWhile with nothing left in chunk") {
     val iteratee = for {
       _ <- dropWhile[Int](_ < 100)
-      r <- drain
+      r <- consume
     } yield r
     enumVector(Vector(1, 2, 3)).run(iteratee) === F.pure(Vector(1, 2, 3))
   }
@@ -218,13 +218,13 @@ abstract class BaseIterateeSuite[F[_]: Monad] extends ModuleSuite[F] {
   test("isEnd") {
     check { (eav: EnumeratorAndValues[Int]) =>
       eav.resultWithLeftovers(isEnd) === F.pure((eav.values.isEmpty, eav.values)) &&
-      eav.resultWithLeftovers(drain.flatMap(_ => isEnd)) === F.pure((true, Vector.empty))
+      eav.resultWithLeftovers(consume.flatMap(_ => isEnd)) === F.pure((true, Vector.empty))
     }
   }
 
   test("apply") {
     check { (eav: EnumeratorAndValues[Int]) =>
-      drain.apply(eav.enumerator).apply(eav.enumerator).run === F.pure(eav.values ++ eav.values)
+      consume.apply(eav.enumerator).apply(eav.enumerator).run === F.pure(eav.values ++ eav.values)
     }
   }
 
@@ -284,7 +284,7 @@ abstract class BaseIterateeSuite[F[_]: Monad] extends ModuleSuite[F] {
     val es = Vector(1, 2, 3, 4)
     val enumerator = enumVector(es)
     val iteratee1 = take[Int](2).zip(take(3)).zip(take(4))
-    val iteratee2 = take[Int](2).zip(take(3)).zip(drain)
+    val iteratee2 = take[Int](2).zip(take(3)).zip(consume)
     val result = ((es.take(2), es.take(3)), es)
 
     assert(
@@ -359,17 +359,17 @@ abstract class BaseIterateeSuite[F[_]: Monad] extends ModuleSuite[F] {
       val oneL1I = done((), l1.take(1))
       val oneL2I = done((), l2.take(1))
 
-      val iteratee1: Iteratee[F, Int, Vector[Int]] = allL1I.flatMap(_ => allL2I).flatMap(_ => drain)
-      val iteratee2: Iteratee[F, Int, Vector[Int]] = allL1I.flatMap(_ => allL2I.flatMap(_ => drain))
+      val iteratee1: Iteratee[F, Int, Vector[Int]] = allL1I.flatMap(_ => allL2I).flatMap(_ => consume)
+      val iteratee2: Iteratee[F, Int, Vector[Int]] = allL1I.flatMap(_ => allL2I.flatMap(_ => consume))
 
-      val iteratee3: Iteratee[F, Int, Vector[Int]] = allL1I.flatMap(_ => oneL2I).flatMap(_ => drain)
-      val iteratee4: Iteratee[F, Int, Vector[Int]] = allL1I.flatMap(_ => oneL2I.flatMap(_ => drain))
+      val iteratee3: Iteratee[F, Int, Vector[Int]] = allL1I.flatMap(_ => oneL2I).flatMap(_ => consume)
+      val iteratee4: Iteratee[F, Int, Vector[Int]] = allL1I.flatMap(_ => oneL2I.flatMap(_ => consume))
 
-      val iteratee5: Iteratee[F, Int, Vector[Int]] = oneL1I.flatMap(_ => allL2I).flatMap(_ => drain)
-      val iteratee6: Iteratee[F, Int, Vector[Int]] = oneL1I.flatMap(_ => allL2I.flatMap(_ => drain))
+      val iteratee5: Iteratee[F, Int, Vector[Int]] = oneL1I.flatMap(_ => allL2I).flatMap(_ => consume)
+      val iteratee6: Iteratee[F, Int, Vector[Int]] = oneL1I.flatMap(_ => allL2I.flatMap(_ => consume))
 
-      val iteratee7: Iteratee[F, Int, Vector[Int]] = oneL1I.flatMap(_ => oneL2I).flatMap(_ => drain)
-      val iteratee8: Iteratee[F, Int, Vector[Int]] = oneL1I.flatMap(_ => oneL2I.flatMap(_ => drain))
+      val iteratee7: Iteratee[F, Int, Vector[Int]] = oneL1I.flatMap(_ => oneL2I).flatMap(_ => consume)
+      val iteratee8: Iteratee[F, Int, Vector[Int]] = oneL1I.flatMap(_ => oneL2I.flatMap(_ => consume))
 
       iteratee1 === iteratee2 && iteratee3 === iteratee4 && iteratee5 === iteratee6 && iteratee7 === iteratee8
     }

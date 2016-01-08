@@ -199,12 +199,12 @@ final object Step { self =>
    *
    * @group Collection
    */
-  final def drain[F[_]: Applicative, A]: Step[F, A, Vector[A]] = new DrainCont(Vector.empty)
+  final def consume[F[_]: Applicative, A]: Step[F, A, Vector[A]] = new ConsumeCont(Vector.empty)
 
-  private[this] final class DrainCont[F[_], E](acc: Vector[E])(implicit F: Applicative[F])
+  private[this] final class ConsumeCont[F[_], E](acc: Vector[E])(implicit F: Applicative[F])
     extends PureCont.WithValue[F, E, Vector[E]](acc) {
-    final def onEl(e: E): Step[F, E, Vector[E]] = new DrainCont(acc :+ e)
-    final def onChunk(h1: E, h2: E, t: Vector[E]): Step[F, E, Vector[E]] = new DrainCont(acc ++ (h1 +: h2 +: t))
+    final def onEl(e: E): Step[F, E, Vector[E]] = new ConsumeCont(acc :+ e)
+    final def onChunk(h1: E, h2: E, t: Vector[E]): Step[F, E, Vector[E]] = new ConsumeCont(acc ++ (h1 +: h2 +: t))
   }
 
   /**
@@ -213,19 +213,19 @@ final object Step { self =>
    *
    * @group Collection
    */
-  final def drainTo[F[_], E, C[_]](implicit
+  final def consumeIn[F[_], E, C[_]](implicit
     F: Applicative[F],
     M: MonoidK[C],
     C: Applicative[C]
-  ): Step[F, E, C[E]] = new DrainToCont(M.empty)
+  ): Step[F, E, C[E]] = new ConsumeInCont(M.empty)
 
-  private[this] final class DrainToCont[F[_], E, C[_]](acc: C[E])(implicit
+  private[this] final class ConsumeInCont[F[_], E, C[_]](acc: C[E])(implicit
     F: Applicative[F],
     M: MonoidK[C],
     C: Applicative[C]
   ) extends PureCont.WithValue[F, E, C[E]](acc) {
-    final def onEl(e: E): Step[F, E, C[E]] = new DrainToCont(M.combine(acc, C.pure(e)))
-    final def onChunk(h1: E, h2: E, t: Vector[E]): Step[F, E, C[E]] = new DrainToCont(
+    final def onEl(e: E): Step[F, E, C[E]] = new ConsumeInCont(M.combine(acc, C.pure(e)))
+    final def onChunk(h1: E, h2: E, t: Vector[E]): Step[F, E, C[E]] = new ConsumeInCont(
       t.foldLeft(M.combine(M.combine(acc, C.pure(h1)), C.pure(h2)))((a, e) => M.combine(a, C.pure(e)))
     )
   }

@@ -195,8 +195,8 @@ final object Iteratee extends IterateeInstances {
    *
    * @group Collection
    */
-  final def drain[F[_], A](implicit F: Applicative[F]): Iteratee[F, A, Vector[A]] =
-    fromStep(Step.drain[F, A])
+  final def consume[F[_], A](implicit F: Applicative[F]): Iteratee[F, A, Vector[A]] =
+    fromStep(Step.consume[F, A])
 
   /**
    * An [[Iteratee]] that collects all the elements in a stream in a given
@@ -204,8 +204,8 @@ final object Iteratee extends IterateeInstances {
    *
    * @group Collection
    */
-  final def drainTo[F[_]: Applicative, A, C[_]: Applicative: MonoidK]: Iteratee[F, A, C[A]] =
-    fromStep(Step.drainTo[F, A, C])
+  final def consumeIn[F[_]: Applicative, A, C[_]: Applicative: MonoidK]: Iteratee[F, A, C[A]] =
+    fromStep(Step.consumeIn[F, A, C])
 
   /**
    * An [[Iteratee]] that returns the first value in a stream.
