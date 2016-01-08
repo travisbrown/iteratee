@@ -18,6 +18,12 @@ import io.iteratee.internal.{ Input, Step }
  */
 sealed class Iteratee[F[_], E, A] private[iteratee] (final val state: F[Step[F, E, A]]) extends Serializable { self =>
   /**
+   * Advance this [[Iteratee]] with the given [[Enumerator]].
+   */
+  final def apply(enumerator: Enumerator[F, E])(implicit F: Monad[F]): Iteratee[F, E, A] =
+    Iteratee.iteratee(F.flatMap(state)(enumerator(_)))
+
+  /**
    * Reduce this [[Iteratee]] to an effectful value using the given functions.
    */
   final def fold[Z](ifCont: (NonEmptyVector[E] => Iteratee[F, E, A]) => Z, ifDone: (A, Vector[E]) => Z)
@@ -189,8 +195,8 @@ final object Iteratee extends IterateeInstances {
    *
    * @group Collection
    */
-  final def drain[F[_], A](implicit F: Applicative[F]): Iteratee[F, A, Vector[A]] =
-    fromStep(Step.drain[F, A])
+  final def consume[F[_], A](implicit F: Applicative[F]): Iteratee[F, A, Vector[A]] =
+    fromStep(Step.consume[F, A])
 
   /**
    * An [[Iteratee]] that collects all the elements in a stream in a given
@@ -198,8 +204,8 @@ final object Iteratee extends IterateeInstances {
    *
    * @group Collection
    */
-  final def drainTo[F[_]: Applicative, A, C[_]: Applicative: MonoidK]: Iteratee[F, A, C[A]] =
-    fromStep(Step.drainTo[F, A, C])
+  final def consumeIn[F[_]: Applicative, A, C[_]: Applicative: MonoidK]: Iteratee[F, A, C[A]] =
+    fromStep(Step.consumeIn[F, A, C])
 
   /**
    * An [[Iteratee]] that returns the first value in a stream.

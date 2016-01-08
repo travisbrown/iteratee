@@ -93,7 +93,7 @@ trait IterateeModule[F[_]] {
    *
    * @group Iteratees
    */
-  final def drain[E](implicit F: Monad[F]): Iteratee[F, E, Vector[E]] = Iteratee.drain
+  final def consume[E](implicit F: Monad[F]): Iteratee[F, E, Vector[E]] = Iteratee.consume
 
   /**
    * An [[Iteratee]] that collects all the elements in a stream in a given
@@ -101,8 +101,8 @@ trait IterateeModule[F[_]] {
    *
    * @group Iteratees
    */
-  final def drainTo[E, C[_]: Applicative: MonoidK](implicit F: Monad[F]): Iteratee[F, E, C[E]] =
-    Iteratee.drainTo
+  final def consumeIn[E, C[_]: Applicative: MonoidK](implicit F: Monad[F]): Iteratee[F, E, C[E]] =
+    Iteratee.consumeIn
 
   /**
    * An [[Iteratee]] that returns the first value in a stream.
