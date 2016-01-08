@@ -16,6 +16,8 @@ abstract class Enumerator[F[_], E] extends Serializable { self =>
 
   final def map[B](f: E => B)(implicit F: Monad[F]): Enumerator[F, B] = mapE(Enumeratee.map(f))
 
+  final def mapK[B](f: E => F[B])(implicit F: Monad[F]): Enumerator[F, B] = mapE(Enumeratee.mapK(f))
+
   final def flatMap[B](f: E => Enumerator[F, B])(implicit F: Monad[F]): Enumerator[F, B] = mapE(Enumeratee.flatMap(f))
 
   final def prepend(e: E)(implicit F: Monad[F]): Enumerator[F, E] = new Enumerator[F, E] {
@@ -38,17 +40,17 @@ abstract class Enumerator[F[_], E] extends Serializable { self =>
       }
     )
 
-  final def ensure[T](action: F[Unit])(implicit F: MonadError[F, T]): Enumerator[F, E] = new Enumerator[F, E] {
-    final def apply[A](s: Step[F, E, A]): F[Step[F, E, A]] = F.flatMap(
-      F.handleErrorWith(self(s))(e => F.flatMap(action)(_ => F.raiseError(e)))
-    )(result => F.map(action)(_ => result))
+  final def reduced[B](b: B)(f: (B, E) => B)(implicit F: Monad[F]): Enumerator[F, B] = new Enumerator[F, B] {
+    final def apply[A](step: Step[F, B, A]): F[Step[F, B, A]] =
+      F.flatMap(self(Step.fold[F, E, B](b)(f)))(next => F.flatMap(next.run)(step.feedEl))
   }
 
   final def toVector(implicit F: Monad[F]): F[Vector[E]] = run(Iteratee.drain)
 
-  final def reduced[B](b: B)(f: (B, E) => B)(implicit F: Monad[F]): Enumerator[F, B] = new Enumerator[F, B] {
-    final def apply[A](step: Step[F, B, A]): F[Step[F, B, A]] =
-      F.flatMap(self(Step.fold[F, E, B](b)(f)))(next => F.flatMap(next.run)(step.feedEl))
+  final def ensure[T](action: F[Unit])(implicit F: MonadError[F, T]): Enumerator[F, E] = new Enumerator[F, E] {
+    final def apply[A](s: Step[F, E, A]): F[Step[F, E, A]] = F.flatMap(
+      F.handleErrorWith(self(s))(e => F.flatMap(action)(_ => F.raiseError(e)))
+    )(result => F.map(action)(_ => result))
   }
 
   final def handleErrorWith[T](f: T => Enumerator[F, E])(implicit F: MonadError[F, T]): Enumerator[F, E] =
@@ -66,8 +68,7 @@ final object Enumerator extends EnumeratorInstances {
    */
   final def liftM[F[_], E](fa: F[E])(implicit F: Monad[F]): Enumerator[F, E] =
     new Enumerator[F, E] {
-      final def apply[A](s: Step[F, E, A]): F[Step[F, E, A]] =
-        F.flatMap(fa)(s.feedEl)
+      final def apply[A](s: Step[F, E, A]): F[Step[F, E, A]] = F.flatMap(fa)(s.feedEl)
     }
 
   /**

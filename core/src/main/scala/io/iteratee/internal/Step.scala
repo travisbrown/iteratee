@@ -79,6 +79,12 @@ final object Step { self =>
     final def feedChunk(h1: E, h2: E, t: Vector[E]): F[Step[F, E, A]] = onChunk(h1, h2, t)
   }
 
+  object Cont {
+    abstract class WithValue[F[_], E, A](value: A)(implicit F: Applicative[F]) extends Cont[F, E, A] {
+      final def run: F[A] = F.pure(value)
+    }
+  }
+
   abstract class PureCont[F[_], E, A](implicit F: Applicative[F])
     extends BaseCont[F, E, A] with Input.Folder[E, Step[F, E, A]]  { self =>
     final def feedEl(e: E): F[Step[F, E, A]] = F.pure(onEl(e))
@@ -102,6 +108,12 @@ final object Step { self =>
         final def run: F[B] = M.flatMap(self.run)(a => M.flatMap(f(a))(_.run))
       }
     )
+  }
+
+  object PureCont {
+    abstract class WithValue[F[_], E, A](value: A)(implicit F: Applicative[F]) extends PureCont[F, E, A] {
+      final def run: F[A] = F.pure(value)
+    }
   }
 
   final object Done {
@@ -161,11 +173,10 @@ final object Step { self =>
    * @group Collection
    */
   final def fold[F[_], E, A](init: A)(f: (A, E) => A)(implicit F: Applicative[F]): Step[F, E, A] =
-    new PureCont[F, E, A] {
+    new PureCont.WithValue[F, E, A](init) {
       final def onEl(e: E): Step[F, E, A] = self.fold(f(init, e))(f)
       final def onChunk(h1: E, h2: E, t: Vector[E]): Step[F, E, A] =
         self.fold(t.foldLeft(f(f(init, h1), h2))(f))(f)
-      final def run: F[A] = F.pure(init)
     }
 
   /**
@@ -175,13 +186,12 @@ final object Step { self =>
    * @group Collection
    */
   final def foldM[F[_], E, A](init: A)(f: (A, E) => F[A])(implicit F: Monad[F]): Step[F, E, A] =
-    new Cont[F, E, A] {
+    new Cont.WithValue[F, E, A](init) {
       final def onEl(e: E): F[Step[F, E, A]] = F.map(f(init, e))(a => foldM(a)(f))
       final def onChunk(h1: E, h2: E, t: Vector[E]): F[Step[F, E, A]] =
         F.map(
           t.foldLeft(F.flatMap(f(init, h1))(a => f(a, h2)))((fa, e) => F.flatMap(fa)(a => f(a, e)))
         )(a => foldM(a)(f))
-      final def run: F[A] = F.pure(init)
     }
 
   /**
@@ -192,10 +202,9 @@ final object Step { self =>
   final def drain[F[_]: Applicative, A]: Step[F, A, Vector[A]] = new DrainCont(Vector.empty)
 
   private[this] final class DrainCont[F[_], E](acc: Vector[E])(implicit F: Applicative[F])
-    extends PureCont[F, E, Vector[E]] {
+    extends PureCont.WithValue[F, E, Vector[E]](acc) {
     final def onEl(e: E): Step[F, E, Vector[E]] = new DrainCont(acc :+ e)
     final def onChunk(h1: E, h2: E, t: Vector[E]): Step[F, E, Vector[E]] = new DrainCont(acc ++ (h1 +: h2 +: t))
-    final def run: F[Vector[E]] = F.pure(acc)
   }
 
   /**
@@ -214,12 +223,11 @@ final object Step { self =>
     F: Applicative[F],
     M: MonoidK[C],
     C: Applicative[C]
-  ) extends PureCont[F, E, C[E]] {
+  ) extends PureCont.WithValue[F, E, C[E]](acc) {
     final def onEl(e: E): Step[F, E, C[E]] = new DrainToCont(M.combine(acc, C.pure(e)))
     final def onChunk(h1: E, h2: E, t: Vector[E]): Step[F, E, C[E]] = new DrainToCont(
       t.foldLeft(M.combine(M.combine(acc, C.pure(h1)), C.pure(h2)))((a, e) => M.combine(a, C.pure(e)))
     )
-    final def run: F[C[E]] = F.pure(acc)
   }
 
   /**
@@ -255,7 +263,7 @@ final object Step { self =>
     if (n <= 0) done[F, A, Vector[A]](Vector.empty) else new TakeCont(Vector.empty, n)
 
   private[this] final class TakeCont[F[_], E](acc: Vector[E], n: Int)(implicit F: Applicative[F])
-    extends PureCont[F, E, Vector[E]] {
+    extends PureCont.WithValue[F, E, Vector[E]](acc) {
     final def onEl(e: E): Step[F, E, Vector[E]] = if (n == 1) done(acc :+ e) else new TakeCont(acc :+ e, n - 1)
     final def onChunk(h1: E, h2: E, t: Vector[E]): Step[F, E, Vector[E]] = {
       val v = h1 +: h2 +: t
@@ -267,7 +275,6 @@ final object Step { self =>
         new WithLeftovers(acc ++ taken, Input.fromVectorUnsafe(left))
       }
     }
-    final def run: F[Vector[E]] = F.pure(acc)
   }
 
   /**
@@ -280,7 +287,7 @@ final object Step { self =>
     new TakeWhileCont(Vector.empty, p)
 
   private[this] final class TakeWhileCont[F[_], E](acc: Vector[E], p: E => Boolean)(implicit F: Applicative[F])
-    extends PureCont[F, E, Vector[E]] {
+    extends PureCont.WithValue[F, E, Vector[E]](acc) {
     final def onEl(e: E): Step[F, E, Vector[E]] =
       if (p(e)) new TakeWhileCont(acc :+ e, p) else new WithLeftovers(acc, Input.el(e))
     final def onChunk(h1: E, h2: E, t: Vector[E]): Step[F, E, Vector[E]] = {
@@ -289,7 +296,6 @@ final object Step { self =>
       if (after.isEmpty) new TakeWhileCont(acc ++ before, p) else
         new WithLeftovers(acc ++ before, Input.fromVectorUnsafe(after))
     }
-    final def run: F[Vector[E]] = F.pure(acc)
   }
 
   /**

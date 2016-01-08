@@ -9,14 +9,11 @@ abstract class Enumeratee[F[_], O, I] extends Serializable { self =>
 
   def apply[A](step: Step[F, I, A]): F[Step[F, O, Step[F, I, A]]]
 
-  final def wrap(enum: Enumerator[F, O])(implicit F: Monad[F]): Enumerator[F, I] =
-    new Enumerator[F, I] {
-      final def apply[A](s: Step[F, I, A]): F[Step[F, I, A]] =
-        F.flatMap(self(s))(enum.runStep)
-    }
+  final def wrap(enum: Enumerator[F, O])(implicit F: Monad[F]): Enumerator[F, I] = new Enumerator[F, I] {
+    final def apply[A](s: Step[F, I, A]): F[Step[F, I, A]] = F.flatMap(self(s))(enum.runStep)
+  }
 
-  final def andThen[J](other: Enumeratee[F, I, J])(implicit F: Monad[F]): Enumeratee[F, O, J] =
-    other.compose(self)
+  final def andThen[J](other: Enumeratee[F, I, J])(implicit F: Monad[F]): Enumeratee[F, O, J] = other.compose(self)
 
   final def compose[J](other: Enumeratee[F, J, O])(implicit F: Monad[F]): Enumeratee[F, J, I] =
     new Enumeratee[F, J, I] {
@@ -24,11 +21,9 @@ abstract class Enumeratee[F[_], O, I] extends Serializable { self =>
         F.flatMap(self(step))(next => F.flatMap(other(next))(Step.joinI(_)))
     }
 
-  final def map[J](f: I => J)(implicit F: Monad[F]): Enumeratee[F, O, J] =
-    andThen(Enumeratee.map(f))
+  final def map[J](f: I => J)(implicit F: Monad[F]): Enumeratee[F, O, J] = andThen(Enumeratee.map(f))
 
-  final def contramap[J](f: J => O)(implicit F: Monad[F]): Enumeratee[F, J, I] =
-    Enumeratee.map(f)(F).andThen(self)
+  final def contramap[J](f: J => O)(implicit F: Monad[F]): Enumeratee[F, J, I] = Enumeratee.map(f)(F).andThen(self)
 }
 
 final object Enumeratee extends EnumerateeInstances {
@@ -45,6 +40,12 @@ final object Enumeratee extends EnumerateeInstances {
             F.flatMap(step.feedChunk(f(h1), f(h2), t.map(f)))(doneOrLoop)
         }
     }
+
+  /**
+   * Map a function returning a value in a context over a stream.
+   */
+  final def mapK[F[_], O, I](f: O => F[I])(implicit F: Monad[F]): Enumeratee[F, O, I] =
+    flatMap(o => Enumerator.liftM[F, I](f(o)))
 
   /**
    * Map a function returning an [[Enumerator]] over a stream and flatten the

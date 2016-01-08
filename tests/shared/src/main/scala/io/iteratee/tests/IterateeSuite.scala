@@ -222,6 +222,12 @@ abstract class BaseIterateeSuite[F[_]: Monad] extends ModuleSuite[F] {
     }
   }
 
+  test("mapK") {
+    check { (eav: EnumeratorAndValues[Int], iteratee: Iteratee[F, Int, Int]) =>
+      eav.enumerator.run(iteratee.mapK(F.pure)) === eav.enumerator.run(iteratee)
+    }
+  }
+
   test("contramap") {
     check { (eav: EnumeratorAndValues[Int], iteratee: Iteratee[F, Int, Int]) =>
       eav.enumerator.run(iteratee.contramap(_ + 1)) === eav.enumerator.map(_ + 1).run(iteratee)
