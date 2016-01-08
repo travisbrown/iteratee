@@ -18,6 +18,12 @@ class TaskOperationTest extends BaseSuite {
     assert(lines(txt).run(head).run === Some(result))
   }
 
+  test("bytes") {
+    val txt = new File(getClass.getResource("/io/iteratee/examples/pg/11231/11231.txt").toURI)
+
+    assert(bytes(txt).flatMap(bytes => enumVector(bytes.toVector)).run(length).run === 105397)
+  }
+
   test("zipStreams") {
     val zip = new File(getClass.getResource("/io/iteratee/examples/pg/11231/11231.zip").toURI)
 
