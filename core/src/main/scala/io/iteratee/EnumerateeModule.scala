@@ -46,6 +46,13 @@ trait EnumerateeModule[F[_]] {
   final def filter[E](p: E => Boolean)(implicit F: Monad[F]): Enumeratee[F, E, E] = Enumeratee.filter(p)
 
   /**
+    * Drop values that do not satisfy the given monadic predicate.
+    *
+    * @group Enumeratees
+    */
+  final def filterK[E](f: E => F[Boolean])(implicit F: Monad[F]): Enumeratee[F, E, E] = Enumeratee.filterK(f)
+
+  /**
    * Apply the given [[Iteratee]] repeatedly.
    *
    * @group Enumeratees

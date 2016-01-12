@@ -61,6 +61,15 @@ abstract class EnumerateeSuite[F[_]: Monad] extends ModuleSuite[F] {
     }
   }
 
+  test("filterK") {
+    check { (eav: EnumeratorAndValues[Int]) =>
+      val p:  Int => Boolean    = _ % 2 == 0
+      val fp: Int => F[Boolean] = i => F.pure(p(i))
+
+      eav.enumerator.mapE(filterK(fp)).toVector === F.pure(eav.values.filter(p))
+    }
+  }
+
   test("sequenceI") {
     check { (eav: EnumeratorAndValues[Int]) =>
       Prop.forAll(Gen.posNum[Int]) { n =>
