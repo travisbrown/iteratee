@@ -112,6 +112,19 @@ final object Enumeratee extends EnumerateeInstances {
     }
 
   /**
+    * Drop values that do not satisfy a monadic predicate.
+    */
+  final def filterK[F[_], E](p: E => F[Boolean])(implicit F: Monad[F]): Enumeratee[F, E, E] =
+    flatMap { o =>
+      new Enumerator[F, E] {
+        def apply[A](s: Step[F, E, A]): F[Step[F, E, A]] =
+          F.ifM(p(o))(
+            ifTrue  = s.feedEl(o),
+            ifFalse = F.pure(s))
+      }
+    }
+
+  /**
    * Apply the given [[Iteratee]] repeatedly.
    */
   final def sequenceI[F[_], O, I](iteratee: Iteratee[F, O, I])(implicit F: Monad[F]): Enumeratee[F, O, I] =
