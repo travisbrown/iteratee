@@ -13,6 +13,12 @@ I've published a [blog post][intro] introducing the project.
 The motivations for the port are similar to those for [circe][circe]—in particular I'm aiming for a
 more consistent API, better performance, and better documentation.
 
+Note that this library doesn't support many of the use cases that [fs2][fs2] (formerly Scalaz
+Stream) is designed to handle. It doesn't support nondeterministic reading from multiple streams,
+for example, and in general is a less appropriate choice for situations where concurrency and
+parallelism are primary goals. Where the use cases of fs2 and this library do overlap, however, it's
+often likely to be a simpler, faster solution.
+
 The initial performance benchmarks look promising. For example, here are the throughput results for
 summing a sequence of numbers with this library (`I`), Scalaz Stream (`S`), scalaz-iteratee (`Z`),
 [play-iteratee][play-iteratee] (`P`), and the collections library (`C`). Higher numbers are better.
@@ -71,6 +77,7 @@ limitations under the License.
 [api-docs]: http://travisbrown.github.io/iteratee/api/#io.iteratee.package
 [cats]: https://github.com/non/cats
 [circe]: https://github.com/travisbrown/circe
+[fs2]: https://github.com/functional-streams-for-scala/fs2
 [intro]: https://meta.plasm.us/posts/2016/01/08/yet-another-iteratee-library/
 [play-iteratee]: https://www.playframework.com/documentation/2.5.x/Iteratees
 [scalaz]: https://github.com/scalaz/scalaz
