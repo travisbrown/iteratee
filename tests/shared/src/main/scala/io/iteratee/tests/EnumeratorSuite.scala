@@ -3,15 +3,15 @@ package io.iteratee.tests
 import algebra.Eq
 import algebra.laws.GroupLaws
 import cats.Monad
-import cats.laws.discipline.{ MonadTests, MonoidalTests }
+import cats.laws.discipline.{ CartesianTests, MonadTests }
 import io.iteratee.Enumerator
 import org.scalacheck.{ Gen, Prop }
 
 abstract class EnumeratorSuite[F[_]: Monad] extends ModuleSuite[F] {
   type EnumeratorF[E] = Enumerator[F, E]
 
-  implicit val isomorphisms: MonoidalTests.Isomorphisms[EnumeratorF] =
-    MonoidalTests.Isomorphisms.invariant[EnumeratorF]
+  implicit val isomorphisms: CartesianTests.Isomorphisms[EnumeratorF] =
+    CartesianTests.Isomorphisms.invariant[EnumeratorF]
 
   checkAll(s"Enumerator[$monadName, Int]", GroupLaws[Enumerator[F, Int]].monoid)
   checkAll(s"Enumerator[$monadName, Int]", MonadTests[EnumeratorF].monad[Int, Int, Int])
