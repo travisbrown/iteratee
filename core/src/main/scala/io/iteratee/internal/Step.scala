@@ -224,9 +224,9 @@ final object Step { self =>
     M: MonoidK[C],
     C: Applicative[C]
   ) extends PureCont.WithValue[F, E, C[E]](acc) {
-    final def onEl(e: E): Step[F, E, C[E]] = new ConsumeInCont(M.combine(acc, C.pure(e)))
+    final def onEl(e: E): Step[F, E, C[E]] = new ConsumeInCont(M.combineK(acc, C.pure(e)))
     final def onChunk(h1: E, h2: E, t: Vector[E]): Step[F, E, C[E]] = new ConsumeInCont(
-      t.foldLeft(M.combine(M.combine(acc, C.pure(h1)), C.pure(h2)))((a, e) => M.combine(a, C.pure(e)))
+      t.foldLeft(M.combineK(M.combineK(acc, C.pure(h1)), C.pure(h2)))((a, e) => M.combineK(a, C.pure(e)))
     )
   }
 

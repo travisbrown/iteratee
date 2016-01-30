@@ -3,7 +3,7 @@ package io.iteratee.tests
 import algebra.Eq
 import cats.{ Monad, MonadError }
 import cats.data.{ NonEmptyVector, Xor, XorT }
-import cats.laws.discipline.{ ContravariantTests, MonadTests, MonadErrorTests, MonoidalTests }
+import cats.laws.discipline.{ CartesianTests, ContravariantTests, MonadTests, MonadErrorTests }
 import io.iteratee.Iteratee
 import org.scalacheck.Arbitrary
 import org.scalacheck.Prop.BooleanOperators
@@ -54,8 +54,8 @@ abstract class BaseIterateeSuite[F[_]: Monad] extends ModuleSuite[F] {
   type VectorIntProducingIteratee[E] = Iteratee[F, E, Vector[Int]]
   type VectorIntFoldingIteratee[A] = Iteratee[F, Vector[Int], A]
 
-  implicit val isomorphisms: MonoidalTests.Isomorphisms[VectorIntFoldingIteratee] =
-    MonoidalTests.Isomorphisms.invariant[VectorIntFoldingIteratee]
+  implicit val isomorphisms: CartesianTests.Isomorphisms[VectorIntFoldingIteratee] =
+    CartesianTests.Isomorphisms.invariant[VectorIntFoldingIteratee]
 
   checkAll(
     s"Iteratee[$monadName, Int, Vector[Int]]",
