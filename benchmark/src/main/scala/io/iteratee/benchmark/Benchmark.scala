@@ -31,7 +31,7 @@ class InMemoryExampleData extends IterateeBenchmark {
 }
 
 class StreamingExampleData extends IterateeBenchmark {
-  val longStreamI: i.Enumerator[Task, Long] = iterate(0L)(_ + 1L)
+  val longStreamI: i.Enumerator[Task, Long] = iterate(0L)(i => Some(i + 1L))
   val longStreamS: Process[Task, Long] = Process.iterate(0L)(_ + 1L)
   // scalaz-iteratee's iterate is broken.
   val longStreamZ: z.EnumeratorT[Long, Task] = z.EnumeratorT.repeat[Unit, Task](()).zipWithIndex.map(_._2)
