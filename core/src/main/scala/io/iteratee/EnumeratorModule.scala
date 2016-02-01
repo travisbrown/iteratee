@@ -117,4 +117,23 @@ trait EnumeratorModule[F[_]] {
    */
   final def iterateM[E](init: E)(f: E => F[E])(implicit F: Monad[F]): Enumerator[F, E] =
     Enumerator.iterateM(init)(f)
+
+  /**
+   * An enumerator that iteratively performs an operation until None is produced and returns
+   * the results.
+   *
+   * @group Enumerators
+   */
+  final def generate[E](init: E)(f: E => Option[E])(implicit F: Monad[F]): Enumerator[F, E] =
+    Enumerator.generate(init)(f)
+
+  /**
+   * An enumerator that iteratively performs an effectful operation until None is produced and returns
+   * the results.
+   *
+   * @group Enumerators
+   */
+  final def generateM[E](init: E)(f: E => F[Option[E]])(implicit F: Monad[F]): Enumerator[F, E] =
+    Enumerator.generateM(init)(f)
+
 }
