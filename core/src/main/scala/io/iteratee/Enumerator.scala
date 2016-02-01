@@ -176,20 +176,46 @@ final object Enumerator extends EnumeratorInstances {
    * An enumerator that iteratively performs an operation and returns the
    * results.
    */
-  final def iterate[F[_], E](init: E)(f: E => Option[E])(implicit F: Monad[F]): Enumerator[F, E] =
+  final def iterate[F[_], E](init: E)(f: E => E)(implicit F: Monad[F]): Enumerator[F, E] =
     new Enumerator[F, E] {
-      private[this] def loop[A](step: Step[F, E, A], last: Option[E]): F[Step[F, E, A]] = last match {
-        case Some(last) if !step.isDone => F.flatMap(step.feedEl(last))(loop(_, f(last)))
-        case _ => F.pure(step)
-      }
-      final def apply[A](s: Step[F, E, A]): F[Step[F, E, A]] = loop(s, Option(init))
+      private[this] def loop[A](step: Step[F, E, A], last: E): F[Step[F, E, A]] =
+        if (step.isDone) F.pure(step) else F.flatMap(step.feedEl(last))(loop(_, f(last)))
+
+      final def apply[A](s: Step[F, E, A]): F[Step[F, E, A]] = loop(s, init)
     }
 
   /**
-   * An enumerator that iteratively performs an effectful operation until None is produced and returns
+   * An enumerator that iteratively performs an effectful operation and returns
    * the results.
    */
-  final def iterateM[F[_], E](init: E)(f: E => F[Option[E]])(implicit F: Monad[F]): Enumerator[F, E] =
+  final def iterateM[F[_], E](init: E)(f: E => F[E])(implicit F: Monad[F]): Enumerator[F, E] =
+    new Enumerator[F, E] {
+      private[this] def loop[A](step: Step[F, E, A], last: E): F[Step[F, E, A]] =
+        if (step.isDone) F.pure(step) else
+          F.flatMap(step.feedEl(last))(next => F.flatMap(f(last))(loop(next, _)))
+
+      final def apply[A](s: Step[F, E, A]): F[Step[F, E, A]] = loop(s, init)
+    }
+
+  /**
+   * An enumerator that iteratively performs an operation until None is generated and returns
+   * the results.
+   */
+  final def generate[F[_], E](init: E)(f: E => Option[E])(implicit F: Monad[F]): Enumerator[F, E] =
+    new Enumerator[F, E] {
+      private[this] def loop[A](step: Step[F, E, A], last: Option[E]): F[Step[F, E, A]] =
+        last match {
+          case Some(last) if !step.isDone => F.flatMap(step.feedEl(last))(loop(_, f(last)))
+          case _ => F.pure(step)
+        }
+      final def apply[A](s: Step[F, E, A]): F[Step[F, E, A]] = loop(s, Some(init))
+    }
+
+  /**
+   * An enumerator that iteratively performs an effectful operation until None is generated and returns
+   * the results.
+   */
+  final def generateM[F[_], E](init: E)(f: E => F[Option[E]])(implicit F: Monad[F]): Enumerator[F, E] =
     new Enumerator[F, E] {
       private[this] def loop[A](step: Step[F, E, A], last: Option[E]): F[Step[F, E, A]] = {
         last match {
@@ -197,22 +223,10 @@ final object Enumerator extends EnumeratorInstances {
           case _ => F.pure(step)
         }
       }
-      final def apply[A](s: Step[F, E, A]): F[Step[F, E, A]] = loop(s, Option(init))
-    }
-
-  /**
-   * An enumerator that iteratively performs an effectful operation until None is generated and returns
-   * the results.
-   */
-  final def generateM[F[_], E](init: E)(f: => F[Option[E]])(implicit F: Monad[F]): Enumerator[F, E] =
-    new Enumerator[F, E] {
-      private[this] def loop[A](step: Step[F, E, A], last: Option[E]): F[Step[F, E, A]] = {
-        last match {
-          case Some(last) if !step.isDone => F.flatMap(step.feedEl(last))(next => F.flatMap(f)(loop(next, _)))
-          case _ => F.pure(step)
-        }
-      }
       final def apply[A](s: Step[F, E, A]): F[Step[F, E, A]] = loop(s, Some(init))
     }
+
+
+
 
 }
