@@ -20,7 +20,7 @@ lazy val compilerOptions = Seq(
   "-Xfuture"
 )
 
-lazy val catsVersion = "0.4.0-SNAPSHOT"
+lazy val catsVersion = "0.4.0"
 lazy val disciplineVersion = "0.4"
 lazy val scalaCheckVersion = "1.12.5"
 lazy val scalaTestVersion = "3.0.0-M9"
@@ -85,7 +85,7 @@ lazy val coreBase = crossProject.crossType(CrossType.Pure).in(file("core"))
   )
   .settings(allSettings: _*)
   .settings(
-    libraryDependencies += "org.spire-math" %%% "cats-core" % catsVersion
+    libraryDependencies += "org.typelevel" %%% "cats-core" % catsVersion
   )
   .jsSettings(commonJsSettings: _*)
   .jvmConfigure(_.copy(id = "core"))
@@ -107,7 +107,7 @@ lazy val testsBase = crossProject.in(file("tests"))
     libraryDependencies ++= Seq(
       "org.scalacheck" %% "scalacheck" % scalaCheckVersion,
       "org.scalatest" %% "scalatest" % scalaTestVersion,
-      "org.spire-math" %% "cats-laws" % catsVersion,
+      "org.typelevel" %% "cats-laws" % catsVersion,
       "org.typelevel" %% "discipline" % disciplineVersion
     )
   )

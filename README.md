@@ -75,7 +75,7 @@ limitations under the License.
 
 [apache]: http://www.apache.org/licenses/LICENSE-2.0
 [api-docs]: http://travisbrown.github.io/iteratee/api/#io.iteratee.package
-[cats]: https://github.com/non/cats
+[cats]: https://github.com/typelevel/cats
 [circe]: https://github.com/travisbrown/circe
 [fs2]: https://github.com/functional-streams-for-scala/fs2
 [intro]: https://meta.plasm.us/posts/2016/01/08/yet-another-iteratee-library/
