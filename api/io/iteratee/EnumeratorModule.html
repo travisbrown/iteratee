@@ -559,6 +559,42 @@
                 <span class="name">@inline</span><span class="args">()</span>
               
         </dd></dl></div>
+    </li><li name="io.iteratee.EnumeratorModule#generate" visbl="pub" data-isabs="false" fullComment="no" group="Enumerators">
+      <a id="generate[E](init:E)(f:E=&gt;Option[E])(implicitF:cats.Monad[F]):io.iteratee.Enumerator[F,E]"></a>
+      <a id="generate[E](E)((E)⇒Option[E])(Monad[F]):Enumerator[F,E]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">generate</span><span class="tparams">[<span name="E">E</span>]</span><span class="params">(<span name="init">init: <span class="extype" name="io.iteratee.EnumeratorModule.generate.E">E</span></span>)</span><span class="params">(<span name="f">f: (<span class="extype" name="io.iteratee.EnumeratorModule.generate.E">E</span>) ⇒ <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Option" class="extype" target="_top">Option</a>[<span class="extype" name="io.iteratee.EnumeratorModule.generate.E">E</span>]</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="F">F: <a href="https://non.github.io/cats/api/index.html#cats.Monad" class="extype" target="_top">Monad</a>[<span class="extype" name="io.iteratee.EnumeratorModule.F">F</span>]</span>)</span><span class="result">: <a href="Enumerator.html" class="extype" name="io.iteratee.Enumerator">Enumerator</a>[<span class="extype" name="io.iteratee.EnumeratorModule.F">F</span>, <span class="extype" name="io.iteratee.EnumeratorModule.generate.E">E</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.iteratee.EnumeratorModule@generate[E](init:E)(f:E=&gt;Option[E])(implicitF:cats.Monad[F]):io.iteratee.Enumerator[F,E]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">An enumerator that iteratively performs an operation until None is produced and returns
+the results.</p>
+    </li><li name="io.iteratee.EnumeratorModule#generateM" visbl="pub" data-isabs="false" fullComment="no" group="Enumerators">
+      <a id="generateM[E](init:E)(f:E=&gt;F[Option[E]])(implicitF:cats.Monad[F]):io.iteratee.Enumerator[F,E]"></a>
+      <a id="generateM[E](E)((E)⇒F[Option[E]])(Monad[F]):Enumerator[F,E]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">generateM</span><span class="tparams">[<span name="E">E</span>]</span><span class="params">(<span name="init">init: <span class="extype" name="io.iteratee.EnumeratorModule.generateM.E">E</span></span>)</span><span class="params">(<span name="f">f: (<span class="extype" name="io.iteratee.EnumeratorModule.generateM.E">E</span>) ⇒ <span class="extype" name="io.iteratee.EnumeratorModule.F">F</span>[<a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Option" class="extype" target="_top">Option</a>[<span class="extype" name="io.iteratee.EnumeratorModule.generateM.E">E</span>]]</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="F">F: <a href="https://non.github.io/cats/api/index.html#cats.Monad" class="extype" target="_top">Monad</a>[<span class="extype" name="io.iteratee.EnumeratorModule.F">F</span>]</span>)</span><span class="result">: <a href="Enumerator.html" class="extype" name="io.iteratee.Enumerator">Enumerator</a>[<span class="extype" name="io.iteratee.EnumeratorModule.F">F</span>, <span class="extype" name="io.iteratee.EnumeratorModule.generateM.E">E</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.iteratee.EnumeratorModule@generateM[E](init:E)(f:E=&gt;F[Option[E]])(implicitF:cats.Monad[F]):io.iteratee.Enumerator[F,E]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">An enumerator that iteratively performs an effectful operation until None is produced and returns
+the results.</p>
     </li><li name="scala.AnyRef#getClass" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="getClass():Class[_]"></a>
       <a id="getClass():Class[_]"></a>

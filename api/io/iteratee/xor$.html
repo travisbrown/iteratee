@@ -608,6 +608,24 @@ given predicate.
     </span>
       <p class="shortcomment cmt">Drop values that do not satisfy the given predicate.</p><div class="fullcomment"><div class="comment cmt"><p>Drop values that do not satisfy the given predicate.
 </p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="EnumerateeModule.html" class="extype" name="io.iteratee.EnumerateeModule">EnumerateeModule</a></dd></dl></div>
+    </li><li name="io.iteratee.EnumerateeModule#filterK" visbl="pub" data-isabs="false" fullComment="yes" group="Enumeratees">
+      <a id="filterK[E](f:E=&gt;F[Boolean])(implicitF:cats.Monad[F]):io.iteratee.Enumeratee[F,E,E]"></a>
+      <a id="filterK[E]((E)⇒XorT[Eval,Throwable,Boolean])(Monad[[x]XorT[Eval,Throwable,x]]):Enumeratee[[x]XorT[Eval,Throwable,x],E,E]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">filterK</span><span class="tparams">[<span name="E">E</span>]</span><span class="params">(<span name="f">f: (<span class="extype" name="io.iteratee.EnumerateeModule.filterK.E">E</span>) ⇒ <a href="https://non.github.io/cats/api/index.html#cats.data.XorT" class="extype" target="_top">XorT</a>[<a href="https://non.github.io/cats/api/index.html#cats.Eval" class="extype" target="_top">Eval</a>, <span class="extype" name="java.lang.Throwable">Throwable</span>, <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Boolean" class="extype" target="_top">Boolean</a>]</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="F">F: <a href="https://non.github.io/cats/api/index.html#cats.Monad" class="extype" target="_top">Monad</a>[[x]<a href="https://non.github.io/cats/api/index.html#cats.data.XorT" class="extype" target="_top">XorT</a>[<a href="https://non.github.io/cats/api/index.html#cats.Eval" class="extype" target="_top">Eval</a>, <span class="extype" name="java.lang.Throwable">Throwable</span>, <span class="extype" name="io.iteratee.&lt;refinement&gt;.L.x">x</span>]]</span>)</span><span class="result">: <a href="Enumeratee.html" class="extype" name="io.iteratee.Enumeratee">Enumeratee</a>[[x]<a href="https://non.github.io/cats/api/index.html#cats.data.XorT" class="extype" target="_top">XorT</a>[<a href="https://non.github.io/cats/api/index.html#cats.Eval" class="extype" target="_top">Eval</a>, <span class="extype" name="java.lang.Throwable">Throwable</span>, <span class="extype" name="io.iteratee.&lt;refinement&gt;.L.x">x</span>], <span class="extype" name="io.iteratee.EnumerateeModule.filterK.E">E</span>, <span class="extype" name="io.iteratee.EnumerateeModule.filterK.E">E</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.iteratee.xor$@filterK[E](f:E=&gt;F[Boolean])(implicitF:cats.Monad[F]):io.iteratee.Enumeratee[F,E,E]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Drop values that do not satisfy the given monadic predicate.</p><div class="fullcomment"><div class="comment cmt"><p>Drop values that do not satisfy the given monadic predicate.
+</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="EnumerateeModule.html" class="extype" name="io.iteratee.EnumerateeModule">EnumerateeModule</a></dd></dl></div>
     </li><li name="scala.AnyRef#finalize" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="finalize():Unit"></a>
       <a id="finalize():Unit"></a>
@@ -711,6 +729,46 @@ accumulation function.
 <a href="https://non.github.io/algebra/api/index.html#algebra.Monoid" class="extype" target="_top">algebra.Monoid</a> instance.</p><div class="fullcomment"><div class="comment cmt"><p>An <a href="Iteratee.html" class="extype" name="io.iteratee.Iteratee">Iteratee</a> that combines values using a function to a type with an
 <a href="https://non.github.io/algebra/api/index.html#algebra.Monoid" class="extype" target="_top">algebra.Monoid</a> instance.
 </p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="IterateeModule.html" class="extype" name="io.iteratee.IterateeModule">IterateeModule</a></dd></dl></div>
+    </li><li name="io.iteratee.EnumeratorModule#generate" visbl="pub" data-isabs="false" fullComment="yes" group="Enumerators">
+      <a id="generate[E](init:E)(f:E=&gt;Option[E])(implicitF:cats.Monad[F]):io.iteratee.Enumerator[F,E]"></a>
+      <a id="generate[E](E)((E)⇒Option[E])(Monad[[x]XorT[Eval,Throwable,x]]):Enumerator[[x]XorT[Eval,Throwable,x],E]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">generate</span><span class="tparams">[<span name="E">E</span>]</span><span class="params">(<span name="init">init: <span class="extype" name="io.iteratee.EnumeratorModule.generate.E">E</span></span>)</span><span class="params">(<span name="f">f: (<span class="extype" name="io.iteratee.EnumeratorModule.generate.E">E</span>) ⇒ <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Option" class="extype" target="_top">Option</a>[<span class="extype" name="io.iteratee.EnumeratorModule.generate.E">E</span>]</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="F">F: <a href="https://non.github.io/cats/api/index.html#cats.Monad" class="extype" target="_top">Monad</a>[[x]<a href="https://non.github.io/cats/api/index.html#cats.data.XorT" class="extype" target="_top">XorT</a>[<a href="https://non.github.io/cats/api/index.html#cats.Eval" class="extype" target="_top">Eval</a>, <span class="extype" name="java.lang.Throwable">Throwable</span>, <span class="extype" name="io.iteratee.&lt;refinement&gt;.L.x">x</span>]]</span>)</span><span class="result">: <a href="Enumerator.html" class="extype" name="io.iteratee.Enumerator">Enumerator</a>[[x]<a href="https://non.github.io/cats/api/index.html#cats.data.XorT" class="extype" target="_top">XorT</a>[<a href="https://non.github.io/cats/api/index.html#cats.Eval" class="extype" target="_top">Eval</a>, <span class="extype" name="java.lang.Throwable">Throwable</span>, <span class="extype" name="io.iteratee.&lt;refinement&gt;.L.x">x</span>], <span class="extype" name="io.iteratee.EnumeratorModule.generate.E">E</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.iteratee.xor$@generate[E](init:E)(f:E=&gt;Option[E])(implicitF:cats.Monad[F]):io.iteratee.Enumerator[F,E]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">An enumerator that iteratively performs an operation until None is produced and returns
+the results.</p><div class="fullcomment"><div class="comment cmt"><p>An enumerator that iteratively performs an operation until None is produced and returns
+the results.
+</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="EnumeratorModule.html" class="extype" name="io.iteratee.EnumeratorModule">EnumeratorModule</a></dd></dl></div>
+    </li><li name="io.iteratee.EnumeratorModule#generateM" visbl="pub" data-isabs="false" fullComment="yes" group="Enumerators">
+      <a id="generateM[E](init:E)(f:E=&gt;F[Option[E]])(implicitF:cats.Monad[F]):io.iteratee.Enumerator[F,E]"></a>
+      <a id="generateM[E](E)((E)⇒XorT[Eval,Throwable,Option[E]])(Monad[[x]XorT[Eval,Throwable,x]]):Enumerator[[x]XorT[Eval,Throwable,x],E]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">generateM</span><span class="tparams">[<span name="E">E</span>]</span><span class="params">(<span name="init">init: <span class="extype" name="io.iteratee.EnumeratorModule.generateM.E">E</span></span>)</span><span class="params">(<span name="f">f: (<span class="extype" name="io.iteratee.EnumeratorModule.generateM.E">E</span>) ⇒ <a href="https://non.github.io/cats/api/index.html#cats.data.XorT" class="extype" target="_top">XorT</a>[<a href="https://non.github.io/cats/api/index.html#cats.Eval" class="extype" target="_top">Eval</a>, <span class="extype" name="java.lang.Throwable">Throwable</span>, <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Option" class="extype" target="_top">Option</a>[<span class="extype" name="io.iteratee.EnumeratorModule.generateM.E">E</span>]]</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="F">F: <a href="https://non.github.io/cats/api/index.html#cats.Monad" class="extype" target="_top">Monad</a>[[x]<a href="https://non.github.io/cats/api/index.html#cats.data.XorT" class="extype" target="_top">XorT</a>[<a href="https://non.github.io/cats/api/index.html#cats.Eval" class="extype" target="_top">Eval</a>, <span class="extype" name="java.lang.Throwable">Throwable</span>, <span class="extype" name="io.iteratee.&lt;refinement&gt;.L.x">x</span>]]</span>)</span><span class="result">: <a href="Enumerator.html" class="extype" name="io.iteratee.Enumerator">Enumerator</a>[[x]<a href="https://non.github.io/cats/api/index.html#cats.data.XorT" class="extype" target="_top">XorT</a>[<a href="https://non.github.io/cats/api/index.html#cats.Eval" class="extype" target="_top">Eval</a>, <span class="extype" name="java.lang.Throwable">Throwable</span>, <span class="extype" name="io.iteratee.&lt;refinement&gt;.L.x">x</span>], <span class="extype" name="io.iteratee.EnumeratorModule.generateM.E">E</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.iteratee.xor$@generateM[E](init:E)(f:E=&gt;F[Option[E]])(implicitF:cats.Monad[F]):io.iteratee.Enumerator[F,E]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">An enumerator that iteratively performs an effectful operation until None is produced and returns
+the results.</p><div class="fullcomment"><div class="comment cmt"><p>An enumerator that iteratively performs an effectful operation until None is produced and returns
+the results.
+</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="EnumeratorModule.html" class="extype" name="io.iteratee.EnumeratorModule">EnumeratorModule</a></dd></dl></div>
     </li><li name="scala.AnyRef#getClass" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="getClass():Class[_]"></a>
       <a id="getClass():Class[_]"></a>
