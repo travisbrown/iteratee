@@ -124,7 +124,7 @@ lazy val testsBase = crossProject.in(file("tests"))
       }
     )
   )
-  .jvmSettings(fork := true)
+  .jvmSettings(fork := false)
   .jsSettings(commonJsSettings: _*)
   .jvmConfigure(_.copy(id = "tests").dependsOn(task))
   .jsConfigure(_.copy(id = "testsJS"))
