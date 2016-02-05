@@ -109,7 +109,9 @@ lazy val testsBase = crossProject.in(file("tests"))
       "org.scalatest" %% "scalatest" % scalaTestVersion,
       "org.typelevel" %% "cats-laws" % catsVersion,
       "org.typelevel" %% "discipline" % disciplineVersion
-    )
+    ),
+    parallelExecution in Test := true,
+    testForkedParallel in Test := true
   )
   .settings(
     ScoverageSbtPlugin.ScoverageKeys.coverageExcludedPackages := "io\\.iteratee\\.tests\\..*",
