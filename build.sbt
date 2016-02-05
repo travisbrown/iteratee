@@ -20,7 +20,7 @@ lazy val compilerOptions = Seq(
   "-Xfuture"
 )
 
-lazy val catsVersion = "0.4.0"
+lazy val catsVersion = "0.4.1"
 lazy val disciplineVersion = "0.4"
 lazy val scalaCheckVersion = "1.12.5"
 lazy val scalaTestVersion = "3.0.0-M9"
@@ -109,7 +109,11 @@ lazy val testsBase = crossProject.in(file("tests"))
       "org.scalatest" %% "scalatest" % scalaTestVersion,
       "org.typelevel" %% "cats-laws" % catsVersion,
       "org.typelevel" %% "discipline" % disciplineVersion
-    )
+    ),
+    parallelExecution in Test := true,
+    testForkedParallel in Test := true,
+    parallelExecution in IntegrationTest := true,
+    testForkedParallel in IntegrationTest := true
   )
   .settings(
     ScoverageSbtPlugin.ScoverageKeys.coverageExcludedPackages := "io\\.iteratee\\.tests\\..*",
@@ -120,7 +124,7 @@ lazy val testsBase = crossProject.in(file("tests"))
       }
     )
   )
-  .jvmSettings(fork := true)
+  .jvmSettings(fork := false)
   .jsSettings(commonJsSettings: _*)
   .jvmConfigure(_.copy(id = "tests").dependsOn(task))
   .jsConfigure(_.copy(id = "testsJS"))
