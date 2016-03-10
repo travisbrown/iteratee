@@ -3,8 +3,8 @@ import ReleaseTransformations._
 
 lazy val buildSettings = Seq(
   organization := "io.iteratee",
-  scalaVersion := "2.11.7",
-  crossScalaVersions := Seq("2.10.6", "2.11.7")
+  scalaVersion := "2.11.8",
+  crossScalaVersions := Seq("2.10.6", "2.11.8")
 )
 
 lazy val compilerOptions = Seq(
@@ -43,7 +43,7 @@ lazy val baseSettings = Seq(
     Resolver.sonatypeRepo("releases"),
     Resolver.sonatypeRepo("snapshots")
   ),
-  ScoverageSbtPlugin.ScoverageKeys.coverageHighlighting := (
+  coverageHighlighting := (
     CrossVersion.partialVersion(scalaVersion.value) match {
       case Some((2, 10)) => false
       case _ => true
@@ -116,7 +116,7 @@ lazy val testsBase = crossProject.in(file("tests"))
     testForkedParallel in IntegrationTest := true
   )
   .settings(
-    ScoverageSbtPlugin.ScoverageKeys.coverageExcludedPackages := "io\\.iteratee\\.tests\\..*",
+    coverageExcludedPackages := "io\\.iteratee\\.tests\\..*",
     testOptions in Test ++= (
       CrossVersion.partialVersion(scalaVersion.value) match {
         case Some((2, 10)) => Seq(Tests.Argument("-l", "io.iteratee.tests.NoScala210Test"))
@@ -139,7 +139,7 @@ lazy val task = project
   )
   .settings(allSettings)
   .settings(
-    libraryDependencies += "org.scalaz" %% "scalaz-concurrent" % "7.1.5"
+    libraryDependencies += "org.scalaz" %% "scalaz-concurrent" % "7.1.7"
   ).dependsOn(core)
 
 lazy val benchmark = project
@@ -148,9 +148,9 @@ lazy val benchmark = project
   .settings(noPublishSettings)
   .settings(
     libraryDependencies ++= Seq(
-      "com.typesafe.play" %% "play-iteratees" % "2.4.6",
+      "com.typesafe.play" %% "play-iteratees" % "2.5.0",
       "org.scalatest" %% "scalatest" % scalaTestVersion % "test",
-      "org.scalaz" %% "scalaz-iteratee" % "7.1.5",
+      "org.scalaz" %% "scalaz-iteratee" % "7.1.7",
       "org.scalaz.stream" %% "scalaz-stream" % "0.8"
     )
   )

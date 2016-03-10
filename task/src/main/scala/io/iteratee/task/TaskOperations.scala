@@ -1,6 +1,5 @@
 package io.iteratee.task
 
-import cats.data.NonEmptyVector
 import io.iteratee.Enumerator
 import io.iteratee.internal.Step
 import java.io.{

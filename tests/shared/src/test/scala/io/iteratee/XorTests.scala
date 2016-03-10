@@ -1,6 +1,5 @@
 package io.iteratee
 
-import algebra.Eq
 import cats.{ Eval, Id, MonadError }
 import cats.arrow.NaturalTransformation
 import cats.data.{ Xor, XorT }

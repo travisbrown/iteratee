@@ -5,7 +5,6 @@ import algebra.laws.GroupLaws
 import cats.Monad
 import cats.laws.discipline.{ CartesianTests, MonadTests }
 import io.iteratee.Enumerator
-import org.scalacheck.{ Gen, Prop }
 
 abstract class EnumeratorSuite[F[_]: Monad] extends ModuleSuite[F] {
   type EnumeratorF[E] = Enumerator[F, E]

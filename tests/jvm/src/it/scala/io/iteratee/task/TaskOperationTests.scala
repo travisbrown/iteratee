@@ -2,7 +2,6 @@ package io.iteratee.task
 
 import io.iteratee.tests.BaseSuite
 import java.io.File
-import scalaz.concurrent.Task
 
 class TaskOperationTest extends BaseSuite {
   test("lines") {

@@ -3,8 +3,6 @@ package io.iteratee
 import algebra.Monoid
 import cats.{ Applicative, Monad, MonadError, MonoidK }
 import cats.data.NonEmptyVector
-import io.iteratee.internal.Step
-import scala.collection.generic.CanBuildFrom
 
 /**
  * @groupname Iteratees Iteratees

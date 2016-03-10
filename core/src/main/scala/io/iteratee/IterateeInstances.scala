@@ -2,7 +2,7 @@ package io.iteratee
 
 import cats.{ Monad, MonadError }
 import cats.functor.Contravariant
-import io.iteratee.internal.{ Input, Step }
+import io.iteratee.internal.Step
 
 private[iteratee] trait IterateeInstances extends IterateeInstances0 {
   implicit final def iterateeContravariant[F[_]: Monad, A]: Contravariant[({ type L[x] = Iteratee[F, x, A] })#L] =

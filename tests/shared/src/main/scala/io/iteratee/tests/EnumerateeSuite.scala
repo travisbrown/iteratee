@@ -1,6 +1,6 @@
 package io.iteratee.tests
 
-import cats.{ Eval, Monad }
+import cats.Monad
 import cats.laws.discipline.{ CategoryTests, ProfunctorTests }
 import io.iteratee.Enumeratee
 import org.scalacheck.{ Gen, Prop }

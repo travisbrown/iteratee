@@ -1,7 +1,6 @@
 package io.iteratee.benchmark
 
 import cats.std.int._
-import cats.std.list.{ listAlgebra, listInstance => listInstanceC }
 import io.{ iteratee => i }
 import io.iteratee.Module
 import io.iteratee.task.TaskInstances
@@ -14,7 +13,6 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scalaz.concurrent.Task
 import scalaz.{ iteratee => z }
 import scalaz.std.anyVal.intInstance
-import scalaz.std.list.{ listInstance => listInstanceS, listMonoid }
 import scalaz.std.vector._
 import scalaz.stream.Process
 
