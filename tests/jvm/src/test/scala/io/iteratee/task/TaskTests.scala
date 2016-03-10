@@ -1,8 +1,7 @@
 package io.iteratee.task
 
 import algebra.Eq
-import io.iteratee.Module
-import io.iteratee.tests.{ EvalSuite, EnumerateeSuite, EnumeratorSuite, IterateeErrorSuite, ModuleSuite, eqThrowable }
+import io.iteratee.tests.{ EnumerateeSuite, EnumeratorSuite, IterateeErrorSuite, ModuleSuite, eqThrowable }
 import scalaz.concurrent.Task
 
 trait TaskSuite { this: ModuleSuite[Task] =>

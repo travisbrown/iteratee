@@ -1,10 +1,10 @@
 package io.iteratee
 
 import algebra.Monoid
-import cats.{ Applicative, Comonad, FlatMap, Functor, Id, Monad, MonadError, MonoidK, Show }
+import cats.{ Applicative, Comonad, Functor, Monad, MonadError, MonoidK }
 import cats.arrow.NaturalTransformation
 import cats.data.NonEmptyVector
-import io.iteratee.internal.{ Input, Step }
+import io.iteratee.internal.Step
 
 /**
  * An iteratee processes a stream of elements of type `E` and returns a value of

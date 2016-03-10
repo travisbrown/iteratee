@@ -1,6 +1,6 @@
 package io.iteratee
 
-import algebra.{ Eq, Monoid }
+import algebra.Eq
 import cats.{ Applicative, Monad }
 import io.iteratee.internal.Step
 

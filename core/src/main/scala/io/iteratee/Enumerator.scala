@@ -1,7 +1,7 @@
 package io.iteratee
 
-import algebra.{ Monoid, Order, Semigroup }
-import cats.{ Applicative, FlatMap, Id, Monad, MonadError, MonoidK }
+import algebra.Semigroup
+import cats.{ Applicative, FlatMap, Monad, MonadError }
 import io.iteratee.internal.Step
 
 abstract class Enumerator[F[_], E] extends Serializable { self =>

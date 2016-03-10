@@ -1,8 +1,7 @@
 package io.iteratee.internal
 
-import algebra.Monoid
-import cats.{ Applicative, Functor, Monad, MonoidK }
-import cats.data.{ NonEmptyVector, OneAnd }
+import cats.{ Applicative, Monad, MonoidK }
+import cats.data.NonEmptyVector
 import cats.arrow.NaturalTransformation
 
 /**
