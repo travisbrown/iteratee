@@ -25,4 +25,8 @@ class InMemoryBenchmarkSpec extends FlatSpec {
   it should "correctly calculate the sum using the collections library" in {
     assert(benchmark.sumInts4C === sum)
   }
+
+  it should "correctly calculate the sum using fs2" in {
+    assert(benchmark.sumInts5F === sum)
+  }
 }
