@@ -25,4 +25,8 @@ class StreamingBenchmarkSpec extends FlatSpec {
   it should "correctly calculate the sum using the collections library" in {
     assert(benchmark.takeLongs4C === taken)
   }
+
+  it should "correctly calculate the sum using fs2" in {
+    assert(benchmark.takeLongs5F === taken)
+  }
 }
