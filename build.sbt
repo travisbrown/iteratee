@@ -148,6 +148,7 @@ lazy val benchmark = project
   .settings(noPublishSettings)
   .settings(
     libraryDependencies ++= Seq(
+      "co.fs2" %% "fs2-core" % "0.9.0-SNAPSHOT",
       "com.typesafe.play" %% "play-iteratees" % "2.5.0",
       "org.scalatest" %% "scalatest" % scalaTestVersion % "test",
       "org.scalaz" %% "scalaz-iteratee" % "7.1.7",
@@ -155,9 +156,7 @@ lazy val benchmark = project
     )
   )
   .enablePlugins(JmhPlugin)
-  .dependsOn(core, task, fs2)
-
-lazy val fs2 = ProjectRef(uri("git://github.com/functional-streams-for-scala/fs2.git#topic/redesign"), "core")
+  .dependsOn(core, task)
 
 lazy val publishSettings = Seq(
   releaseCrossBuild := true,
