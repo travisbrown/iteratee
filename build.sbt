@@ -155,7 +155,9 @@ lazy val benchmark = project
     )
   )
   .enablePlugins(JmhPlugin)
-  .dependsOn(core, task)
+  .dependsOn(core, task, fs2)
+
+lazy val fs2 = ProjectRef(uri("git://github.com/functional-streams-for-scala/fs2.git#topic/redesign"), "core")
 
 lazy val publishSettings = Seq(
   releaseCrossBuild := true,
