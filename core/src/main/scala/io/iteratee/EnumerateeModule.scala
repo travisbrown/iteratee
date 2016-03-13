@@ -20,7 +20,15 @@ trait EnumerateeModule[F[_]] {
    *
    * @group Enumeratees
    */
-  final def mapK[O, I](f: O => F[I])(implicit F: Monad[F]): Enumeratee[F, O, I] = Enumeratee.mapK(f)
+  @deprecated("Use flatMapF", "0.3.0")
+  final def mapK[O, I](f: O => F[I])(implicit F: Monad[F]): Enumeratee[F, O, I] = Enumeratee.flatMapF(f)
+
+  /**
+   * Map a function returning a value in a context over a stream.
+   *
+   * @group Enumeratees
+   */
+  final def flatMapF[O, I](f: O => F[I])(implicit F: Monad[F]): Enumeratee[F, O, I] = Enumeratee.flatMapF(f)
 
   /**
    * Map a function returning an [[Enumerator]] over a stream and flatten the

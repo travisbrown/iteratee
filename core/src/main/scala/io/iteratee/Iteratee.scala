@@ -44,7 +44,14 @@ sealed class Iteratee[F[_], E, A] private[iteratee] (final val state: F[Step[F, 
   /**
    * Map a monadic function over the result of this [[Iteratee]].
    */
+  @deprecated("Use flatMapF", "0.3.0")
   final def mapK[B](f: A => F[B])(implicit F: Monad[F]): Iteratee[F, E, B] =
+    flatMapF(f)
+
+  /**
+   * Map a monadic function over the result of this [[Iteratee]].
+   */
+  final def flatMapF[B](f: A => F[B])(implicit F: Monad[F]): Iteratee[F, E, B] =
     Iteratee.iteratee(F.flatMap(state)(_.bind(a => F.map(f(a))(Step.done[F, E, B](_)))))
 
   /**
