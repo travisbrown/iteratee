@@ -44,7 +44,14 @@ final object Enumeratee extends EnumerateeInstances {
   /**
    * Map a function returning a value in a context over a stream.
    */
+  @deprecated("Use flatMapF", "0.3.0")
   final def mapK[F[_], O, I](f: O => F[I])(implicit F: Monad[F]): Enumeratee[F, O, I] =
+    flatMapF(f)
+
+  /**
+   * Map a function returning a value in a context over a stream.
+   */
+  final def flatMapF[F[_], O, I](f: O => F[I])(implicit F: Monad[F]): Enumeratee[F, O, I] =
     flatMap(o => Enumerator.liftM[F, I](f(o)))
 
   /**

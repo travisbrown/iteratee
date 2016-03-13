@@ -258,9 +258,9 @@ abstract class BaseIterateeSuite[F[_]: Monad] extends ModuleSuite[F] {
     }
   }
 
-  test("mapK") {
+  test("flatMapF") {
     check { (eav: EnumeratorAndValues[Int], iteratee: Iteratee[F, Int, Int]) =>
-      eav.enumerator.run(iteratee.mapK(F.pure)) === eav.enumerator.run(iteratee)
+      eav.enumerator.run(iteratee.flatMapF(F.pure)) === eav.enumerator.run(iteratee)
     }
   }
 
