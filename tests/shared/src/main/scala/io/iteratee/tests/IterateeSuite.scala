@@ -246,9 +246,8 @@ abstract class BaseIterateeSuite[F[_]: Monad] extends ModuleSuite[F] {
           total += i
           i
       }
-      val result = eav.values.lastOption.getOrElse(0)
 
-      eav.resultWithLeftovers(iteratee) === F.pure((result, Vector.empty)) &&
+      eav.resultWithLeftovers(iteratee.discard) === F.pure(((), Vector.empty)) &&
       total === eav.values.sum
     }
   }
