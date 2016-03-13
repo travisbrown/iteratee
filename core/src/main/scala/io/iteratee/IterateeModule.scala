@@ -187,4 +187,20 @@ trait IterateeModule[F[_]] {
    * @group Iteratees
    */
   final def isEnd[E](implicit F: Applicative[F]): Iteratee[F, E, Boolean] = Iteratee.isEnd
+
+  /**
+   * An [[Iteratee]] that runs a function for its side effects.
+   *
+   * @group Iteratees
+   */
+  final def foreach[E](f: E => Unit)(implicit F: Applicative[F]): Iteratee[F, E, Unit] =
+    Iteratee.foreach(f)
+
+  /**
+   * An [[Iteratee]] that runs an effectful function for its side effects.
+   *
+   * @group Iteratees
+   */
+  final def foreachM[A](f: A => F[Unit])(implicit F: Monad[F]): Iteratee[F, A, Unit] =
+    Iteratee.foreachM(f)
 }
