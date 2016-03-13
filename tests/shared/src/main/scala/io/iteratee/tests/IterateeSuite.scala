@@ -222,6 +222,36 @@ abstract class BaseIterateeSuite[F[_]: Monad] extends ModuleSuite[F] {
     }
   }
 
+  test("foreach") {
+    check { (eav: EnumeratorAndValues[Int]) =>
+      var total = 0
+      val iteratee = foreach[Int](i => total += i)
+      eav.resultWithLeftovers(iteratee) === F.pure(((), Vector.empty)) && total === eav.values.sum
+    }
+  }
+
+  test("foreachM") {
+    check { (eav: EnumeratorAndValues[Int]) =>
+      var total = 0
+      val iteratee = foreachM[Int](i => F.pure(total += i))
+      eav.resultWithLeftovers(iteratee) === F.pure(((), Vector.empty)) && total === eav.values.sum
+    }
+  }
+
+  test("discard") {
+    check { (eav: EnumeratorAndValues[Int]) =>
+      var total = 0
+      val iteratee = fold[Int, Int](0) {
+        case (acc, i) =>
+          total += i
+          i
+      }
+
+      eav.resultWithLeftovers(iteratee.discard) === F.pure(((), Vector.empty)) &&
+      total === eav.values.sum
+    }
+  }
+
   test("apply") {
     check { (eav: EnumeratorAndValues[Int]) =>
       consume.apply(eav.enumerator).apply(eav.enumerator).run === F.pure(eav.values ++ eav.values)

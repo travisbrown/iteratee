@@ -93,6 +93,11 @@ sealed class Iteratee[F[_], E, A] private[iteratee] (final val state: F[Step[F, 
    */
   final def handleErrorWith[T](f: T => Iteratee[F, E, A])(implicit F: MonadError[F, T]): Iteratee[F, E, A] =
     Iteratee.iteratee(F.handleErrorWith(state)(e => f(e).state))
+
+  /**
+   * Create a new [[Iteratee]] that throws away the value this one returns.
+   */
+  final def discard(implicit F: Functor[F]): Iteratee[F, E, Unit] = map(_ => ())
 }
 
 /**
@@ -293,4 +298,14 @@ final object Iteratee extends IterateeInstances {
    * @group Collection
    */
   final def isEnd[F[_]: Applicative, E]: Iteratee[F, E, Boolean] = Iteratee.fromStep(Step.isEnd)
+
+  /**
+   * An [[Iteratee]] that runs a function for its side effects.
+   */
+  def foreach[F[_]: Applicative, A](f: A => Unit): Iteratee[F, A, Unit] = fold(())((_, a) => f(a))
+
+  /**
+   * An [[Iteratee]] that runs an effectful function for its side effects.
+   */
+  def foreachM[F[_]: Monad, A](f: A => F[Unit]): Iteratee[F, A, Unit] = foldM(())((_, a) => f(a))
 }

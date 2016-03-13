@@ -75,7 +75,7 @@ lazy val root = project.in(file("."))
   .settings(allSettings)
   .settings(docSettings)
   .settings(noPublishSettings)
-  .aggregate(core, coreJS, task, tests, testsJS)
+  .aggregate(core, coreJS, task, tests, testsJS, benchmark)
   .dependsOn(core)
 
 lazy val coreBase = crossProject.crossType(CrossType.Pure).in(file("core"))
