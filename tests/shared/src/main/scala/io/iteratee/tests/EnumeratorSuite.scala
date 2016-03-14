@@ -85,25 +85,19 @@ abstract class EnumeratorSuite[F[_]: Monad] extends ModuleSuite[F] {
     }
   }
 
-  test("generate") {
-    check { (n: Int, count: Short) =>
-      val enumerator = generate(n){ i => if (i == count){
-        None
-      }else{
-        Some(i + 1)
-      }}
-      enumerator.run(take(count.toInt)) === F.pure(Vector.iterate(n, count.toInt)(_ + 1))
+  test("iterateUntil") {
+    check { (n: Short) =>
+      val count = math.abs(n.toInt)
+      val enumerator = iterateUntil(0)(i => if (i == count) None else Some(i + 1))
+      enumerator.toVector === F.pure((0 to count).toVector)
     }
   }
 
-  test("pure generateM") {
-    check { (n: Int, count: Short) =>
-      val enumerator = generateM(n){ i => F.pure(if (i == count){
-        None
-      }else{
-        Some(i + 1)
-      })}
-      enumerator.run(take(count.toInt)) === F.pure(Vector.iterate(n, count.toInt)(_ + 1))
+  test("pure iterateUntilM") {
+    check { (n: Short) =>
+      val count = math.abs(n.toInt)
+      val enumerator = iterateUntilM(0)(i => F.pure(if (i == count) None else Some(i + 1)))
+      enumerator.toVector === F.pure((0 to count).toVector)
     }
   }
 
