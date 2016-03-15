@@ -379,7 +379,7 @@ abstract class BaseIterateeSuite[F[_]: Monad] extends ModuleSuite[F] {
   /**
    * Well-behaved iteratees don't inject values into the stream, but if we do
    * end up in this situation, we try to make sure something fairly reasonable
-   * happens (and specifically that flatMap stays associative in as many cases
+   * happens (and specifically that `flatMap` stays associative in as many cases
    * as possible).
    */
   test("successive iteratees that inject values") {

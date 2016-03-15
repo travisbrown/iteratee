@@ -124,8 +124,8 @@ trait EnumeratorModule[F[_]] {
    *
    * @group Enumerators
    */
-  final def generate[E](init: E)(f: E => Option[E])(implicit F: Monad[F]): Enumerator[F, E] =
-    Enumerator.generate(init)(f)
+  final def iterateUntil[E](init: E)(f: E => Option[E])(implicit F: Monad[F]): Enumerator[F, E] =
+    Enumerator.iterateUntil(init)(f)
 
   /**
    * An enumerator that iteratively performs an effectful operation until None is produced and returns
@@ -133,7 +133,12 @@ trait EnumeratorModule[F[_]] {
    *
    * @group Enumerators
    */
-  final def generateM[E](init: E)(f: E => F[Option[E]])(implicit F: Monad[F]): Enumerator[F, E] =
-    Enumerator.generateM(init)(f)
+  final def iterateUntilM[E](init: E)(f: E => F[Option[E]])(implicit F: Monad[F]): Enumerator[F, E] =
+    Enumerator.iterateUntilM(init)(f)
 
+  /**
+   * An enumerator that returns the result of an effectful operation until
+   * `None` is generated.
+   */
+  final def generateM[E](f: F[Option[E]])(implicit F: Monad[F]): Enumerator[F, E] = Enumerator.generateM(f)
 }
