@@ -45,6 +45,12 @@ abstract class EnumerateeSuite[F[_]: Monad] extends ModuleSuite[F] {
     }
   }
 
+  test("take that ends mid-chunk") {
+    check { (v: Vector[Int]) =>
+      enumVector(v).mapE(take(v.size - 1)).toVector === F.pure(v.dropRight(1))
+    }
+  }
+
   test("take with wrap") {
     check { (eav: EnumeratorAndValues[Int], n: Int) =>
       val eavNew = eav.copy(enumerator = take[Int](n).wrap(eav.enumerator))
