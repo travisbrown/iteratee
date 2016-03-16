@@ -140,12 +140,27 @@ final object Step { self =>
    *
    * @group Constructors
    */
-  final def done[F[_]: Applicative, E, A](value: A, remaining: Vector[E] = Vector.empty): Step[F, E, A] =
+  final def done[F[_]: Applicative, E, A](value: A): Step[F, E, A] = new NoLeftovers(value)
+
+  /**
+   * Create a new completed [[Step]] with the given result and leftover input.
+   *
+   * @group Constructors
+   */
+  final def doneWithLeftovers[F[_]: Applicative, E, A](value: A, remaining: Vector[E]): Step[F, E, A] =
     remaining match {
       case Vector() => new NoLeftovers(value)
       case Vector(e) => new WithLeftovers(value, Input.el(e))
       case h1 +: h2 +: t => new WithLeftovers(value, Input.chunk(h1, h2, t))
     }
+
+  /**
+   * Create a new completed [[Step]] with the given result and leftover [[Input]].
+   *
+   * @group Constructors
+   */
+  final def doneWithLeftoverInput[F[_]: Applicative, E, A](value: A, remaining: Input[E]): Step[F, E, A] =
+    new WithLeftovers(value, remaining)
 
   /**
    * Lift a monadic value into a [[Step]].

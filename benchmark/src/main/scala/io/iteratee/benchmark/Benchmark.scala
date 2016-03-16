@@ -90,7 +90,7 @@ class StreamingBenchmark extends StreamingExampleData {
   val count = 10000
 
   @Benchmark
-  def takeLongs0I: Vector[Long] = longStreamI.run(take(count)).run
+  def takeLongs0I: Vector[Long] = longStreamI.run(takeI(count)).run
 
   @Benchmark
   def takeLongs1S: Vector[Long] = longStreamS.take(count).runLog.run

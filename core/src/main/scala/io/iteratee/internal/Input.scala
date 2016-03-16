@@ -48,7 +48,7 @@ final object Input  {
     def onChunk(h1: E, h2: E, t: Vector[E]): Z
   }
 
-  private[internal] final def fromVectorUnsafe[E](es: Vector[E]): Input[E] =
+  private[iteratee] final def fromVectorUnsafe[E](es: Vector[E]): Input[E] =
     if (es.size == 1) el(es(0)) else chunk(es(0), es(1), es.drop(2))
 
   private[internal] final def fromPair[E](e: E, es: Vector[E]): Input[E] =

@@ -29,9 +29,8 @@ trait IterateeModule[F[_]] {
    *
    * @group Constructors
    */
-  final def done[E, A](value: A, remaining: Vector[E] = Vector.empty)
-    (implicit F: Applicative[F]): Iteratee[F, E, A] =
-      Iteratee.done(value, remaining)
+  final def done[E, A](value: A, remaining: Vector[E] = Vector.empty)(implicit F: Applicative[F]): Iteratee[F, E, A] =
+    Iteratee.doneWithLeftovers(value, remaining)
 
   /**
    * @group Helpers
@@ -123,8 +122,7 @@ trait IterateeModule[F[_]] {
    *
    * @group Iteratees
    */
-  final def take[E](n: Int)(implicit F: Applicative[F]): Iteratee[F, E, Vector[E]] =
-    Iteratee.take(n)
+  final def takeI[E](n: Int)(implicit F: Applicative[F]): Iteratee[F, E, Vector[E]] = Iteratee.take(n)
 
   /**
    * An [[Iteratee]] that returns values from a stream as long as they satisfy
@@ -132,7 +130,7 @@ trait IterateeModule[F[_]] {
    *
    * @group Iteratees
    */
-  final def takeWhile[E](p: E => Boolean)(implicit F: Applicative[F]): Iteratee[F, E, Vector[E]] =
+  final def takeWhileI[E](p: E => Boolean)(implicit F: Applicative[F]): Iteratee[F, E, Vector[E]] =
     Iteratee.takeWhile(p)
 
   /**
@@ -140,7 +138,7 @@ trait IterateeModule[F[_]] {
    *
    * @group Iteratees
    */
-  final def drop[E](n: Int)(implicit F: Applicative[F]): Iteratee[F, E, Unit] = Iteratee.drop(n)
+  final def dropI[E](n: Int)(implicit F: Applicative[F]): Iteratee[F, E, Unit] = Iteratee.drop(n)
 
   /**
    * An [[Iteratee]] that drops values from a stream as long as they satisfy the
@@ -148,8 +146,7 @@ trait IterateeModule[F[_]] {
    *
    * @group Iteratees
    */
-  final def dropWhile[E](p: E => Boolean)(implicit F: Applicative[F]): Iteratee[F, E, Unit] =
-    Iteratee.dropWhile(p)
+  final def dropWhileI[E](p: E => Boolean)(implicit F: Applicative[F]): Iteratee[F, E, Unit] = Iteratee.dropWhile(p)
 
   /**
    * An [[Iteratee]] that collects all inputs in reverse order.
