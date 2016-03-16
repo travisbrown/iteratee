@@ -41,24 +41,32 @@ trait EnumerateeModule[F[_]] {
   /**
    * An [[Enumeratee]] that takes a given number of the first values in a
    * stream.
+   *
+   * @group Enumeratees
    */
   final def take[E](n: Int)(implicit F: Applicative[F]): Enumeratee[F, E, E] = Enumeratee.take(n)
 
   /**
    * An [[Enumeratee]] that tales values from a stream as long as they satisfy
    * the given predicate.
+   *
+   * @group Enumeratees
    */
   final def takeWhile[E](p: E => Boolean)(implicit F: Applicative[F]): Enumeratee[F, E, E] = Enumeratee.takeWhile(p)
 
   /**
    * An [[Enumeratee]] that drops a given number of the first values in a
    * stream.
+   *
+   * @group Enumeratees
    */
   final def drop[E](n: Int)(implicit F: Applicative[F]): Enumeratee[F, E, E] = Enumeratee.drop(n)
 
   /**
    * An [[Enumeratee]] that drops values from a stream as long as they satisfy
    * the given predicate.
+   *
+   * @group Enumeratees
    */
   final def dropWhile[E](p: E => Boolean)(implicit F: Applicative[F]): Enumeratee[F, E, E] = Enumeratee.dropWhile(p)
 

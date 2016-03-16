@@ -139,6 +139,8 @@ trait EnumeratorModule[F[_]] {
   /**
    * An enumerator that returns the result of an effectful operation until
    * `None` is generated.
+   *
+   * @group Enumerators
    */
   final def generateM[E](f: F[Option[E]])(implicit F: Monad[F]): Enumerator[F, E] = Enumerator.generateM(f)
 }
