@@ -71,6 +71,12 @@ abstract class EnumerateeSuite[F[_]: Monad] extends ModuleSuite[F] {
     }
   }
 
+  test("drop with one left over") {
+    check { (v: Vector[Int]) =>
+      enumVector(v).mapE(drop(v.size - 1)).toVector === F.pure(v.lastOption.toVector)
+    }
+  }
+
   test("dropWhile") {
     check { (eav: EnumeratorAndValues[Int], n: Int) =>
       eav.resultWithLeftovers(consume[Int].through(dropWhile(_ < n))) ===
