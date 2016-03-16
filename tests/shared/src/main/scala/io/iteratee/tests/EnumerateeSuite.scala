@@ -39,6 +39,45 @@ abstract class EnumerateeSuite[F[_]: Monad] extends ModuleSuite[F] {
     }
   }
 
+  test("take") {
+    check { (eav: EnumeratorAndValues[Int], n: Int) =>
+      eav.resultWithLeftovers(consume[Int].through(take(n))) ===F.pure((eav.values.take(n), eav.values.drop(n)))
+    }
+  }
+
+  test("take with wrap") {
+    check { (eav: EnumeratorAndValues[Int], n: Int) =>
+      val eavNew = eav.copy(enumerator = take[Int](n).wrap(eav.enumerator))
+      eavNew.resultWithLeftovers(consume) === F.pure((eav.values.take(n), Vector.empty))
+    }
+  }
+
+  test("takeWhile") {
+    check { (eav: EnumeratorAndValues[Int], n: Int) =>
+      eav.resultWithLeftovers(consume[Int].through(takeWhile(_ < n))) === F.pure(eav.values.span(_ < n))
+    }
+  }
+
+  test("takeWhile with wrap") {
+    check { (eav: EnumeratorAndValues[Int], n: Int) =>
+      val eavNew = eav.copy(enumerator = takeWhile[Int](_ < n).wrap(eav.enumerator))
+      eavNew.resultWithLeftovers(consume) === F.pure((eav.values.takeWhile(_ < n), Vector.empty))
+    }
+  }
+
+  test("drop") {
+    check { (eav: EnumeratorAndValues[Int], n: Int) =>
+      eav.resultWithLeftovers(consume[Int].through(drop(n))) === F.pure((eav.values.drop(n), Vector.empty))
+    }
+  }
+
+  test("dropWhile") {
+    check { (eav: EnumeratorAndValues[Int], n: Int) =>
+      eav.resultWithLeftovers(consume[Int].through(dropWhile(_ < n))) ===
+        F.pure((eav.values.dropWhile(_ < n), Vector.empty))
+    }
+  }
+
   /**
    * We skip this test on Scala 2.10 because of weird "Bad invokespecial instruction" exceptions
    * that I wasn't able to reproduce in other contexts.
@@ -61,19 +100,19 @@ abstract class EnumerateeSuite[F[_]: Monad] extends ModuleSuite[F] {
     }
   }
 
-  test("filterK") {
+  test("filterF") {
     check { (eav: EnumeratorAndValues[Int]) =>
       val p:  Int => Boolean    = _ % 2 == 0
       val fp: Int => F[Boolean] = i => F.pure(p(i))
 
-      eav.enumerator.mapE(filterK(fp)).toVector === F.pure(eav.values.filter(p))
+      eav.enumerator.mapE(filterF(fp)).toVector === F.pure(eav.values.filter(p))
     }
   }
 
   test("sequenceI") {
     check { (eav: EnumeratorAndValues[Int]) =>
       Prop.forAll(Gen.posNum[Int]) { n =>
-        eav.enumerator.mapE(sequenceI(take(n))).toVector === F.pure(eav.values.grouped(n).toVector)
+        eav.enumerator.mapE(sequenceI(takeI(n))).toVector === F.pure(eav.values.grouped(n).toVector)
       }
     }
   }
@@ -81,7 +120,7 @@ abstract class EnumerateeSuite[F[_]: Monad] extends ModuleSuite[F] {
   test("sequenceI with iteratee that stops early") {
     check { (eav: EnumeratorAndValues[Int]) =>
       Prop.forAll(Gen.posNum[Int]) { n =>
-        eav.enumerator.mapE(sequenceI(take(n))).run(head) === F.pure(eav.values.grouped(n).toVector.headOption)
+        eav.enumerator.mapE(sequenceI(takeI(n))).run(head) === F.pure(eav.values.grouped(n).toVector.headOption)
       }
     }
   }

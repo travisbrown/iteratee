@@ -40,7 +40,7 @@ class XorEnumeratorTests extends EnumeratorSuite[({ type L[x] = XorT[Eval, Throw
       val enumerator = eav.enumerator.ensure(action)
       val n = math.max(0, eav.values.size - 2)
 
-      counter == 0 && enumerator.run(take(n)) === F.pure(eav.values.take(n)) && counter === 1
+      counter == 0 && enumerator.run(takeI(n)) === F.pure(eav.values.take(n)) && counter === 1
     }
   }
 

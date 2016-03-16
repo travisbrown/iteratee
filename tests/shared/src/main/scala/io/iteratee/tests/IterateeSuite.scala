@@ -152,14 +152,14 @@ abstract class BaseIterateeSuite[F[_]: Monad] extends ModuleSuite[F] {
        * ScalaCheck is likely to run into.
        */
       (n != Int.MaxValue) ==> {
-        eav.resultWithLeftovers(take[Int](n)) === F.pure((eav.values.take(n), eav.values.drop(n)))
+        eav.resultWithLeftovers(takeI[Int](n)) === F.pure((eav.values.take(n), eav.values.drop(n)))
       }
     }
   }
 
   test("takeWhile") {
     check { (eav: EnumeratorAndValues[Int], n: Int) =>
-      eav.resultWithLeftovers(takeWhile(_ < n)) === F.pure(eav.values.span(_ < n))
+      eav.resultWithLeftovers(takeWhileI(_ < n)) === F.pure(eav.values.span(_ < n))
     }
   }
 
@@ -170,20 +170,20 @@ abstract class BaseIterateeSuite[F[_]: Monad] extends ModuleSuite[F] {
        * ScalaCheck is likely to run into.
        */
       (n != Int.MaxValue) ==> {
-        eav.resultWithLeftovers(drop[Int](n)) === F.pure(((), eav.values.drop(n)))
+        eav.resultWithLeftovers(dropI[Int](n)) === F.pure(((), eav.values.drop(n)))
       }
     }
   }
 
   test("dropWhile") {
     check { (eav: EnumeratorAndValues[Int], n: Int) =>
-      eav.resultWithLeftovers(dropWhile(_ < n)) === F.pure(((), eav.values.dropWhile(_ < n)))
+      eav.resultWithLeftovers(dropWhileI(_ < n)) === F.pure(((), eav.values.dropWhile(_ < n)))
     }
   }
 
   test("dropWhile with nothing left in chunk") {
     val iteratee = for {
-      _ <- dropWhile[Int](_ < 100)
+      _ <- dropWhileI[Int](_ < 100)
       r <- consume
     } yield r
     enumVector(Vector(1, 2, 3)).run(iteratee) === F.pure(Vector(1, 2, 3))
@@ -295,14 +295,14 @@ abstract class BaseIterateeSuite[F[_]: Monad] extends ModuleSuite[F] {
       (m != Int.MaxValue && n != Int.MaxValue) ==> {
         val result = ((eav.values.take(m), eav.values.take(n)), eav.values.drop(math.max(m, n)))
 
-        eav.resultWithLeftovers(take[Int](m).zip(take[Int](n))) === F.pure(result)
+        eav.resultWithLeftovers(takeI[Int](m).zip(takeI[Int](n))) === F.pure(result)
       }
     }
   }
 
   test("zip where leftover sizes must be compared") {
     check { (eav: EnumeratorAndValues[Int]) =>
-      val iteratee = take[Int](2).zip(take(3))
+      val iteratee = takeI[Int](2).zip(takeI(3))
 
       val result = ((eav.values.take(2), eav.values.take(3)), eav.values.drop(3))
 
@@ -313,8 +313,8 @@ abstract class BaseIterateeSuite[F[_]: Monad] extends ModuleSuite[F] {
   test("zip with single leftovers") {
     val es = Vector(1, 2, 3, 4)
     val enumerator = enumVector(es)
-    val iteratee1 = take[Int](2).zip(take(3)).zip(take(4))
-    val iteratee2 = take[Int](2).zip(take(3)).zip(consume)
+    val iteratee1 = takeI[Int](2).zip(takeI(3)).zip(takeI(4))
+    val iteratee2 = takeI[Int](2).zip(takeI(3)).zip(consume)
     val result = ((es.take(2), es.take(3)), es)
 
     assert(

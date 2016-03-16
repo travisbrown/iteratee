@@ -69,19 +69,19 @@ abstract class EnumeratorSuite[F[_]: Monad] extends ModuleSuite[F] {
 
   test("repeat") {
     check { (i: Int, count: Short) =>
-      repeat(i).run(take(count.toInt)) === F.pure(Vector.fill(count.toInt)(i))
+      repeat(i).run(takeI(count.toInt)) === F.pure(Vector.fill(count.toInt)(i))
     }
   }
 
   test("iterate") {
     check { (n: Int, count: Short) =>
-      iterate(n)(_ + 1).run(take(count.toInt)) === F.pure(Vector.iterate(n, count.toInt)(_ + 1))
+      iterate(n)(_ + 1).run(takeI(count.toInt)) === F.pure(Vector.iterate(n, count.toInt)(_ + 1))
     }
   }
 
   test("pure iterateM") {
     check { (n: Int, count: Short) =>
-      iterateM(n)(i => F.pure(i + 1)).run(take(count.toInt)) === F.pure(Vector.iterate(n, count.toInt)(_ + 1))
+      iterateM(n)(i => F.pure(i + 1)).run(takeI(count.toInt)) === F.pure(Vector.iterate(n, count.toInt)(_ + 1))
     }
   }
 
