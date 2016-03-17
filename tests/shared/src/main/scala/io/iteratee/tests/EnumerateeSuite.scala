@@ -84,6 +84,13 @@ abstract class EnumerateeSuite[F[_]: Monad] extends ModuleSuite[F] {
     }
   }
 
+  test("takeWhile that ends mid-chunk") {
+    check { (n: Byte) =>
+      val v = (0 to n.toInt).toVector
+      enumVector(v).mapE(takeWhile(_ < n.toInt)).toVector === F.pure(v.dropRight(1))
+    }
+  }
+
   test("drop") {
     check { (eav: EnumeratorAndValues[Int], n: Int) =>
       eav.resultWithLeftovers(consume[Int].through(drop(n))) === F.pure((eav.values.drop(n), Vector.empty))
@@ -100,6 +107,13 @@ abstract class EnumerateeSuite[F[_]: Monad] extends ModuleSuite[F] {
     check { (eav: EnumeratorAndValues[Int], n: Int) =>
       eav.resultWithLeftovers(consume[Int].through(dropWhile(_ < n))) ===
         F.pure((eav.values.dropWhile(_ < n), Vector.empty))
+    }
+  }
+
+  test("dropWhile with one left over") {
+    check { (n: Byte) =>
+      val v = (0 to n.toInt).toVector
+      enumVector(v).mapE(dropWhile(_ < n.toInt)).toVector === F.pure(v.lastOption.toVector)
     }
   }
 
