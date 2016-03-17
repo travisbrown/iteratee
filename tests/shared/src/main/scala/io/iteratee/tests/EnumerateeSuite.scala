@@ -4,6 +4,7 @@ import cats.Monad
 import cats.laws.discipline.{ CategoryTests, ProfunctorTests }
 import io.iteratee.Enumeratee
 import org.scalacheck.{ Gen, Prop }
+import org.scalacheck.Prop.BooleanOperators
 
 abstract class EnumerateeSuite[F[_]: Monad] extends ModuleSuite[F] {
   type EnumerateeF[O, I] = Enumeratee[F, O, I]
@@ -41,7 +42,13 @@ abstract class EnumerateeSuite[F[_]: Monad] extends ModuleSuite[F] {
 
   test("take") {
     check { (eav: EnumeratorAndValues[Int], n: Int) =>
-      eav.resultWithLeftovers(consume[Int].through(take(n))) ===F.pure((eav.values.take(n), eav.values.drop(n)))
+      /**
+       * This isn't a comprehensive way to avoid SI-9581, but it seems to keep clear of the cases
+       * ScalaCheck is likely to run into.
+       */
+      (n != Int.MaxValue) ==> {
+        eav.resultWithLeftovers(consume[Int].through(take(n))) ===F.pure((eav.values.take(n), eav.values.drop(n)))
+      }
     }
   }
 
@@ -53,8 +60,14 @@ abstract class EnumerateeSuite[F[_]: Monad] extends ModuleSuite[F] {
 
   test("take with wrap") {
     check { (eav: EnumeratorAndValues[Int], n: Int) =>
-      val eavNew = eav.copy(enumerator = take[Int](n).wrap(eav.enumerator))
-      eavNew.resultWithLeftovers(consume) === F.pure((eav.values.take(n), Vector.empty))
+      /**
+       * This isn't a comprehensive way to avoid SI-9581, but it seems to keep clear of the cases
+       * ScalaCheck is likely to run into.
+       */
+      (n != Int.MaxValue) ==> {
+        val eavNew = eav.copy(enumerator = take[Int](n).wrap(eav.enumerator))
+        eavNew.resultWithLeftovers(consume) === F.pure((eav.values.take(n), Vector.empty))
+      }
     }
   }
 
