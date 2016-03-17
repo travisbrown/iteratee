@@ -75,7 +75,7 @@ lazy val iteratee = project.in(file("."))
   .settings(allSettings)
   .settings(docSettings)
   .settings(noPublishSettings)
-  .aggregate(core, coreJS, task, tests, testsJS, benchmark)
+  .aggregate(core, coreJS, task, tests, testsJS)
   .dependsOn(core, task)
 
 lazy val coreBase = crossProject.crossType(CrossType.Pure).in(file("core"))
