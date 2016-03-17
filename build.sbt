@@ -43,7 +43,7 @@ lazy val baseSettings = Seq(
     Resolver.sonatypeRepo("releases"),
     Resolver.sonatypeRepo("snapshots")
   ),
-  coverageHighlighting := (
+  ScoverageSbtPlugin.ScoverageKeys.coverageHighlighting := (
     CrossVersion.partialVersion(scalaVersion.value) match {
       case Some((2, 10)) => false
       case _ => true
@@ -71,7 +71,7 @@ lazy val docSettings = site.settings ++ ghpages.settings ++ unidocSettings ++ Se
     inAnyProject -- inProjects(coreJS, benchmark, tests, testsJS)
 )
 
-lazy val root = project.in(file("."))
+lazy val iteratee = project.in(file("."))
   .settings(allSettings)
   .settings(docSettings)
   .settings(noPublishSettings)
@@ -116,7 +116,7 @@ lazy val testsBase = crossProject.in(file("tests"))
     testForkedParallel in IntegrationTest := true
   )
   .settings(
-    coverageExcludedPackages := "io\\.iteratee\\.tests\\..*",
+    ScoverageSbtPlugin.ScoverageKeys.coverageExcludedPackages := "io\\.iteratee\\.tests\\..*",
     testOptions in Test ++= (
       CrossVersion.partialVersion(scalaVersion.value) match {
         case Some((2, 10)) => Seq(Tests.Argument("-l", "io.iteratee.tests.NoScala210Test"))
@@ -145,6 +145,10 @@ lazy val task = project
 lazy val benchmark = project
   .settings(moduleName := "iteratee-benchmark")
   .settings(allSettings)
+  .settings(
+    scalaVersion := "2.11.8",
+    crossScalaVersions := Seq("2.11.8")
+  )
   .settings(noPublishSettings)
   .settings(
     libraryDependencies ++= Seq(
@@ -239,7 +243,7 @@ val jsProjects = Seq(
 )
 
 addCommandAlias("buildJVM", jvmProjects.map(";" + _ + "/compile").mkString)
-addCommandAlias("validateJVM", ";buildJVM;tests/test;tests/it:test;benchmark/test;scalastyle;unidoc")
+addCommandAlias("validateJVM", ";buildJVM;tests/test;tests/it:test;scalastyle;unidoc")
 addCommandAlias("buildJS", jsProjects.map(";" + _ + "/compile").mkString)
 addCommandAlias("validateJS", ";buildJS;testsJS/test;testsJS/it:test;scalastyle")
 addCommandAlias("validate", ";validateJVM;validateJS")
