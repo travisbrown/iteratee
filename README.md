@@ -21,15 +21,17 @@ often likely to be a simpler, faster solution.
 
 The initial performance benchmarks look promising. For example, here are the throughput results for
 summing a sequence of numbers with this library (`I`), Scalaz Stream (`S`), scalaz-iteratee (`Z`),
-[play-iteratee][play-iteratee] (`P`), and the collections library (`C`). Higher numbers are better.
+[play-iteratee][play-iteratee] (`P`), the collections library (`C`), and fs2 (`F`). Higher numbers
+are better.
 
 ```
-Benchmark                       Mode  Cnt      Score    Error  Units
-InMemoryBenchmark.sumInts0I     thrpt   80  15105.537 ± 25.871  ops/s
-InMemoryBenchmark.sumInts1S     thrpt   80     78.947 ±  0.510  ops/s
-InMemoryBenchmark.sumInts2Z     thrpt   80    296.223 ±  1.971  ops/s
-InMemoryBenchmark.sumInts3P     thrpt   80     57.355 ±  0.745  ops/s
-InMemoryBenchmark.sumInts4C     thrpt   80  13056.163 ± 22.790  ops/s
+Benchmark                        Mode  Cnt      Score     Error  Units
+InMemoryBenchmark.sumInts0I     thrpt   80  17451.805 ± 144.119  ops/s
+InMemoryBenchmark.sumInts1S     thrpt   80     80.756 ±   0.291  ops/s
+InMemoryBenchmark.sumInts2Z     thrpt   80    311.448 ±   1.380  ops/s
+InMemoryBenchmark.sumInts3P     thrpt   80    106.916 ±   1.745  ops/s
+InMemoryBenchmark.sumInts4C     thrpt   80  20780.020 ± 124.742  ops/s
+InMemoryBenchmark.sumInts5F     thrpt   80  18916.338 ±  58.642  ops/s
 ```
 
 And the results for collecting the first 10,000 values from an infinite stream of non-negative
@@ -37,29 +39,32 @@ numbers into a `Vector`:
 
 ```
 Benchmark                       Mode  Cnt      Score    Error  Units
-StreamingBenchmark.takeLongs0I  thrpt   80   1146.021 ±  6.539  ops/s
-StreamingBenchmark.takeLongs1S  thrpt   80     65.916 ±  0.182  ops/s
-StreamingBenchmark.takeLongs2Z  thrpt   80    198.919 ±  2.097  ops/s
-StreamingBenchmark.takeLongs3P  thrpt   80      1.447 ±  0.082  ops/s
-StreamingBenchmark.takeLongs4C  thrpt   80   3286.878 ± 37.967  ops/s
+StreamingBenchmark.takeLongs0I  thrpt   80   1252.230 ±   3.309  ops/s
+StreamingBenchmark.takeLongs1S  thrpt   80     64.888 ±   0.229  ops/s
+StreamingBenchmark.takeLongs2Z  thrpt   80    227.533 ±   1.394  ops/s
+StreamingBenchmark.takeLongs3P  thrpt   80      1.366 ±   0.005  ops/s
+StreamingBenchmark.takeLongs4C  thrpt   80   3000.368 ±   4.800  ops/s
+StreamingBenchmark.takeLongs5F  thrpt   80    117.318 ±   0.379  ops/s
 ```
 
 And allocation rates (lower is better):
 
 ```
-Benchmark                                           Mode  Cnt             Score         Error   Units
-InMemoryBenchmark.sumInts0I:gc.alloc.rate.norm     thrpt   10      161688.037 ±        11.415    B/op
-InMemoryBenchmark.sumInts1S:gc.alloc.rate.norm     thrpt   10    58493412.522 ±   1083990.715    B/op
-InMemoryBenchmark.sumInts2Z:gc.alloc.rate.norm     thrpt   10    16881441.584 ±         0.044    B/op
-InMemoryBenchmark.sumInts3P:gc.alloc.rate.norm     thrpt   10    13468439.557 ±    267296.027    B/op
-InMemoryBenchmark.sumInts4C:gc.alloc.rate.norm     thrpt   10      159846.149 ±        29.299    B/op
+Benchmark                                           Mode  Cnt           Score           Error   Units
+InMemoryBenchmark.sumInts0I:gc.alloc.rate.norm     thrpt   10      161656.027 ±         0.001    B/op
+InMemoryBenchmark.sumInts1S:gc.alloc.rate.norm     thrpt   10    57413029.853 ±         0.463    B/op
+InMemoryBenchmark.sumInts2Z:gc.alloc.rate.norm     thrpt   10    16881441.657 ±         0.499    B/op
+InMemoryBenchmark.sumInts3P:gc.alloc.rate.norm     thrpt   10    14007882.247 ±    253736.629    B/op
+InMemoryBenchmark.sumInts4C:gc.alloc.rate.norm     thrpt   10      159864.022 ±         0.001    B/op
+InMemoryBenchmark.sumInts5F:gc.alloc.rate.norm     thrpt   10      170832.024 ±         0.001    B/op
 
-Benchmark                                           Mode  Cnt             Score         Error   Units
-StreamingBenchmark.takeLongs0I:gc.alloc.rate.norm  thrpt   10     5924322.065 ±        31.187    B/op
-StreamingBenchmark.takeLongs1S:gc.alloc.rate.norm  thrpt   10    70326819.219 ±    637512.439    B/op
-StreamingBenchmark.takeLongs2Z:gc.alloc.rate.norm  thrpt   10    28647967.493 ±    254993.412    B/op
-StreamingBenchmark.takeLongs3P:gc.alloc.rate.norm  thrpt   10  1206114735.600 ±      7941.695    B/op
-StreamingBenchmark.takeLongs4C:gc.alloc.rate.norm  thrpt   10      526752.174 ±         0.033    B/op
+Benchmark                                           Mode  Cnt           Score           Error   Units
+StreamingBenchmark.takeLongs0I:gc.alloc.rate.norm  thrpt   10     5924360.668 ±        46.481    B/op
+StreamingBenchmark.takeLongs1S:gc.alloc.rate.norm  thrpt   10    67926671.128 ±         0.052    B/op
+StreamingBenchmark.takeLongs2Z:gc.alloc.rate.norm  thrpt   10    27287730.054 ±         0.130    B/op
+StreamingBenchmark.takeLongs3P:gc.alloc.rate.norm  thrpt   10  1206116390.400 ±       250.142    B/op
+StreamingBenchmark.takeLongs4C:gc.alloc.rate.norm  thrpt   10      526752.154 ±         0.001    B/op
+StreamingBenchmark.takeLongs5F:gc.alloc.rate.norm  thrpt   10    47206075.959 ±         0.047    B/op
 ```
 
 ## License
