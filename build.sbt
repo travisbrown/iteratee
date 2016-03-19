@@ -105,10 +105,10 @@ lazy val testsBase = crossProject.in(file("tests"))
   .settings(Defaults.itSettings: _*)
   .settings(
     libraryDependencies ++= Seq(
-      "org.scalacheck" %% "scalacheck" % scalaCheckVersion,
-      "org.scalatest" %% "scalatest" % scalaTestVersion,
-      "org.typelevel" %% "cats-laws" % catsVersion,
-      "org.typelevel" %% "discipline" % disciplineVersion
+      "org.scalacheck" %%% "scalacheck" % scalaCheckVersion,
+      "org.scalatest" %%% "scalatest" % scalaTestVersion,
+      "org.typelevel" %%% "cats-laws" % catsVersion,
+      "org.typelevel" %%% "discipline" % disciplineVersion
     ),
     parallelExecution in Test := true,
     testForkedParallel in Test := true,
