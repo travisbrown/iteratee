@@ -347,6 +347,43 @@ final object Enumeratee extends EnumerateeInstances {
       final def apply[A](step: Step[F, (E1, E2), A]): F[Step[F, E1, Step[F, (E1, E2), A]]] = loop(step)
     }
 
+  /**
+   * Add a value `delim` between every two items in a stream.
+   */
+  final def intersperse[F[_], E](delim: E)(implicit F: Applicative[F]): Enumeratee[F, E, E] = new Enumeratee[F, E, E] {
+    private[this] class FirstCont[A](step: Step[F, E, A]) extends Step.Cont[F, E, Step[F, E, A]] {
+      final def run: F[Step[F, E, A]] = F.pure(step)
+      final def onEl(e: E): F[Step[F, E, Step[F, E, A]]] = F.map(step.feedEl(e))(doneOrLoop(false))
+      final def onChunk(h1: E, h2: E, t: Vector[E]): F[Step[F, E, Step[F, E, A]]] =
+        F.map(step.feedChunk(h1, delim, h2 +: beforeEvery(t)))(doneOrLoop(false))
+    }
+
+    private[this] class RestCont[A](step: Step[F, E, A]) extends Step.Cont[F, E, Step[F, E, A]] {
+      final def run: F[Step[F, E, A]] = F.pure(step)
+      final def onEl(e: E): F[Step[F, E, Step[F, E, A]]] =
+        F.map(step.feedChunk(delim, e, Vector.empty))(doneOrLoop(false))
+      final def onChunk(h1: E, h2: E, t: Vector[E]): F[Step[F, E, Step[F, E, A]]] =
+        F.map(step.feedChunk(delim, h1, delim +: h2 +: beforeEvery(t)))(doneOrLoop(false))
+    }
+
+    private[this] final def beforeEvery(v: Vector[E]): Vector[E] = {
+      val result = Vector.newBuilder[E]
+      val it = v.iterator
+
+      while (it.hasNext) {
+        result += delim
+        result += it.next()
+      }
+
+      result.result()
+    }
+
+    private[this] final def doneOrLoop[A](first: Boolean)(step: Step[F, E, A]): Step[F, E, Step[F, E, A]] =
+      if (step.isDone) Step.done(step) else if (first) new FirstCont(step) else new RestCont(step)
+
+    final def apply[A](step: Step[F, E, A]): F[Step[F, E, Step[F, E, A]]] = F.pure(doneOrLoop(true)(step))
+  }
+
   abstract class PureLoop[F[_], O, I](implicit F: Applicative[F]) extends Enumeratee[F, O, I] {
     protected def loop[A](step: Step[F, I, A]): Step[F, O, Step[F, I, A]]
 
