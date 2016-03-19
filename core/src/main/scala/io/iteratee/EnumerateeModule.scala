@@ -146,4 +146,11 @@ trait EnumerateeModule[F[_]] {
    */
   final def cross[E1, E2](e2: Enumerator[F, E2])(implicit F: Monad[F]): Enumeratee[F, E1, (E1, E2)] =
    Enumeratee.cross(e2)
+
+  /**
+   * Add a value `delim` between every two items in a stream.
+   *
+   * @group Enumeratees
+   */
+  final def intersperse[E](delim: E)(implicit F: Applicative[F]): Enumeratee[F, E, E] = Enumeratee.intersperse(delim)
 }

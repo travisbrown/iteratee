@@ -244,4 +244,14 @@ abstract class EnumerateeSuite[F[_]: Monad] extends ModuleSuite[F] {
       eav1.enumerator.mapE(cross(eav2.enumerator)).toVector === F.pure(result)
     }
   }
+
+  test("intersperse") {
+    check { (eav: EnumeratorAndValues[Int], delim: Int) =>
+      val expected = eav.values.zip(Stream.continually(delim)).flatMap {
+        case (x, y) => Vector(x, y)
+      }.dropRight(1)
+
+      eav.resultWithLeftovers(consume[Int].through(intersperse(delim))) === F.pure((expected, Vector.empty))
+    }
+  }
 }
