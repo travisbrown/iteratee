@@ -59,12 +59,6 @@ final object Enumeratee extends EnumerateeInstances {
   /**
    * Map a function returning a value in a context over a stream.
    */
-  @deprecated("Use flatMapF", "0.3.0")
-  final def mapK[F[_], O, I](f: O => F[I])(implicit F: Monad[F]): Enumeratee[F, O, I] = flatMapF(f)
-
-  /**
-   * Map a function returning a value in a context over a stream.
-   */
   final def flatMapF[F[_], O, I](f: O => F[I])(implicit F: Monad[F]): Enumeratee[F, O, I] = new PureLoop[F, O, I] {
     protected final def loop[A](step: Step[F, I, A]): Step[F, O, Step[F, I, A]] = new Step.Cont[F, O, Step[F, I, A]] {
       final def run: F[Step[F, I, A]] = F.pure(step)
@@ -233,12 +227,6 @@ final object Enumeratee extends EnumerateeInstances {
         }
     }
   }
-
-  /**
-    * Drop values that do not satisfy a monadic predicate.
-    */
-  @deprecated("Use filterF", "0.3.0")
-  final def filterK[F[_], E](p: E => F[Boolean])(implicit F: Monad[F]): Enumeratee[F, E, E] = filterF(p)
 
   /**
     * Drop values that do not satisfy a monadic predicate.
