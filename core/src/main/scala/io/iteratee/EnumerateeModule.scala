@@ -20,14 +20,6 @@ trait EnumerateeModule[F[_]] {
    *
    * @group Enumeratees
    */
-  @deprecated("Use flatMapF", "0.3.0")
-  final def mapK[O, I](f: O => F[I])(implicit F: Monad[F]): Enumeratee[F, O, I] = Enumeratee.flatMapF(f)
-
-  /**
-   * Map a function returning a value in a context over a stream.
-   *
-   * @group Enumeratees
-   */
   final def flatMapF[O, I](f: O => F[I])(implicit F: Monad[F]): Enumeratee[F, O, I] = Enumeratee.flatMapF(f)
 
   /**
@@ -85,14 +77,6 @@ trait EnumerateeModule[F[_]] {
    * @group Enumeratees
    */
   final def filter[E](p: E => Boolean)(implicit F: Applicative[F]): Enumeratee[F, E, E] = Enumeratee.filter(p)
-
-  /**
-    * Drop values that do not satisfy the given monadic predicate.
-    *
-    * @group Enumeratees
-    */
-  @deprecated("Use filterF", "0.3.0")
-  final def filterK[E](p: E => F[Boolean])(implicit F: Monad[F]): Enumeratee[F, E, E] = Enumeratee.filterF(p)
 
   /**
     * Drop values that do not satisfy the given monadic predicate.
