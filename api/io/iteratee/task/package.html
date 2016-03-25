@@ -798,6 +798,24 @@ accumulation function.
     </span>
       <p class="shortcomment cmt">An iteratee that reads nothing from a stream.</p><div class="fullcomment"><div class="comment cmt"><p>An iteratee that reads nothing from a stream.
 </p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../IterateeModule.html" class="extype" name="io.iteratee.IterateeModule">IterateeModule</a></dd></dl></div>
+    </li><li name="io.iteratee.EnumerateeModule#intersperse" visbl="pub" data-isabs="false" fullComment="yes" group="Enumeratees">
+      <a id="intersperse[E](delim:E)(implicitF:cats.Applicative[F]):io.iteratee.Enumeratee[F,E,E]"></a>
+      <a id="intersperse[E](E)(Applicative[F]):Enumeratee[F,E,E]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">intersperse</span><span class="tparams">[<span name="E">E</span>]</span><span class="params">(<span name="delim">delim: <span class="extype" name="io.iteratee.EnumerateeModule.intersperse.E">E</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="F">F: <a href="http://typelevel.org/cats/api/index.html#cats.Applicative" class="extype" target="_top">Applicative</a>[<span class="extype" name="io.iteratee.EnumerateeModule.F">F</span>]</span>)</span><span class="result">: <a href="../Enumeratee.html" class="extype" name="io.iteratee.Enumeratee">Enumeratee</a>[<span class="extype" name="io.iteratee.EnumerateeModule.F">F</span>, <span class="extype" name="io.iteratee.EnumerateeModule.intersperse.E">E</span>, <span class="extype" name="io.iteratee.EnumerateeModule.intersperse.E">E</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.iteratee.task.package@intersperse[E](delim:E)(implicitF:cats.Applicative[F]):io.iteratee.Enumeratee[F,E,E]" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Add a value <code>delim</code> between every two items in a stream.</p><div class="fullcomment"><div class="comment cmt"><p>Add a value <code>delim</code> between every two items in a stream.
+</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../EnumerateeModule.html" class="extype" name="io.iteratee.EnumerateeModule">EnumerateeModule</a></dd></dl></div>
     </li><li name="io.iteratee.IterateeModule#isEnd" visbl="pub" data-isabs="false" fullComment="yes" group="Iteratees">
       <a id="isEnd[E](implicitF:cats.Applicative[F]):io.iteratee.Iteratee[F,E,Boolean]"></a>
       <a id="isEnd[E](Applicative[F]):Iteratee[F,E,Boolean]"></a>
