@@ -209,7 +209,7 @@ final object Enumerator extends EnumeratorInstances {
       private[this] def loop[A](step: Step[F, E, A], last: Option[E]): F[Step[F, E, A]] =
         last match {
           case Some(last) if !step.isDone => F.flatMap(step.feedEl(last))(loop(_, f(last)))
-          case None => F.pure(step)
+          case _ => F.pure(step)
         }
       final def apply[A](s: Step[F, E, A]): F[Step[F, E, A]] = loop(s, Some(init))
     }
@@ -223,7 +223,7 @@ final object Enumerator extends EnumeratorInstances {
       private[this] def loop[A](step: Step[F, E, A], last: Option[E]): F[Step[F, E, A]] =
         last match {
           case Some(last) if !step.isDone => F.flatMap(step.feedEl(last))(next => F.flatMap(f(last))(loop(next, _)))
-          case None => F.pure(step)
+          case _ => F.pure(step)
         }
       final def apply[A](s: Step[F, E, A]): F[Step[F, E, A]] = loop(s, Some(init))
     }
