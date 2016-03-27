@@ -101,6 +101,25 @@ abstract class EnumeratorSuite[F[_]: Monad] extends ModuleSuite[F] {
     }
   }
 
+
+  test("iterateUntil with finished iteratee (#71)") {
+    check { (n: Short, fewer: Byte) =>
+      val count = math.abs(n.toInt)
+      val taken = n - math.abs(fewer.toInt)
+      val enumerator = iterateUntil(0)(i => if (i == count) None else Some(i + 1))
+      enumerator.run(takeI(taken)) === F.pure((0 to count).toVector.take(taken))
+    }
+  }
+
+  test("pure iterateUntilM with finished iteratee (#71)") {
+    check { (n: Short, fewer: Byte) =>
+      val count = math.abs(n.toInt)
+      val taken = n - math.abs(fewer.toInt)
+      val enumerator = iterateUntilM(0)(i => F.pure(if (i == count) None else Some(i + 1)))
+      enumerator.run(takeI(taken)) === F.pure((0 to count).toVector.take(taken))
+    }
+  }
+
   test("toVector") {
     check { (eav: EnumeratorAndValues[Int]) =>
       eav.enumerator.toVector === F.pure(eav.values)
