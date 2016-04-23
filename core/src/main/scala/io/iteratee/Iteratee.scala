@@ -282,11 +282,11 @@ final object Iteratee extends IterateeInstances {
     fold[F, A, List[A]](Nil)((acc, e) => e :: acc)
 
   /**
-   * An [[Iteratee]] that combines values using an [[algebra.Monoid]] instance.
+   * An [[Iteratee]] that counts the number of values in a stream.
    *
    * @group Collection
    */
-  final def length[F[_]: Applicative, E]: Iteratee[F, E, Int] = fold(0)((a, _) => a + 1)
+  final def length[F[_]: Applicative, E]: Iteratee[F, E, Long] = fromStep(Step.length[F, E])
 
   /**
    * An [[Iteratee]] that combines values using an [[algebra.Monoid]] instance.

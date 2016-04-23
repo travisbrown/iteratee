@@ -205,7 +205,7 @@ abstract class BaseIterateeSuite[F[_]: Monad] extends ModuleSuite[F] {
 
   test("length") {
     check { (eav: EnumeratorAndValues[Int]) =>
-      eav.resultWithLeftovers(length) === F.pure((eav.values.size, Vector.empty))
+      eav.resultWithLeftovers(length) === F.pure((eav.values.size.toLong, Vector.empty))
     }
   }
 
@@ -280,7 +280,7 @@ abstract class BaseIterateeSuite[F[_]: Monad] extends ModuleSuite[F] {
 
   test("zip") {
     check { (eav: EnumeratorAndValues[Int]) =>
-      val result = ((eav.values.sum, eav.values.size), Vector.empty)
+      val result = ((eav.values.sum, eav.values.size.toLong), Vector.empty)
 
       eav.resultWithLeftovers(sum[Int].zip(length)) === F.pure(result)
     }

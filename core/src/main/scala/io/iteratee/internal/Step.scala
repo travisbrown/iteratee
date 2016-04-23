@@ -269,12 +269,25 @@ final object Step { self =>
   }
 
   /**
+   * A [[Step]] that counts the number of values in a stream.
+   *
+   * @group Collection
+   */
+  final def length[F[_]: Applicative, A]: Step[F, A, Long] = new LengthCont(0L)
+
+  private[this] final class LengthCont[F[_], E](acc: Long)(implicit F: Applicative[F])
+    extends PureCont.WithValue[F, E, Long](acc) {
+    final def onEl(e: E): Step[F, E, Long] = new LengthCont(acc + 1L)
+    final def onChunk(h1: E, h2: E, t: Vector[E]): Step[F, E, Long] = new LengthCont(acc + t.size.toLong + 2L)
+  }
+
+  /**
    * A [[Step]] that returns a given number of the first values in a stream.
    *
    * @group Collection
    */
-  final def take[F[_]: Applicative, A](n: Int): Step[F, A, Vector[A]] =
-    if (n <= 0) done[F, A, Vector[A]](Vector.empty) else new TakeCont(Vector.empty, n)
+  final def take[F[_]: Applicative, E](n: Int): Step[F, E, Vector[E]] =
+    if (n <= 0) done[F, E, Vector[E]](Vector.empty) else new TakeCont(Vector.empty, n)
 
   private[this] final class TakeCont[F[_], E](acc: Vector[E], n: Int)(implicit F: Applicative[F])
     extends PureCont.WithValue[F, E, Vector[E]](acc) {

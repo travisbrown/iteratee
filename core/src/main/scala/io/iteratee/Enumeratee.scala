@@ -93,24 +93,28 @@ final object Enumeratee extends EnumerateeInstances {
    * An [[Enumeratee]] that takes a given number of the first values in a
    * stream.
    */
-  final def take[F[_], E](n: Int)(implicit F: Applicative[F]): Enumeratee[F, E, E] = new Enumeratee[F, E, E] {
-    private[this] def loop[A](remaining: Int)(step: Step[F, E, A]): Step[F, E, Step[F, E, A]] =
+  final def take[F[_], E](n: Long)(implicit F: Applicative[F]): Enumeratee[F, E, E] = new Enumeratee[F, E, E] {
+    private[this] def loop[A](remaining: Long)(step: Step[F, E, A]): Step[F, E, Step[F, E, A]] =
       if (step.isDone) Step.done(step) else new Step.Cont[F, E, Step[F, E, A]] {
         final def run: F[Step[F, E, A]] = F.pure(step)
         final def onEl(e: E): F[Step[F, E, Step[F, E, A]]] =
-          if (remaining <= 0) {
+          if (remaining <= 0L) {
             F.pure(Step.doneWithLeftoverInput(step, Input.el(e)))
           } else {
-            F.map(step.feedEl(e))(loop(remaining - 1))
+            F.map(step.feedEl(e))(loop(remaining - 1L))
           }
         final def onChunk(h1: E, h2: E, t: Vector[E]): F[Step[F, E, Step[F, E, A]]] =
-          (h1 +: h2 +: t).splitAt(remaining) match {
-            case (Vector(), nh1 +: nh2 +: nt) => F.pure(Step.doneWithLeftoverInput(step, Input.chunk(nh1, nh2, nt)))
-            case (Vector(nh), nt) => F.map(step.feedEl(nh))(Step.doneWithLeftoverInput(_, Input.fromVectorUnsafe(nt)))
-            case (nh1 +: nh2 +: nt1, nt2) => if (nt2.isEmpty) {
-              F.map(step.feedChunk(nh1, nh2, nt1))(loop(remaining - 2 - t.size))
-            } else {
-              F.map(step.feedChunk(nh1, nh2, nt1))(Step.doneWithLeftovers(_, nt2))
+          if (remaining > Int.MaxValue.toLong) {
+            F.map(step.feedChunk(h1, h2, t))(loop(remaining - (t.size + 2).toLong))
+          } else {
+            (h1 +: h2 +: t).splitAt(remaining.toInt) match {
+              case (Vector(), nh1 +: nh2 +: nt) => F.pure(Step.doneWithLeftoverInput(step, Input.chunk(nh1, nh2, nt)))
+              case (Vector(nh), nt) => F.map(step.feedEl(nh))(Step.doneWithLeftoverInput(_, Input.fromVectorUnsafe(nt)))
+              case (nh1 +: nh2 +: nt1, nt2) => if (nt2.isEmpty) {
+                F.map(step.feedChunk(nh1, nh2, nt1))(loop(remaining - (t.size + 2).toLong))
+              } else {
+                F.map(step.feedChunk(nh1, nh2, nt1))(Step.doneWithLeftovers(_, nt2))
+              }
             }
           }
       }
@@ -149,25 +153,26 @@ final object Enumeratee extends EnumerateeInstances {
    * An [[Enumeratee]] that drops a given number of the first values in a
    * stream.
    */
-  final def drop[F[_], E](n: Int)(implicit F: Applicative[F]): Enumeratee[F, E, E] = new Enumeratee[F, E, E] {
-    private[this] def loop[A](remaining: Int)(step: Step[F, E, A]): Step[F, E, Step[F, E, A]] =
-      if (step.isDone) Step.done(step) else if (remaining <= 0) new IdentityCont(step) else {
+  final def drop[F[_], E](n: Long)(implicit F: Applicative[F]): Enumeratee[F, E, E] = new Enumeratee[F, E, E] {
+    private[this] def loop[A](remaining: Long)(step: Step[F, E, A]): Step[F, E, Step[F, E, A]] =
+      if (step.isDone) Step.done(step) else if (remaining <= 0L) new IdentityCont(step) else {
         new Step.Cont[F, E, Step[F, E, A]] {
           final def run: F[Step[F, E, A]] = F.pure(step)
           final def onEl(e: E): F[Step[F, E, Step[F, E, A]]] = F.pure(loop(remaining - 1)(step))
-          final def onChunk(h1: E, h2: E, t: Vector[E]): F[Step[F, E, Step[F, E, A]]] = {
-            val diff = remaining - (t.size + 2)
+          final def onChunk(h1: E, h2: E, t: Vector[E]): F[Step[F, E, Step[F, E, A]]] =
+            if (remaining > Int.MaxValue.toLong) F.pure(loop(remaining - (t.size + 2).toLong)(step)) else {
+              val diff = remaining.toInt - (t.size + 2)
 
-            if (diff >= 0) F.pure(loop(diff)(step)) else {
-              if (diff == -1) {
-                F.map(if (t.isEmpty) step.feedEl(h2) else step.feedEl(t.last))(loop(0))
-              } else {
-                val nh1 +: nh2 +: nt = (h1 +: h2 +: t).takeRight(-diff)
+              if (diff >= 0) F.pure(loop(diff.toLong)(step)) else {
+                if (diff == -1) {
+                  F.map(if (t.isEmpty) step.feedEl(h2) else step.feedEl(t.last))(loop(0L))
+                } else {
+                  val nh1 +: nh2 +: nt = (h1 +: h2 +: t).takeRight(-diff)
 
-                F.map(step.feedChunk(nh1, nh2, nt))(loop(0))
+                  F.map(step.feedChunk(nh1, nh2, nt))(loop(0L))
+                }
               }
             }
-          }
         }
       }
 
