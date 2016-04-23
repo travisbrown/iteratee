@@ -75,7 +75,7 @@ lazy val iteratee = project.in(file("."))
   .settings(allSettings)
   .settings(docSettings)
   .settings(noPublishSettings)
-  .aggregate(core, coreJS, task, tests, testsJS)
+  .aggregate(core, coreJS, task, twitter, tests, testsJS)
   .dependsOn(core, task)
 
 lazy val coreBase = crossProject.crossType(CrossType.Pure).in(file("core"))
@@ -126,12 +126,21 @@ lazy val testsBase = crossProject.in(file("tests"))
   )
   .jvmSettings(fork := false)
   .jsSettings(commonJsSettings: _*)
-  .jvmConfigure(_.copy(id = "tests").dependsOn(task))
+  .jvmConfigure(_.copy(id = "tests").dependsOn(task, twitter))
   .jsConfigure(_.copy(id = "testsJS"))
   .dependsOn(coreBase)
 
 lazy val tests = testsBase.jvm
 lazy val testsJS = testsBase.js
+
+lazy val twitter = project
+  .settings(
+    moduleName := "iteratee-twitter"
+  )
+  .settings(allSettings)
+  .settings(
+    libraryDependencies += "io.catbird" %% "catbird-util" % "0.3.0"
+  ).dependsOn(core)
 
 lazy val task = project
   .settings(
@@ -160,7 +169,7 @@ lazy val benchmark = project
     )
   )
   .enablePlugins(JmhPlugin)
-  .dependsOn(core, task)
+  .dependsOn(core, task, twitter)
 
 lazy val publishSettings = Seq(
   releaseCrossBuild := true,
@@ -234,6 +243,7 @@ credentials ++= (
 val jvmProjects = Seq(
   "core",
   "task",
+  "twitter",
   "tests"
 )
 
