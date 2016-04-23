@@ -45,7 +45,7 @@ abstract class Enumerator[F[_], E] extends Serializable { self =>
       F.flatMap(self(Step.fold[F, E, B](b)(f)))(next => F.flatMap(next.run)(step.feedEl))
   }
 
-  final def reducedK[B](b: B)(f: (B, E) => F[B])(implicit F: Monad[F]): Enumerator[F, B] = new Enumerator[F, B] {
+  final def reducedM[B](b: B)(f: (B, E) => F[B])(implicit F: Monad[F]): Enumerator[F, B] = new Enumerator[F, B] {
     final def apply[A](step: Step[F, B, A]): F[Step[F, B, A]] =
       F.flatMap(self(Step.foldM[F, E, B](b)(f)))(next => F.flatMap(next.run)(step.feedEl))
   }
