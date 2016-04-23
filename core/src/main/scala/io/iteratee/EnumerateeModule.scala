@@ -20,7 +20,15 @@ trait EnumerateeModule[F[_]] {
    *
    * @group Enumeratees
    */
-  final def flatMapF[O, I](f: O => F[I])(implicit F: Monad[F]): Enumeratee[F, O, I] = Enumeratee.flatMapF(f)
+  @deprecated("Use flatMapM", "0.4.1")
+  final def flatMapF[O, I](f: O => F[I])(implicit F: Monad[F]): Enumeratee[F, O, I] = flatMapM(f)
+
+  /**
+   * Map a function returning a value in a context over a stream.
+   *
+   * @group Enumeratees
+   */
+  final def flatMapM[O, I](f: O => F[I])(implicit F: Monad[F]): Enumeratee[F, O, I] = Enumeratee.flatMapM(f)
 
   /**
    * Map a function returning an [[Enumerator]] over a stream and flatten the
@@ -83,7 +91,15 @@ trait EnumerateeModule[F[_]] {
     *
     * @group Enumeratees
     */
-  final def filterF[E](p: E => F[Boolean])(implicit F: Monad[F]): Enumeratee[F, E, E] = Enumeratee.filterF(p)
+  @deprecated("Use filterM", "0.4.1")
+  final def filterF[E](p: E => F[Boolean])(implicit F: Monad[F]): Enumeratee[F, E, E] = filterM(p)
+
+  /**
+    * Drop values that do not satisfy the given monadic predicate.
+    *
+    * @group Enumeratees
+    */
+  final def filterM[E](p: E => F[Boolean])(implicit F: Monad[F]): Enumeratee[F, E, E] = Enumeratee.filterM(p)
 
   /**
    * Apply the given [[Iteratee]] repeatedly.

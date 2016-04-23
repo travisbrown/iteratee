@@ -18,9 +18,9 @@ abstract class EnumerateeSuite[F[_]: Monad] extends ModuleSuite[F] {
     }
   }
 
-  test("flatMapF") {
+  test("flatMapM") {
     check { (eav: EnumeratorAndValues[Int]) =>
-      eav.enumerator.mapE(flatMapF(i => F.pure(i + 1))).toVector === F.pure(eav.values.map(_ + 1))
+      eav.enumerator.mapE(flatMapM(i => F.pure(i + 1))).toVector === F.pure(eav.values.map(_ + 1))
     }
   }
 
@@ -139,12 +139,12 @@ abstract class EnumerateeSuite[F[_]: Monad] extends ModuleSuite[F] {
     }
   }
 
-  test("filterF") {
+  test("filterM") {
     check { (eav: EnumeratorAndValues[Int]) =>
       val p:  Int => Boolean    = _ % 2 == 0
       val fp: Int => F[Boolean] = i => F.pure(p(i))
 
-      eav.enumerator.mapE(filterF(fp)).toVector === F.pure(eav.values.filter(p))
+      eav.enumerator.mapE(filterM(fp)).toVector === F.pure(eav.values.filter(p))
     }
   }
 
