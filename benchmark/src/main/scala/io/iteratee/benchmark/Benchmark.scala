@@ -73,7 +73,7 @@ class InMemoryBenchmark extends InMemoryExampleData {
 
   // fs2 is missing scalaz-stream's runLastOr
   @Benchmark
-  def sumInts5F: Int = intsF.sum.runFold(0)((_, a) => a).run.run
+  def sumInts5F: Int = intsF.sum.runFold(0)((_, a) => a).run.unsafeRun
 }
 
 /**
@@ -105,5 +105,5 @@ class StreamingBenchmark extends StreamingExampleData {
   def takeLongs4C: Vector[Long] = longStreamC.take(count).toVector
 
   @Benchmark
-  def takeLongs5F: Vector[Long] = longStreamF.take(count.toLong).runLog.run.run
+  def takeLongs5F: Vector[Long] = longStreamF.take(count.toLong).runLog.run.unsafeRun
 }
