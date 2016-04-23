@@ -44,7 +44,7 @@ trait EnumerateeModule[F[_]] {
    *
    * @group Enumeratees
    */
-  final def take[E](n: Int)(implicit F: Applicative[F]): Enumeratee[F, E, E] = Enumeratee.take(n)
+  final def take[E](n: Long)(implicit F: Applicative[F]): Enumeratee[F, E, E] = Enumeratee.take(n)
 
   /**
    * An [[Enumeratee]] that tales values from a stream as long as they satisfy
@@ -60,7 +60,7 @@ trait EnumerateeModule[F[_]] {
    *
    * @group Enumeratees
    */
-  final def drop[E](n: Int)(implicit F: Applicative[F]): Enumeratee[F, E, E] = Enumeratee.drop(n)
+  final def drop[E](n: Long)(implicit F: Applicative[F]): Enumeratee[F, E, E] = Enumeratee.drop(n)
 
   /**
    * An [[Enumeratee]] that drops values from a stream as long as they satisfy

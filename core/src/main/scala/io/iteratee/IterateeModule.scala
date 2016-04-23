@@ -160,7 +160,7 @@ trait IterateeModule[F[_]] {
    *
    * @group Iteratees
    */
-  final def length[E](implicit F: Applicative[F]): Iteratee[F, E, Int] = Iteratee.length
+  final def length[E](implicit F: Applicative[F]): Iteratee[F, E, Long] = Iteratee.length
 
   /**
    * An [[Iteratee]] that combines values using an [[algebra.Monoid]] instance.

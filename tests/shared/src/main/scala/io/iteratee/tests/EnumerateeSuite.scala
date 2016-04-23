@@ -47,14 +47,26 @@ abstract class EnumerateeSuite[F[_]: Monad] extends ModuleSuite[F] {
        * ScalaCheck is likely to run into.
        */
       (n != Int.MaxValue) ==> {
-        eav.resultWithLeftovers(consume[Int].through(take(n))) ===F.pure((eav.values.take(n), eav.values.drop(n)))
+        val expected = F.pure((eav.values.take(n), eav.values.drop(n)))
+
+        eav.resultWithLeftovers(consume[Int].through(take(n.toLong))) === expected
       }
     }
   }
 
   test("take that ends mid-chunk") {
     check { (v: Vector[Int]) =>
-      enumVector(v).mapE(take(v.size - 1)).toVector === F.pure(v.dropRight(1))
+      enumVector(v).mapE(take(v.size.toLong - 1L)).toVector === F.pure(v.dropRight(1))
+    }
+  }
+
+  test("take with more than Int.MaxValue values") {
+    check { (n: Int) =>
+      val items = Vector.fill(1000000)(())
+      val totalSize: Long = Int.MaxValue.toLong + math.max(1, n).toLong
+      val enumerator = repeat(()).flatMap(_ => enumVector(items)).mapE(take(totalSize))
+
+      enumerator.run(length) === F.pure(totalSize)
     }
   }
 
@@ -65,7 +77,7 @@ abstract class EnumerateeSuite[F[_]: Monad] extends ModuleSuite[F] {
        * ScalaCheck is likely to run into.
        */
       (n != Int.MaxValue) ==> {
-        val eavNew = eav.copy(enumerator = take[Int](n).wrap(eav.enumerator))
+        val eavNew = eav.copy(enumerator = take[Int](n.toLong).wrap(eav.enumerator))
         eavNew.resultWithLeftovers(consume) === F.pure((eav.values.take(n), Vector.empty))
       }
     }
@@ -93,13 +105,23 @@ abstract class EnumerateeSuite[F[_]: Monad] extends ModuleSuite[F] {
 
   test("drop") {
     check { (eav: EnumeratorAndValues[Int], n: Int) =>
-      eav.resultWithLeftovers(consume[Int].through(drop(n))) === F.pure((eav.values.drop(n), Vector.empty))
+      eav.resultWithLeftovers(consume[Int].through(drop(n.toLong))) === F.pure((eav.values.drop(n), Vector.empty))
     }
   }
 
   test("drop with one left over") {
     check { (v: Vector[Int]) =>
-      enumVector(v).mapE(drop(v.size - 1)).toVector === F.pure(v.lastOption.toVector)
+      enumVector(v).mapE(drop(v.size.toLong - 1L)).toVector === F.pure(v.lastOption.toVector)
+    }
+  }
+
+  test("drop with more than Int.MaxValue values") {
+    check { (n: Int) =>
+      val items = Vector.fill(1000000)(())
+      val totalSize: Long = Int.MaxValue.toLong + math.max(1, n).toLong
+      val enumerator = repeat(()).flatMap(_ => enumVector(items)).mapE(drop(totalSize))
+
+      enumerator.run(head) === F.pure(Some(()))
     }
   }
 
