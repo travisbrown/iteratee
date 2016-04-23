@@ -170,6 +170,12 @@ abstract class EnumeratorSuite[F[_]: Monad] extends ModuleSuite[F] {
     }
   }
 
+  test("reducedK") {
+    check { (eav: EnumeratorAndValues[Int]) =>
+      eav.enumerator.reducedK(Vector.empty[Int])((i,s)=>F.pure(i :+ s)).toVector === F.pure(Vector(eav.values))
+    }
+  }
+
   test("map") {
     check { (eav: EnumeratorAndValues[Int]) =>
       eav.enumerator.map(_ + 1).toVector === F.pure(eav.values.map(_ + 1))
