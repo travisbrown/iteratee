@@ -59,7 +59,13 @@ final object Enumeratee extends EnumerateeInstances {
   /**
    * Map a function returning a value in a context over a stream.
    */
-  final def flatMapF[F[_], O, I](f: O => F[I])(implicit F: Monad[F]): Enumeratee[F, O, I] = new PureLoop[F, O, I] {
+  @deprecated("Use flatMapM", "0.4.1")
+  final def flatMapF[F[_], O, I](f: O => F[I])(implicit F: Monad[F]): Enumeratee[F, O, I] = flatMapM(f)
+
+  /**
+   * Map a function returning a value in a context over a stream.
+   */
+  final def flatMapM[F[_], O, I](f: O => F[I])(implicit F: Monad[F]): Enumeratee[F, O, I] = new PureLoop[F, O, I] {
     protected final def loop[A](step: Step[F, I, A]): Step[F, O, Step[F, I, A]] = new Step.Cont[F, O, Step[F, I, A]] {
       final def run: F[Step[F, I, A]] = F.pure(step)
       final def onEl(e: O): F[Step[F, O, Step[F, I, A]]]= F.map(F.flatMap(f(e))(step.feedEl))(doneOrLoop)
@@ -231,7 +237,13 @@ final object Enumeratee extends EnumerateeInstances {
   /**
     * Drop values that do not satisfy a monadic predicate.
     */
-  final def filterF[F[_], E](p: E => F[Boolean])(implicit F: Monad[F]): Enumeratee[F, E, E] = flatMap { e =>
+  @deprecated("Use filterM", "0.4.1")
+  final def filterF[F[_], E](p: E => F[Boolean])(implicit F: Monad[F]): Enumeratee[F, E, E] = filterM(p)
+
+  /**
+    * Drop values that do not satisfy a monadic predicate.
+    */
+  final def filterM[F[_], E](p: E => F[Boolean])(implicit F: Monad[F]): Enumeratee[F, E, E] = flatMap { e =>
     new Enumerator[F, E] {
       def apply[A](s: Step[F, E, A]): F[Step[F, E, A]] = F.ifM(p(e))(ifTrue = s.feedEl(e), ifFalse = F.pure(s))
     }

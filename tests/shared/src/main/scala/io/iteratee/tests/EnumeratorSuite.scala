@@ -182,9 +182,9 @@ abstract class EnumeratorSuite[F[_]: Monad] extends ModuleSuite[F] {
     }
   }
 
-  test("flatMapF") {
+  test("flatMapM") {
     check { (eav: EnumeratorAndValues[Int]) =>
-      eav.enumerator.flatMapF(i => F.pure(i + 1)).toVector === F.pure(eav.values.map(_ + 1))
+      eav.enumerator.flatMapM(i => F.pure(i + 1)).toVector === F.pure(eav.values.map(_ + 1))
     }
   }
 

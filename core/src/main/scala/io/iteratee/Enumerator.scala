@@ -16,7 +16,10 @@ abstract class Enumerator[F[_], E] extends Serializable { self =>
 
   final def map[B](f: E => B)(implicit F: Monad[F]): Enumerator[F, B] = mapE(Enumeratee.map(f))
 
-  final def flatMapF[B](f: E => F[B])(implicit F: Monad[F]): Enumerator[F, B] = mapE(Enumeratee.flatMapF(f))
+  @deprecated("Use flatMapM", "0.4.1")
+  final def flatMapF[B](f: E => F[B])(implicit F: Monad[F]): Enumerator[F, B] = flatMapM(f)
+
+  final def flatMapM[B](f: E => F[B])(implicit F: Monad[F]): Enumerator[F, B] = mapE(Enumeratee.flatMapM(f))
 
   final def flatMap[B](f: E => Enumerator[F, B])(implicit F: Monad[F]): Enumerator[F, B] = mapE(Enumeratee.flatMap(f))
 
