@@ -4,9 +4,9 @@ import algebra.Eq
 import algebra.laws.GroupLaws
 import cats.Monad
 import cats.laws.discipline.{ CartesianTests, MonadTests }
-import io.iteratee.Enumerator
+import io.iteratee.{ Enumerator, Module }
 
-abstract class EnumeratorSuite[F[_]: Monad] extends ModuleSuite[F] {
+abstract class EnumeratorSuite[F[_]: Monad] extends ModuleSuite[F] { this: Module[F] =>
   type EnumeratorF[E] = Enumerator[F, E]
 
   implicit val isomorphisms: CartesianTests.Isomorphisms[EnumeratorF] =

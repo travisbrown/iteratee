@@ -5,7 +5,7 @@ import com.twitter.conversions.time._
 import io.catbird.util.Rerunnable
 import io.iteratee.tests.{ EnumerateeSuite, EnumeratorSuite, IterateeErrorSuite, ModuleSuite, eqThrowable }
 
-trait RerunnableSuite { this: ModuleSuite[Rerunnable] =>
+trait RerunnableSuite extends ModuleSuite[Rerunnable] with TwitterModule {
   def monadName: String = "Rerunnable"
 
   implicit def eqF[A: Eq]: Eq[Rerunnable[A]] = Rerunnable.rerunnableEqWithFailure[A](2.seconds)

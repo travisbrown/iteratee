@@ -2,11 +2,11 @@ package io.iteratee.tests
 
 import cats.Monad
 import cats.laws.discipline.{ CategoryTests, ProfunctorTests }
-import io.iteratee.Enumeratee
+import io.iteratee.{ Enumeratee, Module }
 import org.scalacheck.{ Gen, Prop }
 import org.scalacheck.Prop.BooleanOperators
 
-abstract class EnumerateeSuite[F[_]: Monad] extends ModuleSuite[F] {
+abstract class EnumerateeSuite[F[_]: Monad] extends ModuleSuite[F] { this: Module[F] =>
   type EnumerateeF[O, I] = Enumeratee[F, O, I]
 
   checkAll(s"Enumeratee[$monadName, Int, Int]", ProfunctorTests[EnumerateeF].profunctor[Int, Int, Int, Int, Int, Int])

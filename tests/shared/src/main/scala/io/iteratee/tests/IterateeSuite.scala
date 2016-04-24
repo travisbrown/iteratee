@@ -4,11 +4,11 @@ import algebra.Eq
 import cats.{ Monad, MonadError }
 import cats.data.{ NonEmptyVector, Xor, XorT }
 import cats.laws.discipline.{ CartesianTests, ContravariantTests, MonadTests, MonadErrorTests }
-import io.iteratee.Iteratee
+import io.iteratee.{ Iteratee, Module }
 import org.scalacheck.Arbitrary
 import org.scalacheck.Prop.BooleanOperators
 
-abstract class IterateeSuite[F[_]: Monad] extends BaseIterateeSuite[F] {
+abstract class IterateeSuite[F[_]: Monad] extends BaseIterateeSuite[F] { this: Module[F] =>
   checkAll(
     s"Iteratee[$monadName, Vector[Int], Vector[Int]]",
     MonadTests[VectorIntFoldingIteratee].monad[Vector[Int], Vector[Int], Vector[Int]]
@@ -16,6 +16,8 @@ abstract class IterateeSuite[F[_]: Monad] extends BaseIterateeSuite[F] {
 }
 
 abstract class IterateeErrorSuite[F[_], T: Arbitrary: Eq](implicit F: MonadError[F, T]) extends BaseIterateeSuite[F] {
+  this: Module[F] =>
+
   implicit def monadError: MonadError[VectorIntFoldingIteratee, T] = Iteratee.iterateeMonadError[F, T, Vector[Int]]
 
   implicit val arbitraryVectorIntFoldingIteratee: Arbitrary[VectorIntFoldingIteratee[Vector[Int]]] =
@@ -45,7 +47,7 @@ abstract class IterateeErrorSuite[F[_], T: Arbitrary: Eq](implicit F: MonadError
   )
 }
 
-abstract class BaseIterateeSuite[F[_]: Monad] extends ModuleSuite[F] {
+abstract class BaseIterateeSuite[F[_]: Monad] extends ModuleSuite[F] { this: Module[F] =>
   implicit override val generatorDrivenConfig: PropertyCheckConfiguration = PropertyCheckConfig(
     minSize = 0,
     maxSize = 5000

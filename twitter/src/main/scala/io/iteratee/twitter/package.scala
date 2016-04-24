@@ -1,5 +1,3 @@
 package io.iteratee
 
-import io.catbird.util.Rerunnable
-
-package object twitter extends Module[Rerunnable]
+package object twitter extends TwitterModule
