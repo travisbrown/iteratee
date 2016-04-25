@@ -4,21 +4,24 @@ import algebra.Eq
 import cats.{ Monad, MonadError }
 import cats.data.{ NonEmptyVector, Xor, XorT }
 import cats.laws.discipline.{ CartesianTests, ContravariantTests, MonadTests, MonadErrorTests }
-import io.iteratee.{ Iteratee, Module }
+import io.iteratee.{ EnumerateeModule, EnumeratorModule, Iteratee, IterateeErrorModule, IterateeModule, Module }
 import org.scalacheck.Arbitrary
 import org.scalacheck.Prop.BooleanOperators
 
-abstract class IterateeSuite[F[_]: Monad] extends BaseIterateeSuite[F] { this: Module[F] =>
+abstract class IterateeSuite[F[_]: Monad] extends BaseIterateeSuite[F] {
+  this: EnumerateeModule[F] with EnumeratorModule[F] with IterateeModule[F] with Module[F] =>
+
   checkAll(
     s"Iteratee[$monadName, Vector[Int], Vector[Int]]",
     MonadTests[VectorIntFoldingIteratee].monad[Vector[Int], Vector[Int], Vector[Int]]
   )
 }
 
-abstract class IterateeErrorSuite[F[_], T: Arbitrary: Eq](implicit F: MonadError[F, T]) extends BaseIterateeSuite[F] {
-  this: Module[F] =>
+abstract class IterateeErrorSuite[F[_], T: Arbitrary: Eq](implicit MEF: MonadError[F, T]) extends BaseIterateeSuite[F] {
+  this: EnumerateeModule[F] with EnumeratorModule[F] with IterateeErrorModule[F, T]
+    with Module[F] { type M[f[_]] = MonadError[f, T] } =>
 
-  implicit def monadError: MonadError[VectorIntFoldingIteratee, T] = Iteratee.iterateeMonadError[F, T, Vector[Int]]
+  implicit val monadError: MonadError[VectorIntFoldingIteratee, T] = Iteratee.iterateeMonadError[F, T, Vector[Int]]
 
   implicit val arbitraryVectorIntFoldingIteratee: Arbitrary[VectorIntFoldingIteratee[Vector[Int]]] =
     arbitraryVectorIteratee[F, Int]
@@ -47,7 +50,9 @@ abstract class IterateeErrorSuite[F[_], T: Arbitrary: Eq](implicit F: MonadError
   )
 }
 
-abstract class BaseIterateeSuite[F[_]: Monad] extends ModuleSuite[F] { this: Module[F] =>
+abstract class BaseIterateeSuite[F[_]: Monad] extends ModuleSuite[F] {
+  this: EnumerateeModule[F] with EnumeratorModule[F] with IterateeModule[F] with Module[F] =>
+
   implicit override val generatorDrivenConfig: PropertyCheckConfiguration = PropertyCheckConfig(
     minSize = 0,
     maxSize = 5000

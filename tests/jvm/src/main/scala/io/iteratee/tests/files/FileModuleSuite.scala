@@ -1,13 +1,13 @@
 package io.iteratee.tests.files
 
-import cats.MonadError
-import io.iteratee.Module
+import cats.Monad
+import io.iteratee.{ EnumeratorModule, IterateeModule, Module }
 import io.iteratee.files.FileModule
 import io.iteratee.tests.ModuleSuite
 import java.io.File
 
-abstract class FileModuleSuite[F[_]](implicit F: MonadError[F, Throwable]) extends ModuleSuite[F] {
-  this: Module[F] with FileModule[F] =>
+abstract class FileModuleSuite[F[_]: Monad] extends ModuleSuite[F] {
+  this: Module[F] with EnumeratorModule[F] with IterateeModule[F] with FileModule[F] =>
 
   test("readLines") {
     val txt = new File(getClass.getResource("/io/iteratee/examples/pg/11231/11231.txt").toURI)
