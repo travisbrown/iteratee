@@ -146,7 +146,7 @@ lazy val twitter = project
   )
   .settings(allSettings)
   .settings(
-    libraryDependencies += "io.catbird" %% "catbird-util" % "0.3.0"
+    libraryDependencies += "io.catbird" %% "catbird-util" % "0.4.0"
   ).dependsOn(core, files)
 
 lazy val task = project
