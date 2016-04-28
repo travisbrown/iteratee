@@ -15,7 +15,7 @@ package iteratee {
     with EnumerateeModule[Id] with EnumeratorModule[Id] with IterateeModule[Id] {
     final type M[f[_]] = Monad[f]
 
-    final protected val F: Monad[Id] = cats.Id
+    final protected val F: Monad[Id] = implicitly
   }
 
 
@@ -23,7 +23,7 @@ package iteratee {
     with EnumerateeModule[Eval] with EnumeratorModule[Eval] with IterateeModule[Eval] {
     final type M[f[_]] = Monad[f]
 
-    final protected val F: Monad[Eval] = cats.Eval.evalBimonad
+    final protected val F: Monad[Eval] = implicitly
   }
 
   trait OptionModule extends Module[Option]
