@@ -6,15 +6,20 @@ import cats.data.{ Xor, XorT }
 import cats.std.AllInstances
 import cats.syntax.AllSyntax
 import io.iteratee._
-import org.scalatest.FunSuite
-import org.scalatest.prop.Checkers
-import org.typelevel.discipline.scalatest.Discipline
+import org.scalatest.FlatSpec
+import org.scalatest.prop.{ Checkers, GeneratorDrivenPropertyChecks }
+import org.typelevel.discipline.Laws
 
-class BaseSuite extends FunSuite with Checkers with Discipline
-  with ArbitraryInstances with EqInstances
-  with AllInstances with AllSyntax {
+class BaseSuite extends FlatSpec with GeneratorDrivenPropertyChecks
+  with AllInstances with AllSyntax
+  with ArbitraryInstances with EqInstances {
   override def convertToEqualizer[T](left: T): Equalizer[T] =
     sys.error("Intentionally ambiguous implicit for Equalizer")
+
+  def checkLaws(name: String, ruleSet: Laws#RuleSet): Unit = ruleSet.all.properties.zipWithIndex.foreach {
+    case ((id, prop), 0) => name should s"obey $id" in Checkers.check(prop)
+    case ((id, prop), _) => it should s"obey $id" in Checkers.check(prop)
+  }
 }
 
 abstract class ModuleSuite[F[_]] extends BaseSuite with ArbitraryEnumerators[F] {

@@ -4,60 +4,65 @@ import cats.{ Eval, Id, MonadError }
 import cats.arrow.NaturalTransformation
 import cats.data.{ Xor, XorT }
 import io.iteratee.tests.{ EnumerateeSuite, EnumeratorSuite, IterateeErrorSuite, XorSuite, eqThrowable }
-import org.scalacheck.Prop
-import org.scalacheck.Prop.BooleanOperators
+import org.scalacheck.Arbitrary
 
-class XorEnumerateeTests extends EnumerateeSuite[({ type L[x] = XorT[Eval, Throwable, x] })#L] with XorSuite
+class XorEnumerateeTests extends EnumerateeSuite[({ type L[x] = XorT[Eval, Throwable, x] })#L] with XorSuite {
+  "take" should "work with more than Int.MaxValue values" in forAll { (n: Int) =>
+    val items = Vector.fill(1000000)(())
+    val totalSize: Long = Int.MaxValue.toLong + math.max(1, n).toLong
+    val enumerator = repeat(()).flatMap(_ => enumVector(items)).mapE(take(totalSize))
+
+    assert(enumerator.run(length) === F.pure(totalSize))
+  }
+}
 
 class XorEnumeratorTests extends EnumeratorSuite[({ type L[x] = XorT[Eval, Throwable, x] })#L] with XorSuite {
   type XTE[A] = XorT[Eval, Throwable, A]
 
-  test("ensure") {
-    check { (eav: EnumeratorAndValues[Int]) =>
-      var counter = 0
-      val action = XorT.right[Eval, Throwable, Unit](Eval.always(counter += 1))
-      val enumerator = eav.enumerator.ensure(action)
+  "ensure" should "perform an action after the enumerator is done" in forAll { (eav: EnumeratorAndValues[Int]) =>
+    var counter = 0
+    val action = XorT.right[Eval, Throwable, Unit](Eval.always(counter += 1))
+    val enumerator = eav.enumerator.ensure(action)
 
-      counter == 0 && enumerator.toVector === F.pure(eav.values) && counter === 1
-    }
+    assert(counter === 0)
+    assert(enumerator.toVector === F.pure(eav.values))
+    assert(counter === 1)
   }
 
-  test("ensure with failure") {
-    check { (eav: EnumeratorAndValues[Int], message: String) =>
-      val error: Throwable = new Exception(message)
-      var counter = 0
-      val action = XorT.right[Eval, Throwable, Unit](Eval.always(counter += 1))
-      val enumerator = failEnumerator(error).append(eav.enumerator).ensure(action)
+  it should "perform its action in the case of failure" in forAll { (eav: EnumeratorAndValues[Int], message: String) =>
+    val error: Throwable = new Exception(message)
+    var counter = 0
+    val action = XorT.right[Eval, Throwable, Unit](Eval.always(counter += 1))
+    val enumerator = failEnumerator(error).append(eav.enumerator).ensure(action)
 
-      counter == 0 && enumerator.toVector.value.value === Xor.left(error) && counter === 1
-    }
+    assert(counter == 0)
+    assert(enumerator.toVector.value.value === Xor.left(error))
+    assert(counter === 1)
   }
 
-  test("ensure without necessarily consuming all elements") {
-    check { (eav: EnumeratorAndValues[Int]) =>
-      var counter = 0
-      val action = XorT.right[Eval, Throwable, Unit](Eval.always(counter += 1))
-      val enumerator = eav.enumerator.ensure(action)
-      val n = math.max(0, eav.values.size - 2)
+  it should "work without necessarily consuming all elements" in forAll { (eav: EnumeratorAndValues[Int]) =>
+    var counter = 0
+    val action = XorT.right[Eval, Throwable, Unit](Eval.always(counter += 1))
+    val enumerator = eav.enumerator.ensure(action)
+    val n = math.max(0, eav.values.size - 2)
 
-      counter == 0 && enumerator.run(takeI(n)) === F.pure(eav.values.take(n)) && counter === 1
-    }
+    assert(counter == 0)
+    assert(enumerator.run(takeI(n)) === F.pure(eav.values.take(n)))
+    assert(counter === 1)
   }
 
-  test("failEnumerator") {
-    check { (eav: EnumeratorAndValues[Int], message: String) =>
-      val error: Throwable = new Exception(message)
+  "failEnumerator" should "return a failed enumerator" in forAll { (eav: EnumeratorAndValues[Int], message: String) =>
+    val error: Throwable = new Exception(message)
 
-      eav.enumerator.append(failEnumerator(error)).toVector.value.value === Xor.left(error)
-    }
+    assert(eav.enumerator.append(failEnumerator(error)).toVector.value.value === Xor.left(error))
   }
 
-  test("handleErrorWith") {
-    check { (eav: EnumeratorAndValues[Int], message: String) =>
+  "handleErrorWith" should "allow recovery from failures" in {
+    forAll { (eav: EnumeratorAndValues[Int], message: String) =>
       val error: Throwable = new Exception(message)
       val enumerator = failEnumerator(error).handleErrorWith[Throwable](_ => eav.enumerator)
 
-      enumerator.toVector.value.value === Xor.right(eav.values)
+      assert(enumerator.toVector.value.value === Xor.right(eav.values))
     }
   }
 }
@@ -66,39 +71,35 @@ class XorIterateeTests extends IterateeErrorSuite[({ type L[x] = XorT[Eval, Thro
   with XorSuite {
   type XTE[A] = XorT[Eval, Throwable, A]
 
-  test("failIteratee") {
-    check { (eav: EnumeratorAndValues[Int], message: String) =>
+  "failIteratee" should "return an iteratee that always fails" in {
+    forAll { (eav: EnumeratorAndValues[Int], message: String) =>
       val error: Throwable = new Exception(message)
       val result = MonadError[XTE, Throwable].raiseError[(String, Vector[Int])](error)
 
-      eav.resultWithLeftovers(failIteratee(error)) === result
+      assert(eav.resultWithLeftovers(failIteratee(error)) === result)
     }
   }
 
-  test("mapI") {
-    check { (eav: EnumeratorAndValues[Int], n: Int) =>
-      Prop.forAll(arbitraryIntIteratee[Id].arbitrary) { iteratee =>
-        val pureEnumerator = Enumerator.enumVector[Id, Int](eav.values)
+  "mapI" should "transform the stream with a natural transformation" in {
+    forAll(Arbitrary.arbitrary[EnumeratorAndValues[Int]], arbitraryIntIteratee[Id].arbitrary) { (eav, iteratee) =>
+      val pureEnumerator = Enumerator.enumVector[Id, Int](eav.values)
 
-        val xorIteratee = iteratee.mapI(
-          new NaturalTransformation[Id, XTE] {
-            def apply[A](a: A): XTE[A] = F.pure(a)
-          }
-        )
+      val xorIteratee = iteratee.mapI(
+        new NaturalTransformation[Id, XTE] {
+          def apply[A](a: A): XTE[A] = F.pure(a)
+        }
+      )
 
-        eav.enumerator.run(xorIteratee) === F.pure(pureEnumerator.run(iteratee))
-      }
+      assert(eav.enumerator.run(xorIteratee) === F.pure(pureEnumerator.run(iteratee)))
     }
   }
 
-  test("up") {
-    check { (eav: EnumeratorAndValues[Int], n: Int) =>
-      (n != Int.MaxValue) ==> {
-        val iteratee = Iteratee.take[Id, Int](n).up[XTE]
-        val result = (eav.values.take(n), eav.values.drop(n))
+  "up" should "lift an iteratee into a larger context" in forAll { (eav: EnumeratorAndValues[Int], n: Int) =>
+    whenever(n != Int.MaxValue) {
+      val iteratee = Iteratee.take[Id, Int](n).up[XTE]
+      val result = (eav.values.take(n), eav.values.drop(n))
 
-        eav.resultWithLeftovers(iteratee) === F.pure(result)
-      }
+      assert(eav.resultWithLeftovers(iteratee) === F.pure(result))
     }
   }
 }
