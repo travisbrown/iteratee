@@ -1,6 +1,6 @@
 package io.iteratee
 
-import cats.{ Applicative, Monad, MonadError }
+import cats.MonadError
 
 /**
  * @groupname Enumerators Enumerators
@@ -9,41 +9,26 @@ import cats.{ Applicative, Monad, MonadError }
  * @groupname Helpers Helper classes
  * @groupprio Helpers 4
  */
-trait EnumeratorModule[F[_]] {
+trait EnumeratorModule[F[_]] { this: Module[F] =>
   /**
    * Lift an effectful value into an enumerator.
    *
    * @group Enumerators
    */
-  final def liftToEnumerator[E](fe: F[E])(implicit F: Monad[F]): Enumerator[F, E] =
-    Enumerator.liftM(fe)
-
-  /**
-   * @group Helpers
-   */
-  sealed class FailEnumeratorPartiallyApplied[E] {
-    final def apply[T](e: T)(implicit F: MonadError[F, T]): Enumerator[F, E] = Enumerator.fail(e)
-  }
-
-  /**
-   * Create a failed enumerator with the given error.
-   *
-   * @group Enumerators
-   */
-  final def failEnumerator[E]: FailEnumeratorPartiallyApplied[E] = new FailEnumeratorPartiallyApplied[E]
+  final def liftToEnumerator[E](fe: F[E]): Enumerator[F, E] = Enumerator.liftM(fe)(F)
 
   /**
    * An empty enumerator.
    *
    * @group Enumerators
    */
-  final def empty[E](implicit F: Applicative[F]): Enumerator[F, E] = Enumerator.empty
+  final def empty[E]: Enumerator[F, E] = Enumerator.empty(F)
 
   /**
    * @group Helpers
    */
   sealed class PerformPartiallyApplied[E] {
-    final def apply[A](fa: F[A])(implicit F: Monad[F]): Enumerator[F, E] = Enumerator.perform(fa)
+    final def apply[A](fa: F[A]): Enumerator[F, E] = Enumerator.perform(fa)(F)
   }
 
   /**
@@ -58,47 +43,43 @@ trait EnumeratorModule[F[_]] {
    *
    * @group Enumerators
    */
-  final def enumOne[E](e: E)(implicit F: Applicative[F]): Enumerator[F, E] = Enumerator.enumOne(e)
+  final def enumOne[E](e: E): Enumerator[F, E] = Enumerator.enumOne(e)(F)
 
   /**
    * An enumerator that produces values from a stream.
    *
    * @group Enumerators
    */
-  final def enumStream[E](es: Stream[E])(implicit F: Monad[F]): Enumerator[F, E] =
-    Enumerator.enumStream(es)
+  final def enumStream[E](es: Stream[E]): Enumerator[F, E] = Enumerator.enumStream(es)(F)
 
   /**
    * An enumerator that produces values from a list.
    *
    * @group Enumerators
    */
-  final def enumList[E](es: List[E])(implicit F: Monad[F]): Enumerator[F, E] =
-    Enumerator.enumList(es)
+  final def enumList[E](es: List[E]): Enumerator[F, E] = Enumerator.enumList(es)(F)
 
   /**
    * An enumerator that produces values from a vector.
    *
    * @group Enumerators
    */
-  final def enumVector[E](es: Vector[E])(implicit F: Monad[F]): Enumerator[F, E] =
-    Enumerator.enumVector(es)
+  final def enumVector[E](es: Vector[E]): Enumerator[F, E] = Enumerator.enumVector(es)(F)
 
   /**
    * An enumerator that produces values from a slice of an indexed sequence.
    *
    * @group Enumerators
    */
-  final def enumIndexedSeq[E](es: IndexedSeq[E], min: Int = 0, max: Int = Int.MaxValue)
-    (implicit F: Monad[F]): Enumerator[F, E] =
-      Enumerator.enumIndexedSeq(es, min, max)
+  final def enumIndexedSeq[E](es: IndexedSeq[E], min: Int = 0, max: Int = Int.MaxValue): Enumerator[F, E] =
+    Enumerator.enumIndexedSeq(es, min, max)(F)
 
   /**
    * An enumerator that repeats the given value indefinitely.
    *
    * @group Enumerators
    */
-  final def repeat[E](e: E)(implicit F: Monad[F]): Enumerator[F, E] = Enumerator.repeat(e)
+  final def repeat[E](e: E): Enumerator[F, E] = Enumerator.repeat(e)(F)
 
   /**
    * An enumerator that iteratively performs an operation and returns the
@@ -106,8 +87,7 @@ trait EnumeratorModule[F[_]] {
    *
    * @group Enumerators
    */
-  final def iterate[E](init: E)(f: E => E)(implicit F: Monad[F]): Enumerator[F, E] =
-    Enumerator.iterate(init)(f)
+  final def iterate[E](init: E)(f: E => E): Enumerator[F, E] = Enumerator.iterate(init)(f)(F)
 
   /**
    * An enumerator that iteratively performs an effectful operation and returns
@@ -115,8 +95,7 @@ trait EnumeratorModule[F[_]] {
    *
    * @group Enumerators
    */
-  final def iterateM[E](init: E)(f: E => F[E])(implicit F: Monad[F]): Enumerator[F, E] =
-    Enumerator.iterateM(init)(f)
+  final def iterateM[E](init: E)(f: E => F[E]): Enumerator[F, E] = Enumerator.iterateM(init)(f)(F)
 
   /**
    * An enumerator that iteratively performs an operation until None is produced and returns
@@ -124,8 +103,7 @@ trait EnumeratorModule[F[_]] {
    *
    * @group Enumerators
    */
-  final def iterateUntil[E](init: E)(f: E => Option[E])(implicit F: Monad[F]): Enumerator[F, E] =
-    Enumerator.iterateUntil(init)(f)
+  final def iterateUntil[E](init: E)(f: E => Option[E]): Enumerator[F, E] = Enumerator.iterateUntil(init)(f)(F)
 
   /**
    * An enumerator that iteratively performs an effectful operation until None is produced and returns
@@ -133,8 +111,7 @@ trait EnumeratorModule[F[_]] {
    *
    * @group Enumerators
    */
-  final def iterateUntilM[E](init: E)(f: E => F[Option[E]])(implicit F: Monad[F]): Enumerator[F, E] =
-    Enumerator.iterateUntilM(init)(f)
+  final def iterateUntilM[E](init: E)(f: E => F[Option[E]]): Enumerator[F, E] = Enumerator.iterateUntilM(init)(f)(F)
 
   /**
    * An enumerator that returns the result of an effectful operation until
@@ -142,5 +119,16 @@ trait EnumeratorModule[F[_]] {
    *
    * @group Enumerators
    */
-  final def generateM[E](f: F[Option[E]])(implicit F: Monad[F]): Enumerator[F, E] = Enumerator.generateM(f)
+  final def generateM[E](f: F[Option[E]]): Enumerator[F, E] = Enumerator.generateM(f)(F)
+}
+
+trait EnumeratorErrorModule[F[_], T] extends EnumeratorModule[F] {
+  this: Module[F] { type M[f[_]] <: MonadError[f, T] } =>
+
+  /**
+   * Create a failed enumerator with the given error.
+   *
+   * @group Iteratees
+   */
+  final def failEnumerator[E](t: T): Enumerator[F, E] = Enumerator.fail(t)(F)
 }

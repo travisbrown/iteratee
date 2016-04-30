@@ -20,7 +20,7 @@ lazy val compilerOptions = Seq(
   "-Xfuture"
 )
 
-lazy val catsVersion = "0.4.1"
+lazy val catsVersion = "0.5.0"
 lazy val disciplineVersion = "0.4"
 lazy val scalaCheckVersion = "1.12.5"
 lazy val scalaTestVersion = "3.0.0-M9"
@@ -75,8 +75,8 @@ lazy val iteratee = project.in(file("."))
   .settings(allSettings)
   .settings(docSettings)
   .settings(noPublishSettings)
-  .aggregate(core, coreJS, task, twitter, tests, testsJS)
-  .dependsOn(core, task)
+  .aggregate(core, coreJS, files, task, twitter, tests, testsJS)
+  .dependsOn(core, task, twitter)
 
 lazy val coreBase = crossProject.crossType(CrossType.Pure).in(file("core"))
   .settings(
@@ -133,14 +133,21 @@ lazy val testsBase = crossProject.in(file("tests"))
 lazy val tests = testsBase.jvm
 lazy val testsJS = testsBase.js
 
+lazy val files = project
+  .settings(
+    moduleName := "iteratee-files"
+  )
+  .settings(allSettings)
+  .dependsOn(core)
+
 lazy val twitter = project
   .settings(
     moduleName := "iteratee-twitter"
   )
   .settings(allSettings)
   .settings(
-    libraryDependencies += "io.catbird" %% "catbird-util" % "0.3.0"
-  ).dependsOn(core)
+    libraryDependencies += "io.catbird" %% "catbird-util" % "0.4.0"
+  ).dependsOn(core, files)
 
 lazy val task = project
   .settings(
@@ -149,7 +156,7 @@ lazy val task = project
   .settings(allSettings)
   .settings(
     libraryDependencies += "org.scalaz" %% "scalaz-concurrent" % "7.1.7"
-  ).dependsOn(core)
+  ).dependsOn(core, files)
 
 lazy val benchmark = project
   .settings(moduleName := "iteratee-benchmark")
@@ -242,6 +249,7 @@ credentials ++= (
 
 val jvmProjects = Seq(
   "core",
+  "files",
   "task",
   "twitter",
   "tests"

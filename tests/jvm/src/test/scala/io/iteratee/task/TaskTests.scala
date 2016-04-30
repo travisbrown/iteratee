@@ -4,7 +4,7 @@ import algebra.Eq
 import io.iteratee.tests.{ EnumerateeSuite, EnumeratorSuite, IterateeErrorSuite, ModuleSuite, eqThrowable }
 import scalaz.concurrent.Task
 
-trait TaskSuite { this: ModuleSuite[Task] =>
+trait TaskSuite extends ModuleSuite[Task] with TaskModule {
   def monadName: String = "Task"
 
   implicit def eqF[A: Eq]: Eq[Task[A]] = Eq.by(_.attemptRun.toEither)
