@@ -79,6 +79,24 @@ abstract class EnumerateeSuite[F[_]: Monad] extends ModuleSuite[F] {
     assert(enumVector(v).mapE(takeWhile(_ < n.toInt)).toVector === F.pure(v.dropRight(1)))
   }
 
+  "takeWhileM" should "consume the specified values" in forAll { (eav: EnumeratorAndValues[Int], n: Int) =>
+    val result = eav.resultWithLeftovers(consume[Int].through(takeWhileM(i => F.pure(i < n))))
+    val expected = F.pure(eav.values.span(_ < n))
+    assert(result === expected)
+  }
+
+  it should "work with wrap" in forAll { (eav: EnumeratorAndValues[Int], n: Int) =>
+    val eavNew = eav.copy(enumerator = takeWhileM[Int](i => F.pure(i < n)).wrap(eav.enumerator))
+
+    assert(eavNew.resultWithLeftovers(consume) === F.pure((eav.values.takeWhile(_ < n), Vector.empty)))
+  }
+
+  it should "work when it ends mid-chunk" in forAll { (n: Byte) =>
+    val v = (0 to n.toInt).toVector
+
+    assert(enumVector(v).mapE(takeWhileM(i => F.pure(i < n.toInt))).toVector === F.pure(v.dropRight(1)))
+  }
+
   "drop" should "drop the specified number of values" in forAll { (eav: EnumeratorAndValues[Int], n: Int) =>
     assert(eav.resultWithLeftovers(consume[Int].through(drop(n.toLong))) === F.pure((eav.values.drop(n), Vector.empty)))
   }

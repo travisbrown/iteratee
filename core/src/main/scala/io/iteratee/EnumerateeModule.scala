@@ -46,12 +46,20 @@ trait EnumerateeModule[F[_]] { this: Module[F] =>
   final def take[E](n: Long): Enumeratee[F, E, E] = Enumeratee.take(n)(F)
 
   /**
-   * An [[Enumeratee]] that tales values from a stream as long as they satisfy
+   * An [[Enumeratee]] that takes values from a stream as long as they satisfy
    * the given predicate.
    *
    * @group Enumeratees
    */
   final def takeWhile[E](p: E => Boolean): Enumeratee[F, E, E] = Enumeratee.takeWhile(p)(F)
+
+  /**
+   * An [[Enumeratee]] that takes values from a stream as long as they satisfy
+   * the given monadic predicate.
+   *
+   * @group Enumeratees
+   */
+  final def takeWhileM[E](p: E => F[Boolean]): Enumeratee[F, E, E] = Enumeratee.takeWhileM(p)(F)
 
   /**
    * An [[Enumeratee]] that drops a given number of the first values in a

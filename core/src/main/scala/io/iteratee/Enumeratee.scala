@@ -149,6 +149,38 @@ final object Enumeratee extends EnumerateeInstances {
       }
     }
 
+  final def takeWhileM[F[_], E](p: E => F[Boolean])(implicit F: Monad[F]): Enumeratee[F, E, E] =
+    new PureLoop[F, E, E] {
+      private[this] final def vectorSpanM[F[_], E](p: E => F[Boolean], v: Vector[E])
+                                                  (implicit F: Monad[F]): F[(Vector[E], Vector[E])] = {
+        def go(current: Vector[E], acc: Vector[E]): F[(Vector[E], Vector[E])] = current match {
+          case vv @ e +: rest => F.ifM(p(e))(ifFalse = F.pure((acc, vv)), ifTrue = go(rest, acc :+ e))
+          case vv => F.pure((acc, vv))
+        }
+        go(v, Vector.empty)
+      }
+
+      protected final def loop[A](step: Step[F, E, A]): Step[F, E, Step[F, E, A]] = new Step.Cont[F, E, Step[F, E, A]] {
+        final def run: F[Step[F, E, A]] = F.pure(step)
+        final def onEl(e: E): F[Step[F, E, Step[F, E, A]]] = {
+          F.ifM(p(e))(
+            ifFalse = F.pure(Step.doneWithLeftoverInput(step, Input.el(e))),
+            ifTrue  = F.map(step.feedEl(e))(doneOrLoop))
+        }
+        final def onChunk(h1: E, h2: E, t: Vector[E]): F[Step[F, E, Step[F, E, A]]] = {
+          F.flatMap(vectorSpanM(p, h1 +: h2 +: t)) {
+            case (Vector(), nh1 +: nh2 +: nt) => F.pure(Step.doneWithLeftoverInput(step, Input.chunk(nh1, nh2, nt)))
+            case (Vector(nh), nt) => F.map(step.feedEl(nh))(Step.doneWithLeftoverInput(_, Input.fromVectorUnsafe(nt)))
+            case (nh1 +: nh2 +: nt1, nt2) => if (nt2.isEmpty) {
+              F.map(step.feedChunk(nh1, nh2, nt1))(doneOrLoop)
+            } else {
+              F.map(step.feedChunk(nh1, nh2, nt1))(Step.doneWithLeftovers(_, nt2))
+            }
+          }
+        }
+      }
+    }
+
   /**
    * An [[Enumeratee]] that drops a given number of the first values in a
    * stream.
