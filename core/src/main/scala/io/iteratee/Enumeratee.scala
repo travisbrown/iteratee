@@ -231,6 +231,33 @@ final object Enumeratee extends EnumerateeInstances {
     }
 
   /**
+   * An [[Enumeratee]] that drops values from a stream as long as they satisfy
+   * the given monadic predicate.
+   */
+  final def dropWhileM[F[_], E](p: E => F[Boolean])(implicit F: Monad[F]): Enumeratee[F, E, E] =
+    new PureLoop[F, E, E] {
+      private[this] def vectorDropWhileM(p: E => F[Boolean], v: Vector[E]): F[Vector[E]] = {
+        def go(current: Vector[E]): F[Vector[E]] = current match {
+          case vv @ e +: rest => F.ifM(p(e))(ifFalse = F.pure(current), ifTrue = go(rest))
+          case vv => F.pure(current)
+        }
+        go(v)
+      }
+
+      protected final def loop[A](step: Step[F, E, A]): Step[F, E, Step[F, E, A]] = new Step.Cont[F, E, Step[F, E, A]] {
+        final def run: F[Step[F, E, A]] = F.pure(step)
+        final def onEl(e: E): F[Step[F, E, Step[F, E, A]]] =
+          F.ifM(p(e))(ifTrue = F.pure(loop(step)), ifFalse = F.map(step.feedEl(e))(new IdentityCont(_)))
+        final def onChunk(h1: E, h2: E, t: Vector[E]): F[Step[F, E, Step[F, E, A]]] =
+          F.flatMap(vectorDropWhileM(p, h1 +: h2 +: t)) {
+            case Vector() => F.pure(loop(step))
+            case Vector(e) => F.map(step.feedEl(e))(new IdentityCont(_))
+            case nh1 +: nh2 +: nt => F.map(step.feedChunk(nh1, nh2, nt))(new IdentityCont(_))
+          }
+      }
+    }
+
+  /**
    * Transform values using a [[scala.PartialFunction]] and drop values that
    * aren't matched.
    */

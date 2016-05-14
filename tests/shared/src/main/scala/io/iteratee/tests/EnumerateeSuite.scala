@@ -119,10 +119,22 @@ abstract class EnumerateeSuite[F[_]: Monad] extends ModuleSuite[F] {
     assert(eav.resultWithLeftovers(consume[Int].through(dropWhile(_ < n))) === expected)
   }
 
-  "dropWhile" should "work with one left over" in forAll { (n: Byte) =>
+  it should "work with one left over" in forAll { (n: Byte) =>
     val v = (0 to n.toInt).toVector
 
     assert(enumVector(v).mapE(dropWhile(_ < n.toInt)).toVector === F.pure(v.lastOption.toVector))
+  }
+
+  "dropWhileM" should "drop the specified values" in forAll { (eav: EnumeratorAndValues[Int], n: Int) =>
+    val expected = F.pure((eav.values.dropWhile(_ < n), Vector.empty[Int]))
+
+    assert(eav.resultWithLeftovers(consume[Int].through(dropWhileM(i => F.pure(i < n)))) === expected)
+  }
+
+  it should "work with one left over" in forAll { (n: Byte) =>
+    val v = (0 to n.toInt).toVector
+
+    assert(enumVector(v).mapE(dropWhileM(i => F.pure(i < n.toInt))).toVector === F.pure(v.lastOption.toVector))
   }
 
   /**

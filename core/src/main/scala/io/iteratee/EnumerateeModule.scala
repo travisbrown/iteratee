@@ -78,6 +78,14 @@ trait EnumerateeModule[F[_]] { this: Module[F] =>
   final def dropWhile[E](p: E => Boolean): Enumeratee[F, E, E] = Enumeratee.dropWhile(p)(F)
 
   /**
+   * An [[Enumeratee]] that drops values from a stream as long as they satisfy
+   * the given monadic predicate.
+   *
+   * @group Enumeratees
+   */
+  final def dropWhileM[E](p: E => F[Boolean]): Enumeratee[F, E, E] = Enumeratee.dropWhileM(p)(F)
+
+  /**
    * Transform values using a [[scala.PartialFunction]] and drop values that
    * aren't matched.
    *
