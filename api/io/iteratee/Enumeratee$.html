@@ -261,18 +261,18 @@ aren't matched.</p>
       <p class="shortcomment cmt">Transform a stream by taking the cross-product with the given
 <a href="Enumerator.html" class="extype" name="io.iteratee.Enumerator">Enumerator</a>.</p>
     </li><li name="io.iteratee.Enumeratee#drop" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="drop[F[_],E](n:Int)(implicitF:cats.Applicative[F]):io.iteratee.Enumeratee[F,E,E]"></a>
-      <a id="drop[F[_],E](Int)(Applicative[F]):Enumeratee[F,E,E]"></a>
+      <a id="drop[F[_],E](n:Long)(implicitF:cats.Applicative[F]):io.iteratee.Enumeratee[F,E,E]"></a>
+      <a id="drop[F[_],E](Long)(Applicative[F]):Enumeratee[F,E,E]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier">final </span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">drop</span><span class="tparams">[<span name="F">F<span class="tparams">[<span name="_">_</span>]</span></span>, <span name="E">E</span>]</span><span class="params">(<span name="n">n: <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Int" class="extype" target="_top">Int</a></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="F">F: <a href="http://typelevel.org/cats/api/index.html#cats.Applicative" class="extype" target="_top">Applicative</a>[<span class="extype" name="io.iteratee.Enumeratee.drop.F">F</span>]</span>)</span><span class="result">: <a href="Enumeratee.html" class="extype" name="io.iteratee.Enumeratee">Enumeratee</a>[<span class="extype" name="io.iteratee.Enumeratee.drop.F">F</span>, <span class="extype" name="io.iteratee.Enumeratee.drop.E">E</span>, <span class="extype" name="io.iteratee.Enumeratee.drop.E">E</span>]</span>
+        <span class="name">drop</span><span class="tparams">[<span name="F">F<span class="tparams">[<span name="_">_</span>]</span></span>, <span name="E">E</span>]</span><span class="params">(<span name="n">n: <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Long" class="extype" target="_top">Long</a></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="F">F: <a href="http://typelevel.org/cats/api/index.html#cats.Applicative" class="extype" target="_top">Applicative</a>[<span class="extype" name="io.iteratee.Enumeratee.drop.F">F</span>]</span>)</span><span class="result">: <a href="Enumeratee.html" class="extype" name="io.iteratee.Enumeratee">Enumeratee</a>[<span class="extype" name="io.iteratee.Enumeratee.drop.F">F</span>, <span class="extype" name="io.iteratee.Enumeratee.drop.E">E</span>, <span class="extype" name="io.iteratee.Enumeratee.drop.E">E</span>]</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../index.html#io.iteratee.Enumeratee$@drop[F[_],E](n:Int)(implicitF:cats.Applicative[F]):io.iteratee.Enumeratee[F,E,E]" title="Permalink" target="_top">
+      <a href="../../index.html#io.iteratee.Enumeratee$@drop[F[_],E](n:Long)(implicitF:cats.Applicative[F]):io.iteratee.Enumeratee[F,E,E]" title="Permalink" target="_top">
         <img src="../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
@@ -296,6 +296,24 @@ stream.</p>
     </span>
       <p class="shortcomment cmt">An <a href="Enumeratee.html" class="extype" name="io.iteratee.Enumeratee">Enumeratee</a> that drops values from a stream as long as they satisfy
 the given predicate.</p>
+    </li><li name="io.iteratee.Enumeratee#dropWhileM" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="dropWhileM[F[_],E](p:E=&gt;F[Boolean])(implicitF:cats.Monad[F]):io.iteratee.Enumeratee[F,E,E]"></a>
+      <a id="dropWhileM[F[_],E]((E)⇒F[Boolean])(Monad[F]):Enumeratee[F,E,E]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">dropWhileM</span><span class="tparams">[<span name="F">F<span class="tparams">[<span name="_">_</span>]</span></span>, <span name="E">E</span>]</span><span class="params">(<span name="p">p: (<span class="extype" name="io.iteratee.Enumeratee.dropWhileM.E">E</span>) ⇒ <span class="extype" name="io.iteratee.Enumeratee.dropWhileM.F">F</span>[<a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Boolean" class="extype" target="_top">Boolean</a>]</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="F">F: <a href="http://typelevel.org/cats/api/index.html#cats.Monad" class="extype" target="_top">Monad</a>[<span class="extype" name="io.iteratee.Enumeratee.dropWhileM.F">F</span>]</span>)</span><span class="result">: <a href="Enumeratee.html" class="extype" name="io.iteratee.Enumeratee">Enumeratee</a>[<span class="extype" name="io.iteratee.Enumeratee.dropWhileM.F">F</span>, <span class="extype" name="io.iteratee.Enumeratee.dropWhileM.E">E</span>, <span class="extype" name="io.iteratee.Enumeratee.dropWhileM.E">E</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.iteratee.Enumeratee$@dropWhileM[F[_],E](p:E=&gt;F[Boolean])(implicitF:cats.Monad[F]):io.iteratee.Enumeratee[F,E,E]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">An <a href="Enumeratee.html" class="extype" name="io.iteratee.Enumeratee">Enumeratee</a> that drops values from a stream as long as they satisfy
+the given monadic predicate.</p>
     </li><li name="io.iteratee.EnumerateeInstances#enumerateeInstance" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="enumerateeInstance[F[_]](implicitF:cats.Monad[F]):cats.arrow.Category[[x,y]io.iteratee.Enumeratee[F,x,y]]withcats.functor.Profunctor[[x,y]io.iteratee.Enumeratee[F,x,y]]"></a>
       <a id="enumerateeInstance[F[_]](Monad[F]):Category[[x,y]Enumeratee[F,x,y]]withProfunctor[[x,y]Enumeratee[F,x,y]]"></a>
@@ -364,19 +382,19 @@ the given predicate.</p>
       </a>
     </span>
       <p class="shortcomment cmt">Drop values that do not satisfy the given predicate.</p>
-    </li><li name="io.iteratee.Enumeratee#filterF" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="filterF[F[_],E](p:E=&gt;F[Boolean])(implicitF:cats.Monad[F]):io.iteratee.Enumeratee[F,E,E]"></a>
-      <a id="filterF[F[_],E]((E)⇒F[Boolean])(Monad[F]):Enumeratee[F,E,E]"></a>
+    </li><li name="io.iteratee.Enumeratee#filterM" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="filterM[F[_],E](p:E=&gt;F[Boolean])(implicitF:cats.Monad[F]):io.iteratee.Enumeratee[F,E,E]"></a>
+      <a id="filterM[F[_],E]((E)⇒F[Boolean])(Monad[F]):Enumeratee[F,E,E]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier">final </span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">filterF</span><span class="tparams">[<span name="F">F<span class="tparams">[<span name="_">_</span>]</span></span>, <span name="E">E</span>]</span><span class="params">(<span name="p">p: (<span class="extype" name="io.iteratee.Enumeratee.filterF.E">E</span>) ⇒ <span class="extype" name="io.iteratee.Enumeratee.filterF.F">F</span>[<a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Boolean" class="extype" target="_top">Boolean</a>]</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="F">F: <a href="http://typelevel.org/cats/api/index.html#cats.Monad" class="extype" target="_top">Monad</a>[<span class="extype" name="io.iteratee.Enumeratee.filterF.F">F</span>]</span>)</span><span class="result">: <a href="Enumeratee.html" class="extype" name="io.iteratee.Enumeratee">Enumeratee</a>[<span class="extype" name="io.iteratee.Enumeratee.filterF.F">F</span>, <span class="extype" name="io.iteratee.Enumeratee.filterF.E">E</span>, <span class="extype" name="io.iteratee.Enumeratee.filterF.E">E</span>]</span>
+        <span class="name">filterM</span><span class="tparams">[<span name="F">F<span class="tparams">[<span name="_">_</span>]</span></span>, <span name="E">E</span>]</span><span class="params">(<span name="p">p: (<span class="extype" name="io.iteratee.Enumeratee.filterM.E">E</span>) ⇒ <span class="extype" name="io.iteratee.Enumeratee.filterM.F">F</span>[<a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Boolean" class="extype" target="_top">Boolean</a>]</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="F">F: <a href="http://typelevel.org/cats/api/index.html#cats.Monad" class="extype" target="_top">Monad</a>[<span class="extype" name="io.iteratee.Enumeratee.filterM.F">F</span>]</span>)</span><span class="result">: <a href="Enumeratee.html" class="extype" name="io.iteratee.Enumeratee">Enumeratee</a>[<span class="extype" name="io.iteratee.Enumeratee.filterM.F">F</span>, <span class="extype" name="io.iteratee.Enumeratee.filterM.E">E</span>, <span class="extype" name="io.iteratee.Enumeratee.filterM.E">E</span>]</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../index.html#io.iteratee.Enumeratee$@filterF[F[_],E](p:E=&gt;F[Boolean])(implicitF:cats.Monad[F]):io.iteratee.Enumeratee[F,E,E]" title="Permalink" target="_top">
+      <a href="../../index.html#io.iteratee.Enumeratee$@filterM[F[_],E](p:E=&gt;F[Boolean])(implicitF:cats.Monad[F]):io.iteratee.Enumeratee[F,E,E]" title="Permalink" target="_top">
         <img src="../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
@@ -422,19 +440,19 @@ the given predicate.</p>
     </span>
       <p class="shortcomment cmt">Map a function returning an <a href="Enumerator.html" class="extype" name="io.iteratee.Enumerator">Enumerator</a> over a stream and flatten the
 results.</p>
-    </li><li name="io.iteratee.Enumeratee#flatMapF" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="flatMapF[F[_],O,I](f:O=&gt;F[I])(implicitF:cats.Monad[F]):io.iteratee.Enumeratee[F,O,I]"></a>
-      <a id="flatMapF[F[_],O,I]((O)⇒F[I])(Monad[F]):Enumeratee[F,O,I]"></a>
+    </li><li name="io.iteratee.Enumeratee#flatMapM" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="flatMapM[F[_],O,I](f:O=&gt;F[I])(implicitF:cats.Monad[F]):io.iteratee.Enumeratee[F,O,I]"></a>
+      <a id="flatMapM[F[_],O,I]((O)⇒F[I])(Monad[F]):Enumeratee[F,O,I]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier">final </span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">flatMapF</span><span class="tparams">[<span name="F">F<span class="tparams">[<span name="_">_</span>]</span></span>, <span name="O">O</span>, <span name="I">I</span>]</span><span class="params">(<span name="f">f: (<span class="extype" name="io.iteratee.Enumeratee.flatMapF.O">O</span>) ⇒ <span class="extype" name="io.iteratee.Enumeratee.flatMapF.F">F</span>[<span class="extype" name="io.iteratee.Enumeratee.flatMapF.I">I</span>]</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="F">F: <a href="http://typelevel.org/cats/api/index.html#cats.Monad" class="extype" target="_top">Monad</a>[<span class="extype" name="io.iteratee.Enumeratee.flatMapF.F">F</span>]</span>)</span><span class="result">: <a href="Enumeratee.html" class="extype" name="io.iteratee.Enumeratee">Enumeratee</a>[<span class="extype" name="io.iteratee.Enumeratee.flatMapF.F">F</span>, <span class="extype" name="io.iteratee.Enumeratee.flatMapF.O">O</span>, <span class="extype" name="io.iteratee.Enumeratee.flatMapF.I">I</span>]</span>
+        <span class="name">flatMapM</span><span class="tparams">[<span name="F">F<span class="tparams">[<span name="_">_</span>]</span></span>, <span name="O">O</span>, <span name="I">I</span>]</span><span class="params">(<span name="f">f: (<span class="extype" name="io.iteratee.Enumeratee.flatMapM.O">O</span>) ⇒ <span class="extype" name="io.iteratee.Enumeratee.flatMapM.F">F</span>[<span class="extype" name="io.iteratee.Enumeratee.flatMapM.I">I</span>]</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="F">F: <a href="http://typelevel.org/cats/api/index.html#cats.Monad" class="extype" target="_top">Monad</a>[<span class="extype" name="io.iteratee.Enumeratee.flatMapM.F">F</span>]</span>)</span><span class="result">: <a href="Enumeratee.html" class="extype" name="io.iteratee.Enumeratee">Enumeratee</a>[<span class="extype" name="io.iteratee.Enumeratee.flatMapM.F">F</span>, <span class="extype" name="io.iteratee.Enumeratee.flatMapM.O">O</span>, <span class="extype" name="io.iteratee.Enumeratee.flatMapM.I">I</span>]</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../index.html#io.iteratee.Enumeratee$@flatMapF[F[_],O,I](f:O=&gt;F[I])(implicitF:cats.Monad[F]):io.iteratee.Enumeratee[F,O,I]" title="Permalink" target="_top">
+      <a href="../../index.html#io.iteratee.Enumeratee$@flatMapM[F[_],O,I](f:O=&gt;F[I])(implicitF:cats.Monad[F]):io.iteratee.Enumeratee[F,O,I]" title="Permalink" target="_top">
         <img src="../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
@@ -661,18 +679,18 @@ results.</p>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
     </li><li name="io.iteratee.Enumeratee#take" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="take[F[_],E](n:Int)(implicitF:cats.Applicative[F]):io.iteratee.Enumeratee[F,E,E]"></a>
-      <a id="take[F[_],E](Int)(Applicative[F]):Enumeratee[F,E,E]"></a>
+      <a id="take[F[_],E](n:Long)(implicitF:cats.Applicative[F]):io.iteratee.Enumeratee[F,E,E]"></a>
+      <a id="take[F[_],E](Long)(Applicative[F]):Enumeratee[F,E,E]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier">final </span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">take</span><span class="tparams">[<span name="F">F<span class="tparams">[<span name="_">_</span>]</span></span>, <span name="E">E</span>]</span><span class="params">(<span name="n">n: <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Int" class="extype" target="_top">Int</a></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="F">F: <a href="http://typelevel.org/cats/api/index.html#cats.Applicative" class="extype" target="_top">Applicative</a>[<span class="extype" name="io.iteratee.Enumeratee.take.F">F</span>]</span>)</span><span class="result">: <a href="Enumeratee.html" class="extype" name="io.iteratee.Enumeratee">Enumeratee</a>[<span class="extype" name="io.iteratee.Enumeratee.take.F">F</span>, <span class="extype" name="io.iteratee.Enumeratee.take.E">E</span>, <span class="extype" name="io.iteratee.Enumeratee.take.E">E</span>]</span>
+        <span class="name">take</span><span class="tparams">[<span name="F">F<span class="tparams">[<span name="_">_</span>]</span></span>, <span name="E">E</span>]</span><span class="params">(<span name="n">n: <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Long" class="extype" target="_top">Long</a></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="F">F: <a href="http://typelevel.org/cats/api/index.html#cats.Applicative" class="extype" target="_top">Applicative</a>[<span class="extype" name="io.iteratee.Enumeratee.take.F">F</span>]</span>)</span><span class="result">: <a href="Enumeratee.html" class="extype" name="io.iteratee.Enumeratee">Enumeratee</a>[<span class="extype" name="io.iteratee.Enumeratee.take.F">F</span>, <span class="extype" name="io.iteratee.Enumeratee.take.E">E</span>, <span class="extype" name="io.iteratee.Enumeratee.take.E">E</span>]</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../index.html#io.iteratee.Enumeratee$@take[F[_],E](n:Int)(implicitF:cats.Applicative[F]):io.iteratee.Enumeratee[F,E,E]" title="Permalink" target="_top">
+      <a href="../../index.html#io.iteratee.Enumeratee$@take[F[_],E](n:Long)(implicitF:cats.Applicative[F]):io.iteratee.Enumeratee[F,E,E]" title="Permalink" target="_top">
         <img src="../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
@@ -696,6 +714,23 @@ stream.</p>
     </span>
       <p class="shortcomment cmt">An <a href="Enumeratee.html" class="extype" name="io.iteratee.Enumeratee">Enumeratee</a> that tales values from a stream as long as they satisfy
 the given predicate.</p>
+    </li><li name="io.iteratee.Enumeratee#takeWhileM" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="takeWhileM[F[_],E](p:E=&gt;F[Boolean])(implicitF:cats.Monad[F]):io.iteratee.Enumeratee[F,E,E]"></a>
+      <a id="takeWhileM[F[_],E]((E)⇒F[Boolean])(Monad[F]):Enumeratee[F,E,E]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">takeWhileM</span><span class="tparams">[<span name="F">F<span class="tparams">[<span name="_">_</span>]</span></span>, <span name="E">E</span>]</span><span class="params">(<span name="p">p: (<span class="extype" name="io.iteratee.Enumeratee.takeWhileM.E">E</span>) ⇒ <span class="extype" name="io.iteratee.Enumeratee.takeWhileM.F">F</span>[<a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Boolean" class="extype" target="_top">Boolean</a>]</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="F">F: <a href="http://typelevel.org/cats/api/index.html#cats.Monad" class="extype" target="_top">Monad</a>[<span class="extype" name="io.iteratee.Enumeratee.takeWhileM.F">F</span>]</span>)</span><span class="result">: <a href="Enumeratee.html" class="extype" name="io.iteratee.Enumeratee">Enumeratee</a>[<span class="extype" name="io.iteratee.Enumeratee.takeWhileM.F">F</span>, <span class="extype" name="io.iteratee.Enumeratee.takeWhileM.E">E</span>, <span class="extype" name="io.iteratee.Enumeratee.takeWhileM.E">E</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.iteratee.Enumeratee$@takeWhileM[F[_],E](p:E=&gt;F[Boolean])(implicitF:cats.Monad[F]):io.iteratee.Enumeratee[F,E,E]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
     </li><li name="scala.AnyRef#toString" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="toString():String"></a>
       <a id="toString():String"></a>
@@ -824,19 +859,19 @@ the given predicate.</p>
 
         <div id="values" class="values members">
               <h3>Deprecated Value Members</h3>
-              <ol><li name="io.iteratee.Enumeratee#filterK" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="filterK[F[_],E](p:E=&gt;F[Boolean])(implicitF:cats.Monad[F]):io.iteratee.Enumeratee[F,E,E]"></a>
-      <a id="filterK[F[_],E]((E)⇒F[Boolean])(Monad[F]):Enumeratee[F,E,E]"></a>
+              <ol><li name="io.iteratee.Enumeratee#filterF" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="filterF[F[_],E](p:E=&gt;F[Boolean])(implicitF:cats.Monad[F]):io.iteratee.Enumeratee[F,E,E]"></a>
+      <a id="filterF[F[_],E]((E)⇒F[Boolean])(Monad[F]):Enumeratee[F,E,E]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier">final </span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name deprecated" title="Deprecated: (Since version 0.3.0) Use filterF">filterK</span><span class="tparams">[<span name="F">F<span class="tparams">[<span name="_">_</span>]</span></span>, <span name="E">E</span>]</span><span class="params">(<span name="p">p: (<span class="extype" name="io.iteratee.Enumeratee.filterK.E">E</span>) ⇒ <span class="extype" name="io.iteratee.Enumeratee.filterK.F">F</span>[<a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Boolean" class="extype" target="_top">Boolean</a>]</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="F">F: <a href="http://typelevel.org/cats/api/index.html#cats.Monad" class="extype" target="_top">Monad</a>[<span class="extype" name="io.iteratee.Enumeratee.filterK.F">F</span>]</span>)</span><span class="result">: <a href="Enumeratee.html" class="extype" name="io.iteratee.Enumeratee">Enumeratee</a>[<span class="extype" name="io.iteratee.Enumeratee.filterK.F">F</span>, <span class="extype" name="io.iteratee.Enumeratee.filterK.E">E</span>, <span class="extype" name="io.iteratee.Enumeratee.filterK.E">E</span>]</span>
+        <span class="name deprecated" title="Deprecated: (Since version 0.4.1) Use filterM">filterF</span><span class="tparams">[<span name="F">F<span class="tparams">[<span name="_">_</span>]</span></span>, <span name="E">E</span>]</span><span class="params">(<span name="p">p: (<span class="extype" name="io.iteratee.Enumeratee.filterF.E">E</span>) ⇒ <span class="extype" name="io.iteratee.Enumeratee.filterF.F">F</span>[<a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Boolean" class="extype" target="_top">Boolean</a>]</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="F">F: <a href="http://typelevel.org/cats/api/index.html#cats.Monad" class="extype" target="_top">Monad</a>[<span class="extype" name="io.iteratee.Enumeratee.filterF.F">F</span>]</span>)</span><span class="result">: <a href="Enumeratee.html" class="extype" name="io.iteratee.Enumeratee">Enumeratee</a>[<span class="extype" name="io.iteratee.Enumeratee.filterF.F">F</span>, <span class="extype" name="io.iteratee.Enumeratee.filterF.E">E</span>, <span class="extype" name="io.iteratee.Enumeratee.filterF.E">E</span>]</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../index.html#io.iteratee.Enumeratee$@filterK[F[_],E](p:E=&gt;F[Boolean])(implicitF:cats.Monad[F]):io.iteratee.Enumeratee[F,E,E]" title="Permalink" target="_top">
+      <a href="../../index.html#io.iteratee.Enumeratee$@filterF[F[_],E](p:E=&gt;F[Boolean])(implicitF:cats.Monad[F]):io.iteratee.Enumeratee[F,E,E]" title="Permalink" target="_top">
         <img src="../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
@@ -844,20 +879,20 @@ the given predicate.</p>
 </p></div><dl class="attributes block"> <dt>Annotations</dt><dd>
                 <span class="name">@deprecated</span>
               
-        </dd><dt>Deprecated</dt><dd class="cmt"><p><i>(Since version 0.3.0)</i> Use filterF</p></dd></dl></div>
-    </li><li name="io.iteratee.Enumeratee#mapK" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="mapK[F[_],O,I](f:O=&gt;F[I])(implicitF:cats.Monad[F]):io.iteratee.Enumeratee[F,O,I]"></a>
-      <a id="mapK[F[_],O,I]((O)⇒F[I])(Monad[F]):Enumeratee[F,O,I]"></a>
+        </dd><dt>Deprecated</dt><dd class="cmt"><p><i>(Since version 0.4.1)</i> Use filterM</p></dd></dl></div>
+    </li><li name="io.iteratee.Enumeratee#flatMapF" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="flatMapF[F[_],O,I](f:O=&gt;F[I])(implicitF:cats.Monad[F]):io.iteratee.Enumeratee[F,O,I]"></a>
+      <a id="flatMapF[F[_],O,I]((O)⇒F[I])(Monad[F]):Enumeratee[F,O,I]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier">final </span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name deprecated" title="Deprecated: (Since version 0.3.0) Use flatMapF">mapK</span><span class="tparams">[<span name="F">F<span class="tparams">[<span name="_">_</span>]</span></span>, <span name="O">O</span>, <span name="I">I</span>]</span><span class="params">(<span name="f">f: (<span class="extype" name="io.iteratee.Enumeratee.mapK.O">O</span>) ⇒ <span class="extype" name="io.iteratee.Enumeratee.mapK.F">F</span>[<span class="extype" name="io.iteratee.Enumeratee.mapK.I">I</span>]</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="F">F: <a href="http://typelevel.org/cats/api/index.html#cats.Monad" class="extype" target="_top">Monad</a>[<span class="extype" name="io.iteratee.Enumeratee.mapK.F">F</span>]</span>)</span><span class="result">: <a href="Enumeratee.html" class="extype" name="io.iteratee.Enumeratee">Enumeratee</a>[<span class="extype" name="io.iteratee.Enumeratee.mapK.F">F</span>, <span class="extype" name="io.iteratee.Enumeratee.mapK.O">O</span>, <span class="extype" name="io.iteratee.Enumeratee.mapK.I">I</span>]</span>
+        <span class="name deprecated" title="Deprecated: (Since version 0.4.1) Use flatMapM">flatMapF</span><span class="tparams">[<span name="F">F<span class="tparams">[<span name="_">_</span>]</span></span>, <span name="O">O</span>, <span name="I">I</span>]</span><span class="params">(<span name="f">f: (<span class="extype" name="io.iteratee.Enumeratee.flatMapF.O">O</span>) ⇒ <span class="extype" name="io.iteratee.Enumeratee.flatMapF.F">F</span>[<span class="extype" name="io.iteratee.Enumeratee.flatMapF.I">I</span>]</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="F">F: <a href="http://typelevel.org/cats/api/index.html#cats.Monad" class="extype" target="_top">Monad</a>[<span class="extype" name="io.iteratee.Enumeratee.flatMapF.F">F</span>]</span>)</span><span class="result">: <a href="Enumeratee.html" class="extype" name="io.iteratee.Enumeratee">Enumeratee</a>[<span class="extype" name="io.iteratee.Enumeratee.flatMapF.F">F</span>, <span class="extype" name="io.iteratee.Enumeratee.flatMapF.O">O</span>, <span class="extype" name="io.iteratee.Enumeratee.flatMapF.I">I</span>]</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../index.html#io.iteratee.Enumeratee$@mapK[F[_],O,I](f:O=&gt;F[I])(implicitF:cats.Monad[F]):io.iteratee.Enumeratee[F,O,I]" title="Permalink" target="_top">
+      <a href="../../index.html#io.iteratee.Enumeratee$@flatMapF[F[_],O,I](f:O=&gt;F[I])(implicitF:cats.Monad[F]):io.iteratee.Enumeratee[F,O,I]" title="Permalink" target="_top">
         <img src="../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
@@ -865,7 +900,7 @@ the given predicate.</p>
 </p></div><dl class="attributes block"> <dt>Annotations</dt><dd>
                 <span class="name">@deprecated</span>
               
-        </dd><dt>Deprecated</dt><dd class="cmt"><p><i>(Since version 0.3.0)</i> Use flatMapF</p></dd></dl></div>
+        </dd><dt>Deprecated</dt><dd class="cmt"><p><i>(Since version 0.4.1)</i> Use flatMapM</p></dd></dl></div>
     </li></ol>
             </div>
         </div>

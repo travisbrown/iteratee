@@ -397,7 +397,7 @@ the next input.</p>
     </span>
       <p class="shortcomment cmt">A <a href="Step.html" class="extype" name="io.iteratee.internal.Step">Step</a> that drops a given number of the values from a stream.</p>
     </li><li name="io.iteratee.internal.Step#dropWhile" visbl="pub" data-isabs="false" fullComment="no" group="Collection">
-      <a id="dropWhile[F[_],E](p:E=&gt;Boolean)(implicitevidence$9:cats.Applicative[F]):io.iteratee.internal.Step[F,E,Unit]"></a>
+      <a id="dropWhile[F[_],E](p:E=&gt;Boolean)(implicitevidence$10:cats.Applicative[F]):io.iteratee.internal.Step[F,E,Unit]"></a>
       <a id="dropWhile[F[_],E]((E)⇒Boolean)(Applicative[F]):Step[F,E,Unit]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -408,7 +408,7 @@ the next input.</p>
         <span class="name">dropWhile</span><span class="tparams">[<span name="F">F<span class="tparams">[<span name="_">_</span>]</span></span>, <span name="E">E</span>]</span><span class="params">(<span name="p">p: (<span class="extype" name="io.iteratee.internal.Step.dropWhile.E">E</span>) ⇒ <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Boolean" class="extype" target="_top">Boolean</a></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <a href="http://typelevel.org/cats/api/index.html#cats.Applicative" class="extype" target="_top">Applicative</a>[<span class="extype" name="io.iteratee.internal.Step.dropWhile.F">F</span>]</span>)</span><span class="result">: <a href="Step.html" class="extype" name="io.iteratee.internal.Step">Step</a>[<span class="extype" name="io.iteratee.internal.Step.dropWhile.F">F</span>, <span class="extype" name="io.iteratee.internal.Step.dropWhile.E">E</span>, <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Unit" class="extype" target="_top">Unit</a>]</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../index.html#io.iteratee.internal.Step$@dropWhile[F[_],E](p:E=&gt;Boolean)(implicitevidence$9:cats.Applicative[F]):io.iteratee.internal.Step[F,E,Unit]" title="Permalink" target="_top">
+      <a href="../../../index.html#io.iteratee.internal.Step$@dropWhile[F[_],E](p:E=&gt;Boolean)(implicitevidence$10:cats.Applicative[F]):io.iteratee.internal.Step[F,E,Unit]" title="Permalink" target="_top">
         <img src="../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
@@ -609,6 +609,23 @@ accumulation function.</p>
       </a>
     </span>
       <p class="shortcomment cmt">Collapse a nested <a href="Step.html" class="extype" name="io.iteratee.internal.Step">Step</a> into one layer.</p>
+    </li><li name="io.iteratee.internal.Step#length" visbl="pub" data-isabs="false" fullComment="no" group="Collection">
+      <a id="length[F[_],A](implicitevidence$7:cats.Applicative[F]):io.iteratee.internal.Step[F,A,Long]"></a>
+      <a id="length[F[_],A](Applicative[F]):Step[F,A,Long]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">length</span><span class="tparams">[<span name="F">F<span class="tparams">[<span name="_">_</span>]</span></span>, <span name="A">A</span>]</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <a href="http://typelevel.org/cats/api/index.html#cats.Applicative" class="extype" target="_top">Applicative</a>[<span class="extype" name="io.iteratee.internal.Step.length.F">F</span>]</span>)</span><span class="result">: <a href="Step.html" class="extype" name="io.iteratee.internal.Step">Step</a>[<span class="extype" name="io.iteratee.internal.Step.length.F">F</span>, <span class="extype" name="io.iteratee.internal.Step.length.A">A</span>, <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Long" class="extype" target="_top">Long</a>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.iteratee.internal.Step$@length[F[_],A](implicitevidence$7:cats.Applicative[F]):io.iteratee.internal.Step[F,A,Long]" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">A <a href="Step.html" class="extype" name="io.iteratee.internal.Step">Step</a> that counts the number of values in a stream.</p>
     </li><li name="io.iteratee.internal.Step#liftM" visbl="pub" data-isabs="false" fullComment="no" group="Utilities">
       <a id="liftM[F[_],E,A](fa:F[A])(implicitF:cats.Monad[F]):F[io.iteratee.internal.Step[F,E,A]]"></a>
       <a id="liftM[F[_],E,A](F[A])(Monad[F]):F[Step[F,E,A]]"></a>
@@ -712,24 +729,24 @@ accumulation function.</p>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
     </li><li name="io.iteratee.internal.Step#take" visbl="pub" data-isabs="false" fullComment="no" group="Collection">
-      <a id="take[F[_],A](n:Int)(implicitevidence$7:cats.Applicative[F]):io.iteratee.internal.Step[F,A,Vector[A]]"></a>
-      <a id="take[F[_],A](Int)(Applicative[F]):Step[F,A,Vector[A]]"></a>
+      <a id="take[F[_],E](n:Int)(implicitevidence$8:cats.Applicative[F]):io.iteratee.internal.Step[F,E,Vector[E]]"></a>
+      <a id="take[F[_],E](Int)(Applicative[F]):Step[F,E,Vector[E]]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier">final </span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">take</span><span class="tparams">[<span name="F">F<span class="tparams">[<span name="_">_</span>]</span></span>, <span name="A">A</span>]</span><span class="params">(<span name="n">n: <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Int" class="extype" target="_top">Int</a></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <a href="http://typelevel.org/cats/api/index.html#cats.Applicative" class="extype" target="_top">Applicative</a>[<span class="extype" name="io.iteratee.internal.Step.take.F">F</span>]</span>)</span><span class="result">: <a href="Step.html" class="extype" name="io.iteratee.internal.Step">Step</a>[<span class="extype" name="io.iteratee.internal.Step.take.F">F</span>, <span class="extype" name="io.iteratee.internal.Step.take.A">A</span>, <span class="extype" name="scala.Vector">Vector</span>[<span class="extype" name="io.iteratee.internal.Step.take.A">A</span>]]</span>
+        <span class="name">take</span><span class="tparams">[<span name="F">F<span class="tparams">[<span name="_">_</span>]</span></span>, <span name="E">E</span>]</span><span class="params">(<span name="n">n: <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Int" class="extype" target="_top">Int</a></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <a href="http://typelevel.org/cats/api/index.html#cats.Applicative" class="extype" target="_top">Applicative</a>[<span class="extype" name="io.iteratee.internal.Step.take.F">F</span>]</span>)</span><span class="result">: <a href="Step.html" class="extype" name="io.iteratee.internal.Step">Step</a>[<span class="extype" name="io.iteratee.internal.Step.take.F">F</span>, <span class="extype" name="io.iteratee.internal.Step.take.E">E</span>, <span class="extype" name="scala.Vector">Vector</span>[<span class="extype" name="io.iteratee.internal.Step.take.E">E</span>]]</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../index.html#io.iteratee.internal.Step$@take[F[_],A](n:Int)(implicitevidence$7:cats.Applicative[F]):io.iteratee.internal.Step[F,A,Vector[A]]" title="Permalink" target="_top">
+      <a href="../../../index.html#io.iteratee.internal.Step$@take[F[_],E](n:Int)(implicitevidence$8:cats.Applicative[F]):io.iteratee.internal.Step[F,E,Vector[E]]" title="Permalink" target="_top">
         <img src="../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
       <p class="shortcomment cmt">A <a href="Step.html" class="extype" name="io.iteratee.internal.Step">Step</a> that returns a given number of the first values in a stream.</p>
     </li><li name="io.iteratee.internal.Step#takeWhile" visbl="pub" data-isabs="false" fullComment="no" group="Collection">
-      <a id="takeWhile[F[_],E](p:E=&gt;Boolean)(implicitevidence$8:cats.Applicative[F]):io.iteratee.internal.Step[F,E,Vector[E]]"></a>
+      <a id="takeWhile[F[_],E](p:E=&gt;Boolean)(implicitevidence$9:cats.Applicative[F]):io.iteratee.internal.Step[F,E,Vector[E]]"></a>
       <a id="takeWhile[F[_],E]((E)⇒Boolean)(Applicative[F]):Step[F,E,Vector[E]]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -740,7 +757,7 @@ accumulation function.</p>
         <span class="name">takeWhile</span><span class="tparams">[<span name="F">F<span class="tparams">[<span name="_">_</span>]</span></span>, <span name="E">E</span>]</span><span class="params">(<span name="p">p: (<span class="extype" name="io.iteratee.internal.Step.takeWhile.E">E</span>) ⇒ <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Boolean" class="extype" target="_top">Boolean</a></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <a href="http://typelevel.org/cats/api/index.html#cats.Applicative" class="extype" target="_top">Applicative</a>[<span class="extype" name="io.iteratee.internal.Step.takeWhile.F">F</span>]</span>)</span><span class="result">: <a href="Step.html" class="extype" name="io.iteratee.internal.Step">Step</a>[<span class="extype" name="io.iteratee.internal.Step.takeWhile.F">F</span>, <span class="extype" name="io.iteratee.internal.Step.takeWhile.E">E</span>, <span class="extype" name="scala.Vector">Vector</span>[<span class="extype" name="io.iteratee.internal.Step.takeWhile.E">E</span>]]</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../index.html#io.iteratee.internal.Step$@takeWhile[F[_],E](p:E=&gt;Boolean)(implicitevidence$8:cats.Applicative[F]):io.iteratee.internal.Step[F,E,Vector[E]]" title="Permalink" target="_top">
+      <a href="../../../index.html#io.iteratee.internal.Step$@takeWhile[F[_],E](p:E=&gt;Boolean)(implicitevidence$9:cats.Applicative[F]):io.iteratee.internal.Step[F,E,Vector[E]]" title="Permalink" target="_top">
         <img src="../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>

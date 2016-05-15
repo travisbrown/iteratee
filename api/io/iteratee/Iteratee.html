@@ -448,19 +448,19 @@ type <code>F[A]</code>.
       </a>
     </span>
       <p class="shortcomment cmt">Map a function returning an <a href="" class="extype" name="io.iteratee.Iteratee">Iteratee</a> over the result.</p>
-    </li><li name="io.iteratee.Iteratee#flatMapF" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="flatMapF[B](f:A=&gt;F[B])(implicitF:cats.Monad[F]):io.iteratee.Iteratee[F,E,B]"></a>
-      <a id="flatMapF[B]((A)⇒F[B])(Monad[F]):Iteratee[F,E,B]"></a>
+    </li><li name="io.iteratee.Iteratee#flatMapM" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="flatMapM[B](f:A=&gt;F[B])(implicitF:cats.Monad[F]):io.iteratee.Iteratee[F,E,B]"></a>
+      <a id="flatMapM[B]((A)⇒F[B])(Monad[F]):Iteratee[F,E,B]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier">final </span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">flatMapF</span><span class="tparams">[<span name="B">B</span>]</span><span class="params">(<span name="f">f: (<span class="extype" name="io.iteratee.Iteratee.A">A</span>) ⇒ <span class="extype" name="io.iteratee.Iteratee.F">F</span>[<span class="extype" name="io.iteratee.Iteratee.flatMapF.B">B</span>]</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="F">F: <a href="http://typelevel.org/cats/api/index.html#cats.Monad" class="extype" target="_top">Monad</a>[<span class="extype" name="io.iteratee.Iteratee.F">F</span>]</span>)</span><span class="result">: <a href="" class="extype" name="io.iteratee.Iteratee">Iteratee</a>[<span class="extype" name="io.iteratee.Iteratee.F">F</span>, <span class="extype" name="io.iteratee.Iteratee.E">E</span>, <span class="extype" name="io.iteratee.Iteratee.flatMapF.B">B</span>]</span>
+        <span class="name">flatMapM</span><span class="tparams">[<span name="B">B</span>]</span><span class="params">(<span name="f">f: (<span class="extype" name="io.iteratee.Iteratee.A">A</span>) ⇒ <span class="extype" name="io.iteratee.Iteratee.F">F</span>[<span class="extype" name="io.iteratee.Iteratee.flatMapM.B">B</span>]</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="F">F: <a href="http://typelevel.org/cats/api/index.html#cats.Monad" class="extype" target="_top">Monad</a>[<span class="extype" name="io.iteratee.Iteratee.F">F</span>]</span>)</span><span class="result">: <a href="" class="extype" name="io.iteratee.Iteratee">Iteratee</a>[<span class="extype" name="io.iteratee.Iteratee.F">F</span>, <span class="extype" name="io.iteratee.Iteratee.E">E</span>, <span class="extype" name="io.iteratee.Iteratee.flatMapM.B">B</span>]</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../index.html#io.iteratee.Iteratee@flatMapF[B](f:A=&gt;F[B])(implicitF:cats.Monad[F]):io.iteratee.Iteratee[F,E,B]" title="Permalink" target="_top">
+      <a href="../../index.html#io.iteratee.Iteratee@flatMapM[B](f:A=&gt;F[B])(implicitF:cats.Monad[F]):io.iteratee.Iteratee[F,E,B]" title="Permalink" target="_top">
         <img src="../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
@@ -878,19 +878,19 @@ pair of their results.</p>
 
         <div id="values" class="values members">
               <h3>Deprecated Value Members</h3>
-              <ol><li name="io.iteratee.Iteratee#mapK" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="mapK[B](f:A=&gt;F[B])(implicitF:cats.Monad[F]):io.iteratee.Iteratee[F,E,B]"></a>
-      <a id="mapK[B]((A)⇒F[B])(Monad[F]):Iteratee[F,E,B]"></a>
+              <ol><li name="io.iteratee.Iteratee#flatMapF" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="flatMapF[B](f:A=&gt;F[B])(implicitF:cats.Monad[F]):io.iteratee.Iteratee[F,E,B]"></a>
+      <a id="flatMapF[B]((A)⇒F[B])(Monad[F]):Iteratee[F,E,B]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier">final </span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name deprecated" title="Deprecated: (Since version 0.3.0) Use flatMapF">mapK</span><span class="tparams">[<span name="B">B</span>]</span><span class="params">(<span name="f">f: (<span class="extype" name="io.iteratee.Iteratee.A">A</span>) ⇒ <span class="extype" name="io.iteratee.Iteratee.F">F</span>[<span class="extype" name="io.iteratee.Iteratee.mapK.B">B</span>]</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="F">F: <a href="http://typelevel.org/cats/api/index.html#cats.Monad" class="extype" target="_top">Monad</a>[<span class="extype" name="io.iteratee.Iteratee.F">F</span>]</span>)</span><span class="result">: <a href="" class="extype" name="io.iteratee.Iteratee">Iteratee</a>[<span class="extype" name="io.iteratee.Iteratee.F">F</span>, <span class="extype" name="io.iteratee.Iteratee.E">E</span>, <span class="extype" name="io.iteratee.Iteratee.mapK.B">B</span>]</span>
+        <span class="name deprecated" title="Deprecated: (Since version 0.4.1) Use flatMapM">flatMapF</span><span class="tparams">[<span name="B">B</span>]</span><span class="params">(<span name="f">f: (<span class="extype" name="io.iteratee.Iteratee.A">A</span>) ⇒ <span class="extype" name="io.iteratee.Iteratee.F">F</span>[<span class="extype" name="io.iteratee.Iteratee.flatMapF.B">B</span>]</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="F">F: <a href="http://typelevel.org/cats/api/index.html#cats.Monad" class="extype" target="_top">Monad</a>[<span class="extype" name="io.iteratee.Iteratee.F">F</span>]</span>)</span><span class="result">: <a href="" class="extype" name="io.iteratee.Iteratee">Iteratee</a>[<span class="extype" name="io.iteratee.Iteratee.F">F</span>, <span class="extype" name="io.iteratee.Iteratee.E">E</span>, <span class="extype" name="io.iteratee.Iteratee.flatMapF.B">B</span>]</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../index.html#io.iteratee.Iteratee@mapK[B](f:A=&gt;F[B])(implicitF:cats.Monad[F]):io.iteratee.Iteratee[F,E,B]" title="Permalink" target="_top">
+      <a href="../../index.html#io.iteratee.Iteratee@flatMapF[B](f:A=&gt;F[B])(implicitF:cats.Monad[F]):io.iteratee.Iteratee[F,E,B]" title="Permalink" target="_top">
         <img src="../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
@@ -898,7 +898,7 @@ pair of their results.</p>
 </p></div><dl class="attributes block"> <dt>Annotations</dt><dd>
                 <span class="name">@deprecated</span>
               
-        </dd><dt>Deprecated</dt><dd class="cmt"><p><i>(Since version 0.3.0)</i> Use flatMapF</p></dd></dl></div>
+        </dd><dt>Deprecated</dt><dd class="cmt"><p><i>(Since version 0.4.1)</i> Use flatMapM</p></dd></dl></div>
     </li></ol>
             </div>
         </div>
