@@ -20,7 +20,7 @@ lazy val compilerOptions = Seq(
   "-Xfuture"
 )
 
-lazy val catsVersion = "0.5.0"
+lazy val catsVersion = "0.6.0-M2"
 lazy val disciplineVersion = "0.4"
 lazy val scalaCheckVersion = "1.12.5"
 lazy val scalaTestVersion = "3.0.0-M9"
@@ -146,7 +146,7 @@ lazy val twitter = project
   )
   .settings(allSettings)
   .settings(
-    libraryDependencies += "io.catbird" %% "catbird-util" % "0.4.0"
+    libraryDependencies += "io.catbird" %% "catbird-util" % "0.5.0-SNAPSHOT"
   ).dependsOn(core, files)
 
 lazy val task = project

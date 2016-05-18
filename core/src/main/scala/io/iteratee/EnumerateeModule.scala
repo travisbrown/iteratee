@@ -1,6 +1,6 @@
 package io.iteratee
 
-import algebra.Eq
+import cats.Eq
 
 /**
  * @groupname Enumeratees Enumeratees

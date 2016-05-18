@@ -1,7 +1,6 @@
 package io.iteratee
 
-import algebra.Monoid
-import cats.{ Applicative, MonadError, MonoidK }
+import cats.{ Applicative, MonadError, Monoid, MonoidK }
 import cats.data.NonEmptyVector
 
 /**
@@ -145,7 +144,7 @@ trait IterateeModule[F[_]] { self: Module[F] =>
   final def length[E]: Iteratee[F, E, Long] = Iteratee.length(F)
 
   /**
-   * An [[Iteratee]] that combines values using an [[algebra.Monoid]] instance.
+   * An [[Iteratee]] that combines values using an [[cats.Monoid]] instance.
    *
    * @group Iteratees
    */
@@ -153,7 +152,7 @@ trait IterateeModule[F[_]] { self: Module[F] =>
 
   /**
    * An [[Iteratee]] that combines values using a function to a type with an
-   * [[algebra.Monoid]] instance.
+   * [[cats.Monoid]] instance.
    *
    * @group Iteratees
    */

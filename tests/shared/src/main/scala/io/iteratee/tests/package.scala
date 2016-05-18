@@ -1,6 +1,6 @@
 package io.iteratee
 
-import algebra.Eq
+import cats.Eq
 import org.scalatest.Tag
 
 package tests {

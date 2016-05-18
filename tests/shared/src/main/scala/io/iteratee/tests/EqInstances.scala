@@ -1,7 +1,6 @@
 package io.iteratee.tests
 
-import algebra.Eq
-import cats.Monad
+import cats.{ Eq, Monad }
 import io.iteratee.{ Enumeratee, Enumerator, Iteratee }
 import org.scalacheck.Arbitrary
 

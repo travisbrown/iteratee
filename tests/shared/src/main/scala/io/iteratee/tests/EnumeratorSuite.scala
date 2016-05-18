@@ -1,8 +1,7 @@
 package io.iteratee.tests
 
-import algebra.Eq
-import algebra.laws.GroupLaws
-import cats.Monad
+import cats.{ Eq, Monad }
+import cats.kernel.laws.GroupLaws
 import cats.laws.discipline.{ CartesianTests, MonadTests }
 import io.iteratee.{ EnumerateeModule, Enumerator, EnumeratorModule, IterateeModule, Module }
 
@@ -117,7 +116,7 @@ abstract class EnumeratorSuite[F[_]: Monad] extends ModuleSuite[F] {
     /**
      * Workaround for divergence during resolution on 2.10.
      */
-    val E: Eq[F[Option[F[Vector[String]]]]] = eqF(eqOption(eqF(eqVector(stringOrder))))
+    val E: Eq[F[Option[F[Vector[String]]]]] = eqF(optionEq(eqF(vectorEq(stringOrder))))
     val enumeratorF: F[Option[Enumerator[F, String]]] = eav.enumerator.bindM(v => Option(enumOne(v.toString)))
 
     assert(E.eqv(enumeratorF.map(_.map(_.toVector)), F.pure(Option(F.pure(eav.values.map(_.toString))))))

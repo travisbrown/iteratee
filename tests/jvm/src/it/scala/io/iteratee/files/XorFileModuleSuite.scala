@@ -1,7 +1,6 @@
 package io.iteratee.files
 
-import algebra.Eq
-import cats.Eval
+import cats.{ Eq, Eval }
 import cats.data.{ Xor, XorT }
 import io.iteratee.tests.files.FileModuleSuite
 

@@ -1,7 +1,6 @@
 package io.iteratee.tests
 
-import algebra.Eq
-import cats.Eval
+import cats.{ Eq, Eval }
 import cats.data.{ Xor, XorT }
 import cats.std.AllInstances
 import cats.syntax.AllSyntax
