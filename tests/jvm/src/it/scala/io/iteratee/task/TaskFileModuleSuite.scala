@@ -1,6 +1,6 @@
 package io.iteratee.task
 
-import algebra.Eq
+import cats.Eq
 import io.iteratee.tests.files.FileModuleSuite
 import scalaz.concurrent.Task
 

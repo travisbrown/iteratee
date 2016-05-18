@@ -1,7 +1,6 @@
 package io.iteratee
 
-import algebra.Monoid
-import cats.{ Functor, Monad }
+import cats.{ Functor, Monad, Monoid }
 
 private[iteratee] trait EnumeratorInstances {
   implicit final def enumeratorMonoid[F[_]: Monad, E]: Monoid[Enumerator[F, E]] =

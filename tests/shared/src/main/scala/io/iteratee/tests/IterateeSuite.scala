@@ -1,7 +1,6 @@
 package io.iteratee.tests
 
-import algebra.Eq
-import cats.{ Monad, MonadError }
+import cats.{ Eq, Monad, MonadError }
 import cats.data.{ NonEmptyVector, Xor, XorT }
 import cats.laws.discipline.{ CartesianTests, ContravariantTests, MonadTests, MonadErrorTests }
 import io.iteratee.{ EnumerateeModule, EnumeratorModule, Iteratee, IterateeErrorModule, IterateeModule, Module }

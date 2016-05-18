@@ -1,6 +1,6 @@
 package io.iteratee.twitter
 
-import algebra.Eq
+import cats.Eq
 import com.twitter.conversions.time._
 import io.catbird.util.Rerunnable
 import io.iteratee.tests.files.FileModuleSuite

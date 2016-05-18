@@ -1,7 +1,6 @@
 package io.iteratee
 
-import algebra.Eq
-import cats.{ Applicative, Monad }
+import cats.{ Applicative, Eq, Monad }
 import io.iteratee.internal.{ Input, Step }
 
 abstract class Enumeratee[F[_], O, I] extends Serializable { self =>

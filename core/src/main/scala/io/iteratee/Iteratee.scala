@@ -1,7 +1,6 @@
 package io.iteratee
 
-import algebra.Monoid
-import cats.{ Applicative, Comonad, Functor, Monad, MonadError, MonoidK }
+import cats.{ Applicative, Comonad, Functor, Monad, MonadError, Monoid, MonoidK }
 import cats.arrow.NaturalTransformation
 import cats.data.NonEmptyVector
 import io.iteratee.internal.Step
@@ -283,7 +282,7 @@ final object Iteratee extends IterateeInstances {
   final def length[F[_]: Applicative, E]: Iteratee[F, E, Long] = fromStep(Step.length[F, E])
 
   /**
-   * An [[Iteratee]] that combines values using an [[algebra.Monoid]] instance.
+   * An [[Iteratee]] that combines values using an [[cats.Monoid]] instance.
    *
    * @group Collection
    */
@@ -292,7 +291,7 @@ final object Iteratee extends IterateeInstances {
 
   /**
    * An [[Iteratee]] that combines values using a function to a type with an
-   * [[algebra.Monoid]] instance.
+   * [[cats.Monoid]] instance.
    *
    * @group Collection
    */
