@@ -75,8 +75,8 @@ lazy val iteratee = project.in(file("."))
   .settings(allSettings)
   .settings(docSettings)
   .settings(noPublishSettings)
-  .aggregate(core, coreJS, files, monix, monixJS, task, twitter, tests, testsJS)
-  .dependsOn(core, monix, task, twitter)
+  .aggregate(core, coreJS, files, monix, monixJS, scalaz, twitter, tests, testsJS)
+  .dependsOn(core, monix, scalaz, twitter)
 
 lazy val coreBase = crossProject.crossType(CrossType.Pure).in(file("core"))
   .settings(
@@ -126,7 +126,7 @@ lazy val testsBase = crossProject.in(file("tests"))
   )
   .jvmSettings(fork := false)
   .jsSettings(commonJsSettings: _*)
-  .jvmConfigure(_.copy(id = "tests").dependsOn(task, twitter))
+  .jvmConfigure(_.copy(id = "tests").dependsOn(scalaz, twitter))
   .jsConfigure(_.copy(id = "testsJS"))
   .dependsOn(coreBase, monixBase)
 
@@ -149,9 +149,9 @@ lazy val twitter = project
     libraryDependencies += "io.catbird" %% "catbird-util" % "0.5.0-SNAPSHOT"
   ).dependsOn(core, files)
 
-lazy val task = project
+lazy val scalaz = project
   .settings(
-    moduleName := "iteratee-task"
+    moduleName := "iteratee-scalaz"
   )
   .settings(allSettings)
   .settings(
@@ -192,7 +192,7 @@ lazy val benchmark = project
     )
   )
   .enablePlugins(JmhPlugin)
-  .dependsOn(core, monix, task, twitter)
+  .dependsOn(core, monix, scalaz, twitter)
 
 lazy val publishSettings = Seq(
   releaseCrossBuild := true,
@@ -267,7 +267,7 @@ val jvmProjects = Seq(
   "core",
   "files",
   "monix",
-  "task",
+  "scalaz",
   "twitter",
   "tests"
 )

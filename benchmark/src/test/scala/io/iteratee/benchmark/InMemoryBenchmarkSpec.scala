@@ -6,7 +6,7 @@ class InMemoryBenchmarkSpec extends FlatSpec {
   val benchmark: InMemoryBenchmark = new InMemoryBenchmark
   val sum = 49995000
 
-  "The in-memory benchmark" should "correctly calculate the sum using io.iteratee.task" in {
+  "The in-memory benchmark" should "correctly calculate the sum using io.iteratee.scalaz" in {
     assert(benchmark.sumInts0I === sum)
   }
 

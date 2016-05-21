@@ -5,7 +5,7 @@ import com.twitter.util.{ Await => AwaitT, Duration => DurationT }
 import io.catbird.util.Rerunnable
 import io.{ iteratee => i }
 import io.iteratee.monix.MonixInstances
-import io.iteratee.task.TaskInstances
+import io.iteratee.scalaz.ScalazInstances
 import java.util.concurrent.TimeUnit
 import monix.eval.{ Task => TaskM }
 import org.openjdk.jmh.annotations._
@@ -19,7 +19,7 @@ import scalaz.std.anyVal.intInstance
 import scalaz.std.vector._
 import scalaz.stream.Process
 
-class IterateeBenchmark extends MonixInstances with TaskInstances
+class IterateeBenchmark extends MonixInstances with ScalazInstances
 
 class InMemoryExampleData extends IterateeBenchmark {
   private[this] val count = 10000
