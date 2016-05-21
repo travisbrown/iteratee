@@ -64,13 +64,13 @@ class StreamingExampleData extends IterateeBenchmark {
 @OutputTimeUnit(TimeUnit.SECONDS)
 class InMemoryBenchmark extends InMemoryExampleData {
   @Benchmark
-  def sumInts0I: Int = intsI.run(i.Iteratee.sum).unsafePerformSync
+  def sumInts0IS: Int = intsI.run(i.Iteratee.sum).unsafePerformSync
 
   @Benchmark
-  def sumInts1R: Int = AwaitT.result(intsR.run(i.Iteratee.sum).run, DurationT.Top)
+  def sumInts1IR: Int = AwaitT.result(intsR.run(i.Iteratee.sum).run, DurationT.Top)
 
   @Benchmark
-  def sumInts2M: Int = Await.result(
+  def sumInts2IM: Int = Await.result(
     intsM.run(i.Iteratee.sum).runAsync(monix.execution.Scheduler.Implicits.global),
     Duration.Inf
   )
@@ -106,13 +106,13 @@ class StreamingBenchmark extends StreamingExampleData {
   val count = 10000
 
   @Benchmark
-  def takeLongs0I: Vector[Long] = longStreamI.run(i.Iteratee.take(count)).unsafePerformSync
+  def takeLongs0IS: Vector[Long] = longStreamI.run(i.Iteratee.take(count)).unsafePerformSync
 
   @Benchmark
-  def takeLongs1R: Vector[Long] = AwaitT.result(longStreamR.run(i.Iteratee.take(count)).run, DurationT.Top)
+  def takeLongs1IR: Vector[Long] = AwaitT.result(longStreamR.run(i.Iteratee.take(count)).run, DurationT.Top)
 
   @Benchmark
-  def takeLongs2M: Vector[Long] = Await.result(
+  def takeLongs2IM: Vector[Long] = Await.result(
     longStreamM.run(i.Iteratee.take(count)).runAsync(monix.execution.Scheduler.Implicits.global),
     Duration.Inf
   )
