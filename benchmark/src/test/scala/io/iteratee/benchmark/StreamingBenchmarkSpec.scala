@@ -6,7 +6,7 @@ class StreamingBenchmarkSpec extends FlatSpec {
   val benchmark: StreamingBenchmark = new StreamingBenchmark
   val taken = (0 until 10000).toVector
 
-  "The in-memory benchmark" should "correctly gather elements using io.iteratee.task" in {
+  "The in-memory benchmark" should "correctly gather elements using io.iteratee.scalaz" in {
     assert(benchmark.takeLongs0I === taken)
   }
 
