@@ -7,15 +7,15 @@ class InMemoryBenchmarkSpec extends FlatSpec {
   val sum = 49995000
 
   "The in-memory benchmark" should "correctly calculate the sum using io.iteratee.scalaz" in {
-    assert(benchmark.sumInts0I === sum)
+    assert(benchmark.sumInts0IS === sum)
   }
 
   it should "correctly calculate the sum using io.iteratee.twitter" in {
-    assert(benchmark.sumInts1R === sum)
+    assert(benchmark.sumInts1IR === sum)
   }
 
   it should "correctly calculate the sum using io.iteratee.monix" in {
-    assert(benchmark.sumInts2M === sum)
+    assert(benchmark.sumInts2IM === sum)
   }
 
   it should "correctly calculate the sum using scalaz-stream" in {
