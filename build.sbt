@@ -68,15 +68,15 @@ lazy val docSettings = site.settings ++ ghpages.settings ++ unidocSettings ++ Se
   ),
   git.remoteRepo := "git@github.com:travisbrown/iteratee.git",
   unidocProjectFilter in (ScalaUnidoc, unidoc) :=
-    inAnyProject -- inProjects(coreJS, benchmark, tests, testsJS)
+    inAnyProject -- inProjects(coreJS, benchmark, monixJS, tests, testsJS)
 )
 
 lazy val iteratee = project.in(file("."))
   .settings(allSettings)
   .settings(docSettings)
   .settings(noPublishSettings)
-  .aggregate(core, coreJS, files, task, twitter, tests, testsJS)
-  .dependsOn(core, task, twitter)
+  .aggregate(core, coreJS, files, monix, monixJS, task, twitter, tests, testsJS)
+  .dependsOn(core, monix, task, twitter)
 
 lazy val coreBase = crossProject.crossType(CrossType.Pure).in(file("core"))
   .settings(
@@ -128,7 +128,7 @@ lazy val testsBase = crossProject.in(file("tests"))
   .jsSettings(commonJsSettings: _*)
   .jvmConfigure(_.copy(id = "tests").dependsOn(task, twitter))
   .jsConfigure(_.copy(id = "testsJS"))
-  .dependsOn(coreBase)
+  .dependsOn(coreBase, monixBase)
 
 lazy val tests = testsBase.jvm
 lazy val testsJS = testsBase.js
@@ -158,6 +158,22 @@ lazy val task = project
     libraryDependencies += "org.scalaz" %% "scalaz-concurrent" % "7.2.2"
   ).dependsOn(core, files)
 
+lazy val monixBase = crossProject.in(file("monix"))
+  .settings(
+    moduleName := "iteratee-monix"
+  )
+  .settings(allSettings: _*)
+  .settings(
+    libraryDependencies += "io.monix" %%% "monix-eval" % "2.0-M2"
+  )
+  .jsSettings(commonJsSettings: _*)
+  .jvmConfigure(_.copy(id = "monix").dependsOn(files))
+  .jsConfigure(_.copy(id = "monixJS"))
+  .dependsOn(coreBase)
+
+lazy val monix = monixBase.jvm
+lazy val monixJS = monixBase.js
+
 lazy val benchmark = project
   .settings(moduleName := "iteratee-benchmark")
   .settings(allSettings)
@@ -176,7 +192,7 @@ lazy val benchmark = project
     )
   )
   .enablePlugins(JmhPlugin)
-  .dependsOn(core, task, twitter)
+  .dependsOn(core, monix, task, twitter)
 
 lazy val publishSettings = Seq(
   releaseCrossBuild := true,
@@ -250,6 +266,7 @@ credentials ++= (
 val jvmProjects = Seq(
   "core",
   "files",
+  "monix",
   "task",
   "twitter",
   "tests"
@@ -257,6 +274,7 @@ val jvmProjects = Seq(
 
 val jsProjects = Seq(
   "coreJS",
+  "monixJS",
   "testsJS"
 )
 
