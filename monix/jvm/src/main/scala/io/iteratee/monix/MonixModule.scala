@@ -4,6 +4,7 @@ import cats.MonadError
 import io.iteratee.{ EnumerateeModule, EnumeratorErrorModule, IterateeErrorModule, Module }
 import io.iteratee.files.FileModule
 import monix.eval.Task
+import monix.cats.{AllInstances => MonixInstances}
 
 trait MonixModule extends MonixInstances with Module[Task]
   with EnumerateeModule[Task]
@@ -11,7 +12,8 @@ trait MonixModule extends MonixInstances with Module[Task]
   with FileModule[Task] {
   final type M[f[_]] = MonadError[f, Throwable]
 
-  final protected val F: MonadError[Task, Throwable] = monixTaskMonadError
+  final protected val F: MonadError[Task, Throwable] =
+    monixMonadErrorInstancesToCats[Task, Throwable]
 
   final protected def captureEffect[A](a: => A): Task[A] = Task(a)
 }
