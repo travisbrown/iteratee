@@ -26,7 +26,7 @@ lazy val scalaCheckVersion = "1.12.5"
 lazy val scalaTestVersion = "3.0.0-M9"
 
 lazy val baseSettings = Seq(
-  scalacOptions ++= compilerOptions ++ (
+  scalacOptions ++= (compilerOptions :+ "-Yno-predef") ++ (
     CrossVersion.partialVersion(scalaVersion.value) match {
       case Some((2, 11)) => Seq("-Ywarn-unused-import")
       case _ => Nil
@@ -110,6 +110,9 @@ lazy val testsBase = crossProject.in(file("tests"))
       "org.typelevel" %%% "cats-laws" % catsVersion,
       "org.typelevel" %%% "discipline" % disciplineVersion
     ),
+    scalacOptions ~= {
+      _.filterNot(Set("-Yno-predef"))
+    },
     parallelExecution in Test := true,
     testForkedParallel in Test := true,
     parallelExecution in IntegrationTest := true,
@@ -165,8 +168,8 @@ lazy val monixBase = crossProject.in(file("monix"))
   .settings(allSettings: _*)
   .settings(
     libraryDependencies ++= Seq(
-      "io.monix" %%% "monix-eval" % "2.0-RC7",
-      "io.monix" %%% "monix-cats" % "2.0-RC7"
+      "io.monix" %%% "monix-eval" % "2.0-RC8",
+      "io.monix" %%% "monix-cats" % "2.0-RC8"
     )
   )
   .jsSettings(commonJsSettings: _*)

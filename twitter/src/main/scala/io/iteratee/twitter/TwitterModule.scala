@@ -5,6 +5,7 @@ import com.twitter.util.{ Future, FuturePool }
 import io.catbird.util.Rerunnable
 import io.iteratee.{ EnumerateeModule, EnumeratorErrorModule, IterateeErrorModule, Module }
 import io.iteratee.files.FileModule
+import scala.Predef.implicitly
 
 trait TwitterModule extends Module[Rerunnable]
   with EnumerateeModule[Rerunnable]
