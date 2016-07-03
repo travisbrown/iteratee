@@ -13,6 +13,7 @@ import java.io.{
   InputStreamReader
 }
 import java.util.zip.{ ZipEntry, ZipFile }
+import scala.Predef.genericArrayOps
 import scala.collection.JavaConverters._
 
 trait FileModule[F[_]] { this: Module[F] { type M[f[_]] <: MonadError[f, Throwable] } =>
@@ -64,7 +65,7 @@ trait FileModule[F[_]] { this: Module[F] { type M[f[_]] <: MonadError[f, Throwab
           val array = new Array[Byte](bufferSize)
           val read = stream.read(array, 0, bufferSize)
 
-          if (read == -1) F.pure(step) else F.flatMap(step.feedEl(array.slice(0, read)))(apply)
+          if (read == -1) F.pure(step) else F.flatMap(step.feedEl(array.slice(0, read)))(apply(_))
         }
       )
   }

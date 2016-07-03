@@ -2,6 +2,7 @@ package io
 
 import cats.{ Monad, MonadError, Eval, Id }
 import cats.data.XorT
+import scala.Predef.implicitly
 
 package object iteratee
 

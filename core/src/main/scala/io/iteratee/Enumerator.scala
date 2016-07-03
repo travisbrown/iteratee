@@ -2,6 +2,7 @@ package io.iteratee
 
 import cats.{ Applicative, FlatMap, Monad, MonadError, Semigroup }
 import io.iteratee.internal.Step
+import scala.Predef.=:=
 
 abstract class Enumerator[F[_], E] extends Serializable { self =>
   def apply[A](s: Step[F, E, A]): F[Step[F, E, A]]
