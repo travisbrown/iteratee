@@ -48,6 +48,15 @@ abstract class FileModuleSuite[F[_]: Monad] extends ModuleSuite[F] {
     assert(enumerator.run(head) === F.pure(Some("11231.txt")))
   }
 
+  "readBytesFromStream" should "enumerate bytes from a stream" in {
+    val zip = new File(getClass.getResource("/io/iteratee/examples/pg/11231/11231.zip").toURI)
+    val enumerator = readZipStreams(zip).flatMap {
+      case (_, stream) => readBytesFromStream(stream)
+    }.flatMap(bytes => enumVector(bytes.toVector))
+
+    assert(enumerator.run(length) === F.pure(105397))
+  }
+
   "listFiles" should "enumerate files in a directory" in {
     val dir = new File(getClass.getResource("/io/iteratee/examples/pg/11231").toURI)
     val result = Vector("11231.txt", "11231.zip")

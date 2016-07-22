@@ -34,6 +34,11 @@ trait FileModule[F[_]] { this: Module[F] { type M[f[_]] <: MonadError[f, Throwab
       new ByteEnumerator(stream).ensure(captureEffect(stream.close()))(F)
     }(F)
 
+  final def readBytesFromStream(stream: InputStream): Enumerator[F, Array[Byte]] =
+    Enumerator.liftM(captureEffect(new BufferedInputStream(stream)))(F).flatMap { stream =>
+      new ByteEnumerator(stream).ensure(captureEffect(stream.close()))(F)
+    }(F)
+
   final def readZipStreams(file: File): Enumerator[F, (ZipEntry, InputStream)] =
     Enumerator.liftM(captureEffect(new ZipFile(file)))(F).flatMap { zipFile =>
       new ZipFileEnumerator(zipFile, zipFile.entries.asScala).ensure(captureEffect(zipFile.close()))(F)
@@ -57,7 +62,7 @@ trait FileModule[F[_]] { this: Module[F] { type M[f[_]] <: MonadError[f, Throwab
       }
   }
 
-  private[this] final class ByteEnumerator(stream: InputStream, bufferSize: Int = 8092)
+  private[this] final class ByteEnumerator(stream: InputStream, bufferSize: Int = 8192)
     extends Enumerator[F, Array[Byte]] {
     final def apply[A](step: Step[F, Array[Byte], A]): F[Step[F, Array[Byte], A]] =
       if (step.isDone) F.pure(step) else F.flatten(
