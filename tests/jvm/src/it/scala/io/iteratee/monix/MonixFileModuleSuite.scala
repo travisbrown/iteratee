@@ -3,6 +3,7 @@ package io.iteratee.monix
 import cats.Eq
 import cats.data.Xor
 import io.iteratee.tests.files.FileModuleSuite
+import monix.cats._
 import monix.eval.Task
 import monix.execution.Scheduler.Implicits.global
 import scala.concurrent.Await
