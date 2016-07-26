@@ -159,7 +159,7 @@ lazy val scalaz = project
   )
   .settings(allSettings)
   .settings(
-    libraryDependencies += "org.scalaz" %% "scalaz-concurrent" % "7.2.2"
+    libraryDependencies += "org.scalaz" %% "scalaz-concurrent" % "7.2.4"
   ).dependsOn(core, files)
 
 lazy val monixBase = crossProject.in(file("monix"))
@@ -191,11 +191,11 @@ lazy val benchmark = project
   .settings(noPublishSettings)
   .settings(
     libraryDependencies ++= Seq(
-      "co.fs2" %% "fs2-core" % "0.9.0-M1",
-      "com.typesafe.play" %% "play-iteratees" % "2.5.0",
+      "co.fs2" %% "fs2-core" % "0.9.0-M6",
+      "com.typesafe.play" %% "play-iteratees" % "2.6.0",
       "org.scalatest" %% "scalatest" % scalaTestVersion % "test",
-      "org.scalaz" %% "scalaz-iteratee" % "7.2.2",
-      "org.scalaz.stream" %% "scalaz-stream" % "0.8.1a"
+      "org.scalaz" %% "scalaz-iteratee" % "7.2.4",
+      "org.scalaz.stream" %% "scalaz-stream" % "0.8.3a"
     )
   )
   .enablePlugins(JmhPlugin)

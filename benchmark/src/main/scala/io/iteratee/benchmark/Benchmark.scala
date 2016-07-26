@@ -4,12 +4,13 @@ import cats.std.int._
 import com.twitter.util.{ Await => AwaitT, Duration => DurationT }
 import io.catbird.util.Rerunnable
 import io.{ iteratee => i }
-import io.iteratee.monix.MonixInstances
 import io.iteratee.scalaz.ScalazInstances
 import java.util.concurrent.TimeUnit
+import monix.cats._
 import monix.eval.{ Task => TaskM }
 import org.openjdk.jmh.annotations._
 import play.api.libs.{ iteratee => p }
+import scala.Predef.intWrapper
 import scala.concurrent.Await
 import scala.concurrent.duration._
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -19,7 +20,7 @@ import scalaz.std.anyVal.intInstance
 import scalaz.std.vector._
 import scalaz.stream.Process
 
-class IterateeBenchmark extends MonixInstances with ScalazInstances
+class IterateeBenchmark extends ScalazInstances
 
 class InMemoryExampleData extends IterateeBenchmark {
   private[this] val count = 10000
@@ -31,7 +32,7 @@ class InMemoryExampleData extends IterateeBenchmark {
   val intsS: Process[Task, Int] = Process.emitAll(intsC)
   val intsZ: z.EnumeratorT[Int, Task] = z.EnumeratorT.enumIndexedSeq(intsC)
   val intsP: p.Enumerator[Int] = p.Enumerator(intsC: _*)
-  val intsF: fs2.Stream[fs2.util.Task, Int] = fs2.Stream.emits(intsC)
+  val intsF: fs2.Stream[fs2.Task, Int] = fs2.Stream.emits(intsC)
 }
 
 class StreamingExampleData extends IterateeBenchmark {
@@ -43,7 +44,7 @@ class StreamingExampleData extends IterateeBenchmark {
   val longStreamZ: z.EnumeratorT[Long, Task] = z.EnumeratorT.repeat[Unit, Task](()).zipWithIndex.map(_._2)
   val longStreamP: p.Enumerator[Long] = p.Enumerator.unfold(0L)(i => Some((i + 1L, i)))
   val longStreamC: Stream[Long] = Stream.iterate(0L)(_ + 1L)
-  val longStreamF: fs2.Stream[fs2.util.Task, Long] = {
+  val longStreamF: fs2.Stream[fs2.Task, Long] = {
     // fs2 doesn't have an iterate yet.
     def iterate[A](start: A)(f: A => A): fs2.Stream[Nothing, A] = {
       fs2.Stream.emit(start) ++ iterate(f(start))(f)
@@ -89,7 +90,7 @@ class InMemoryBenchmark extends InMemoryExampleData {
 
   // fs2 is missing scalaz-stream's runLastOr
   @Benchmark
-  def sumInts7F: Int = intsF.sum.runFold(0)((_, a) => a).run.unsafeRun
+  def sumInts7F: Int = intsF.sum.runFold(0)((_, a) => a).unsafeRun
 }
 
 /**
@@ -130,5 +131,5 @@ class StreamingBenchmark extends StreamingExampleData {
   def takeLongs6C: Vector[Long] = longStreamC.take(count).toVector
 
   @Benchmark
-  def takeLongs7F: Vector[Long] = longStreamF.take(count.toLong).runLog.run.unsafeRun
+  def takeLongs7F: Vector[Long] = longStreamF.take(count.toLong).runLog.unsafeRun
 }

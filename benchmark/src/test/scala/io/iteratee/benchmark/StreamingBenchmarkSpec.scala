@@ -1,6 +1,7 @@
 package io.iteratee.benchmark
 
 import org.scalatest.FlatSpec
+import scala.Predef.intWrapper
 
 class StreamingBenchmarkSpec extends FlatSpec {
   val benchmark: StreamingBenchmark = new StreamingBenchmark
