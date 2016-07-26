@@ -21,7 +21,7 @@ often likely to be a simpler, faster solution.
 
 The initial performance benchmarks look promising. For example, here are the throughput results for
 summing a sequence of numbers with this library and Scalaz's `Task` (`IS`), this library and Twitter
-futures (`IR`), this library and [Monix][monix]'s `Task` ('IM'), Scalaz Stream (`S`),
+futures (`IR`), this library and [Monix][monix]'s `Task` (`IM`), Scalaz Stream (`S`),
 scalaz-iteratee (`Z`), [play-iteratee][play-iteratee] (`P`), the collections library (`C`), and fs2
 (`F`). Higher numbers are better.
 
