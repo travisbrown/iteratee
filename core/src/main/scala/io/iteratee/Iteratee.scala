@@ -1,7 +1,7 @@
 package io.iteratee
 
 import cats.{ Applicative, Comonad, Functor, Monad, MonadError, Monoid, MonoidK }
-import cats.arrow.NaturalTransformation
+import cats.arrow.FunctionK
 import cats.data.NonEmptyVector
 import io.iteratee.internal.Step
 
@@ -68,14 +68,14 @@ sealed class Iteratee[F[_], E, A] private[iteratee] (final val state: F[Step[F, 
   /**
    * Transform the context of this [[Iteratee]].
    */
-  final def mapI[G[_]: Applicative](f: NaturalTransformation[F, G])(implicit F: Applicative[F]): Iteratee[G, E, A] =
+  final def mapI[G[_]: Applicative](f: FunctionK[F, G])(implicit F: Applicative[F]): Iteratee[G, E, A] =
     Iteratee.iteratee(f(F.map(state)(_.mapI(f))))
 
   /**
    * Lift this [[Iteratee]] into a different context.
    */
   final def up[G[_]](implicit G: Applicative[G], F: Comonad[F], F0: Applicative[F]): Iteratee[G, E, A] = mapI(
-    new NaturalTransformation[F, G] {
+    new FunctionK[F, G] {
       final def apply[A](a: F[A]): G[A] = G.pure(F.extract(a))
     }
   )

@@ -2,7 +2,7 @@ package io.iteratee.internal
 
 import cats.{ Applicative, Monad, MonoidK }
 import cats.data.NonEmptyVector
-import cats.arrow.NaturalTransformation
+import cats.arrow.FunctionK
 
 /**
  * Represents the current state of an [[io.iteratee.Iteratee]].
@@ -47,7 +47,7 @@ abstract class Step[F[_], E, A] extends Serializable {
   /**
    * Transform the context of this [[Step]].
    */
-  def mapI[G[_]: Applicative](f: NaturalTransformation[F, G]): Step[G, E, A]
+  def mapI[G[_]: Applicative](f: FunctionK[F, G]): Step[G, E, A]
 
   /**
    * Map a function returning a [[Step]] in a monadic context over the value of

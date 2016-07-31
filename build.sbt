@@ -4,8 +4,7 @@ import scala.xml.transform.{ RewriteRule, RuleTransformer }
 
 lazy val buildSettings = Seq(
   organization := "io.iteratee",
-  scalaVersion := "2.11.8",
-  crossScalaVersions := Seq("2.10.6", "2.11.8")
+  scalaVersion := "2.11.8"
 )
 
 lazy val compilerOptions = Seq(
@@ -21,7 +20,9 @@ lazy val compilerOptions = Seq(
   "-Xfuture"
 )
 
-lazy val catsVersion = "0.6.1"
+val scalaVersions = Seq("2.10.6", "2.11.8")
+
+lazy val catsVersion = "0.7.0-SNAPSHOT"
 lazy val disciplineVersion = "0.4"
 lazy val scalaCheckVersion = "1.12.5"
 lazy val scalaTestVersion = "3.0.0-M9"
@@ -73,14 +74,16 @@ lazy val docSettings = site.settings ++ ghpages.settings ++ unidocSettings ++ Se
 )
 
 lazy val iteratee = project.in(file("."))
+  .enablePlugins(CrossPerProjectPlugin)
   .settings(allSettings)
   .settings(docSettings)
   .settings(noPublishSettings)
-  .aggregate(core, coreJS, files, monix, monixJS, scalaz, twitter, tests, testsJS)
-  .dependsOn(core, monix, scalaz, twitter)
+  .aggregate(benchmark, core, coreJS, files, monix, monixJS, scalaz, tests, testsJS, twitter)
+  .dependsOn(core, monix, scalaz)
 
 lazy val coreBase = crossProject.crossType(CrossType.Pure).in(file("core"))
   .settings(
+    crossScalaVersions := scalaVersions,
     moduleName := "iteratee-core",
     name := "core"
   )
@@ -98,6 +101,7 @@ lazy val coreJS = coreBase.js
 lazy val testsBase = crossProject.in(file("tests"))
   .configs(IntegrationTest)
   .settings(
+    crossScalaVersions := scalaVersions,
     moduleName := "iteratee-tests",
     name := "tests"
   )
@@ -130,43 +134,51 @@ lazy val testsBase = crossProject.in(file("tests"))
   )
   .jvmSettings(fork := false)
   .jsSettings(commonJsSettings: _*)
-  .jvmConfigure(_.copy(id = "tests").dependsOn(scalaz, twitter))
+  .jvmConfigure(_.copy(id = "tests").dependsOn(files))
   .jsConfigure(_.copy(id = "testsJS"))
-  .dependsOn(coreBase, monixBase)
+  .dependsOn(coreBase)
 
 lazy val tests = testsBase.jvm
 lazy val testsJS = testsBase.js
 
 lazy val files = project
   .settings(
+    crossScalaVersions := scalaVersions,
     moduleName := "iteratee-files"
   )
   .settings(allSettings)
   .dependsOn(core)
 
 lazy val twitter = project
+  .configs(IntegrationTest)
   .settings(
+    crossScalaVersions := scalaVersions.tail,
     moduleName := "iteratee-twitter"
   )
-  .settings(allSettings)
+  .settings(allSettings ++ Defaults.itSettings)
   .settings(
-    libraryDependencies += "io.catbird" %% "catbird-util" % "0.5.0"
-  ).dependsOn(core, files)
+    libraryDependencies += "io.catbird" %% "catbird-util" % "0.7.0-SNAPSHOT"
+  ).dependsOn(core, files, tests % "test,it")
 
 lazy val scalaz = project
+  .configs(IntegrationTest)
   .settings(
+    crossScalaVersions := scalaVersions,
     moduleName := "iteratee-scalaz"
   )
-  .settings(allSettings)
+  .settings(allSettings ++ Defaults.itSettings)
   .settings(
     libraryDependencies += "org.scalaz" %% "scalaz-concurrent" % "7.2.4"
-  ).dependsOn(core, files)
+  ).dependsOn(core, files, tests % "test,it")
 
 lazy val monixBase = crossProject.in(file("monix"))
+  .configs(IntegrationTest)
   .settings(
+    crossScalaVersions := scalaVersions,
     moduleName := "iteratee-monix"
   )
   .settings(allSettings: _*)
+  .settings(Defaults.itSettings: _*)
   .settings(
     libraryDependencies ++= Seq(
       "io.monix" %%% "monix-eval" % "2.0-RC8",
@@ -176,18 +188,17 @@ lazy val monixBase = crossProject.in(file("monix"))
   .jsSettings(commonJsSettings: _*)
   .jvmConfigure(_.copy(id = "monix").dependsOn(files))
   .jsConfigure(_.copy(id = "monixJS"))
-  .dependsOn(coreBase)
+  .dependsOn(coreBase, testsBase % "test,it")
 
 lazy val monix = monixBase.jvm
 lazy val monixJS = monixBase.js
 
 lazy val benchmark = project
-  .settings(moduleName := "iteratee-benchmark")
-  .settings(allSettings)
   .settings(
-    scalaVersion := "2.11.8",
-    crossScalaVersions := Seq("2.11.8")
+    crossScalaVersions := scalaVersions.tail,
+    moduleName := "iteratee-benchmark"
   )
+  .settings(allSettings)
   .settings(noPublishSettings)
   .settings(
     libraryDependencies ++= Seq(
@@ -254,23 +265,6 @@ lazy val noPublishSettings = Seq(
   publishArtifact := false
 )
 
-lazy val sharedReleaseProcess = Seq(
-  releaseProcess := Seq[ReleaseStep](
-    checkSnapshotDependencies,
-    inquireVersions,
-    runClean,
-    runTest,
-    setReleaseVersion,
-    commitReleaseVersion,
-    tagRelease,
-    publishArtifacts,
-    setNextVersion,
-    commitNextVersion,
-    ReleaseStep(action = Command.process("sonatypeReleaseAll", _)),
-    pushChanges
-  )
-)
-
 credentials ++= (
   for {
     username <- Option(System.getenv().get("SONATYPE_USERNAME"))
@@ -284,6 +278,7 @@ credentials ++= (
 ).toSeq
 
 val jvmProjects = Seq(
+  "benchmark",
   "core",
   "files",
   "monix",
@@ -298,8 +293,8 @@ val jsProjects = Seq(
   "testsJS"
 )
 
-addCommandAlias("buildJVM", jvmProjects.map(";" + _ + "/compile").mkString)
-addCommandAlias("validateJVM", ";buildJVM;tests/test;tests/it:test;scalastyle;unidoc")
-addCommandAlias("buildJS", jsProjects.map(";" + _ + "/compile").mkString)
-addCommandAlias("validateJS", ";buildJS;testsJS/test;testsJS/it:test;scalastyle")
+addCommandAlias("testJVM", jvmProjects.map(";" + _ + "/test").mkString)
+addCommandAlias("validateJVM", ";testJVM;monix/it:test;scalaz/it:test;twitter/it:test;scalastyle;unidoc")
+addCommandAlias("testJS", jsProjects.map(";" + _ + "/test").mkString)
+addCommandAlias("validateJS", ";testJS;scalastyle;unidoc")
 addCommandAlias("validate", ";validateJVM;validateJS")

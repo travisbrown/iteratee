@@ -1,6 +1,6 @@
 package io.iteratee.benchmark
 
-import cats.std.int._
+import cats.instances.int._
 import com.twitter.util.{ Await => AwaitT, Duration => DurationT }
 import io.catbird.util.Rerunnable
 import io.{ iteratee => i }

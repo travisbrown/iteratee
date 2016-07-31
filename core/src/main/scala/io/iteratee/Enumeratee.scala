@@ -63,7 +63,7 @@ final object Enumeratee extends EnumerateeInstances {
       final def run: F[Step[F, I, A]] = F.pure(step)
       final def onEl(e: O): F[Step[F, O, Step[F, I, A]]]= F.map(F.flatMap(f(e))(step.feedEl))(doneOrLoop)
       final def onChunk(h1: O, h2: O, t: Vector[O]): F[Step[F, O, Step[F, I, A]]] = F.map(
-        F.flatten(F.map3(f(h1), f(h2), cats.std.vector.vectorInstance.traverse(t)(f))(step.feedChunk))
+        F.flatten(F.map3(f(h1), f(h2), cats.instances.vector.catsStdInstancesForVector.traverse(t)(f))(step.feedChunk))
       )(doneOrLoop)
     }
   }

@@ -1,6 +1,6 @@
 package io.iteratee.scalaz
 
-import cats.{ Eval, MonadError }
+import cats.MonadError
 import scalaz.concurrent.Task
 
 /**
@@ -13,7 +13,6 @@ trait ScalazInstances {
    */
   implicit final val scalazTaskMonadError: MonadError[Task, Throwable] = new MonadError[Task, Throwable] {
     final def pure[A](x: A): Task[A] = Task.taskInstance.point(x)
-    final override def pureEval[A](x: Eval[A]): Task[A] = Task(x.value)
     final def flatMap[A, B](fa: Task[A])(f: A => Task[B]): Task[B] = fa.flatMap(f)
     override final def map[A, B](fa: Task[A])(f: A => B): Task[B] = fa.map(f)
 

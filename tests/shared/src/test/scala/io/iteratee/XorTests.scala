@@ -1,7 +1,7 @@
 package io.iteratee
 
 import cats.{ Eval, Id, MonadError }
-import cats.arrow.NaturalTransformation
+import cats.arrow.FunctionK
 import cats.data.{ Xor, XorT }
 import io.iteratee.tests.{ EnumerateeSuite, EnumeratorSuite, IterateeErrorSuite, XorSuite, eqThrowable }
 import org.scalacheck.Arbitrary
@@ -85,7 +85,7 @@ class XorIterateeTests extends IterateeErrorSuite[({ type L[x] = XorT[Eval, Thro
       val pureEnumerator = Enumerator.enumVector[Id, Int](eav.values)
 
       val xorIteratee = iteratee.mapI(
-        new NaturalTransformation[Id, XTE] {
+        new FunctionK[Id, XTE] {
           def apply[A](a: A): XTE[A] = F.pure(a)
         }
       )

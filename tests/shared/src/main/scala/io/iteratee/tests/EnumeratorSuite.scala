@@ -116,7 +116,8 @@ abstract class EnumeratorSuite[F[_]: Monad] extends ModuleSuite[F] {
     /**
      * Workaround for divergence during resolution on 2.10.
      */
-    val E: Eq[F[Option[F[Vector[String]]]]] = eqF(optionEq(eqF(vectorEq(stringOrder))))
+    val E: Eq[F[Option[F[Vector[String]]]]] = eqF(catsKernelStdEqForOptioin(eqF(Eq[Vector[String]])))
+
     val enumeratorF: F[Option[Enumerator[F, String]]] = eav.enumerator.bindM(v => Option(enumOne(v.toString)))
 
     assert(E.eqv(enumeratorF.map(_.map(_.toVector)), F.pure(Option(F.pure(eav.values.map(_.toString))))))

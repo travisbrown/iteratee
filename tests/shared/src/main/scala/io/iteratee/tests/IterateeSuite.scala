@@ -37,7 +37,7 @@ abstract class IterateeErrorSuite[F[_], T: Arbitrary: Eq](implicit MEF: MonadErr
     eqIteratee[F, Vector[Int], (Vector[Int], Vector[Int], Vector[Int])]
 
   implicit val eqXorTVectorInt: Eq[XorT[({ type L[x] = Iteratee[F, Vector[Int], x] })#L, T, Vector[Int]]] =
-    XorT.xorTEq(eqXorVectorIntIteratee)
+    XorT.catsDataEqForXorT(eqXorVectorIntIteratee)
 
   implicit val arbitraryVectorIntFunctionIteratee: Arbitrary[VectorIntFoldingIteratee[Vector[Int] => Vector[Int]]] =
     arbitraryFunctionIteratee[F, Vector[Int]]
