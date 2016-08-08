@@ -82,7 +82,7 @@ abstract class BaseIterateeSuite[F[_]: Monad] extends ModuleSuite[F] {
   }
 
   it should "work with fold with one value" in forAll { (es: List[Int]) =>
-    val folded = myDrain(es).fold[F[List[Int]]](_(NonEmptyVector(0)).run, (_, _) => F.pure(Nil))
+    val folded = myDrain(es).fold[F[List[Int]]](_(NonEmptyVector(0, Vector.empty)).run, (_, _) => F.pure(Nil))
 
     assert(F.flatten(folded) === F.pure(es :+ 0))
   }

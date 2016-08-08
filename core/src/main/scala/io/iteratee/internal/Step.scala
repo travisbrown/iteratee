@@ -130,7 +130,7 @@ final object Step { self =>
     onInput: NonEmptyVector[E] => F[Step[F, E, A]],
     onEnd: F[A]
   )(implicit F: Applicative[F]): Step[F, E, A] = new EffectfulCont[F, E, A] {
-    final def feedEl(e: E): F[Step[F, E, A]] = onInput(NonEmptyVector(e))
+    final def feedEl(e: E): F[Step[F, E, A]] = onInput(NonEmptyVector(e, Vector.empty))
     final def feedChunk(h1: E, h2: E, t: Vector[E]): F[Step[F, E, A]] = onInput(NonEmptyVector(h1, h2 +: t))
     final def run: F[A] = onEnd
   }
