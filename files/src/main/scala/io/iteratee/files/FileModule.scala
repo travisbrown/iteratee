@@ -1,6 +1,7 @@
 package io.iteratee.files
 
 import cats.MonadError
+import cats.Eval.later
 import io.iteratee.{ Enumerator, Module }
 import io.iteratee.internal.Step
 import java.io.{
@@ -21,27 +22,27 @@ trait FileModule[F[_]] { this: Module[F] { type M[f[_]] <: MonadError[f, Throwab
 
   final def readLines(file: File): Enumerator[F, String] =
     Enumerator.liftM(captureEffect(new BufferedReader(new FileReader(file))))(F).flatMap { reader =>
-      new LineEnumerator(reader).ensure(captureEffect(reader.close()))(F)
+      new LineEnumerator(reader).ensureEval(later(captureEffect(reader.close())))(F)
     }(F)
 
   final def readLinesFromStream(stream: InputStream): Enumerator[F, String] =
     Enumerator.liftM(captureEffect(new BufferedReader(new InputStreamReader(stream))))(F).flatMap { reader =>
-      new LineEnumerator(reader).ensure(captureEffect(reader.close()))(F)
+      new LineEnumerator(reader).ensureEval(later(captureEffect(reader.close())))(F)
     }(F)
 
   final def readBytes(file: File): Enumerator[F, Array[Byte]] =
     Enumerator.liftM(captureEffect(new BufferedInputStream(new FileInputStream(file))))(F).flatMap { stream =>
-      new ByteEnumerator(stream).ensure(captureEffect(stream.close()))(F)
+      new ByteEnumerator(stream).ensureEval(later(captureEffect(stream.close())))(F)
     }(F)
 
   final def readBytesFromStream(stream: InputStream): Enumerator[F, Array[Byte]] =
     Enumerator.liftM(captureEffect(new BufferedInputStream(stream)))(F).flatMap { stream =>
-      new ByteEnumerator(stream).ensure(captureEffect(stream.close()))(F)
+      new ByteEnumerator(stream).ensureEval(later(captureEffect(stream.close())))(F)
     }(F)
 
   final def readZipStreams(file: File): Enumerator[F, (ZipEntry, InputStream)] =
     Enumerator.liftM(captureEffect(new ZipFile(file)))(F).flatMap { zipFile =>
-      new ZipFileEnumerator(zipFile, zipFile.entries.asScala).ensure(captureEffect(zipFile.close()))(F)
+      new ZipFileEnumerator(zipFile, zipFile.entries.asScala).ensureEval(later(captureEffect(zipFile.close())))(F)
     }(F)
 
   final def listFiles(dir: File): Enumerator[F, File] = Enumerator.liftM(captureEffect(dir.listFiles))(F).flatMap {
