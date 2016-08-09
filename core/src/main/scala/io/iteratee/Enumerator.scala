@@ -79,6 +79,13 @@ final object Enumerator extends EnumeratorInstances {
     new Enumerator[F, E] {
       final def apply[A](s: Step[F, E, A]): F[Step[F, E, A]] = F.flatMap(fa)(s.feedEl)
     }
+  /**
+   * Lift an effectful value into an enumerator.
+   */
+  final def liftMEval[F[_], E](fa: Eval[F[E]])(implicit F: Monad[F]): Enumerator[F, E] =
+    new Enumerator[F, E] {
+      final def apply[A](s: Step[F, E, A]): F[Step[F, E, A]] = F.flatMap(fa.value)(s.feedEl)
+    }
 
   /**
    * Create a failed enumerator with the given error.

@@ -1,6 +1,6 @@
 package io.iteratee.twitter
 
-import cats.MonadError
+import cats.{ Eval, MonadError }
 import com.twitter.util.{ Future, FuturePool }
 import io.catbird.util.Rerunnable
 import io.iteratee.{ EnumerateeModule, EnumeratorErrorModule, IterateeErrorModule, Module }
@@ -17,9 +17,13 @@ trait TwitterModule extends Module[Rerunnable]
 
   final protected val F: MonadError[Rerunnable, Throwable] = implicitly
 
-  final protected def captureEffect[A](a: => A): Rerunnable[A] = new Rerunnable[A] {
-    final def run: Future[A] = toFuture(a)
-  }
+  /**
+   * Since Rerunnable is already lazy, the Eval here is strict
+   */
+  final override protected def captureEffect[A](a: => A): Eval[Rerunnable[A]] =
+    Eval.now(new Rerunnable[A] {
+      final def run: Future[A] = toFuture(a)
+    })
 }
 
 trait DefaultFuturePoolTwitterModule extends TwitterModule {

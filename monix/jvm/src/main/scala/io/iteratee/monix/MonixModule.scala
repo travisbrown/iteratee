@@ -1,6 +1,6 @@
 package io.iteratee.monix
 
-import cats.MonadError
+import cats.{ Eval, MonadError }
 import io.iteratee.{ EnumerateeModule, EnumeratorErrorModule, IterateeErrorModule, Module }
 import io.iteratee.files.FileModule
 import monix.eval.Task
@@ -15,5 +15,9 @@ trait MonixModule extends Module[Task]
   final protected val F: MonadError[Task, Throwable] =
     monixMonadErrorInstancesToCats[Task, Throwable]
 
-  final protected def captureEffect[A](a: => A): Task[A] = Task(a)
+  /**
+   * Monix Task is already lazy, so Eval is not here
+   */
+  final override protected def captureEffect[A](a: => A): Eval[Task[A]] =
+    Eval.now(Task(a))
 }
