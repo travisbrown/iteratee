@@ -1,6 +1,7 @@
 package io.iteratee
 
 import cats.{ Functor, Monad, Monoid }
+import cats.data.Xor
 
 private[iteratee] trait EnumeratorInstances {
   implicit final def enumeratorMonoid[F[_]: Monad, E]: Monoid[Enumerator[F, E]] =
@@ -27,4 +28,9 @@ private trait EnumeratorMonad[F[_]] extends Monad[({ type L[x] = Enumerator[F, x
   final def flatMap[A, B](fa: Enumerator[F, A])(f: A => Enumerator[F, B]): Enumerator[F, B] =
     fa.flatMap(f)
   final def pure[E](e: E): Enumerator[F, E] = Enumerator.enumOne[F, E](e)
+
+  final def tailRecM[A, B](a: A)(f: A => Enumerator[F, Xor[A, B]]): Enumerator[F, B] = f(a).flatMap {
+    case Xor.Left(a1) => tailRecM(a1)(f)
+    case Xor.Right(b) => pure(b)
+  }
 }
