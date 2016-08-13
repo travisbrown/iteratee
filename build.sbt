@@ -181,8 +181,8 @@ lazy val monixBase = crossProject.in(file("monix"))
   .settings(Defaults.itSettings: _*)
   .settings(
     libraryDependencies ++= Seq(
-      "io.monix" %%% "monix-eval" % "2.0-RC8",
-      "io.monix" %%% "monix-cats" % "2.0-RC8"
+      "io.monix" %%% "monix-eval" % "2.0-RC10",
+      "io.monix" %%% "monix-cats" % "2.0-RC10"
     )
   )
   .jsSettings(commonJsSettings: _*)
