@@ -1,6 +1,7 @@
 package io.iteratee.files
 
 import cats.MonadError
+import cats.data.Xor
 import io.iteratee.{ Enumerator, Module }
 import io.iteratee.internal.Step
 import java.io.{
@@ -55,11 +56,12 @@ trait FileModule[F[_]] { this: Module[F] { type M[f[_]] <: MonadError[f, Throwab
   }(F)
 
   private[this] final class LineEnumerator(reader: BufferedReader) extends Enumerator[F, String] {
-    final def apply[A](step: Step[F, String, A]): F[Step[F, String, A]] =
-      if (step.isDone) F.pure(step) else F.flatMap(captureEffect(reader.readLine())) {
-        case null => F.pure(step)
-        case line => F.flatMap(step.feedEl(line))(apply)
+    final def apply[A](s: Step[F, String, A]): F[Step[F, String, A]] = F.tailRecM(s) { step =>
+      if (step.isDone) F.pure(Xor.right(step)) else F.flatMap(captureEffect(reader.readLine())) {
+        case null => F.pure(Xor.right(step))
+        case line => F.map(step.feedEl(line))(Xor.left)
       }
+    }
   }
 
   private[this] final class ByteEnumerator(stream: InputStream, bufferSize: Int = 8192)
