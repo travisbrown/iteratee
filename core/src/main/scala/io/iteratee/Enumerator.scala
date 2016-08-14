@@ -183,14 +183,15 @@ final object Enumerator extends EnumeratorInstances {
     xs: IndexedSeq[E],
     min: Int = 0,
     max: Int = Int.MaxValue
-  )(implicit F: Monad[F]): Enumerator[F, E] = new Enumerator[F, E] {
-    private[this] final val limit = math.min(xs.length, max)
-
-    private[this] final def loop[A](pos: Int)(s: Step[F, E, A]): F[Step[F, E, A]] =
-      if (limit > pos) F.flatMap(s.feedEl(xs(pos)))(loop(pos + 1)) else F.pure(s)
-
-    final def apply[A](step: Step[F, E, A]): F[Step[F, E, A]] = loop(math.max(min, 0))(step)
-  }
+  )(implicit F: Applicative[F]): Enumerator[F, E] =
+    new Enumerator[F, E] {
+      final def apply[A](s: Step[F, E, A]): F[Step[F, E, A]] =
+        xs.slice(min, max) match {
+          case IndexedSeq() => F.pure(s)
+          case IndexedSeq(e) => s.feedEl(e)
+          case h1 +: h2 +: t => s.feedChunk(h1, h2, t.toVector)
+        }
+    }
 
   /**
    * An enumerator that repeats the given value indefinitely.
@@ -256,11 +257,6 @@ final object Enumerator extends EnumeratorInstances {
    */
   final def iterateUntilM[F[_], E](init: E)(f: E => F[Option[E]])(implicit F: Monad[F]): Enumerator[F, E] =
     new Enumerator[F, E] {
-      private[this] def loop[A](step: Step[F, E, A], last: Option[E]): F[Step[F, E, A]] =
-        last match {
-          case Some(last) if !step.isDone => F.flatMap(step.feedEl(last))(next => F.flatMap(f(last))(loop(next, _)))
-          case _ => F.pure(step)
-        }
       final def apply[A](s: Step[F, E, A]): F[Step[F, E, A]] = F.tailRecM((s, Some(init): Option[E])) {
         case (step, Some(last)) if !step.isDone =>
           F.flatMap(step.feedEl(last))(s1 => F.map(f(last))(next => Xor.left((s1, next))))
