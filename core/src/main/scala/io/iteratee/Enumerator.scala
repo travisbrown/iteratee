@@ -203,17 +203,6 @@ final object Enumerator extends EnumeratorInstances {
   }
 
   /**
-   * An enumerator that repeats the given value indefinitely.
-   *
-   * Note that this implementation will only be stack safe if recursive monadic
-   * binding in `F` is stack safe.
-   */
-  final def repeatStackUnsafe[F[_], E](e: E)(implicit F: Monad[F]): Enumerator[F, E] = new Enumerator[F, E] { self =>
-    final def apply[A](step: Step[F, E, A]): F[Step[F, E, A]] =
-      if (step.isDone) F.pure(step) else F.flatMap(step.feedEl(e))(apply)
-  }
-
-  /**
    * An enumerator that iteratively performs an operation and returns the
    * results.
    */
@@ -285,6 +274,18 @@ final object Enumerator extends EnumeratorInstances {
    * not be stack safe unless recursive monadic binding in `F` is stack safe.
    */
   final object StackUnsafe {
+    /**
+     * An enumerator that repeats the given value indefinitely.
+     *
+     * Note that this implementation will only be stack safe if recursive monadic
+     * binding in `F` is stack safe.
+     */
+    final def repeat[F[_], E](e: E)(implicit F: Monad[F]): Enumerator[F, E] =
+      new Enumerator[F, E] {
+        final def apply[A](step: Step[F, E, A]): F[Step[F, E, A]] =
+          if (step.isDone) F.pure(step) else F.flatMap(step.feedEl(e))(apply)
+      }
+
     /**
      * An enumerator that iteratively performs an operation and returns the
      * results.

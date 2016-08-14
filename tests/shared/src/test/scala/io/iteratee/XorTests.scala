@@ -3,7 +3,7 @@ package io.iteratee
 import cats.{ Eval, Id, MonadError }
 import cats.arrow.FunctionK
 import cats.data.{ Xor, XorT }
-import io.iteratee.tests.{ EnumerateeSuite, EnumeratorSuite, IterateeErrorSuite, XorSuite, eqThrowable }
+import io.iteratee.tests.{ EnumerateeSuite, StackSafeEnumeratorSuite, IterateeErrorSuite, XorSuite, eqThrowable }
 import org.scalacheck.Arbitrary
 
 class XorEnumerateeTests extends EnumerateeSuite[({ type L[x] = XorT[Eval, Throwable, x] })#L] with XorSuite {
@@ -16,7 +16,7 @@ class XorEnumerateeTests extends EnumerateeSuite[({ type L[x] = XorT[Eval, Throw
   }
 }
 
-class XorEnumeratorTests extends EnumeratorSuite[({ type L[x] = XorT[Eval, Throwable, x] })#L] with XorSuite {
+class XorEnumeratorTests extends StackSafeEnumeratorSuite[({ type L[x] = XorT[Eval, Throwable, x] })#L] with XorSuite {
   type XTE[A] = XorT[Eval, Throwable, A]
 
   "ensure" should "perform an action after the enumerator is done" in forAll { (eav: EnumeratorAndValues[Int]) =>
