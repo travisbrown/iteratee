@@ -202,7 +202,7 @@ abstract class BaseIterateeSuite[F[_]: Monad] extends ModuleSuite[F] {
     assert(eav.resultWithLeftovers(length) === F.pure((eav.values.size.toLong, Vector.empty)))
   }
 
-  "sum" should "return the su of a stream of integers" in forAll { (eav: EnumeratorAndValues[Int]) =>
+  "sum" should "return the sum of a stream of integers" in forAll { (eav: EnumeratorAndValues[Int]) =>
     assert(eav.resultWithLeftovers(sum) === F.pure((eav.values.sum, Vector.empty)))
   }
 

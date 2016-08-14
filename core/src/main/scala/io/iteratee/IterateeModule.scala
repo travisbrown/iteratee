@@ -151,7 +151,7 @@ trait IterateeModule[F[_]] { self: Module[F] =>
   final def sum[E](implicit E: Monoid[E]): Iteratee[F, E, E] = Iteratee.sum(F, E)
 
   /**
-   * An [[Iteratee]] that combines values using a function to a type with an
+   * An [[Iteratee]] that combines values using a function to a type with a
    * [[cats.Monoid]] instance.
    *
    * @group Iteratees

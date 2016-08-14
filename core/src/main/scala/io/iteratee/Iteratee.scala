@@ -206,8 +206,7 @@ final object Iteratee extends IterateeInstances {
    *
    * @group Collection
    */
-  final def consume[F[_], A](implicit F: Applicative[F]): Iteratee[F, A, Vector[A]] =
-    fromStep(Step.consume[F, A])
+  final def consume[F[_]: Applicative, A]: Iteratee[F, A, Vector[A]] = fromStep(Step.consume[F, A])
 
   /**
    * An [[Iteratee]] that collects all the elements in a stream in a given
@@ -286,17 +285,15 @@ final object Iteratee extends IterateeInstances {
    *
    * @group Collection
    */
-  final def sum[F[_], E](implicit F: Applicative[F], E: Monoid[E]): Iteratee[F, E, E] =
-    fold(E.empty)((a, e) => E.combine(a, e))
+  final def sum[F[_]: Applicative, E: Monoid]: Iteratee[F, E, E] = fromStep(Step.sum[F, E])
 
   /**
-   * An [[Iteratee]] that combines values using a function to a type with an
+   * An [[Iteratee]] that combines values using a function to a type with a
    * [[cats.Monoid]] instance.
    *
    * @group Collection
    */
-  final def foldMap[F[_], E, A](f: E => A)(implicit F: Applicative[F], A: Monoid[A]): Iteratee[F, E, A] =
-    fold(A.empty)((a, e) => A.combine(a, f(e)))
+  final def foldMap[F[_]: Applicative, E, A: Monoid](f: E => A): Iteratee[F, E, A] = Iteratee.fromStep(Step.foldMap(f))
 
   /**
    * An [[Iteratee]] that checks if the stream is at its end.
