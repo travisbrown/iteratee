@@ -65,29 +65,32 @@ trait FileModule[F[_]] { this: Module[F] { type M[f[_]] <: MonadError[f, Throwab
   }
 
   private[this] final class ByteEnumerator(stream: InputStream, bufferSize: Int = 8192)
-    extends Enumerator[F, Array[Byte]] {
-    final def apply[A](step: Step[F, Array[Byte], A]): F[Step[F, Array[Byte], A]] =
-      if (step.isDone) F.pure(step) else F.flatten(
+      extends Enumerator[F, Array[Byte]] {
+    final def apply[A](s: Step[F, Array[Byte], A]): F[Step[F, Array[Byte], A]] = F.tailRecM(s) { step =>
+      if (step.isDone) F.pure(Xor.right(step)) else F.flatten(
         captureEffect {
           val array = new Array[Byte](bufferSize)
           val read = stream.read(array, 0, bufferSize)
 
-          if (read == -1) F.pure(step) else F.flatMap(step.feedEl(array.slice(0, read)))(apply(_))
+          if (read == -1) F.pure(Xor.right(step)) else F.map(step.feedEl(array.slice(0, read)))(Xor.left)
         }
       )
+    }
   }
 
   private[this] final class ZipFileEnumerator(zipFile: ZipFile, iterator: Iterator[ZipEntry])
-    extends Enumerator[F, (ZipEntry, InputStream)] {
-    final def apply[A](step: Step[F, (ZipEntry, InputStream), A]): F[Step[F, (ZipEntry, InputStream), A]] =
-      if (step.isDone) F.pure(step) else F.flatten(
-        captureEffect(
-          if (iterator.hasNext) {
-            val entry = iterator.next
+      extends Enumerator[F, (ZipEntry, InputStream)] {
+    final def apply[A](s: Step[F, (ZipEntry, InputStream), A]): F[Step[F, (ZipEntry, InputStream), A]] =
+      F.tailRecM(s) { step =>
+        if (step.isDone) F.pure(Xor.right(step)) else F.flatten(
+          captureEffect(
+            if (iterator.hasNext) {
+              val entry = iterator.next
 
-            F.flatMap(step.feedEl((entry, zipFile.getInputStream(entry))))(apply)
-          } else F.pure(step)
+              F.map(step.feedEl((entry, zipFile.getInputStream(entry))))(Xor.left)
+            } else F.pure(Xor.right(step))
+          )
         )
-      )
+      }
   }
 }
