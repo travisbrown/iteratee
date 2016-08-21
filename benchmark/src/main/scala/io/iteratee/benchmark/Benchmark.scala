@@ -1,13 +1,11 @@
 package io.iteratee.benchmark
 
-import cats.std.int._
+import cats.instances.int._
 import com.twitter.util.{ Await => AwaitT, Duration => DurationT }
 import io.catbird.util.Rerunnable
 import io.{ iteratee => i }
 import io.iteratee.scalaz.ScalazInstances
 import java.util.concurrent.TimeUnit
-import monix.cats._
-import monix.eval.{ Task => TaskM }
 import org.openjdk.jmh.annotations._
 import play.api.libs.{ iteratee => p }
 import scala.Predef.intWrapper
@@ -28,7 +26,6 @@ class InMemoryExampleData extends IterateeBenchmark {
   val intsC: Vector[Int] = (0 until count).toVector
   val intsI: i.Enumerator[Task, Int] = i.Enumerator.enumVector[Task, Int](intsC)
   val intsR: i.Enumerator[Rerunnable, Int] = i.Enumerator.enumVector[Rerunnable, Int](intsC)
-  val intsM: i.Enumerator[TaskM, Int] = i.Enumerator.enumVector[TaskM, Int](intsC)
   val intsS: Process[Task, Int] = Process.emitAll(intsC)
   val intsZ: z.EnumeratorT[Int, Task] = z.EnumeratorT.enumIndexedSeq(intsC)
   val intsP: p.Enumerator[Int] = p.Enumerator(intsC: _*)
@@ -38,7 +35,6 @@ class InMemoryExampleData extends IterateeBenchmark {
 class StreamingExampleData extends IterateeBenchmark {
   val longStreamI: i.Enumerator[Task, Long] = i.Enumerator.iterate[Task, Long](0L)(_ + 1L)
   val longStreamR: i.Enumerator[Rerunnable, Long] = i.Enumerator.iterate[Rerunnable, Long](0L)(_ + 1L)
-  val longStreamM: i.Enumerator[TaskM, Long] = i.Enumerator.iterate[TaskM, Long](0L)(_ + 1L)
   val longStreamS: Process[Task, Long] = Process.iterate(0L)(_ + 1L)
   // scalaz-iteratee's iterate is broken.
   val longStreamZ: z.EnumeratorT[Long, Task] = z.EnumeratorT.repeat[Unit, Task](()).zipWithIndex.map(_._2)
@@ -69,12 +65,6 @@ class InMemoryBenchmark extends InMemoryExampleData {
 
   @Benchmark
   def sumInts1IR: Int = AwaitT.result(intsR.run(i.Iteratee.sum).run, DurationT.Top)
-
-  @Benchmark
-  def sumInts2IM: Int = Await.result(
-    intsM.run(i.Iteratee.sum).runAsync(monix.execution.Scheduler.Implicits.global),
-    Duration.Inf
-  )
 
   @Benchmark
   def sumInts3S: Int = intsS.sum.runLastOr(sys.error("Impossible")).unsafePerformSync
@@ -111,12 +101,6 @@ class StreamingBenchmark extends StreamingExampleData {
 
   @Benchmark
   def takeLongs1IR: Vector[Long] = AwaitT.result(longStreamR.run(i.Iteratee.take(count)).run, DurationT.Top)
-
-  @Benchmark
-  def takeLongs2IM: Vector[Long] = Await.result(
-    longStreamM.run(i.Iteratee.take(count)).runAsync(monix.execution.Scheduler.Implicits.global),
-    Duration.Inf
-  )
 
   @Benchmark
   def takeLongs3S: Vector[Long] = longStreamS.take(count).runLog.unsafePerformSync

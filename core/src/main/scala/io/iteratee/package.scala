@@ -31,7 +31,7 @@ package iteratee {
     with EnumerateeModule[Option] with EnumeratorModule[Option] with IterateeModule[Option] {
     final type M[f[_]] = Monad[f]
 
-    final protected val F: Monad[Option] = cats.std.option.optionInstance
+    final protected val F: Monad[Option] = cats.instances.option.catsStdInstancesForOption
   }
 
   trait XorModule extends Module[({ type L[x] = XorT[Eval, Throwable, x] })#L]

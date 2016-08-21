@@ -1,17 +1,17 @@
 package io.iteratee.internal
 
 import cats.{ Applicative, Monad }
-import cats.data.{ NonEmptyVector, OneAnd }
-import cats.arrow.NaturalTransformation
+import cats.data.NonEmptyVector
+import cats.arrow.FunctionK
 
 private[internal] abstract class BaseCont[F[_], E, A](implicit F: Applicative[F]) extends Step[F, E, A] { self =>
-  final def fold[Z](ifCont: (NonEmptyVector[E] => F[Step[F, E, A]]) => Z, ifDone: (A, Vector[E]) => Z): Z = ifCont {
-    case OneAnd(e, Vector()) => feedEl(e)
-    case OneAnd(h1, h2 +: t) => feedChunk(h1, h2, t)
-  }
+  final def fold[Z](ifCont: (NonEmptyVector[E] => F[Step[F, E, A]]) => Z, ifDone: (A, Vector[E]) => Z): Z =
+    ifCont { nev =>
+      if (nev.length == 1) feedEl(nev.head) else feedChunk(nev.head, nev.getUnsafe(1), nev.tail.drop(1))
+    }
   final def isDone: Boolean = false
 
-  final def mapI[G[_]: Applicative](f: NaturalTransformation[F, G]): Step[G, E, A] = new EffectfulCont[G, E, A] {
+  final def mapI[G[_]: Applicative](f: FunctionK[F, G]): Step[G, E, A] = new EffectfulCont[G, E, A] {
     final def feedEl(e: E): G[Step[G, E, A]] = f(F.map(self.feedEl(e))(_.mapI(f)))
     final def feedChunk(h1: E, h2: E, t: Vector[E]): G[Step[G, E, A]] = f(F.map(self.feedChunk(h1, h2, t))(_.mapI(f)))
     final def run: G[A] = f(self.run)

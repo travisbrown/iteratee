@@ -2,7 +2,7 @@ package io.iteratee.tests
 
 import cats.{ Eq, Eval }
 import cats.data.{ Xor, XorT }
-import cats.std.AllInstances
+import cats.instances.AllInstances
 import cats.syntax.AllSyntax
 import io.iteratee._
 import org.scalatest.FlatSpec
@@ -37,14 +37,14 @@ trait PureSuite extends PureModule {
 trait EvalSuite extends EvalModule {
   def monadName: String = "Eval"
 
-  implicit def eqF[A: Eq]: Eq[Eval[A]] = Eval.evalEq
+  implicit def eqF[A: Eq]: Eq[Eval[A]] = Eval.catsEqForEval[A]
 }
 
 trait XorSuite extends XorModule {
   def monadName: String = "XorT[Eval, Throwable, ?]"
 
   implicit def eqEval[A](implicit A: Eq[A]): Eq[Eval[Xor[Throwable, A]]] =
-    Eval.evalEq(Xor.xorEq(Eq.fromUniversalEquals, A))
+    Eval.catsEqForEval(Xor.catsDataEqForXor(Eq.fromUniversalEquals, A))
 
-  implicit def eqF[A](implicit A: Eq[A]): Eq[XorT[Eval, Throwable, A]] = XorT.xorTEq(eqEval(A))
+  implicit def eqF[A](implicit A: Eq[A]): Eq[XorT[Eval, Throwable, A]] = XorT.catsDataEqForXorT(eqEval(A))
 }
