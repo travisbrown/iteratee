@@ -28,8 +28,8 @@ trait FileModule[F[_]] { this: Module[F] { type M[f[_]] <: MonadError[f, Throwab
     }(F)
 
   final def readLinesFromStream(stream: InputStream): Enumerator[F, String] =
-    Enumerator.liftMEval(
-      Eval.always(captureEffect(new BufferedReader(new InputStreamReader(stream))))
+    Enumerator.liftM(
+      captureEffect(new BufferedReader(new InputStreamReader(stream)))
     )(F).flatMap { reader =>
       new LineEnumerator(reader).ensureEval(Eval.later(captureEffect(reader.close())))(F)
     }(F)
@@ -42,7 +42,7 @@ trait FileModule[F[_]] { this: Module[F] { type M[f[_]] <: MonadError[f, Throwab
     }(F)
 
   final def readBytesFromStream(stream: InputStream): Enumerator[F, Array[Byte]] =
-    Enumerator.liftMEval(Eval.always(captureEffect(new BufferedInputStream(stream))))(F).flatMap { stream =>
+    Enumerator.liftM(captureEffect(new BufferedInputStream(stream)))(F).flatMap { stream =>
       new ByteEnumerator(stream).ensureEval(Eval.later(captureEffect(stream.close())))(F)
     }(F)
 
