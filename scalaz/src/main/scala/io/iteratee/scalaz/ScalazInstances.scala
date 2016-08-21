@@ -1,7 +1,6 @@
 package io.iteratee.scalaz
 
 import cats.MonadError
-import cats.data.Xor
 import scalaz.concurrent.Task
 
 /**
@@ -16,14 +15,8 @@ trait ScalazInstances {
     final def pure[A](x: A): Task[A] = Task.taskInstance.point(x)
     final def flatMap[A, B](fa: Task[A])(f: A => Task[B]): Task[B] = fa.flatMap(f)
     override final def map[A, B](fa: Task[A])(f: A => B): Task[B] = fa.map(f)
-
     final def raiseError[A](e: Throwable): Task[A] = Task.taskInstance.raiseError(e)
-    final def handleErrorWith[A](fa: Task[A])(f: Throwable => Task[A]): Task[A] =
-      Task.taskInstance.handleError(fa)(f)
-
-    final def tailRecM[A, B](a: A)(f: A => Task[Xor[A, B]]): Task[B] = f(a).flatMap {
-      case Xor.Left(a1) => tailRecM(a1)(f)
-      case Xor.Right(b) => pure(b)
-    }
+    final def handleErrorWith[A](fa: Task[A])(f: Throwable => Task[A]): Task[A] = Task.taskInstance.handleError(fa)(f)
+    final def tailRecM[A, B](a: A)(f: A => Task[Either[A, B]]): Task[B] = defaultTailRecM(a)(f)
   }
 }

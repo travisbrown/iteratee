@@ -1,7 +1,6 @@
 package io.iteratee
 
 import cats.{ Monad, MonadError }
-import cats.data.Xor
 import cats.functor.Contravariant
 import io.iteratee.internal.Step
 
@@ -25,15 +24,11 @@ private class IterateeMonad[F[_], E](implicit F: Monad[F]) extends Monad[({ type
   final def pure[A](a: A): Iteratee[F, E, A] = Iteratee.fromStep(Step.done[F, E, A](a))
   override final def map[A, B](fa: Iteratee[F, E, A])(f: A => B): Iteratee[F, E, B] = fa.map(f)
   final def flatMap[A, B](fa: Iteratee[F, E, A])(f: A => Iteratee[F, E, B]): Iteratee[F, E, B] = fa.flatMap(f)
-
-  final def tailRecM[A, B](a: A)(f: A => Iteratee[F, E, Xor[A, B]]): Iteratee[F, E, B] = f(a).flatMap {
-    case Xor.Left(a1) => tailRecM(a1)(f)
-    case Xor.Right(b) => pure(b)
-  }
+  final def tailRecM[A, B](a: A)(f: A => Iteratee[F, E, Either[A, B]]): Iteratee[F, E, B] = defaultTailRecM(a)(f)
 }
 
 private class IterateeMonadError[F[_], T, E](implicit F: MonadError[F, T])
-  extends IterateeMonad[F, E] with MonadError[({ type L[x] = Iteratee[F, E, x] })#L, T] {
+    extends IterateeMonad[F, E] with MonadError[({ type L[x] = Iteratee[F, E, x] })#L, T] {
   final def raiseError[A](e: T): Iteratee[F, E, A] = Iteratee.fail(e)(F)
   final def handleErrorWith[A](fa: Iteratee[F, E, A])(f: T => Iteratee[F, E, A]): Iteratee[F, E, A] =
     fa.handleErrorWith(f)(F)

@@ -1,7 +1,6 @@
 package io.iteratee.files
 
 import cats.MonadError
-import cats.data.Xor
 import io.iteratee.{ Enumerator, Module }
 import io.iteratee.internal.Step
 import java.io.{
@@ -16,6 +15,7 @@ import java.io.{
 import java.util.zip.{ ZipEntry, ZipFile }
 import scala.Predef.genericArrayOps
 import scala.collection.JavaConverters._
+import scala.util.{ Left, Right }
 
 trait FileModule[F[_]] { this: Module[F] { type M[f[_]] <: MonadError[f, Throwable] } =>
   protected def captureEffect[A](a: => A): F[A]
@@ -57,9 +57,9 @@ trait FileModule[F[_]] { this: Module[F] { type M[f[_]] <: MonadError[f, Throwab
 
   private[this] final class LineEnumerator(reader: BufferedReader) extends Enumerator[F, String] {
     final def apply[A](s: Step[F, String, A]): F[Step[F, String, A]] = F.tailRecM(s) { step =>
-      if (step.isDone) F.pure(Xor.right(step)) else F.flatMap(captureEffect(reader.readLine())) {
-        case null => F.pure(Xor.right(step))
-        case line => F.map(step.feedEl(line))(Xor.left)
+      if (step.isDone) F.pure(Right(step)) else F.flatMap(captureEffect(reader.readLine())) {
+        case null => F.pure(Right(step))
+        case line => F.map(step.feedEl(line))(Left(_))
       }
     }
   }
@@ -67,12 +67,12 @@ trait FileModule[F[_]] { this: Module[F] { type M[f[_]] <: MonadError[f, Throwab
   private[this] final class ByteEnumerator(stream: InputStream, bufferSize: Int = 8192)
       extends Enumerator[F, Array[Byte]] {
     final def apply[A](s: Step[F, Array[Byte], A]): F[Step[F, Array[Byte], A]] = F.tailRecM(s) { step =>
-      if (step.isDone) F.pure(Xor.right(step)) else F.flatten(
+      if (step.isDone) F.pure(Right(step)) else F.flatten(
         captureEffect {
           val array = new Array[Byte](bufferSize)
           val read = stream.read(array, 0, bufferSize)
 
-          if (read == -1) F.pure(Xor.right(step)) else F.map(step.feedEl(array.slice(0, read)))(Xor.left)
+          if (read == -1) F.pure(Right(step)) else F.map(step.feedEl(array.slice(0, read)))(Left(_))
         }
       )
     }
@@ -82,13 +82,13 @@ trait FileModule[F[_]] { this: Module[F] { type M[f[_]] <: MonadError[f, Throwab
       extends Enumerator[F, (ZipEntry, InputStream)] {
     final def apply[A](s: Step[F, (ZipEntry, InputStream), A]): F[Step[F, (ZipEntry, InputStream), A]] =
       F.tailRecM(s) { step =>
-        if (step.isDone) F.pure(Xor.right(step)) else F.flatten(
+        if (step.isDone) F.pure(Right(step)) else F.flatten(
           captureEffect(
             if (iterator.hasNext) {
               val entry = iterator.next
 
-              F.map(step.feedEl((entry, zipFile.getInputStream(entry))))(Xor.left)
-            } else F.pure(Xor.right(step))
+              F.map(step.feedEl((entry, zipFile.getInputStream(entry))))(Left(_))
+            } else F.pure(Right(step))
           )
         )
       }

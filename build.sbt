@@ -22,7 +22,7 @@ lazy val compilerOptions = Seq(
 
 val scalaVersions = Seq("2.10.6", "2.11.8")
 
-lazy val catsVersion = "0.7.0-SNAPSHOT"
+lazy val catsVersion = "0.7.0"
 lazy val disciplineVersion = "0.4"
 lazy val scalaCheckVersion = "1.12.5"
 lazy val scalaTestVersion = "3.0.0-M9"
@@ -79,7 +79,7 @@ lazy val iteratee = project.in(file("."))
   .settings(docSettings)
   .settings(noPublishSettings)
   .aggregate(benchmark, core, coreJS, files, monix, monixJS, scalaz, tests, testsJS, twitter)
-  .dependsOn(core, monix, scalaz)
+  .dependsOn(core, scalaz)
 
 lazy val coreBase = crossProject.crossType(CrossType.Pure).in(file("core"))
   .settings(
@@ -157,7 +157,7 @@ lazy val twitter = project
   )
   .settings(allSettings ++ Defaults.itSettings)
   .settings(
-    libraryDependencies += "io.catbird" %% "catbird-util" % "0.7.0-SNAPSHOT"
+    libraryDependencies += "io.catbird" %% "catbird-util" % "0.7.0"
   ).dependsOn(core, files, tests % "test,it")
 
 lazy val scalaz = project
@@ -168,7 +168,7 @@ lazy val scalaz = project
   )
   .settings(allSettings ++ Defaults.itSettings)
   .settings(
-    libraryDependencies += "org.scalaz" %% "scalaz-concurrent" % "7.2.4"
+    libraryDependencies += "org.scalaz" %% "scalaz-concurrent" % "7.2.5"
   ).dependsOn(core, files, tests % "test,it")
 
 lazy val monixBase = crossProject.in(file("monix"))
@@ -181,8 +181,8 @@ lazy val monixBase = crossProject.in(file("monix"))
   .settings(Defaults.itSettings: _*)
   .settings(
     libraryDependencies ++= Seq(
-      "io.monix" %%% "monix-eval" % "2.0-RC10",
-      "io.monix" %%% "monix-cats" % "2.0-RC10"
+      "io.monix" %%% "monix-eval" % "2.0-RC11",
+      "io.monix" %%% "monix-cats" % "2.0-RC11"
     )
   )
   .jsSettings(commonJsSettings: _*)
@@ -202,10 +202,10 @@ lazy val benchmark = project
   .settings(noPublishSettings)
   .settings(
     libraryDependencies ++= Seq(
-      "co.fs2" %% "fs2-core" % "0.9.0-M6",
+      "co.fs2" %% "fs2-core" % "0.9.0-RC1",
       "com.typesafe.play" %% "play-iteratees" % "2.6.0",
       "org.scalatest" %% "scalatest" % scalaTestVersion % "test",
-      "org.scalaz" %% "scalaz-iteratee" % "7.2.4",
+      "org.scalaz" %% "scalaz-iteratee" % "7.2.5",
       "org.scalaz.stream" %% "scalaz-stream" % "0.8.3a"
     )
   )

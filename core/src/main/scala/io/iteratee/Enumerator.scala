@@ -1,9 +1,9 @@
 package io.iteratee
 
 import cats.{ Applicative, FlatMap, Monad, MonadError, Semigroup }
-import cats.data.Xor
 import io.iteratee.internal.Step
 import scala.Predef.=:=
+import scala.util.{ Left, Right }
 
 abstract class Enumerator[F[_], E] extends Serializable { self =>
   def apply[A](s: Step[F, E, A]): F[Step[F, E, A]]
@@ -134,10 +134,10 @@ final object Enumerator extends EnumeratorInstances {
     def chunks: Iterator[Vector[E]]
 
     final def apply[A](s: Step[F, E, A]): F[Step[F, E, A]] = F.tailRecM((s, chunks)) {
-      case (step, it) => if (it.isEmpty || step.isDone) F.pure(Xor.right(step)) else {
+      case (step, it) => if (it.isEmpty || step.isDone) F.pure(Right(step)) else {
         it.next() match {
-          case Vector(e) => F.map(step.feedEl(e))(s => Xor.left((s, it)))
-          case h1 +: h2 +: t => F.map(step.feedChunk(h1, h2, t))(s => Xor.left((s, it)))
+          case Vector(e) => F.map(step.feedEl(e))(s => Left((s, it)))
+          case h1 +: h2 +: t => F.map(step.feedChunk(h1, h2, t))(s => Left((s, it)))
         }
       }
     }
@@ -198,7 +198,7 @@ final object Enumerator extends EnumeratorInstances {
    */
   final def repeat[F[_], E](e: E)(implicit F: Monad[F]): Enumerator[F, E] = new Enumerator[F, E] { self =>
     final def apply[A](step: Step[F, E, A]): F[Step[F, E, A]] = F.tailRecM(step) { s =>
-      if (s.isDone) F.pure(Xor.right(s)) else F.map(s.feedEl(e))(Xor.left)
+      if (s.isDone) F.pure(Right(s)) else F.map(s.feedEl(e))(Left(_))
     }
   }
 
@@ -209,8 +209,8 @@ final object Enumerator extends EnumeratorInstances {
   final def iterate[F[_], E](init: E)(f: E => E)(implicit F: Monad[F]): Enumerator[F, E] =
     new Enumerator[F, E] {
       final def apply[A](s: Step[F, E, A]): F[Step[F, E, A]] = F.tailRecM((s, init)) {
-        case (step, last) => if (step.isDone) F.pure(Xor.right(step)) else {
-          F.map(step.feedEl(last))(s1 => Xor.left((s1, f(last))))
+        case (step, last) => if (step.isDone) F.pure(Right(step)) else {
+          F.map(step.feedEl(last))(s1 => Left((s1, f(last))))
         }
       }
     }
@@ -222,8 +222,8 @@ final object Enumerator extends EnumeratorInstances {
   final def iterateM[F[_], E](init: E)(f: E => F[E])(implicit F: Monad[F]): Enumerator[F, E] =
     new Enumerator[F, E] {
       final def apply[A](s: Step[F, E, A]): F[Step[F, E, A]] = F.tailRecM((s, init)) {
-        case (step, last) => if (step.isDone) F.pure(Xor.right(step)) else {
-          F.flatMap(step.feedEl(last))(s1 => F.map(f(last))(next => Xor.left((s1, next))))
+        case (step, last) => if (step.isDone) F.pure(Right(step)) else {
+          F.flatMap(step.feedEl(last))(s1 => F.map(f(last))(next => Left((s1, next))))
         }
       }
     }
@@ -235,8 +235,8 @@ final object Enumerator extends EnumeratorInstances {
   final def iterateUntil[F[_], E](init: E)(f: E => Option[E])(implicit F: Monad[F]): Enumerator[F, E] =
     new Enumerator[F, E] {
       final def apply[A](s: Step[F, E, A]): F[Step[F, E, A]] = F.tailRecM((s, Some(init): Option[E])) {
-        case (step, Some(last)) if !step.isDone => F.map(step.feedEl(last))(s1 => Xor.left((s1, f(last))))
-        case (step, _) => F.pure(Xor.right(step))
+        case (step, Some(last)) if !step.isDone => F.map(step.feedEl(last))(s1 => Left((s1, f(last))))
+        case (step, _) => F.pure(Right(step))
       }
     }
 
@@ -248,8 +248,8 @@ final object Enumerator extends EnumeratorInstances {
     new Enumerator[F, E] {
       final def apply[A](s: Step[F, E, A]): F[Step[F, E, A]] = F.tailRecM((s, Some(init): Option[E])) {
         case (step, Some(last)) if !step.isDone =>
-          F.flatMap(step.feedEl(last))(s1 => F.map(f(last))(next => Xor.left((s1, next))))
-        case (step, _) => F.pure(Xor.right(step))
+          F.flatMap(step.feedEl(last))(s1 => F.map(f(last))(next => Left((s1, next))))
+        case (step, _) => F.pure(Right(step))
       }
     }
 
@@ -260,9 +260,9 @@ final object Enumerator extends EnumeratorInstances {
   final def generateM[F[_], E](f: F[Option[E]])(implicit F: Monad[F]): Enumerator[F, E] =
     new Enumerator[F, E] {
       final def apply[A](s: Step[F, E, A]): F[Step[F, E, A]] = F.tailRecM(s) { step =>
-        if (step.isDone) F.pure(Xor.right(step)) else F.flatMap(f) {
-          case Some(e) => F.map(step.feedEl(e))(Xor.left)
-          case None => F.pure(Xor.right(step))
+        if (step.isDone) F.pure(Right(step)) else F.flatMap(f) {
+          case Some(e) => F.map(step.feedEl(e))(Left(_))
+          case None => F.pure(Right(step))
         }
       }
     }
