@@ -17,9 +17,6 @@ trait TwitterModule extends Module[Rerunnable]
 
   final protected val F: MonadError[Rerunnable, Throwable] = implicitly
 
-  /**
-   * Since Rerunnable is already lazy, the Eval here is strict
-   */
   final override protected def captureEffect[A](a: => A): Rerunnable[A] =
     new Rerunnable[A] {
       final def run: Future[A] = toFuture(a)
