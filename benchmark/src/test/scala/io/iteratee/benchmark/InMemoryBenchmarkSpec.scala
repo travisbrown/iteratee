@@ -14,10 +14,6 @@ class InMemoryBenchmarkSpec extends FlatSpec {
     assert(benchmark.sumInts1IR === sum)
   }
 
-  it should "correctly calculate the sum using io.iteratee.monix" in {
-    assert(benchmark.sumInts2IM === sum)
-  }
-
   it should "correctly calculate the sum using scalaz-stream" in {
     assert(benchmark.sumInts3S === sum)
   }

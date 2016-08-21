@@ -70,7 +70,7 @@ lazy val docSettings = site.settings ++ ghpages.settings ++ unidocSettings ++ Se
   ),
   git.remoteRepo := "git@github.com:travisbrown/iteratee.git",
   unidocProjectFilter in (ScalaUnidoc, unidoc) :=
-    inAnyProject -- inProjects(coreJS, benchmark, monixJS, tests, testsJS)
+    inAnyProject -- inProjects(coreJS, benchmark, tests, testsJS)
 )
 
 lazy val iteratee = project.in(file("."))
@@ -78,7 +78,7 @@ lazy val iteratee = project.in(file("."))
   .settings(allSettings)
   .settings(docSettings)
   .settings(noPublishSettings)
-  .aggregate(benchmark, core, coreJS, files, monix, monixJS, scalaz, tests, testsJS, twitter)
+  .aggregate(benchmark, core, coreJS, files, scalaz, tests, testsJS, twitter)
   .dependsOn(core, scalaz)
 
 lazy val coreBase = crossProject.crossType(CrossType.Pure).in(file("core"))
@@ -171,28 +171,6 @@ lazy val scalaz = project
     libraryDependencies += "org.scalaz" %% "scalaz-concurrent" % "7.2.5"
   ).dependsOn(core, files, tests % "test,it")
 
-lazy val monixBase = crossProject.in(file("monix"))
-  .configs(IntegrationTest)
-  .settings(
-    crossScalaVersions := scalaVersions,
-    moduleName := "iteratee-monix"
-  )
-  .settings(allSettings: _*)
-  .settings(Defaults.itSettings: _*)
-  .settings(
-    libraryDependencies ++= Seq(
-      "io.monix" %%% "monix-eval" % "2.0-RC11",
-      "io.monix" %%% "monix-cats" % "2.0-RC11"
-    )
-  )
-  .jsSettings(commonJsSettings: _*)
-  .jvmConfigure(_.copy(id = "monix").dependsOn(files))
-  .jsConfigure(_.copy(id = "monixJS"))
-  .dependsOn(coreBase, testsBase % "test,it")
-
-lazy val monix = monixBase.jvm
-lazy val monixJS = monixBase.js
-
 lazy val benchmark = project
   .settings(
     crossScalaVersions := scalaVersions.tail,
@@ -210,7 +188,7 @@ lazy val benchmark = project
     )
   )
   .enablePlugins(JmhPlugin)
-  .dependsOn(core, monix, scalaz, twitter)
+  .dependsOn(core, scalaz, twitter)
 
 val removeScoverage = new RuleTransformer(
   new RewriteRule {
@@ -281,7 +259,6 @@ val jvmProjects = Seq(
   "benchmark",
   "core",
   "files",
-  "monix",
   "scalaz",
   "twitter",
   "tests"
@@ -289,12 +266,11 @@ val jvmProjects = Seq(
 
 val jsProjects = Seq(
   "coreJS",
-  "monixJS",
   "testsJS"
 )
 
 addCommandAlias("testJVM", jvmProjects.map(";" + _ + "/test").mkString)
-addCommandAlias("validateJVM", ";testJVM;monix/it:test;scalaz/it:test;twitter/it:test;scalastyle;unidoc")
+addCommandAlias("validateJVM", ";testJVM;scalaz/it:test;twitter/it:test;scalastyle;unidoc")
 addCommandAlias("testJS", jsProjects.map(";" + _ + "/test").mkString)
 addCommandAlias("validateJS", ";testJS;scalastyle;unidoc")
 addCommandAlias("validate", ";validateJVM;validateJS")
