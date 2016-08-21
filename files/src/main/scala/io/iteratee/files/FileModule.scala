@@ -108,7 +108,7 @@ object FileModule {
   private[this] class FromMonadError[F[_]](
     monadError: MonadError[F, Throwable]) extends Module[F] with FileModule[F] {
     type M[F[T]] = MonadError[F, Throwable]
-    def F = monadError
+    def F: MonadError[F, Throwable] = monadError
   }
 
   /**

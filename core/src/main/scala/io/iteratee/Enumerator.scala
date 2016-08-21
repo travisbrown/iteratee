@@ -57,11 +57,12 @@ abstract class Enumerator[F[_], E] extends Serializable { self =>
   final def ensure[T](action: F[Unit])(implicit F: MonadError[F, T]): Enumerator[F, E] =
     ensureEval(Eval.now(action))
 
-  final def ensureEval[T](action: Eval[F[Unit]])(implicit F: MonadError[F, T]): Enumerator[F, E] = new Enumerator[F, E] {
-    final def apply[A](s: Step[F, E, A]): F[Step[F, E, A]] = F.flatMap(
-      F.handleErrorWith(self(s))(e => F.flatMap(action.value)(_ => F.raiseError(e)))
-    )(result => F.map(action.value)(_ => result))
-  }
+  final def ensureEval[T](action: Eval[F[Unit]])(implicit F: MonadError[F, T]): Enumerator[F, E] =
+    new Enumerator[F, E] {
+      final def apply[A](s: Step[F, E, A]): F[Step[F, E, A]] = F.flatMap(
+        F.handleErrorWith(self(s))(e => F.flatMap(action.value)(_ => F.raiseError(e)))
+      )(result => F.map(action.value)(_ => result))
+    }
 
   final def handleErrorWith[T](f: T => Enumerator[F, E])(implicit F: MonadError[F, T]): Enumerator[F, E] =
     new Enumerator[F, E] {
