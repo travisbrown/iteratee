@@ -70,9 +70,10 @@ trait FileModule[F[_]] { this: Module[F] { type M[f[_]] <: MonadError[f, Throwab
       if (step.isDone) F.pure(Right(step)) else F.flatten(
         captureEffect {
           val array = new Array[Byte](bufferSize)
-          val read = stream.read(array, 0, bufferSize)
+          val bytesRead = stream.read(array, 0, bufferSize)
+          val read = if (bytesRead == bufferSize) array else array.slice(0, bytesRead)
 
-          if (read == -1) F.pure(Right(step)) else F.map(step.feedEl(array.slice(0, read)))(Left(_))
+          if (bytesRead == -1) F.pure(Right(step)) else F.map(step.feedEl(read))(Left(_))
         }
       )
     }
