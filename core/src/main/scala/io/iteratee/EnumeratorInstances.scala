@@ -26,5 +26,9 @@ private trait EnumeratorMonad[F[_]] extends Monad[({ type L[x] = Enumerator[F, x
     with EnumeratorFunctor[F] {
   final def flatMap[A, B](fa: Enumerator[F, A])(f: A => Enumerator[F, B]): Enumerator[F, B] = fa.flatMap(f)
   final def pure[E](e: E): Enumerator[F, E] = Enumerator.enumOne[F, E](e)
+
+  /**
+   * Note that recursive monadic binding is not stack safe for enumerators.
+   */
   final def tailRecM[A, B](a: A)(f: A => Enumerator[F, Either[A, B]]): Enumerator[F, B] = defaultTailRecM(a)(f)
 }
