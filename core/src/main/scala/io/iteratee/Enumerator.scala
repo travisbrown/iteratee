@@ -270,8 +270,9 @@ final object Enumerator extends EnumeratorInstances {
   /**
    * Enumerators that rely on `F` to provide stack safety.
    *
-   * These implementations are more efficient than the default ones, but will
-   * not be stack safe unless recursive monadic binding in `F` is stack safe.
+   * These implementations will generally be more efficient than the default
+   * ones, but will not be stack safe unless recursive monadic binding in `F` is
+   * stack safe.
    */
   final object StackUnsafe {
     /**
