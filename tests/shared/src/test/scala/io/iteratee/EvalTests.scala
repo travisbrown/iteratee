@@ -1,7 +1,7 @@
 package io.iteratee
 
 import cats.Eval
-import io.iteratee.tests.{ EvalSuite, EnumerateeSuite, EnumeratorSuite, IterateeSuite }
+import io.iteratee.tests.{ EvalSuite, EnumerateeSuite, StackSafeEnumeratorSuite, IterateeSuite }
 
 class EvalEnumerateeTests extends EnumerateeSuite[Eval] with EvalSuite {
   "take" should "work with more than Int.MaxValue values" in forAll { (n: Int) =>
@@ -13,7 +13,7 @@ class EvalEnumerateeTests extends EnumerateeSuite[Eval] with EvalSuite {
   }
 }
 
-class EvalEnumeratorTests extends EnumeratorSuite[Eval] with EvalSuite {
+class EvalEnumeratorTests extends StackSafeEnumeratorSuite[Eval] with EvalSuite {
   "perform" should "perform an action" in forAll { (eav: EnumeratorAndValues[Int]) =>
     var counter = 0
     val action = perform[Int](Eval.always(counter += 1))

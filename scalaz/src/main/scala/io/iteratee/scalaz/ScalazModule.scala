@@ -1,6 +1,6 @@
 package io.iteratee.scalaz
 
-import cats.{Eval, MonadError}
+import cats.MonadError
 import io.iteratee.{ EnumerateeModule, EnumeratorErrorModule, IterateeErrorModule, Module }
 import io.iteratee.files.FileModule
 import scalaz.concurrent.Task
@@ -13,9 +13,5 @@ trait ScalazModule extends ScalazInstances with Module[Task]
 
   final protected val F: MonadError[Task, Throwable] = scalazTaskMonadError
 
-  /**
-   * Task is already lazy, so we don't need Eval to be lazy here
-   */
-  final override protected def captureEffect[A](a: => A): Eval[Task[A]] =
-    Eval.now(Task(a))
+  final override protected def captureEffect[A](a: => A): Task[A] = Task(a)
 }

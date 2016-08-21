@@ -37,7 +37,7 @@ abstract class IterateeErrorSuite[F[_], T: Arbitrary: Eq](implicit MEF: MonadErr
     eqIteratee[F, Vector[Int], (Vector[Int], Vector[Int], Vector[Int])]
 
   implicit val eqXorTVectorInt: Eq[XorT[({ type L[x] = Iteratee[F, Vector[Int], x] })#L, T, Vector[Int]]] =
-    XorT.xorTEq(eqXorVectorIntIteratee)
+    XorT.catsDataEqForXorT(eqXorVectorIntIteratee)
 
   implicit val arbitraryVectorIntFunctionIteratee: Arbitrary[VectorIntFoldingIteratee[Vector[Int] => Vector[Int]]] =
     arbitraryFunctionIteratee[F, Vector[Int]]
@@ -82,7 +82,7 @@ abstract class BaseIterateeSuite[F[_]: Monad] extends ModuleSuite[F] {
   }
 
   it should "work with fold with one value" in forAll { (es: List[Int]) =>
-    val folded = myDrain(es).fold[F[List[Int]]](_(NonEmptyVector(0)).run, (_, _) => F.pure(Nil))
+    val folded = myDrain(es).fold[F[List[Int]]](_(NonEmptyVector(0, Vector.empty)).run, (_, _) => F.pure(Nil))
 
     assert(F.flatten(folded) === F.pure(es :+ 0))
   }
@@ -202,7 +202,7 @@ abstract class BaseIterateeSuite[F[_]: Monad] extends ModuleSuite[F] {
     assert(eav.resultWithLeftovers(length) === F.pure((eav.values.size.toLong, Vector.empty)))
   }
 
-  "sum" should "return the su of a stream of integers" in forAll { (eav: EnumeratorAndValues[Int]) =>
+  "sum" should "return the sum of a stream of integers" in forAll { (eav: EnumeratorAndValues[Int]) =>
     assert(eav.resultWithLeftovers(sum) === F.pure((eav.values.sum, Vector.empty)))
   }
 

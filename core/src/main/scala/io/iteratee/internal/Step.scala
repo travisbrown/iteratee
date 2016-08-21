@@ -1,8 +1,8 @@
 package io.iteratee.internal
 
-import cats.{ Applicative, Monad, MonoidK }
+import cats.{ Applicative, Monad, Monoid, MonoidK }
 import cats.data.NonEmptyVector
-import cats.arrow.NaturalTransformation
+import cats.arrow.FunctionK
 
 /**
  * Represents the current state of an [[io.iteratee.Iteratee]].
@@ -47,7 +47,7 @@ abstract class Step[F[_], E, A] extends Serializable {
   /**
    * Transform the context of this [[Step]].
    */
-  def mapI[G[_]: Applicative](f: NaturalTransformation[F, G]): Step[G, E, A]
+  def mapI[G[_]: Applicative](f: FunctionK[F, G]): Step[G, E, A]
 
   /**
    * Map a function returning a [[Step]] in a monadic context over the value of
@@ -130,7 +130,7 @@ final object Step { self =>
     onInput: NonEmptyVector[E] => F[Step[F, E, A]],
     onEnd: F[A]
   )(implicit F: Applicative[F]): Step[F, E, A] = new EffectfulCont[F, E, A] {
-    final def feedEl(e: E): F[Step[F, E, A]] = onInput(NonEmptyVector(e))
+    final def feedEl(e: E): F[Step[F, E, A]] = onInput(NonEmptyVector(e, Vector.empty))
     final def feedChunk(h1: E, h2: E, t: Vector[E]): F[Step[F, E, A]] = onInput(NonEmptyVector(h1, h2 +: t))
     final def run: F[A] = onEnd
   }
@@ -279,6 +279,35 @@ final object Step { self =>
     extends PureCont.WithValue[F, E, Long](acc) {
     final def onEl(e: E): Step[F, E, Long] = new LengthCont(acc + 1L)
     final def onChunk(h1: E, h2: E, t: Vector[E]): Step[F, E, Long] = new LengthCont(acc + t.size.toLong + 2L)
+  }
+
+  /**
+   * A [[Step]] that sums of values in a stream.
+   *
+   * @group Collection
+   */
+  final def sum[F[_], E](implicit F: Applicative[F], M: Monoid[E]): Step[F, E, E] = new SumCont(M.empty)
+
+  private[this] final class SumCont[F[_], E](acc: E)(implicit F: Applicative[F], M: Monoid[E])
+    extends PureCont.WithValue[F, E, E](acc) {
+    final def onEl(e: E): Step[F, E, E] = new SumCont(M.combine(acc, e))
+    final def onChunk(h1: E, h2: E, t: Vector[E]): Step[F, E, E] =
+      new SumCont(M.combine(acc, M.combine(h1, M.combine(h2, M.combineAll(t)))))
+  }
+
+  /**
+   * A [[Step]] that transforms and sums values in a stream.
+   *
+   * @group Collection
+   */
+  final def foldMap[F[_], E, A](f: E => A)(implicit F: Applicative[F], M: Monoid[A]): Step[F, E, A] =
+    new FoldMapCont(f, M.empty)
+
+  private[this] final class FoldMapCont[F[_], E, A](f: E => A, acc: A)(implicit F: Applicative[F], M: Monoid[A])
+    extends PureCont.WithValue[F, E, A](acc) {
+    final def onEl(e: E): Step[F, E, A] = new FoldMapCont(f, M.combine(acc, f(e)))
+    final def onChunk(h1: E, h2: E, t: Vector[E]): Step[F, E, A] =
+      new FoldMapCont(f, M.combine(acc, M.combine(f(h1), M.combine(f(h2), M.combineAll(t.map(f))))))
   }
 
   /**

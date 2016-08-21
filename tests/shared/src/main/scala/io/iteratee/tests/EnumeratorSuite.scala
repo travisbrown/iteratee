@@ -6,7 +6,7 @@ import cats.laws.discipline.{ CartesianTests, MonadTests }
 import io.iteratee.{ EnumerateeModule, Enumerator, EnumeratorModule, IterateeModule, Module }
 
 abstract class EnumeratorSuite[F[_]: Monad] extends ModuleSuite[F] {
-  this: Module[F] with EnumerateeModule[F] with EnumeratorModule[F] with IterateeModule[F] =>
+    this: Module[F] with EnumerateeModule[F] with EnumeratorModule[F] with IterateeModule[F] =>
 
   type EnumeratorF[E] = Enumerator[F, E]
 
@@ -116,7 +116,8 @@ abstract class EnumeratorSuite[F[_]: Monad] extends ModuleSuite[F] {
     /**
      * Workaround for divergence during resolution on 2.10.
      */
-    val E: Eq[F[Option[F[Vector[String]]]]] = eqF(optionEq(eqF(vectorEq(stringOrder))))
+    val E: Eq[F[Option[F[Vector[String]]]]] = eqF(catsKernelStdEqForOption(eqF(Eq[Vector[String]])))
+
     val enumeratorF: F[Option[Enumerator[F, String]]] = eav.enumerator.bindM(v => Option(enumOne(v.toString)))
 
     assert(E.eqv(enumeratorF.map(_.map(_.toVector)), F.pure(Option(F.pure(eav.values.map(_.toString))))))
@@ -154,5 +155,43 @@ abstract class EnumeratorSuite[F[_]: Monad] extends ModuleSuite[F] {
 
       assert(enumerator.toVector === F.pure(eav.values.flatMap(v => Vector(v, v))))
     }
+  }
+}
+
+abstract class StackSafeEnumeratorSuite[F[_]: Monad] extends EnumeratorSuite[F] {
+    this: Module[F] with EnumerateeModule[F] with EnumeratorModule[F] with IterateeModule[F] =>
+
+  "StackUnsafe.repeat" should "be consistent with repeat" in forAll { (i: Int, count: Short) =>
+    val expected = repeat(i).run(takeI(count.toInt))
+
+    assert(Enumerator.StackUnsafe.repeat[F, Int](i).run(takeI(count.toInt)) === expected)
+  }
+
+  "StackUnsafe.iterate" should "be consistent with iterate" in forAll { (n: Int, count: Short) =>
+    val expected = iterate(n)(_ + 1).run(takeI(count.toInt))
+
+    assert(Enumerator.StackUnsafe.iterate[F, Int](n)(_ + 1).run(takeI(count.toInt)) === expected)
+  }
+
+  "StackUnsafe.iterateM" should "be consistent with iterateM" in forAll { (n: Int, count: Short) =>
+    val expected = iterateM(n)(i => F.pure(i + 1)).run(takeI(count.toInt))
+
+    assert(Enumerator.StackUnsafe.iterateM[F, Int](n)(i => F.pure(i + 1)).run(takeI(count.toInt)) === expected)
+  }
+
+  "StackUnsafe.iterateUntil" should "be consistent with iterateUntil" in forAll { (n: Short) =>
+    val count = math.abs(n.toInt)
+    val expected = iterateUntil(0)(i => if (i == count) None else Some(i + 1)).toVector
+    val enumerator = Enumerator.StackUnsafe.iterateUntil[F, Int](0)(i => if (i == count) None else Some(i + 1))
+
+    assert(enumerator.toVector === expected)
+  }
+
+  "StackUnsafe.iterateUntilM" should "be consistent with iterateUntilM" in forAll { (n: Short) =>
+    val count = math.abs(n.toInt)
+    val expected = iterateUntilM(0)(i => F.pure(if (i == count) None else Some(i + 1))).toVector
+    val enumerator = Enumerator.StackUnsafe.iterateUntilM[F, Int](0)(i => F.pure(if (i == count) None else Some(i + 1)))
+
+    assert(enumerator.toVector === expected)
   }
 }

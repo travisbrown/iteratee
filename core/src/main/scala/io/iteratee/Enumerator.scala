@@ -3,6 +3,7 @@ package io.iteratee
 import cats.{ Applicative, FlatMap, Monad, MonadError, Semigroup, Eval }
 import io.iteratee.internal.Step
 import scala.Predef.=:=
+import scala.util.{ Left, Right }
 
 abstract class Enumerator[F[_], E] extends Serializable { self =>
   def apply[A](s: Step[F, E, A]): F[Step[F, E, A]]
@@ -116,7 +117,7 @@ final object Enumerator extends EnumeratorInstances {
     final def apply[A](s: Step[F, E, A]): F[Step[F, E, A]] = s.feedEl(e)
   }
 
-  private[this] abstract class ChunkedIteratorEnumerator[F[_], E](implicit F: Monad[F])
+  private[this] abstract class ChunkedIteratorEnumerator0[F[_], E](implicit F: Monad[F])
     extends Enumerator[F, E] {
     def chunks: Iterator[Vector[E]]
 
@@ -129,6 +130,28 @@ final object Enumerator extends EnumeratorInstances {
       }
 
     final def apply[A](s: Step[F, E, A]): F[Step[F, E, A]] = go(chunks, s)
+  }
+
+  /**
+   * An enumerator that produces values from a stream.
+   */
+  final def enumStream0[F[_]: Monad, E](xs: Stream[E], chunkSize: Int = defaultChunkSize): Enumerator[F, E] =
+    new ChunkedIteratorEnumerator0[F, E] {
+      final def chunks: Iterator[Vector[E]] = xs.grouped(chunkSize).map(_.toVector)
+    }
+
+  private[this] abstract class ChunkedIteratorEnumerator[F[_], E](implicit F: Monad[F])
+    extends Enumerator[F, E] {
+    def chunks: Iterator[Vector[E]]
+
+    final def apply[A](s: Step[F, E, A]): F[Step[F, E, A]] = F.tailRecM((s, chunks)) {
+      case (step, it) => if (it.isEmpty || step.isDone) F.pure(Right(step)) else {
+        it.next() match {
+          case Vector(e) => F.map(step.feedEl(e))(s => Left((s, it)))
+          case h1 +: h2 +: t => F.map(step.feedChunk(h1, h2, t))(s => Left((s, it)))
+        }
+      }
+    }
   }
 
   /**
@@ -171,21 +194,23 @@ final object Enumerator extends EnumeratorInstances {
     xs: IndexedSeq[E],
     min: Int = 0,
     max: Int = Int.MaxValue
-  )(implicit F: Monad[F]): Enumerator[F, E] = new Enumerator[F, E] {
-    private[this] final val limit = math.min(xs.length, max)
-
-    private[this] final def loop[A](pos: Int)(s: Step[F, E, A]): F[Step[F, E, A]] =
-      if (limit > pos) F.flatMap(s.feedEl(xs(pos)))(loop(pos + 1)) else F.pure(s)
-
-    final def apply[A](step: Step[F, E, A]): F[Step[F, E, A]] = loop(math.max(min, 0))(step)
-  }
+  )(implicit F: Applicative[F]): Enumerator[F, E] =
+    new Enumerator[F, E] {
+      final def apply[A](s: Step[F, E, A]): F[Step[F, E, A]] =
+        xs.slice(min, max) match {
+          case is if is.isEmpty => F.pure(s)
+          case IndexedSeq(e) => s.feedEl(e)
+          case h1 +: h2 +: t => s.feedChunk(h1, h2, t.toVector)
+        }
+    }
 
   /**
    * An enumerator that repeats the given value indefinitely.
    */
   final def repeat[F[_], E](e: E)(implicit F: Monad[F]): Enumerator[F, E] = new Enumerator[F, E] { self =>
-    final def apply[A](step: Step[F, E, A]): F[Step[F, E, A]] =
-      if (step.isDone) F.pure(step) else F.flatMap(step.feedEl(e))(apply)
+    final def apply[A](step: Step[F, E, A]): F[Step[F, E, A]] = F.tailRecM(step) { s =>
+      if (s.isDone) F.pure(Right(s)) else F.map(s.feedEl(e))(Left(_))
+    }
   }
 
   /**
@@ -194,10 +219,11 @@ final object Enumerator extends EnumeratorInstances {
    */
   final def iterate[F[_], E](init: E)(f: E => E)(implicit F: Monad[F]): Enumerator[F, E] =
     new Enumerator[F, E] {
-      private[this] def loop[A](step: Step[F, E, A], last: E): F[Step[F, E, A]] =
-        if (step.isDone) F.pure(step) else F.flatMap(step.feedEl(last))(loop(_, f(last)))
-
-      final def apply[A](s: Step[F, E, A]): F[Step[F, E, A]] = loop(s, init)
+      final def apply[A](s: Step[F, E, A]): F[Step[F, E, A]] = F.tailRecM((s, init)) {
+        case (step, last) => if (step.isDone) F.pure(Right(step)) else {
+          F.map(step.feedEl(last))(s1 => Left((s1, f(last))))
+        }
+      }
     }
 
   /**
@@ -206,11 +232,11 @@ final object Enumerator extends EnumeratorInstances {
    */
   final def iterateM[F[_], E](init: E)(f: E => F[E])(implicit F: Monad[F]): Enumerator[F, E] =
     new Enumerator[F, E] {
-      private[this] def loop[A](step: Step[F, E, A], last: E): F[Step[F, E, A]] =
-        if (step.isDone) F.pure(step) else
-          F.flatMap(step.feedEl(last))(next => F.flatMap(f(last))(loop(next, _)))
-
-      final def apply[A](s: Step[F, E, A]): F[Step[F, E, A]] = loop(s, init)
+      final def apply[A](s: Step[F, E, A]): F[Step[F, E, A]] = F.tailRecM((s, init)) {
+        case (step, last) => if (step.isDone) F.pure(Right(step)) else {
+          F.map2(step.feedEl(last), f(last))((s1, next) => Left((s1, next)))
+        }
+      }
     }
 
   /**
@@ -219,12 +245,10 @@ final object Enumerator extends EnumeratorInstances {
    */
   final def iterateUntil[F[_], E](init: E)(f: E => Option[E])(implicit F: Monad[F]): Enumerator[F, E] =
     new Enumerator[F, E] {
-      private[this] def loop[A](step: Step[F, E, A], last: Option[E]): F[Step[F, E, A]] =
-        last match {
-          case Some(last) if !step.isDone => F.flatMap(step.feedEl(last))(loop(_, f(last)))
-          case _ => F.pure(step)
-        }
-      final def apply[A](s: Step[F, E, A]): F[Step[F, E, A]] = loop(s, Some(init))
+      final def apply[A](s: Step[F, E, A]): F[Step[F, E, A]] = F.tailRecM((s, Some(init): Option[E])) {
+        case (step, Some(last)) if !step.isDone => F.map(step.feedEl(last))(s1 => Left((s1, f(last))))
+        case (step, _) => F.pure(Right(step))
+      }
     }
 
   /**
@@ -233,23 +257,125 @@ final object Enumerator extends EnumeratorInstances {
    */
   final def iterateUntilM[F[_], E](init: E)(f: E => F[Option[E]])(implicit F: Monad[F]): Enumerator[F, E] =
     new Enumerator[F, E] {
-      private[this] def loop[A](step: Step[F, E, A], last: Option[E]): F[Step[F, E, A]] =
-        last match {
-          case Some(last) if !step.isDone => F.flatMap(step.feedEl(last))(next => F.flatMap(f(last))(loop(next, _)))
-          case _ => F.pure(step)
-        }
-      final def apply[A](s: Step[F, E, A]): F[Step[F, E, A]] = loop(s, Some(init))
+      final def apply[A](s: Step[F, E, A]): F[Step[F, E, A]] = F.tailRecM((s, Some(init): Option[E])) {
+        case (step, Some(last)) if !step.isDone =>
+          F.map2(step.feedEl(last), f(last))((s1, next) => Left((s1, next)))
+        case (step, _) => F.pure(Right(step))
+      }
     }
 
   /**
    * An enumerator that returns the result of an effectful operation until
    * `None` is generated.
    */
-  final def generateM[F[_], E](f: F[Option[E]])(implicit F: Monad[F]): Enumerator[F, E] = new Enumerator[F, E] {
-    final def apply[A](s: Step[F, E, A]): F[Step[F, E, A]] =
-      if (s.isDone) F.pure(s) else F.flatMap(f) {
-        case None => F.pure(s)
-        case Some(e) => F.flatMap(s.feedEl(e))(apply)
+  final def generateM[F[_], E](f: F[Option[E]])(implicit F: Monad[F]): Enumerator[F, E] =
+    new Enumerator[F, E] {
+      final def apply[A](s: Step[F, E, A]): F[Step[F, E, A]] = F.tailRecM(s) { step =>
+        if (step.isDone) F.pure(Right(step)) else F.flatMap(f) {
+          case Some(e) => F.map(step.feedEl(e))(Left(_))
+          case None => F.pure(Right(step))
+        }
+      }
+    }
+
+  /**
+   * Enumerators that rely on `F` to provide stack safety.
+   *
+   * These implementations will generally be more efficient than the default
+   * ones, but will not be stack safe unless recursive monadic binding in `F` is
+   * stack safe.
+   */
+  final object StackUnsafe {
+    /**
+     * An enumerator that repeats the given value indefinitely.
+     *
+     * Note that this implementation will only be stack safe if recursive monadic
+     * binding in `F` is stack safe.
+     */
+    final def repeat[F[_], E](e: E)(implicit F: Monad[F]): Enumerator[F, E] =
+      new Enumerator[F, E] {
+        final def apply[A](step: Step[F, E, A]): F[Step[F, E, A]] =
+          if (step.isDone) F.pure(step) else F.flatMap(step.feedEl(e))(apply)
+      }
+
+    /**
+     * An enumerator that iteratively performs an operation and returns the
+     * results.
+     *
+     * Note that this implementation will only be stack safe if recursive monadic
+     * binding in `F` is stack safe.
+     */
+    def iterate[F[_], E](init: E)(f: E => E)(implicit F: Monad[F]): Enumerator[F, E] =
+      new Enumerator[F, E] {
+        private[this] def loop[A](step: Step[F, E, A], last: E): F[Step[F, E, A]] =
+          if (step.isDone) F.pure(step) else F.flatMap(step.feedEl(last))(loop(_, f(last)))
+
+        final def apply[A](s: Step[F, E, A]): F[Step[F, E, A]] = loop(s, init)
+      }
+
+    /**
+     * An enumerator that iteratively performs an effectful operation and returns
+     * the results.
+     *
+     * Note that this implementation will only be stack safe if recursive monadic
+     * binding in `F` is stack safe.
+     */
+    def iterateM[F[_], E](init: E)(f: E => F[E])(implicit F: Monad[F]): Enumerator[F, E] =
+      new Enumerator[F, E] {
+        private[this] def loop[A](step: Step[F, E, A], last: E): F[Step[F, E, A]] =
+          if (step.isDone) F.pure(step) else F.flatten(F.map2(step.feedEl(last), f(last))(loop))
+
+        final def apply[A](s: Step[F, E, A]): F[Step[F, E, A]] = loop(s, init)
+      }
+
+    /**
+     * An enumerator that iteratively performs an operation until `None` is
+     * generated and returns the results.
+     *
+     * Note that this implementation will only be stack safe if recursive monadic
+     * binding in `F` is stack safe.
+     */
+    def iterateUntil[F[_], E](init: E)(f: E => Option[E])(implicit F: Monad[F]): Enumerator[F, E] =
+      new Enumerator[F, E] {
+        private[this] def loop[A](step: Step[F, E, A], last: Option[E]): F[Step[F, E, A]] =
+          last match {
+            case Some(last) if !step.isDone => F.flatMap(step.feedEl(last))(loop(_, f(last)))
+            case _ => F.pure(step)
+          }
+        final def apply[A](s: Step[F, E, A]): F[Step[F, E, A]] = loop(s, Some(init))
+      }
+
+    /**
+     * An enumerator that iteratively performs an effectful operation until `None`
+     * is generated and returns the results.
+     *
+     * Note that this implementation will only be stack safe if recursive monadic
+     * binding in `F` is stack safe.
+     */
+    def iterateUntilM[F[_], E](init: E)(f: E => F[Option[E]])(implicit F: Monad[F]): Enumerator[F, E] =
+      new Enumerator[F, E] {
+        private[this] def loop[A](step: Step[F, E, A], last: Option[E]): F[Step[F, E, A]] =
+          last match {
+            case Some(last) if !step.isDone => F.flatten(F.map2(step.feedEl(last), f(last))(loop))
+            case _ => F.pure(step)
+          }
+        final def apply[A](s: Step[F, E, A]): F[Step[F, E, A]] = loop(s, Some(init))
+      }
+
+    /**
+     * An enumerator that returns the result of an effectful operation until
+     * `None` is generated.
+     *
+     * Note that this implementation will only be stack safe if recursive monadic
+     * binding in `F` is stack safe.
+     */
+    def generateM[F[_], E](f: F[Option[E]])(implicit F: Monad[F]): Enumerator[F, E] =
+      new Enumerator[F, E] {
+        final def apply[A](s: Step[F, E, A]): F[Step[F, E, A]] =
+          if (s.isDone) F.pure(s) else F.flatMap(f) {
+            case None => F.pure(s)
+            case Some(e) => F.flatMap(s.feedEl(e))(apply)
+          }
       }
   }
 }

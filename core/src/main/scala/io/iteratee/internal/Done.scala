@@ -2,7 +2,7 @@ package io.iteratee.internal
 
 import cats.{ Applicative, Monad }
 import cats.data.NonEmptyVector
-import cats.arrow.NaturalTransformation
+import cats.arrow.FunctionK
 
 private[internal] abstract class BaseDone[F[_], E, A](implicit F: Applicative[F]) extends Step[F, E, A] {
   def value: A
@@ -18,7 +18,7 @@ private[internal] case class NoLeftovers[F[_]: Applicative, E, A](value: A) exte
 
   final def map[B](f: A => B): Step[F, E, B] = new NoLeftovers(f(value))
   final def contramap[E2](f: E2 => E): Step[F, E2, A] = new NoLeftovers(value)
-  final def mapI[G[_]: Applicative](f: NaturalTransformation[F, G]): Step[G, E, A] = new NoLeftovers(value)
+  final def mapI[G[_]: Applicative](f: FunctionK[F, G]): Step[G, E, A] = new NoLeftovers(value)
   final def bind[B](f: A => F[Step[F, E, B]])(implicit M: Monad[F]): F[Step[F, E, B]] = f(value)
   final def zip[B](other: Step[F, E, B])(implicit M: Monad[F]): F[Step[F, E, (A, B)]] =
     M.pure(other.map((value, _)))
@@ -31,7 +31,7 @@ private[internal] case class WithLeftovers[F[_]: Applicative, E, A](value: A, re
 
   final def map[B](f: A => B): Step[F, E, B] = new WithLeftovers(f(value), remaining)
   final def contramap[E2](f: E2 => E): Step[F, E2, A] = new NoLeftovers(value)
-  final def mapI[G[_]: Applicative](f: NaturalTransformation[F, G]): Step[G, E, A] =
+  final def mapI[G[_]: Applicative](f: FunctionK[F, G]): Step[G, E, A] =
     new WithLeftovers(value, remaining)
 
   final def bind[B](f: A => F[Step[F, E, B]])(implicit M: Monad[F]): F[Step[F, E, B]] =

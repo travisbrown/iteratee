@@ -15,10 +15,6 @@ class StreamingBenchmarkSpec extends FlatSpec {
     assert(benchmark.takeLongs1IR === taken)
   }
 
-  it should "correctly gather elements using io.iteratee.monix" in {
-    assert(benchmark.takeLongs2IM === taken)
-  }
-
   it should "correctly gather elements using scalaz-stream" in {
     assert(benchmark.takeLongs3S === taken)
   }
