@@ -187,7 +187,7 @@ final object Enumerator extends EnumeratorInstances {
     new Enumerator[F, E] {
       final def apply[A](s: Step[F, E, A]): F[Step[F, E, A]] =
         xs.slice(min, max) match {
-          case IndexedSeq() => F.pure(s)
+          case is if is.isEmpty => F.pure(s)
           case IndexedSeq(e) => s.feedEl(e)
           case h1 +: h2 +: t => s.feedChunk(h1, h2, t.toVector)
         }
