@@ -7,7 +7,7 @@ import cats.arrow.FunctionK
 private[internal] abstract class BaseCont[F[_], E, A](implicit F: Applicative[F]) extends Step[F, E, A] { self =>
   final def fold[Z](ifCont: (NonEmptyVector[E] => F[Step[F, E, A]]) => Z, ifDone: (A, Vector[E]) => Z): Z =
     ifCont { nev =>
-      if (nev.length == 1) feedEl(nev.head) else feedChunk(nev.head, nev.getUnsafe(1), nev.toVector.drop(2))
+      if (nev.length == 1) feedEl(nev.head) else feedChunk(nev.head, nev.getUnsafe(1), nev.tail.drop(1))
     }
   final def isDone: Boolean = false
 
