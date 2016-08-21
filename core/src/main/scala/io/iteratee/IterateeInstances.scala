@@ -1,6 +1,6 @@
 package io.iteratee
 
-import cats.{ Monad, MonadError }
+import cats.{ Monad, MonadError, RecursiveTailRecM }
 import cats.functor.Contravariant
 import io.iteratee.internal.Step
 
@@ -10,17 +10,22 @@ private[iteratee] trait IterateeInstances extends IterateeInstances0 {
       def contramap[E, E2](r: Iteratee[F, E, A])(f: E2 => E) = r.contramap(f)
     }
 
-  implicit final def iterateeMonadError[F[_], T, E]
-    (implicit F: MonadError[F, T]): MonadError[({ type L[x] = Iteratee[F, E, x] })#L, T] =
-      new IterateeMonadError[F, T, E]
+  implicit final def iterateeMonadError[F[_], T, E](implicit
+    F: MonadError[F, T]
+  ): MonadError[({ type L[x] = Iteratee[F, E, x] })#L, T]
+      with RecursiveTailRecM[({ type L[x] = Iteratee[F, E, x] })#L] =
+    new IterateeMonadError[F, T, E]
 }
 
 private[iteratee] trait IterateeInstances0 {
-  implicit final def iterateeMonad[F[_], E](implicit F: Monad[F]): Monad[({ type L[x] = Iteratee[F, E, x] })#L] =
+  implicit final def iterateeMonad[F[_], E](implicit
+    F: Monad[F]
+  ): Monad[({ type L[x] = Iteratee[F, E, x] })#L] with RecursiveTailRecM[({ type L[x] = Iteratee[F, E, x] })#L] =
     new IterateeMonad[F, E]
 }
 
-private class IterateeMonad[F[_], E](implicit F: Monad[F]) extends Monad[({ type L[x] = Iteratee[F, E, x] })#L] {
+private class IterateeMonad[F[_], E](implicit F: Monad[F]) extends Monad[({ type L[x] = Iteratee[F, E, x] })#L]
+    with RecursiveTailRecM[({ type L[x] = Iteratee[F, E, x] })#L] {
   final def pure[A](a: A): Iteratee[F, E, A] = Iteratee.fromStep(Step.done[F, E, A](a))
   override final def map[A, B](fa: Iteratee[F, E, A])(f: A => B): Iteratee[F, E, B] = fa.map(f)
   final def flatMap[A, B](fa: Iteratee[F, E, A])(f: A => Iteratee[F, E, B]): Iteratee[F, E, B] = fa.flatMap(f)
