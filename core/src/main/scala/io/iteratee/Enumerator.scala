@@ -223,7 +223,7 @@ final object Enumerator extends EnumeratorInstances {
     new Enumerator[F, E] {
       final def apply[A](s: Step[F, E, A]): F[Step[F, E, A]] = F.tailRecM((s, init)) {
         case (step, last) => if (step.isDone) F.pure(Right(step)) else {
-          F.flatMap(step.feedEl(last))(s1 => F.map(f(last))(next => Left((s1, next))))
+          F.map2(step.feedEl(last), f(last))((s1, next) => Left((s1, next)))
         }
       }
     }
@@ -248,7 +248,7 @@ final object Enumerator extends EnumeratorInstances {
     new Enumerator[F, E] {
       final def apply[A](s: Step[F, E, A]): F[Step[F, E, A]] = F.tailRecM((s, Some(init): Option[E])) {
         case (step, Some(last)) if !step.isDone =>
-          F.flatMap(step.feedEl(last))(s1 => F.map(f(last))(next => Left((s1, next))))
+          F.map2(step.feedEl(last), f(last))((s1, next) => Left((s1, next)))
         case (step, _) => F.pure(Right(step))
       }
     }
@@ -311,8 +311,7 @@ final object Enumerator extends EnumeratorInstances {
     def iterateM[F[_], E](init: E)(f: E => F[E])(implicit F: Monad[F]): Enumerator[F, E] =
       new Enumerator[F, E] {
         private[this] def loop[A](step: Step[F, E, A], last: E): F[Step[F, E, A]] =
-          if (step.isDone) F.pure(step) else
-            F.flatMap(step.feedEl(last))(s1 => F.flatMap(f(last))(loop(s1, _)))
+          if (step.isDone) F.pure(step) else F.flatten(F.map2(step.feedEl(last), f(last))(loop))
 
         final def apply[A](s: Step[F, E, A]): F[Step[F, E, A]] = loop(s, init)
       }
@@ -345,7 +344,7 @@ final object Enumerator extends EnumeratorInstances {
       new Enumerator[F, E] {
         private[this] def loop[A](step: Step[F, E, A], last: Option[E]): F[Step[F, E, A]] =
           last match {
-            case Some(last) if !step.isDone => F.flatMap(step.feedEl(last))(next => F.flatMap(f(last))(loop(next, _)))
+            case Some(last) if !step.isDone => F.flatten(F.map2(step.feedEl(last), f(last))(loop))
             case _ => F.pure(step)
           }
         final def apply[A](s: Step[F, E, A]): F[Step[F, E, A]] = loop(s, Some(init))
