@@ -1,3 +1,3 @@
 package io.iteratee
 
-package object twitter extends DefaultFuturePoolTwitterModule
+package object twitter extends DefaultTwitterModule
