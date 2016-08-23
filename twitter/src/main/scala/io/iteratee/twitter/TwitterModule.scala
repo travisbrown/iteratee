@@ -4,7 +4,7 @@ import cats.MonadError
 import com.twitter.util.{ Future, FuturePool }
 import io.catbird.util.Rerunnable
 import io.iteratee.{ EnumerateeModule, EnumeratorErrorModule, IterateeErrorModule, Module }
-import io.iteratee.files.FileModule
+import io.iteratee.files.{ EffectCapture, FileModule }
 import scala.Predef.implicitly
 
 trait TwitterModule extends Module[Rerunnable]
@@ -17,10 +17,11 @@ trait TwitterModule extends Module[Rerunnable]
 
   final protected val F: MonadError[Rerunnable, Throwable] = implicitly
 
-  final override protected def captureEffect[A](a: => A): Rerunnable[A] =
-    new Rerunnable[A] {
+  final protected val effectCapture: EffectCapture[Rerunnable] = new EffectCapture[Rerunnable] {
+    def apply[A](a: => A): Rerunnable[A] = new Rerunnable[A] {
       final def run: Future[A] = toFuture(a)
     }
+  }
 }
 
 trait DefaultTwitterModule extends TwitterModule {
