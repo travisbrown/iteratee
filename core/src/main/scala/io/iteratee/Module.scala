@@ -21,3 +21,13 @@ trait Module[F[_]] {
     }
   }
 }
+
+object Module {
+  private[this] class FromMonad[F[_]](monad: Monad[F]) extends Module[F] {
+    type M[F[T]] = Monad[F]
+    def F: Monad[F] = monad
+  }
+
+  def apply[M[_]](implicit monad: Monad[M]): Module[M] =
+    new FromMonad(monad)
+}

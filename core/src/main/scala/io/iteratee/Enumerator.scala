@@ -1,6 +1,6 @@
 package io.iteratee
 
-import cats.{ Applicative, FlatMap, Monad, MonadError, Semigroup }
+import cats.{ Applicative, FlatMap, Monad, MonadError, Semigroup, Eval }
 import io.iteratee.internal.Step
 import scala.Predef.=:=
 import scala.util.{ Left, Right }
@@ -53,11 +53,16 @@ abstract class Enumerator[F[_], E] extends Serializable { self =>
 
   final def toVector(implicit F: Monad[F]): F[Vector[E]] = run(Iteratee.consume)
 
-  final def ensure[T](action: F[Unit])(implicit F: MonadError[F, T]): Enumerator[F, E] = new Enumerator[F, E] {
-    final def apply[A](s: Step[F, E, A]): F[Step[F, E, A]] = F.flatMap(
-      F.handleErrorWith(self(s))(e => F.flatMap(action)(_ => F.raiseError(e)))
-    )(result => F.map(action)(_ => result))
-  }
+
+  final def ensure[T](action: F[Unit])(implicit F: MonadError[F, T]): Enumerator[F, E] =
+    ensureEval(Eval.now(action))
+
+  final def ensureEval[T](action: Eval[F[Unit]])(implicit F: MonadError[F, T]): Enumerator[F, E] =
+    new Enumerator[F, E] {
+      final def apply[A](s: Step[F, E, A]): F[Step[F, E, A]] = F.flatMap(
+        F.handleErrorWith(self(s))(e => F.flatMap(action.value)(_ => F.raiseError(e)))
+      )(result => F.map(action.value)(_ => result))
+    }
 
   final def handleErrorWith[T](f: T => Enumerator[F, E])(implicit F: MonadError[F, T]): Enumerator[F, E] =
     new Enumerator[F, E] {
@@ -75,6 +80,13 @@ final object Enumerator extends EnumeratorInstances {
   final def liftM[F[_], E](fa: F[E])(implicit F: Monad[F]): Enumerator[F, E] =
     new Enumerator[F, E] {
       final def apply[A](s: Step[F, E, A]): F[Step[F, E, A]] = F.flatMap(fa)(s.feedEl)
+    }
+  /**
+   * Lift an effectful value into an enumerator.
+   */
+  final def liftMEval[F[_], E](fa: Eval[F[E]])(implicit F: Monad[F]): Enumerator[F, E] =
+    new Enumerator[F, E] {
+      final def apply[A](s: Step[F, E, A]): F[Step[F, E, A]] = F.flatMap(fa.value)(s.feedEl)
     }
 
   /**
