@@ -13,5 +13,5 @@ trait ScalazModule extends ScalazInstances with Module[Task]
 
   final protected val F: MonadError[Task, Throwable] = scalazTaskMonadError
 
-  final override protected def captureEffect[A](a: => A): Task[A] = Task(a)
+  final override protected def captureEffect[A](a: => A): Task[A] = Task.delay(a)
 }

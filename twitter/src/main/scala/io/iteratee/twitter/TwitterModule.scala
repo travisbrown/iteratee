@@ -23,6 +23,10 @@ trait TwitterModule extends Module[Rerunnable]
     }
 }
 
+trait DefaultTwitterModule extends TwitterModule {
+  protected final def toFuture[A](a: => A): Future[A] = Future(a)
+}
+
 trait DefaultFuturePoolTwitterModule extends TwitterModule {
   private[this] val futurePool: FuturePool = FuturePool.unboundedPool
 
