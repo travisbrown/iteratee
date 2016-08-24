@@ -172,11 +172,12 @@ lazy val scalaz = project
   ).dependsOn(core, files, tests % "test,it")
 
 lazy val benchmark = project
+  .configs(IntegrationTest)
   .settings(
     crossScalaVersions := scalaVersions.tail,
     moduleName := "iteratee-benchmark"
   )
-  .settings(allSettings)
+  .settings(allSettings ++ Defaults.itSettings)
   .settings(noPublishSettings)
   .settings(
     libraryDependencies ++= Seq(
@@ -188,7 +189,7 @@ lazy val benchmark = project
     )
   )
   .enablePlugins(JmhPlugin)
-  .dependsOn(core, scalaz, twitter)
+  .dependsOn(core, scalaz, tests, twitter)
 
 val removeScoverage = new RuleTransformer(
   new RewriteRule {
@@ -270,7 +271,7 @@ val jsProjects = Seq(
 )
 
 addCommandAlias("testJVM", jvmProjects.map(";" + _ + "/test").mkString)
-addCommandAlias("validateJVM", ";testJVM;scalaz/it:test;twitter/it:test;scalastyle;unidoc")
+addCommandAlias("validateJVM", ";testJVM;benchmark/it:test;scalaz/it:test;twitter/it:test;scalastyle;unidoc")
 addCommandAlias("testJS", jsProjects.map(";" + _ + "/test").mkString)
 addCommandAlias("validateJS", ";testJS;scalastyle;unidoc")
 addCommandAlias("validate", ";validateJVM;validateJS")

@@ -1,3 +1,7 @@
 package io.iteratee
 
-package object scalaz extends ScalazModule
+package scalaz {
+  final object task extends TaskModule
+}
+
+package object scalaz extends ScalazInstances

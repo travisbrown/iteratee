@@ -5,7 +5,7 @@ import io.iteratee.{ EnumerateeModule, EnumeratorErrorModule, IterateeErrorModul
 import io.iteratee.files.SuspendableFileModule
 import scalaz.concurrent.Task
 
-trait ScalazModule extends ScalazInstances with Module[Task]
+trait TaskModule extends ScalazInstances with Module[Task]
   with EnumerateeModule[Task]
   with EnumeratorErrorModule[Task, Throwable] with IterateeErrorModule[Task, Throwable]
   with SuspendableFileModule[Task] {
