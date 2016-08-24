@@ -17,9 +17,10 @@ trait TwitterModule extends Module[Rerunnable]
 
   final protected val F: MonadError[Rerunnable, Throwable] = implicitly
 
-  final protected def captureEffect[A](a: => A): Rerunnable[A] = new Rerunnable[A] {
-    final def run: Future[A] = toFuture(a)
-  }
+  final override protected def captureEffect[A](a: => A): Rerunnable[A] =
+    new Rerunnable[A] {
+      final def run: Future[A] = toFuture(a)
+    }
 }
 
 trait DefaultTwitterModule extends TwitterModule {
