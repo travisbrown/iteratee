@@ -1,17 +1,25 @@
 package io.iteratee.files
 
 import cats.MonadError
-import io.iteratee.{ Enumerator, Module }
+import io.iteratee.{ Enumerator, Iteratee, Module }
 import io.iteratee.internal.Step
 import java.io.{
   BufferedInputStream,
+  BufferedOutputStream,
   BufferedReader,
+  BufferedWriter,
   Closeable,
   File,
   FileInputStream,
+  FileOutputStream,
   FileReader,
+  FileWriter,
   InputStream,
-  InputStreamReader
+  InputStreamReader,
+  OutputStream,
+  OutputStreamWriter,
+  Reader,
+  Writer
 }
 import java.util.zip.{ ZipEntry, ZipFile }
 import scala.Predef.genericArrayOps
@@ -26,25 +34,43 @@ trait SuspendableFileModule[F[_]] extends FileModule[F] {
   protected def captureEffect[A](a: => A): F[A]
   private[this] def close(c: Closeable): F[Unit] = captureEffect(c.close())
 
-  final def readLines(file: File): Enumerator[F, String] =
-    Enumerator.liftM(captureEffect(new BufferedReader(new FileReader(file))))(F).flatMap { reader =>
-      new LineEnumerator(reader).ensure(close(reader))(F)
-    }(F)
+  private[this] def newFileReader(file: File): F[FileReader] = captureEffect(new FileReader(file))
+  private[this] def newFileInputStream(file: File): F[FileInputStream] = captureEffect(new FileInputStream(file))
 
-  final def readLinesFromStream(stream: InputStream): Enumerator[F, String] =
-    Enumerator.liftM(captureEffect(new BufferedReader(new InputStreamReader(stream))))(F).flatMap { reader =>
-      new LineEnumerator(reader).ensure(close(reader))(F)
-    }(F)
+  private[this] def newInputStreamReader(stream: InputStream): F[InputStreamReader] =
+    captureEffect(new InputStreamReader(stream))
 
-  final def readBytes(file: File): Enumerator[F, Array[Byte]] =
-    Enumerator.liftM(captureEffect(new BufferedInputStream(new FileInputStream(file))))(F).flatMap { stream =>
-      new ByteEnumerator(stream).ensure(close(stream))(F)
-    }(F)
+  private[this] def newBufferedReader(reader: Reader): F[BufferedReader] = captureEffect(new BufferedReader(reader))
 
-  final def readBytesFromStream(stream: InputStream): Enumerator[F, Array[Byte]] =
-    Enumerator.liftM(captureEffect(new BufferedInputStream(stream)))(F).flatMap { stream =>
-      new ByteEnumerator(stream).ensure(close(stream))(F)
-    }(F)
+  private[this] def newBufferedInputStream(stream: InputStream): F[BufferedInputStream] =
+    captureEffect(new BufferedInputStream(stream))
+
+  private[this] def newFileWriter(file: File): F[FileWriter] = captureEffect(new FileWriter(file))
+  private[this] def newFileOutputStream(file: File): F[FileOutputStream] = captureEffect(new FileOutputStream(file))
+
+  private[this] def newOutputStreamWriter(stream: OutputStream): F[OutputStreamWriter] =
+    captureEffect(new OutputStreamWriter(stream))
+
+  private[this] def newBufferedWriter(writer: Writer): F[BufferedWriter] = captureEffect(new BufferedWriter(writer))
+
+  private[this] def newBufferedOutputStream(stream: OutputStream): F[BufferedOutputStream] =
+    captureEffect(new BufferedOutputStream(stream))
+
+  final def readLines(file: File): Enumerator[F, String] = Enumerator.liftM(
+    bracket(newFileReader(file))(newBufferedReader)(F)
+  )(F).flatMap(reader => new LineEnumerator(reader).ensure(close(reader))(F))(F)
+
+  final def readLinesFromStream(stream: InputStream): Enumerator[F, String] = Enumerator.liftM(
+    bracket(newInputStreamReader(stream))(newBufferedReader)(F)
+  )(F).flatMap(reader => new LineEnumerator(reader).ensure(close(reader))(F))(F)
+
+  final def readBytes(file: File): Enumerator[F, Array[Byte]] = Enumerator.liftM(
+    bracket(newFileInputStream(file))(newBufferedInputStream)(F)
+  )(F).flatMap(stream => new ByteEnumerator(stream).ensure(close(stream))(F))(F)
+
+  final def readBytesFromStream(stream: InputStream): Enumerator[F, Array[Byte]] = Enumerator.liftM(
+    newBufferedInputStream(stream)
+  )(F).flatMap(stream => new ByteEnumerator(stream).ensure(close(stream))(F))(F)
 
   final def readZipStreams(file: File): Enumerator[F, (ZipEntry, InputStream)] =
     Enumerator.liftM(captureEffect(new ZipFile(file)))(F).flatMap { zipFile =>
@@ -60,6 +86,44 @@ trait SuspendableFileModule[F[_]] extends FileModule[F] {
   final def listFilesRec(dir: File): Enumerator[F, File] = listFiles(dir).flatMap {
     case item if item.isDirectory => listFilesRec(item)
     case item => Enumerator.enumOne(item)(F)
+  }(F)
+
+  final def writeLines(file: File): Iteratee[F, String, Unit] = Iteratee.liftM(
+    bracket(newFileWriter(file))(newBufferedWriter)(F)
+  )(F).flatMap { writer =>
+    Iteratee.foldM[F, String, Unit](())((_, line) =>
+      captureEffect {
+        writer.write(line)
+        writer.newLine()
+      }
+    )(F).ensure(close(writer))(F)
+  }(F)
+
+  final def writeLinesToStream(stream: OutputStream): Iteratee[F, String, Unit] = Iteratee.liftM(
+    bracket(newOutputStreamWriter(stream))(newBufferedWriter)(F)
+  )(F).flatMap { writer =>
+    Iteratee.foldM[F, String, Unit](())((_, line) =>
+      captureEffect {
+        writer.write(line)
+        writer.newLine()
+      }
+    )(F).ensure(close(writer))(F)
+  }(F)
+
+  def writeBytes(file: File): Iteratee[F, Array[Byte], Unit] = Iteratee.liftM(
+    bracket(newFileOutputStream(file))(newBufferedOutputStream)(F)
+  )(F).flatMap { stream =>
+    Iteratee.foldM[F, Array[Byte], Unit](())((_, bytes) =>
+      captureEffect(stream.write(bytes))
+    )(F).ensure(close(stream))(F)
+  }(F)
+
+  def writeBytesToStream(stream: OutputStream): Iteratee[F, Array[Byte], Unit] = Iteratee.liftM(
+    newBufferedOutputStream(stream)
+  )(F).flatMap { stream =>
+    Iteratee.foldM[F, Array[Byte], Unit](())((_, bytes) =>
+      captureEffect(stream.write(bytes))
+    )(F).ensure(close(stream))(F)
   }(F)
 
   private[this] final class LineEnumerator(reader: BufferedReader) extends Enumerator[F, String] {

@@ -1,6 +1,6 @@
 package io.iteratee.internal
 
-import cats.{ Applicative, Monad, Monoid, MonoidK, Semigroup }
+import cats.{ Applicative, Eval, Monad, Monoid, MonoidK, Semigroup }
 import cats.data.NonEmptyVector
 import cats.arrow.FunctionK
 
@@ -163,11 +163,25 @@ final object Step { self =>
     new WithLeftovers(value, remaining)
 
   /**
-   * Lift a monadic value into a [[Step]].
+   * Lift an effectful value into a [[Step]].
    *
    * @group Utilities
    */
-  final def liftM[F[_], E, A](fa: F[A])(implicit F: Monad[F]): F[Step[F, E, A]] = F.map(fa)(a => done(a))
+  final def liftM[F[_], E, A](fa: F[A])(implicit F: Monad[F]): F[Step[F, E, A]] = F.map(fa)(done(_))
+
+  /**
+   * Lift an effectful value in a [[cats.Eval]] into a [[Step]].
+   *
+   * @group Utilities
+   */
+  final def liftMEval[F[_], E, A](fa: Eval[F[A]])(implicit F: Monad[F]): F[Step[F, E, A]] = F.pure(
+    new Cont[F, E, A] {
+      final def run: F[A] = fa.value
+      final def onEl(e: E): F[Step[F, E, A]] = F.map(fa.value)(a => new WithLeftovers(a, Input.el(e)))
+      final def onChunk(h1: E, h2: E, t: Vector[E]): F[Step[F, E, A]] =
+        F.map(fa.value)(a => new WithLeftovers(a, Input.chunk(h1, h2, t)))
+    }
+  )
 
   /**
    * Collapse a nested [[Step]] into one layer.
