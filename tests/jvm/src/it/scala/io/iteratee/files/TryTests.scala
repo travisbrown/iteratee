@@ -6,7 +6,7 @@ import scala.util.{ Success, Try }
 import java.io.File
 
 class TryTests extends BaseSuite {
-  val tryModule = FileModule[Try]
+  val tryModule = NonSuspendableFileModule[Try]
   import tryModule._
 
   "readLines" should "enumerate text lines from a file" in {
