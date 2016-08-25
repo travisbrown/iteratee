@@ -31,6 +31,7 @@ class FileModuleBenchmark extends ScalazInstances {
   val linesTF: Enumerator[FutureT, String] = t.future.readLines(bartebly)
   val linesTT: Enumerator[TryT, String] = t.try_.readLines(bartebly)
   val linesS: Enumerator[Task, String] = s.task.readLines(bartebly)
+  val linesTTF: Enumerator[FreeTryModule.FreeTry, String] = FreeTryModule.readLines(bartebly)
 
   def words[F[_]: Monad](line: String): Enumerator[F, String] = Enumerator.enumVector(line.split(" ").toVector)
   def avgLen[F[_]: Monad]: Iteratee[F, String, Double] = Iteratee.length[F, String].zip(
@@ -50,4 +51,7 @@ class FileModuleBenchmark extends ScalazInstances {
 
   @Benchmark
   def avgWordLengthS: Double = linesS.flatMap(words[Task]).run(avgLen).unsafePerformSync
+
+  @Benchmark
+  def avgWordLengthTTF: Double = linesTTF.flatMap(words[FreeTryModule.FreeTry]).run(avgLen).runTailRec.get
 }
