@@ -1,6 +1,6 @@
 package io.iteratee.internal
 
-import cats.{ Applicative, Monad, Monoid, MonoidK }
+import cats.{ Applicative, Monad, Monoid, MonoidK, Semigroup }
 import cats.data.NonEmptyVector
 import cats.arrow.FunctionK
 
@@ -288,11 +288,22 @@ final object Step { self =>
    */
   final def sum[F[_], E](implicit F: Applicative[F], M: Monoid[E]): Step[F, E, E] = new SumCont(M.empty)
 
-  private[this] final class SumCont[F[_], E](acc: E)(implicit F: Applicative[F], M: Monoid[E])
+  private[this] final class SumCont[F[_], E](acc: E)(implicit F: Applicative[F], M: Semigroup[E])
     extends PureCont.WithValue[F, E, E](acc) {
     final def onEl(e: E): Step[F, E, E] = new SumCont(M.combine(acc, e))
     final def onChunk(h1: E, h2: E, t: Vector[E]): Step[F, E, E] =
-      new SumCont(M.combine(acc, M.combine(h1, M.combine(h2, M.combineAll(t)))))
+      new SumCont(
+        M.combine(
+          acc,
+          M.combine(
+            h1,
+            M.combineAllOption(t) match {
+              case Some(tc) => M.combine(h2, tc)
+              case None => h2
+            }
+          )
+        )
+      )
   }
 
   /**
@@ -303,11 +314,27 @@ final object Step { self =>
   final def foldMap[F[_], E, A](f: E => A)(implicit F: Applicative[F], M: Monoid[A]): Step[F, E, A] =
     new FoldMapCont(f, M.empty)
 
-  private[this] final class FoldMapCont[F[_], E, A](f: E => A, acc: A)(implicit F: Applicative[F], M: Monoid[A])
+  private[this] final class FoldMapCont[F[_], E, A](f: E => A, acc: A)(implicit F: Applicative[F], M: Semigroup[A])
     extends PureCont.WithValue[F, E, A](acc) {
     final def onEl(e: E): Step[F, E, A] = new FoldMapCont(f, M.combine(acc, f(e)))
     final def onChunk(h1: E, h2: E, t: Vector[E]): Step[F, E, A] =
-      new FoldMapCont(f, M.combine(acc, M.combine(f(h1), M.combine(f(h2), M.combineAll(t.map(f))))))
+      new FoldMapCont(
+        f,
+        M.combine(
+          acc,
+          M.combine(
+            f(h1),
+            {
+              val h2f = f(h2)
+
+              M.combineAllOption(t.map(f)) match {
+                case Some(tc) => M.combine(h2f, tc)
+                case None => h2f
+              }
+            }
+          )
+        )
+      )
   }
 
   /**
