@@ -14,7 +14,7 @@ object FreeTryModule extends Module[({ type L[x] = Free[Try, x] })#L]
     with SuspendableFileModule[({ type L[x] = Free[Try, x] })#L] {
   type FreeTry[x] = Free[Try, x]
   final type M[f[_]] = MonadError[f, Throwable]
- 
+
   def captureEffect[A](a: => A): Free[Try, A] = Free.suspend(Free.liftF(MonadError[Try, Throwable].catchNonFatal(a)))
 
   final protected val F: MonadError[FreeTry, Throwable] = new MonadError[FreeTry, Throwable] {
