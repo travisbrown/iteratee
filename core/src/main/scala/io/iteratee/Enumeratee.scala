@@ -1,12 +1,12 @@
 package io.iteratee
 
-import cats.{ Applicative, Eq, Monad }
+import cats.{ Applicative, Eq, FlatMap, Monad }
 import io.iteratee.internal.{ Input, Step }
 
 abstract class Enumeratee[F[_], O, I] extends Serializable { self =>
   def apply[A](step: Step[F, I, A]): F[Step[F, O, Step[F, I, A]]]
 
-  final def wrap(enum: Enumerator[F, O])(implicit F: Monad[F]): Enumerator[F, I] = new Enumerator[F, I] {
+  final def wrap(enum: Enumerator[F, O])(implicit F: FlatMap[F]): Enumerator[F, I] = new Enumerator[F, I] {
     final def apply[A](s: Step[F, I, A]): F[Step[F, I, A]] = F.flatMap(self(s))(enum.runStep)
   }
 

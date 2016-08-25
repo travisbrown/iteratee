@@ -8,12 +8,12 @@ import scala.util.{ Left, Right }
 abstract class Enumerator[F[_], E] extends Serializable { self =>
   def apply[A](s: Step[F, E, A]): F[Step[F, E, A]]
 
-  final def mapE[I](enumeratee: Enumeratee[F, E, I])(implicit M: Monad[F]): Enumerator[F, I] =
+  final def mapE[I](enumeratee: Enumeratee[F, E, I])(implicit M: FlatMap[F]): Enumerator[F, I] =
     enumeratee.wrap(this)
 
-  final def runStep[A](s: Step[F, E, A])(implicit F: Monad[F]): F[A] = F.flatMap(this(s))(_.run)
+  final def runStep[A](s: Step[F, E, A])(implicit F: FlatMap[F]): F[A] = F.flatMap(this(s))(_.run)
 
-  final def run[A](iteratee: Iteratee[F, E, A])(implicit F: Monad[F]): F[A] = F.flatMap(iteratee.state)(runStep)
+  final def run[A](iteratee: Iteratee[F, E, A])(implicit F: FlatMap[F]): F[A] = F.flatMap(iteratee.state)(runStep)
 
   final def map[B](f: E => B)(implicit F: Monad[F]): Enumerator[F, B] = mapE(Enumeratee.map(f))
 
@@ -77,14 +77,14 @@ final object Enumerator extends EnumeratorInstances {
   /**
    * Lift an effectful value into an enumerator.
    */
-  final def liftM[F[_], E](fa: F[E])(implicit F: Monad[F]): Enumerator[F, E] =
+  final def liftM[F[_], E](fa: F[E])(implicit F: FlatMap[F]): Enumerator[F, E] =
     new Enumerator[F, E] {
       final def apply[A](s: Step[F, E, A]): F[Step[F, E, A]] = F.flatMap(fa)(s.feedEl)
     }
   /**
    * Lift an effectful value into an enumerator.
    */
-  final def liftMEval[F[_], E](fa: Eval[F[E]])(implicit F: Monad[F]): Enumerator[F, E] =
+  final def liftMEval[F[_], E](fa: Eval[F[E]])(implicit F: FlatMap[F]): Enumerator[F, E] =
     new Enumerator[F, E] {
       final def apply[A](s: Step[F, E, A]): F[Step[F, E, A]] = F.flatMap(fa.value)(s.feedEl)
     }
@@ -106,9 +106,9 @@ final object Enumerator extends EnumeratorInstances {
   /**
    * An enumerator that forces the evaluation of an effect when it is consumed.
    */
-  final def perform[F[_], E, B](f: F[B])(implicit F: Monad[F]): Enumerator[F, E] =
+  final def perform[F[_], E, B](f: F[B])(implicit F: FlatMap[F]): Enumerator[F, E] =
     new Enumerator[F, E] {
-      final def apply[A](s: Step[F, E, A]): F[Step[F, E, A]] = F.flatMap(f)(_ => F.pure(s))
+      final def apply[A](s: Step[F, E, A]): F[Step[F, E, A]] = F.map(f)(_ => s)
     }
 
   /**
