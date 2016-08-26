@@ -78,9 +78,8 @@ class InMemoryBenchmark extends InMemoryExampleData {
   @Benchmark
   def sumInts6C: Int = intsC.sum
 
-  // fs2 is missing scalaz-stream's runLastOr
   @Benchmark
-  def sumInts7F: Int = intsF.sum.runFold(0)((_, a) => a).unsafeRun
+  def sumInts7F: Int = intsF.sum.runLast.unsafeRun.get
 }
 
 /**
