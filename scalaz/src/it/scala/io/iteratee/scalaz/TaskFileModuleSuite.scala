@@ -1,7 +1,6 @@
 package io.iteratee.scalaz
 
 import cats.Eq
-import io.iteratee.scalaz._
 import io.iteratee.tests.files.FileModuleSuite
 import scalaz.concurrent.Task
 

@@ -1,6 +1,6 @@
 package io.iteratee
 
-import cats.{ Applicative, Comonad, Functor, Monad, MonadError, Monoid, MonoidK }
+import cats.{ Applicative, Comonad, Eval, Functor, Monad, MonadError, Monoid, MonoidK }
 import cats.arrow.FunctionK
 import cats.data.NonEmptyVector
 import io.iteratee.internal.Step
@@ -97,6 +97,22 @@ sealed class Iteratee[F[_], E, A] private[iteratee] (final val state: F[Step[F, 
    * Create a new [[Iteratee]] that throws away the value this one returns.
    */
   final def discard(implicit F: Functor[F]): Iteratee[F, E, Unit] = map(_ => ())
+
+  /**
+   * Ensure that an action will be performed when this iteratee is done, whether
+   * or not it succeeds.
+   */
+  final def ensure[T](action: F[Unit])(implicit F: MonadError[F, T]): Iteratee[F, E, A] =
+    ensureEval(Eval.now(action))
+
+  /**
+   * Ensure that an action will be performed when this iteratee is done, whether
+   * or not it succeeds.
+   */
+  final def ensureEval[T](action: Eval[F[Unit]])(implicit F: MonadError[F, T]): Iteratee[F, E, A] =
+    handleErrorWith[T](_ => Iteratee.iteratee(F.flatMap(action.value)(_ => state))).flatMapM(result =>
+      F.map(action.value)(_ => result)
+    )
 }
 
 /**
@@ -159,6 +175,14 @@ final object Iteratee extends IterateeInstances {
    */
   final def liftM[F[_], E, A](fa: F[A])(implicit F: Monad[F]): Iteratee[F, E, A] =
     iteratee(Step.liftM(fa))
+
+  /**
+   * Lift an effectful value into an iteratee.
+   *
+   * @group Utilities
+   */
+  final def liftMEval[F[_], E, A](fa: Eval[F[A]])(implicit F: Monad[F]): Iteratee[F, E, A] =
+    iteratee(Step.liftMEval(fa))
 
   /**
    * Create a failed iteratee with the given error.

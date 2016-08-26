@@ -4,7 +4,8 @@ import cats.Monad
 import io.iteratee.{ EnumeratorModule, IterateeModule, Module }
 import io.iteratee.files.FileModule
 import io.iteratee.tests.ModuleSuite
-import java.io.File
+import java.io.{ File, FileInputStream, FileOutputStream }
+import org.scalacheck.Gen
 
 abstract class FileModuleSuite[F[_]: Monad] extends ModuleSuite[F] {
   this: Module[F] with EnumeratorModule[F] with IterateeModule[F] with FileModule[F] =>
@@ -24,9 +25,26 @@ abstract class FileModuleSuite[F[_]: Monad] extends ModuleSuite[F] {
     assert(enumerator.run(head) === F.pure(Some(result)))
   }
 
+  "readLinesFromStream" should "enumerate text lines from a stream" in {
+    val txt = new File(getClass.getResource("/io/iteratee/examples/pg/11231/11231.txt").toURI)
+    val stream = new FileInputStream(txt)
+    val enumerator = readLinesFromStream(stream).flatMap(line => enumVector(line.trim.split("\\s+").toVector))
+
+    assert(enumerator.run(length) === F.pure(17973))
+  }
+
   "readBytes" should "enumerate bytes from a file" in {
     val txt = new File(getClass.getResource("/io/iteratee/examples/pg/11231/11231.txt").toURI)
     val enumerator = readBytes(txt).flatMap(bytes => enumVector(bytes.toVector))
+
+    assert(enumerator.run(length) === F.pure(105397))
+  }
+
+  "readBytesFromStream" should "enumerate bytes from a stream" in {
+    val zip = new File(getClass.getResource("/io/iteratee/examples/pg/11231/11231.zip").toURI)
+    val enumerator = readZipStreams(zip).flatMap {
+      case (_, stream) => readBytesFromStream(stream)
+    }.flatMap(bytes => enumVector(bytes.toVector))
 
     assert(enumerator.run(length) === F.pure(105397))
   }
@@ -46,15 +64,6 @@ abstract class FileModuleSuite[F[_]: Monad] extends ModuleSuite[F] {
     val enumerator = readZipStreams(zip).map(_._1.getName)
 
     assert(enumerator.run(head) === F.pure(Some("11231.txt")))
-  }
-
-  "readBytesFromStream" should "enumerate bytes from a stream" in {
-    val zip = new File(getClass.getResource("/io/iteratee/examples/pg/11231/11231.zip").toURI)
-    val enumerator = readZipStreams(zip).flatMap {
-      case (_, stream) => readBytesFromStream(stream)
-    }.flatMap(bytes => enumVector(bytes.toVector))
-
-    assert(enumerator.run(length) === F.pure(105397))
   }
 
   "listFiles" should "enumerate files in a directory" in {
@@ -78,5 +87,38 @@ abstract class FileModuleSuite[F[_]: Monad] extends ModuleSuite[F] {
     val enumerator = listFilesRec(dir)
 
     assert(F.map(enumerator.toVector)(_.map(_.getName).sorted) === F.pure(result))
+  }
+
+  "writeLines" should "write arbitrary lines to a temporary file" in forAll(Gen.listOf(Gen.alphaStr)) { lines =>
+    val tmp = File.createTempFile("it-writeLines", ".txt")
+    tmp.deleteOnExit()
+
+    assert(enumList(lines).run(writeLines(tmp)) === F.pure(()))
+    assert(readLines(tmp).toVector === F.pure(lines.toVector))
+  }
+
+  "writeLinesToStream" should "write arbitrary lines to a temporary file" in forAll(Gen.listOf(Gen.alphaStr)) { lines =>
+    val tmp = File.createTempFile("it-writeLinesToStream", ".txt")
+    tmp.deleteOnExit()
+    val stream = new FileOutputStream(tmp)
+
+    assert(enumList(lines).run(writeLinesToStream(stream)) === F.pure(()))
+    assert(readLines(tmp).toVector === F.pure(lines.toVector))
+  }
+
+  "writeBytes" should "write arbitrary bytes to a temporary file" in forAll { bytes: List[Array[Byte]] =>
+    val tmp = File.createTempFile("it-writeBytes", ".txt")
+    tmp.deleteOnExit()
+
+    assert(enumList(bytes).run(writeBytes(tmp)) === F.pure(()))
+    assert(readBytes(tmp).toVector.map(_.flatMap(_.toVector)) === F.pure(bytes.toVector.flatten))
+  }
+
+  "writeBytesToStream" should "write arbitrary bytes to a temporary file" in forAll { bytes: List[Array[Byte]] =>
+    val tmp = File.createTempFile("it-writeBytesToStream", ".txt")
+    tmp.deleteOnExit()
+
+    assert(enumList(bytes).run(writeBytes(tmp)) === F.pure(()))
+    assert(readBytes(tmp).toVector.map(_.flatMap(_.toVector)) === F.pure(bytes.toVector.flatten))
   }
 }

@@ -82,7 +82,7 @@ final object Enumerator extends EnumeratorInstances {
       final def apply[A](s: Step[F, E, A]): F[Step[F, E, A]] = F.flatMap(fa)(s.feedEl)
     }
   /**
-   * Lift an effectful value into an enumerator.
+   * Lift an effectful value in a [[cats.Eval]] into an enumerator.
    */
   final def liftMEval[F[_], E](fa: Eval[F[E]])(implicit F: FlatMap[F]): Enumerator[F, E] =
     new Enumerator[F, E] {
