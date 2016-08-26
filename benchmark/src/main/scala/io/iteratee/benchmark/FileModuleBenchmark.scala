@@ -41,17 +41,17 @@ class FileModuleBenchmark extends ScalazInstances {
   }
 
   @Benchmark
-  def avgWordLengthTR: Double = AwaitT.result(linesTR.flatMap(words[Rerunnable]).run(avgLen).run, DurationT.Top)
+  def avgWordLengthTR: Double = AwaitT.result(linesTR.flatMap(words[Rerunnable]).into(avgLen).run, DurationT.Top)
 
   @Benchmark
-  def avgWordLengthTF: Double = AwaitT.result(linesTF.flatMap(words[FutureT]).run(avgLen), DurationT.Top)
+  def avgWordLengthTF: Double = AwaitT.result(linesTF.flatMap(words[FutureT]).into(avgLen), DurationT.Top)
 
   @Benchmark
-  def avgWordLengthTT: Double = linesTT.flatMap(words[TryT]).run(avgLen).get
+  def avgWordLengthTT: Double = linesTT.flatMap(words[TryT]).into(avgLen).get
 
   @Benchmark
-  def avgWordLengthS: Double = linesS.flatMap(words[Task]).run(avgLen).unsafePerformSync
+  def avgWordLengthS: Double = linesS.flatMap(words[Task]).into(avgLen).unsafePerformSync
 
   @Benchmark
-  def avgWordLengthTTF: Double = linesTTF.flatMap(words[FreeTryModule.FreeTry]).run(avgLen).runTailRec.get
+  def avgWordLengthTTF: Double = linesTTF.flatMap(words[FreeTryModule.FreeTry]).into(avgLen).runTailRec.get
 }

@@ -57,16 +57,16 @@ abstract class EnumeratorSuite[F[_]: Monad] extends ModuleSuite[F] {
   }
 
   "repeat" should "repeat a value" in forAll { (i: Int, count: Short) =>
-    assert(repeat(i).run(takeI(count.toInt)) === F.pure(Vector.fill(count.toInt)(i)))
+    assert(repeat(i).into(takeI(count.toInt)) === F.pure(Vector.fill(count.toInt)(i)))
   }
 
   "iterate" should "enumerate values by applying a function iteratively" in forAll { (n: Int, count: Short) =>
-    assert(iterate(n)(_ + 1).run(takeI(count.toInt)) === F.pure(Vector.iterate(n, count.toInt)(_ + 1)))
+    assert(iterate(n)(_ + 1).into(takeI(count.toInt)) === F.pure(Vector.iterate(n, count.toInt)(_ + 1)))
   }
 
   "iterateM" should "enumerate values by applying a pure function iteratively" in {
     forAll { (n: Int, count: Short) =>
-      assert(iterateM(n)(i => F.pure(i + 1)).run(takeI(count.toInt)) === F.pure(Vector.iterate(n, count.toInt)(_ + 1)))
+      assert(iterateM(n)(i => F.pure(i + 1)).into(takeI(count.toInt)) === F.pure(Vector.iterate(n, count.toInt)(_ + 1)))
     }
   }
 
@@ -82,7 +82,7 @@ abstract class EnumeratorSuite[F[_]: Monad] extends ModuleSuite[F] {
     val taken = n - math.abs(fewer.toInt)
     val enumerator = iterateUntil(0)(i => if (i == count) None else Some(i + 1))
 
-    assert(enumerator.run(takeI(taken)) === F.pure((0 to count).toVector.take(taken)))
+    assert(enumerator.into(takeI(taken)) === F.pure((0 to count).toVector.take(taken)))
   }
 
   "iterateUntilM" should "apply a pure function until it returns an empty result" in forAll { (n: Short) =>
@@ -97,7 +97,7 @@ abstract class EnumeratorSuite[F[_]: Monad] extends ModuleSuite[F] {
     val taken = n - math.abs(fewer.toInt)
     val enumerator = iterateUntilM(0)(i => F.pure(if (i == count) None else Some(i + 1)))
 
-    assert(enumerator.run(takeI(taken)) === F.pure((0 to count).toVector.take(taken)))
+    assert(enumerator.into(takeI(taken)) === F.pure((0 to count).toVector.take(taken)))
   }
 
   "toVector" should "collect all the values in the stream" in forAll { (eav: EnumeratorAndValues[Int]) =>
@@ -109,7 +109,7 @@ abstract class EnumeratorSuite[F[_]: Monad] extends ModuleSuite[F] {
   }
 
   it should "work with a done iteratee" in {
-    assert(enumOne(0).append(enumOne(2).prepend(1)).run(head) === F.pure((Some(0))))
+    assert(enumOne(0).append(enumOne(2).prepend(1)).into(head) === F.pure((Some(0))))
   }
 
   "bindM" should "bind through Option" in forAll { (eav: EnumeratorAndValues[Int]) =>
@@ -162,21 +162,21 @@ abstract class StackSafeEnumeratorSuite[F[_]: Monad] extends EnumeratorSuite[F] 
     this: Module[F] with EnumerateeModule[F] with EnumeratorModule[F] with IterateeModule[F] =>
 
   "StackUnsafe.repeat" should "be consistent with repeat" in forAll { (i: Int, count: Short) =>
-    val expected = repeat(i).run(takeI(count.toInt))
+    val expected = repeat(i).into(takeI(count.toInt))
 
-    assert(Enumerator.StackUnsafe.repeat[F, Int](i).run(takeI(count.toInt)) === expected)
+    assert(Enumerator.StackUnsafe.repeat[F, Int](i).into(takeI(count.toInt)) === expected)
   }
 
   "StackUnsafe.iterate" should "be consistent with iterate" in forAll { (n: Int, count: Short) =>
-    val expected = iterate(n)(_ + 1).run(takeI(count.toInt))
+    val expected = iterate(n)(_ + 1).into(takeI(count.toInt))
 
-    assert(Enumerator.StackUnsafe.iterate[F, Int](n)(_ + 1).run(takeI(count.toInt)) === expected)
+    assert(Enumerator.StackUnsafe.iterate[F, Int](n)(_ + 1).into(takeI(count.toInt)) === expected)
   }
 
   "StackUnsafe.iterateM" should "be consistent with iterateM" in forAll { (n: Int, count: Short) =>
-    val expected = iterateM(n)(i => F.pure(i + 1)).run(takeI(count.toInt))
+    val expected = iterateM(n)(i => F.pure(i + 1)).into(takeI(count.toInt))
 
-    assert(Enumerator.StackUnsafe.iterateM[F, Int](n)(i => F.pure(i + 1)).run(takeI(count.toInt)) === expected)
+    assert(Enumerator.StackUnsafe.iterateM[F, Int](n)(i => F.pure(i + 1)).into(takeI(count.toInt)) === expected)
   }
 
   "StackUnsafe.iterateUntil" should "be consistent with iterateUntil" in forAll { (n: Short) =>

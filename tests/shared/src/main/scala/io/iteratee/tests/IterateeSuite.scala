@@ -88,7 +88,7 @@ abstract class BaseIterateeSuite[F[_]: Monad] extends ModuleSuite[F] {
   )
 
   "cont" should "work recursively in an iteratee returning a list" in forAll { (eav: EnumeratorAndValues[Int]) =>
-    assert(eav.enumerator.run(myDrain(Nil)) === F.map(eav.enumerator.toVector)(_.toList))
+    assert(eav.enumerator.into(myDrain(Nil)) === F.map(eav.enumerator.toVector)(_.toList))
   }
 
   it should "work with fold with one value" in forAll { (es: List[Int]) =>
@@ -195,7 +195,7 @@ abstract class BaseIterateeSuite[F[_]: Monad] extends ModuleSuite[F] {
       r <- consume
     } yield r
 
-    assert(enumVector(Vector(1, 2, 3)).run(iteratee) === F.pure(Vector.empty))
+    assert(enumVector(Vector(1, 2, 3)).into(iteratee) === F.pure(Vector.empty))
   }
 
   "fold" should "collapse the stream into a value" in forAll { (eav: EnumeratorAndValues[Int]) =>
@@ -255,13 +255,13 @@ abstract class BaseIterateeSuite[F[_]: Monad] extends ModuleSuite[F] {
 
   "flatMapM" should "apply an effectful function" in {
     forAll { (eav: EnumeratorAndValues[Int], iteratee: Iteratee[F, Int, Int]) =>
-      assert(eav.enumerator.run(iteratee.flatMapM(F.pure)) === eav.enumerator.run(iteratee))
+      assert(eav.enumerator.into(iteratee.flatMapM(F.pure)) === eav.enumerator.into(iteratee))
     }
   }
 
   "contramap" should "apply a function on incoming values" in {
     forAll { (eav: EnumeratorAndValues[Int], iteratee: Iteratee[F, Int, Int]) =>
-      assert(eav.enumerator.run(iteratee.contramap(_ + 1)) === eav.enumerator.map(_ + 1).run(iteratee))
+      assert(eav.enumerator.into(iteratee.contramap(_ + 1)) === eav.enumerator.map(_ + 1).into(iteratee))
     }
   }
 
@@ -305,8 +305,8 @@ abstract class BaseIterateeSuite[F[_]: Monad] extends ModuleSuite[F] {
     val iteratee2 = takeI[Int](2).zip(takeI(3)).zip(consume)
     val result = ((es.take(2), es.take(3)), es)
 
-    assert(enumerator.run(iteratee1) === F.pure(result))
-    assert(enumerator.run(iteratee2) === F.pure(result))
+    assert(enumerator.into(iteratee1) === F.pure(result))
+    assert(enumerator.into(iteratee2) === F.pure(result))
   }
 
   "foldMap" should "fold a stream while transforming it" in forAll { (eav: EnumeratorAndValues[Int]) =>

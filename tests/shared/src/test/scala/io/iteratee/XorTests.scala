@@ -10,9 +10,9 @@ class XorEnumerateeTests extends EnumerateeSuite[({ type L[x] = XorT[Eval, Throw
   "take" should "work with more than Int.MaxValue values" in forAll { (n: Int) =>
     val items = Vector.fill(1000000)(())
     val totalSize: Long = Int.MaxValue.toLong + math.max(1, n).toLong
-    val enumerator = repeat(()).flatMap(_ => enumVector(items)).mapE(take(totalSize))
+    val enumerator = repeat(()).flatMap(_ => enumVector(items)).through(take(totalSize))
 
-    assert(enumerator.run(length) === F.pure(totalSize))
+    assert(enumerator.into(length) === F.pure(totalSize))
   }
 }
 
@@ -47,7 +47,7 @@ class XorEnumeratorTests extends StackSafeEnumeratorSuite[({ type L[x] = XorT[Ev
     val n = math.max(0, eav.values.size - 2)
 
     assert(counter == 0)
-    assert(enumerator.run(takeI(n)) === F.pure(eav.values.take(n)))
+    assert(enumerator.into(takeI(n)) === F.pure(eav.values.take(n)))
     assert(counter === 1)
   }
 
@@ -90,7 +90,7 @@ class XorIterateeTests extends IterateeErrorSuite[({ type L[x] = XorT[Eval, Thro
         }
       )
 
-      assert(eav.enumerator.run(xorIteratee) === F.pure(pureEnumerator.run(iteratee)))
+      assert(eav.enumerator.into(xorIteratee) === F.pure(pureEnumerator.into(iteratee)))
     }
   }
 

@@ -7,7 +7,7 @@ abstract class Enumeratee[F[_], O, I] extends Serializable { self =>
   def apply[A](step: Step[F, I, A]): F[Step[F, O, Step[F, I, A]]]
 
   final def wrap(enum: Enumerator[F, O])(implicit F: FlatMap[F]): Enumerator[F, I] = new Enumerator[F, I] {
-    final def apply[A](s: Step[F, I, A]): F[Step[F, I, A]] = F.flatMap(self(s))(enum.runStep)
+    final def apply[A](s: Step[F, I, A]): F[Step[F, I, A]] = F.flatMap(self(s))(enum.intoStep)
   }
 
   final def andThen[J](other: Enumeratee[F, I, J])(implicit F: Monad[F]): Enumeratee[F, O, J] = other.compose(self)
@@ -389,7 +389,7 @@ final object Enumeratee extends EnumerateeInstances {
         F.flatMap(Iteratee.head[F, E1].state)(
           _.bind {
             case Some(e) => F.flatMap(
-              F.flatMap(Enumeratee.map[F, E2, (E1, E2)]((e, _)).apply(step))(e2.runStep)
+              F.flatMap(Enumeratee.map[F, E2, (E1, E2)]((e, _)).apply(step))(e2.intoStep)
             )(loop)
             case None => F.pure(Step.done(step))
           }
