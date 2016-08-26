@@ -3,15 +3,7 @@ package io.iteratee
 import cats.Eval
 import io.iteratee.tests.{ EvalSuite, EnumerateeSuite, StackSafeEnumeratorSuite, IterateeSuite }
 
-class EvalEnumerateeTests extends EnumerateeSuite[Eval] with EvalSuite {
-  "take" should "work with more than Int.MaxValue values" in forAll { (n: Int) =>
-    val items = Vector.fill(1000000)(())
-    val totalSize: Long = Int.MaxValue.toLong + math.max(1, n).toLong
-    val enumerator = repeat(()).flatMap(_ => enumVector(items)).through(take(totalSize))
-
-    assert(enumerator.into(length) === F.pure(totalSize))
-  }
-}
+class EvalEnumerateeTests extends EnumerateeSuite[Eval] with EvalSuite
 
 class EvalEnumeratorTests extends StackSafeEnumeratorSuite[Eval] with EvalSuite {
   "perform" should "perform an action" in forAll { (eav: EnumeratorAndValues[Int]) =>

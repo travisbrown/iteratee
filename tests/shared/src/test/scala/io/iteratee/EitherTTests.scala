@@ -7,15 +7,7 @@ import io.iteratee.tests.{ EnumerateeSuite, StackSafeEnumeratorSuite, IterateeEr
 import org.scalacheck.Arbitrary
 
 class EitherTEnumerateeTests extends EnumerateeSuite[({ type L[x] = EitherT[Eval, Throwable, x] })#L]
-    with EitherTSuite {
-  "take" should "work with more than Int.MaxValue values" in forAll { (n: Int) =>
-    val items = Vector.fill(1000000)(())
-    val totalSize: Long = Int.MaxValue.toLong + math.max(1, n).toLong
-    val enumerator = repeat(()).flatMap(_ => enumVector(items)).through(take(totalSize))
-
-    assert(enumerator.into(length) === F.pure(totalSize))
-  }
-}
+    with EitherTSuite
 
 class EitherTEnumeratorTests extends StackSafeEnumeratorSuite[({ type L[x] = EitherT[Eval, Throwable, x] })#L]
     with EitherTSuite {
