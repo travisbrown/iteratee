@@ -3,7 +3,7 @@ package io.iteratee.twitter
 import cats.Eq
 import com.twitter.conversions.time._
 import io.catbird.util.Rerunnable
-import io.iteratee.tests.{ EnumerateeSuite, EnumeratorSuite, IterateeErrorSuite, ModuleSuite, eqThrowable }
+import io.iteratee.tests.{ EnumerateeSuite, IterateeErrorSuite, ModuleSuite, StackSafeEnumeratorSuite, eqThrowable }
 
 trait RerunnableSuite extends ModuleSuite[Rerunnable] with RerunnableModule {
   def monadName: String = "Rerunnable"
@@ -12,5 +12,5 @@ trait RerunnableSuite extends ModuleSuite[Rerunnable] with RerunnableModule {
 }
 
 class RerunnableEnumerateeTests extends EnumerateeSuite[Rerunnable] with RerunnableSuite
-class RerunnableEnumeratorTests extends EnumeratorSuite[Rerunnable] with RerunnableSuite
+class RerunnableEnumeratorTests extends StackSafeEnumeratorSuite[Rerunnable] with RerunnableSuite
 class RerunnableIterateeTests extends IterateeErrorSuite[Rerunnable, Throwable] with RerunnableSuite
