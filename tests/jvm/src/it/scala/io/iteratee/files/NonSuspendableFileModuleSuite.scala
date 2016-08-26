@@ -5,7 +5,7 @@ import io.iteratee.tests.BaseSuite
 import scala.util.{ Success, Try }
 import java.io.File
 
-class TryTests extends BaseSuite {
+class NonSuspendableFileModuleTests extends BaseSuite {
   val tryModule = NonSuspendableFileModule[Try]
   import tryModule._
 

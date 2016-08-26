@@ -4,7 +4,7 @@ import cats.Eq
 import com.twitter.conversions.time._
 import com.twitter.util.Future
 import io.catbird.util.{ futureEqWithFailure, twitterFutureInstance }
-import io.iteratee.tests.{ EnumerateeSuite, EnumeratorSuite, IterateeErrorSuite, ModuleSuite, eqThrowable }
+import io.iteratee.tests.{ EnumerateeSuite, IterateeErrorSuite, ModuleSuite, StackSafeEnumeratorSuite, eqThrowable }
 
 trait FutureSuite extends ModuleSuite[Future] with FutureModule {
   def monadName: String = "Future"
@@ -13,5 +13,5 @@ trait FutureSuite extends ModuleSuite[Future] with FutureModule {
 }
 
 class FutureEnumerateeTests extends EnumerateeSuite[Future] with FutureSuite
-class FutureEnumeratorTests extends EnumeratorSuite[Future] with FutureSuite
+class FutureEnumeratorTests extends StackSafeEnumeratorSuite[Future] with FutureSuite
 class FutureIterateeTests extends IterateeErrorSuite[Future, Throwable] with FutureSuite

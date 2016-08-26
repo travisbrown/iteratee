@@ -47,6 +47,14 @@ abstract class EnumerateeSuite[F[_]: Monad] extends ModuleSuite[F] {
     }
   }
 
+  it should "work with more than Int.MaxValue values" in forAll { (n: Int) =>
+    val items = Vector.fill(1000000)(())
+    val totalSize: Long = Int.MaxValue.toLong + math.max(1, n).toLong
+    val enumerator = repeat(()).flatMap(_ => enumVector(items)).through(take(totalSize))
+
+    assert(enumerator.into(length) === F.pure(totalSize))
+  }
+
   it should "work when it ends mid-chunk" in forAll { (v: Vector[Int]) =>
     assert(enumVector(v).through(take(v.size.toLong - 1L)).toVector === F.pure(v.dropRight(1)))
   }

@@ -5,7 +5,7 @@ import com.twitter.util.Try
 import io.catbird.util.{ twitterTryEq, twitterTryInstance }
 import io.iteratee.tests.files.FileModuleSuite
 
-class TryFileModuleSuite extends FileModuleSuite[Try] with TryModule {
+class TryFileModuleTests extends FileModuleSuite[Try] with TryModule {
   def monadName: String = "Try"
 
   implicit def eqF[A: Eq]: Eq[Try[A]] = twitterTryEq[A]

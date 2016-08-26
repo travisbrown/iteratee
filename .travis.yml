@@ -23,7 +23,6 @@ script:
         sbt ++$TRAVIS_SCALA_VERSION clean validateJVM coverage coverageReport;
         sbt ++$TRAVIS_SCALA_VERSION coverageAggregate;
         codecov;
-        sbt ++$TRAVIS_SCALA_VERSION clean validateJS;
       else
         sbt ++$TRAVIS_SCALA_VERSION clean core/test tests/test scalaz/test;
         sbt ++$TRAVIS_SCALA_VERSION scalaz/it:test;
