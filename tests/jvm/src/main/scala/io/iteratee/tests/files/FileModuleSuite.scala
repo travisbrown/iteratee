@@ -14,7 +14,7 @@ abstract class FileModuleSuite[F[_]: Monad] extends ModuleSuite[F] {
     val txt = new File(getClass.getResource("/io/iteratee/examples/pg/11231/11231.txt").toURI)
     val enumerator = readLines(txt).flatMap(line => enumVector(line.trim.split("\\s+").toVector))
 
-    assert(enumerator.run(length) === F.pure(17973))
+    assert(enumerator.into(length) === F.pure(17973))
   }
 
   it should "work with an iteratee that stops early" in {
@@ -22,7 +22,7 @@ abstract class FileModuleSuite[F[_]: Monad] extends ModuleSuite[F] {
     val result = "The Project Gutenberg EBook of Bartleby, The Scrivener, by Herman Melville"
     val enumerator = readLines(txt)
 
-    assert(enumerator.run(head) === F.pure(Some(result)))
+    assert(enumerator.into(head) === F.pure(Some(result)))
   }
 
   "readLinesFromStream" should "enumerate text lines from a stream" in {
@@ -30,14 +30,14 @@ abstract class FileModuleSuite[F[_]: Monad] extends ModuleSuite[F] {
     val stream = new FileInputStream(txt)
     val enumerator = readLinesFromStream(stream).flatMap(line => enumVector(line.trim.split("\\s+").toVector))
 
-    assert(enumerator.run(length) === F.pure(17973))
+    assert(enumerator.into(length) === F.pure(17973))
   }
 
   "readBytes" should "enumerate bytes from a file" in {
     val txt = new File(getClass.getResource("/io/iteratee/examples/pg/11231/11231.txt").toURI)
     val enumerator = readBytes(txt).flatMap(bytes => enumVector(bytes.toVector))
 
-    assert(enumerator.run(length) === F.pure(105397))
+    assert(enumerator.into(length) === F.pure(105397))
   }
 
   "readBytesFromStream" should "enumerate bytes from a stream" in {
@@ -46,7 +46,7 @@ abstract class FileModuleSuite[F[_]: Monad] extends ModuleSuite[F] {
       case (_, stream) => readBytesFromStream(stream)
     }.flatMap(bytes => enumVector(bytes.toVector))
 
-    assert(enumerator.run(length) === F.pure(105397))
+    assert(enumerator.into(length) === F.pure(105397))
   }
 
   "readZipStreams" should "enumerate files in a zip archive" in {
@@ -56,14 +56,14 @@ abstract class FileModuleSuite[F[_]: Monad] extends ModuleSuite[F] {
       case (_, stream) => readLinesFromStream(stream)
     }
 
-    assert(enumerator.run(length) === F.pure(1981))
+    assert(enumerator.into(length) === F.pure(1981))
   }
 
   it should "work with an iteratee that stops early" in {
     val zip = new File(getClass.getResource("/io/iteratee/examples/pg/11231/11231.zip").toURI)
     val enumerator = readZipStreams(zip).map(_._1.getName)
 
-    assert(enumerator.run(head) === F.pure(Some("11231.txt")))
+    assert(enumerator.into(head) === F.pure(Some("11231.txt")))
   }
 
   "listFiles" should "enumerate files in a directory" in {
@@ -93,7 +93,7 @@ abstract class FileModuleSuite[F[_]: Monad] extends ModuleSuite[F] {
     val tmp = File.createTempFile("it-writeLines", ".txt")
     tmp.deleteOnExit()
 
-    assert(enumList(lines).run(writeLines(tmp)) === F.pure(()))
+    assert(enumList(lines).into(writeLines(tmp)) === F.pure(()))
     assert(readLines(tmp).toVector === F.pure(lines.toVector))
   }
 
@@ -102,7 +102,7 @@ abstract class FileModuleSuite[F[_]: Monad] extends ModuleSuite[F] {
     tmp.deleteOnExit()
     val stream = new FileOutputStream(tmp)
 
-    assert(enumList(lines).run(writeLinesToStream(stream)) === F.pure(()))
+    assert(enumList(lines).into(writeLinesToStream(stream)) === F.pure(()))
     assert(readLines(tmp).toVector === F.pure(lines.toVector))
   }
 
@@ -110,7 +110,7 @@ abstract class FileModuleSuite[F[_]: Monad] extends ModuleSuite[F] {
     val tmp = File.createTempFile("it-writeBytes", ".txt")
     tmp.deleteOnExit()
 
-    assert(enumList(bytes).run(writeBytes(tmp)) === F.pure(()))
+    assert(enumList(bytes).into(writeBytes(tmp)) === F.pure(()))
     assert(readBytes(tmp).toVector.map(_.flatMap(_.toVector)) === F.pure(bytes.toVector.flatten))
   }
 
@@ -118,7 +118,7 @@ abstract class FileModuleSuite[F[_]: Monad] extends ModuleSuite[F] {
     val tmp = File.createTempFile("it-writeBytesToStream", ".txt")
     tmp.deleteOnExit()
 
-    assert(enumList(bytes).run(writeBytes(tmp)) === F.pure(()))
+    assert(enumList(bytes).into(writeBytes(tmp)) === F.pure(()))
     assert(readBytes(tmp).toVector.map(_.flatMap(_.toVector)) === F.pure(bytes.toVector.flatten))
   }
 }

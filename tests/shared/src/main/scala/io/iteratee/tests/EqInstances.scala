@@ -19,10 +19,10 @@ trait EqInstances {
     val e3 = Enumerator.enumVector[F, A](Arbitrary.arbitrary[Vector[A]].sample.get)
 
     Eq.instance { (i, j) =>
-      eq.eqv(e0.run(i), e0.run(j)) &&
-      eq.eqv(e1.run(i), e1.run(j)) &&
-      eq.eqv(e2.run(i), e2.run(j)) &&
-      eq.eqv(e3.run(i), e3.run(j))
+      eq.eqv(e0.into(i), e0.into(j)) &&
+      eq.eqv(e1.into(i), e1.into(j)) &&
+      eq.eqv(e2.into(i), e2.into(j)) &&
+      eq.eqv(e3.into(i), e3.into(j))
     }
   }
 
@@ -35,10 +35,10 @@ trait EqInstances {
     val e3 = Enumerator.enumVector[F, A](Arbitrary.arbitrary[Vector[A]].sample.get)
 
     Eq.instance { (i, j) =>
-      eq.eqv(e0.mapE(i).toVector, e0.mapE(j).toVector) &&
-      eq.eqv(e1.mapE(i).toVector, e1.mapE(j).toVector) &&
-      eq.eqv(e2.mapE(i).toVector, e2.mapE(j).toVector) &&
-      eq.eqv(e3.mapE(i).toVector, e3.mapE(j).toVector)
+      eq.eqv(e0.through(i).toVector, e0.through(j).toVector) &&
+      eq.eqv(e1.through(i).toVector, e1.through(j).toVector) &&
+      eq.eqv(e2.through(i).toVector, e2.through(j).toVector) &&
+      eq.eqv(e3.through(i).toVector, e3.through(j).toVector)
     }
   }
 }

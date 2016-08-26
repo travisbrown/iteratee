@@ -7,7 +7,7 @@ trait ArbitraryEnumerators[F[_]] {
   this: ModuleSuite[F] with Module[F] with EnumeratorModule[F] with IterateeModule[F] =>
 
   case class EnumeratorAndValues[A](enumerator: Enumerator[F, A], values: Vector[A]) {
-    def resultWithLeftovers[Z](iteratee: Iteratee[F, A, Z]): F[(Z, Vector[A])] = enumerator.run(
+    def resultWithLeftovers[Z](iteratee: Iteratee[F, A, Z]): F[(Z, Vector[A])] = enumerator.into(
       iteratee.flatMap(result => consume[A].map(leftovers => (result, leftovers))(F))(F)
     )(F)
   }

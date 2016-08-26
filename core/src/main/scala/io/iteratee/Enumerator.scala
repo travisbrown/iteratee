@@ -8,18 +8,28 @@ import scala.util.{ Left, Right }
 abstract class Enumerator[F[_], E] extends Serializable { self =>
   def apply[A](s: Step[F, E, A]): F[Step[F, E, A]]
 
-  final def mapE[I](enumeratee: Enumeratee[F, E, I])(implicit M: FlatMap[F]): Enumerator[F, I] =
+  final def through[I](enumeratee: Enumeratee[F, E, I])(implicit M: FlatMap[F]): Enumerator[F, I] =
     enumeratee.wrap(this)
 
-  final def runStep[A](s: Step[F, E, A])(implicit F: FlatMap[F]): F[A] = F.flatMap(this(s))(_.run)
+  @deprecated("Use through", "0.6.0")
+  final def mapE[I](enumeratee: Enumeratee[F, E, I])(implicit M: FlatMap[F]): Enumerator[F, I] = through(enumeratee)
 
-  final def run[A](iteratee: Iteratee[F, E, A])(implicit F: FlatMap[F]): F[A] = F.flatMap(iteratee.state)(runStep)
+  final def intoStep[A](s: Step[F, E, A])(implicit F: FlatMap[F]): F[A] = F.flatMap(this(s))(_.run)
 
-  final def map[B](f: E => B)(implicit F: Monad[F]): Enumerator[F, B] = mapE(Enumeratee.map(f))
+  @deprecated("Use intoStep", "0.6.0")
+  final def runStep[A](s: Step[F, E, A])(implicit F: FlatMap[F]): F[A] = intoStep(s)
 
-  final def flatMapM[B](f: E => F[B])(implicit F: Monad[F]): Enumerator[F, B] = mapE(Enumeratee.flatMapM(f))
+  final def into[A](iteratee: Iteratee[F, E, A])(implicit F: FlatMap[F]): F[A] = F.flatMap(iteratee.state)(intoStep)
 
-  final def flatMap[B](f: E => Enumerator[F, B])(implicit F: Monad[F]): Enumerator[F, B] = mapE(Enumeratee.flatMap(f))
+  @deprecated("Use into", "0.6.0")
+  final def run[A](iteratee: Iteratee[F, E, A])(implicit F: FlatMap[F]): F[A] = into(iteratee)
+
+  final def map[B](f: E => B)(implicit F: Monad[F]): Enumerator[F, B] = through(Enumeratee.map(f))
+
+  final def flatMapM[B](f: E => F[B])(implicit F: Monad[F]): Enumerator[F, B] = through(Enumeratee.flatMapM(f))
+
+  final def flatMap[B](f: E => Enumerator[F, B])(implicit F: Monad[F]): Enumerator[F, B] =
+    through(Enumeratee.flatMap(f))
 
   final def prepend(e: E)(implicit F: Monad[F]): Enumerator[F, E] = new Enumerator[F, E] {
     def apply[A](step: Step[F, E, A]): F[Step[F, E, A]] =
@@ -33,7 +43,7 @@ abstract class Enumerator[F[_], E] extends Serializable { self =>
   final def flatten[B](implicit M: Monad[F], ev: E =:= F[B]): Enumerator[F, B] = flatMap(e => Enumerator.liftM(ev(e)))
 
   final def bindM[G[_], B](f: E => G[Enumerator[F, B]])(implicit F: Monad[F], G: Monad[G]): F[G[Enumerator[F, B]]] =
-    map(f).run(
+    map(f).into(
       Iteratee.fold[F, G[Enumerator[F, B]], G[Enumerator[F, B]]](G.pure(Enumerator.empty)) {
         case (acc, concat) => G.flatMap(acc)(en =>
           G.map(concat)(append => Semigroup[Enumerator[F, B]].combine(en, append))
@@ -51,8 +61,7 @@ abstract class Enumerator[F[_], E] extends Serializable { self =>
       F.flatMap(self(Step.foldM[F, E, B](b)(f)))(next => F.flatMap(next.run)(step.feedEl))
   }
 
-  final def toVector(implicit F: Monad[F]): F[Vector[E]] = run(Iteratee.consume)
-
+  final def toVector(implicit F: Monad[F]): F[Vector[E]] = into(Iteratee.consume)
 
   final def ensure[T](action: F[Unit])(implicit F: MonadError[F, T]): Enumerator[F, E] =
     ensureEval(Eval.now(action))

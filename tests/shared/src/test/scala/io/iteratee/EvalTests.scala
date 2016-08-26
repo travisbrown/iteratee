@@ -7,9 +7,9 @@ class EvalEnumerateeTests extends EnumerateeSuite[Eval] with EvalSuite {
   "take" should "work with more than Int.MaxValue values" in forAll { (n: Int) =>
     val items = Vector.fill(1000000)(())
     val totalSize: Long = Int.MaxValue.toLong + math.max(1, n).toLong
-    val enumerator = repeat(()).flatMap(_ => enumVector(items)).mapE(take(totalSize))
+    val enumerator = repeat(()).flatMap(_ => enumVector(items)).through(take(totalSize))
 
-    assert(enumerator.run(length) === F.pure(totalSize))
+    assert(enumerator.into(length) === F.pure(totalSize))
   }
 }
 

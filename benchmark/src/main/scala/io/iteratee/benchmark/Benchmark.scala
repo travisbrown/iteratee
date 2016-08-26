@@ -61,10 +61,10 @@ class StreamingExampleData extends IterateeBenchmark {
 @OutputTimeUnit(TimeUnit.SECONDS)
 class InMemoryBenchmark extends InMemoryExampleData {
   @Benchmark
-  def sumInts0IS: Int = intsI.run(i.Iteratee.sum).unsafePerformSync
+  def sumInts0IS: Int = intsI.into(i.Iteratee.sum).unsafePerformSync
 
   @Benchmark
-  def sumInts1IR: Int = AwaitT.result(intsR.run(i.Iteratee.sum).run, DurationT.Top)
+  def sumInts1IR: Int = AwaitT.result(intsR.into(i.Iteratee.sum).run, DurationT.Top)
 
   @Benchmark
   def sumInts3S: Int = intsS.sum.runLastOr(sys.error("Impossible")).unsafePerformSync
@@ -96,10 +96,10 @@ class StreamingBenchmark extends StreamingExampleData {
   val count = 10000
 
   @Benchmark
-  def takeLongs0IS: Vector[Long] = longStreamI.run(i.Iteratee.take(count)).unsafePerformSync
+  def takeLongs0IS: Vector[Long] = longStreamI.into(i.Iteratee.take(count)).unsafePerformSync
 
   @Benchmark
-  def takeLongs1IR: Vector[Long] = AwaitT.result(longStreamR.run(i.Iteratee.take(count)).run, DurationT.Top)
+  def takeLongs1IR: Vector[Long] = AwaitT.result(longStreamR.into(i.Iteratee.take(count)).run, DurationT.Top)
 
   @Benchmark
   def takeLongs3S: Vector[Long] = longStreamS.take(count).runLog.unsafePerformSync
