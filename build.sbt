@@ -272,7 +272,7 @@ val jsProjects = Seq(
 )
 
 addCommandAlias("testJVM", jvmProjects.map(";" + _ + "/test").mkString)
-addCommandAlias("validateJVM", ";testJVM;benchmark/it:test;scalaz/it:test;twitter/it:test;scalastyle;unidoc")
+addCommandAlias("validateJVM", ";testJVM;tests/it:test;benchmark/it:test;scalaz/it:test;twitter/it:test;scalastyle;unidoc")
 addCommandAlias("testJS", jsProjects.map(";" + _ + "/test").mkString)
 addCommandAlias("validateJS", ";testJS;scalastyle;unidoc")
 addCommandAlias("validate", ";validateJVM;validateJS")
