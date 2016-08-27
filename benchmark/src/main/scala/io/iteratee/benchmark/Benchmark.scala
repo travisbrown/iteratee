@@ -1,5 +1,6 @@
 package io.iteratee.benchmark
 
+import cats.Id
 import cats.instances.int._
 import com.twitter.util.{ Await => AwaitT, Duration => DurationT }
 import io.catbird.util.Rerunnable
@@ -24,8 +25,9 @@ class InMemoryExampleData extends IterateeBenchmark {
   private[this] val count = 10000
 
   val intsC: Vector[Int] = (0 until count).toVector
-  val intsI: i.Enumerator[Task, Int] = i.Enumerator.enumVector[Task, Int](intsC)
-  val intsR: i.Enumerator[Rerunnable, Int] = i.Enumerator.enumVector[Rerunnable, Int](intsC)
+  val intsII: i.Enumerator[Id, Int] = i.Enumerator.enumVector[Id, Int](intsC)
+  val intsIT: i.Enumerator[Task, Int] = i.Enumerator.enumVector[Task, Int](intsC)
+  val intsIR: i.Enumerator[Rerunnable, Int] = i.Enumerator.enumVector[Rerunnable, Int](intsC)
   val intsS: Process[Task, Int] = Process.emitAll(intsC)
   val intsZ: z.EnumeratorT[Int, Task] = z.EnumeratorT.enumIndexedSeq(intsC)
   val intsP: p.Enumerator[Int] = p.Enumerator(intsC: _*)
@@ -33,8 +35,9 @@ class InMemoryExampleData extends IterateeBenchmark {
 }
 
 class StreamingExampleData extends IterateeBenchmark {
-  val longStreamI: i.Enumerator[Task, Long] = i.Enumerator.iterate[Task, Long](0L)(_ + 1L)
-  val longStreamR: i.Enumerator[Rerunnable, Long] = i.Enumerator.iterate[Rerunnable, Long](0L)(_ + 1L)
+  val longStreamII: i.Enumerator[Id, Long] = i.Enumerator.iterate[Id, Long](0L)(_ + 1L)
+  val longStreamIT: i.Enumerator[Task, Long] = i.Enumerator.StackUnsafe.iterate[Task, Long](0L)(_ + 1L)
+  val longStreamIR: i.Enumerator[Rerunnable, Long] = i.Enumerator.StackUnsafe.iterate[Rerunnable, Long](0L)(_ + 1L)
   val longStreamS: Process[Task, Long] = Process.iterate(0L)(_ + 1L)
   // scalaz-iteratee's iterate is broken.
   val longStreamZ: z.EnumeratorT[Long, Task] = z.EnumeratorT.repeat[Unit, Task](()).zipWithIndex.map(_._2)
@@ -61,10 +64,13 @@ class StreamingExampleData extends IterateeBenchmark {
 @OutputTimeUnit(TimeUnit.SECONDS)
 class InMemoryBenchmark extends InMemoryExampleData {
   @Benchmark
-  def sumInts0IS: Int = intsI.into(i.Iteratee.sum).unsafePerformSync
+  def sumInts0II: Int = intsII.into(i.Iteratee.sum)
 
   @Benchmark
-  def sumInts1IR: Int = AwaitT.result(intsR.into(i.Iteratee.sum).run, DurationT.Top)
+  def sumInts1IT: Int = intsIT.into(i.Iteratee.sum).unsafePerformSync
+
+  @Benchmark
+  def sumInts2IR: Int = AwaitT.result(intsIR.into(i.Iteratee.sum).run, DurationT.Top)
 
   @Benchmark
   def sumInts3S: Int = intsS.sum.runLastOr(sys.error("Impossible")).unsafePerformSync
@@ -96,10 +102,13 @@ class StreamingBenchmark extends StreamingExampleData {
   val count = 10000
 
   @Benchmark
-  def takeLongs0IS: Vector[Long] = longStreamI.into(i.Iteratee.take(count)).unsafePerformSync
+  def takeLongs0II: Vector[Long] = longStreamII.into(i.Iteratee.take(count))
 
   @Benchmark
-  def takeLongs1IR: Vector[Long] = AwaitT.result(longStreamR.into(i.Iteratee.take(count)).run, DurationT.Top)
+  def takeLongs1IT: Vector[Long] = longStreamIT.into(i.Iteratee.take(count)).unsafePerformSync
+
+  @Benchmark
+  def takeLongs2IR: Vector[Long] = AwaitT.result(longStreamIR.into(i.Iteratee.take(count)).run, DurationT.Top)
 
   @Benchmark
   def takeLongs3S: Vector[Long] = longStreamS.take(count).runLog.unsafePerformSync
