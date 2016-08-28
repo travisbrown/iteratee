@@ -16,17 +16,15 @@ private[internal] abstract class BaseCont[F[_], E, A](implicit F: Applicative[F]
     final def feedChunk(h1: E, h2: E, t: Vector[E]): G[Step[G, E, A]] = f(F.map(self.feedChunk(h1, h2, t))(_.mapI(f)))
     final def run: G[A] = f(self.run)
   }
-  final def zip[B](other: Step[F, E, B])(implicit M: Monad[F]): F[Step[F, E, (A, B)]] = F.pure(
-    other match {
-      case Step.Done(otherValue) => map((_, otherValue))
-      case step => new EffectfulCont[F, E, (A, B)] {
-        final def feedEl(e: E): F[Step[F, E, (A, B)]] = M.flatten(M.map2(self.feedEl(e), step.feedEl(e))(_.zip(_)))
-        final def feedChunk(h1: E, h2: E, t: Vector[E]): F[Step[F, E, (A, B)]] =
-          M.flatten(M.map2(self.feedChunk(h1, h2, t), step.feedChunk(h1, h2, t))(_.zip(_)))
-        final def run: F[(A, B)] = M.product(self.run, step.run)
-      }
+  final def zip[B](other: Step[F, E, B]): Step[F, E, (A, B)] = other match {
+    case Step.Done(otherValue) => map((_, otherValue))
+    case step => new EffectfulCont[F, E, (A, B)] {
+      final def feedEl(e: E): F[Step[F, E, (A, B)]] = F.map2(self.feedEl(e), step.feedEl(e))(_.zip(_))
+      final def feedChunk(h1: E, h2: E, t: Vector[E]): F[Step[F, E, (A, B)]] =
+        F.map2(self.feedChunk(h1, h2, t), step.feedChunk(h1, h2, t))(_.zip(_))
+      final def run: F[(A, B)] = F.product(self.run, step.run)
     }
-  )
+  }
 }
 
 private[internal] abstract class EffectfulCont[F[_], E, A](implicit F: Applicative[F])

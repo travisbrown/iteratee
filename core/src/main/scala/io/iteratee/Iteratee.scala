@@ -84,8 +84,8 @@ sealed class Iteratee[F[_], E, A] private[iteratee] (final val state: F[Step[F, 
    * Zip this [[Iteratee]] with another to create an iteratee that returns a
    * pair of their results.
    */
-  final def zip[B](other: Iteratee[F, E, B])(implicit F: Monad[F]): Iteratee[F, E, (A, B)] =
-    Iteratee.iteratee(F.flatten(F.map2(self.state, other.state)(_.zip(_))))
+  final def zip[B](other: Iteratee[F, E, B])(implicit F: Applicative[F]): Iteratee[F, E, (A, B)] =
+    Iteratee.iteratee(F.map2(self.state, other.state)(_.zip(_)))
 
   /**
    * If this [[Iteratee]] has failed, use the provided function to recover.

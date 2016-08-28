@@ -58,7 +58,7 @@ abstract class Step[F[_], E, A] extends Serializable {
   /**
    * Zip this [[Step]] with another.
    */
-  def zip[B](other: Step[F, E, B])(implicit M: Monad[F]): F[Step[F, E, (A, B)]]
+  def zip[B](other: Step[F, E, B]): Step[F, E, (A, B)]
 }
 
 
