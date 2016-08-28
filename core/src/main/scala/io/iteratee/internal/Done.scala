@@ -20,8 +20,7 @@ private[internal] case class NoLeftovers[F[_]: Applicative, E, A](value: A) exte
   final def contramap[E2](f: E2 => E): Step[F, E2, A] = new NoLeftovers(value)
   final def mapI[G[_]: Applicative](f: FunctionK[F, G]): Step[G, E, A] = new NoLeftovers(value)
   final def bind[B](f: A => F[Step[F, E, B]])(implicit M: Monad[F]): F[Step[F, E, B]] = f(value)
-  final def zip[B](other: Step[F, E, B])(implicit M: Monad[F]): F[Step[F, E, (A, B)]] =
-    M.pure(other.map((value, _)))
+  final def zip[B](other: Step[F, E, B]): Step[F, E, (A, B)] = other.map((value, _))
 }
 
 private[internal] case class WithLeftovers[F[_]: Applicative, E, A](value: A, remaining: Input[E])
@@ -48,14 +47,12 @@ private[internal] case class WithLeftovers[F[_]: Applicative, E, A](value: A, re
       )
     }
 
-  final def zip[B](other: Step[F, E, B])(implicit M: Monad[F]): F[Step[F, E, (A, B)]] = M.pure(
-    other match {
-      case NoLeftovers(otherValue) => new NoLeftovers((value, otherValue))
-      case WithLeftovers(otherValue, otherRemaining) => new WithLeftovers(
-        (value, otherValue),
-        if (remaining.size <= otherRemaining.size) remaining else otherRemaining
-      )
-      case step => step.map((value, _))
-    }
-  )
+  final def zip[B](other: Step[F, E, B]): Step[F, E, (A, B)] = other match {
+    case NoLeftovers(otherValue) => new NoLeftovers((value, otherValue))
+    case WithLeftovers(otherValue, otherRemaining) => new WithLeftovers(
+      (value, otherValue),
+      if (remaining.size <= otherRemaining.size) remaining else otherRemaining
+    )
+    case step => step.map((value, _))
+  }
 }
