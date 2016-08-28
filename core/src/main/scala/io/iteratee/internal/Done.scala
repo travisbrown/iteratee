@@ -10,8 +10,7 @@ private[internal] case class Done[F[_], E, A](
 )(implicit F: Applicative[F]) extends Step[F, E, A] {
   final def isDone: Boolean = true
   final def run: F[A] = F.pure(value)
-  final def feedEl(e: E): F[Step[F, E, A]] = F.pure(this)
-  final def feedChunk(h1: E, h2: E, t: Vector[E]): F[Step[F, E, A]] = F.pure(this)
+  final def feed(chunk: NonEmptyVector[E]): F[Step[F, E, A]] = F.pure(this)
 
   final def fold[Z](ifCont: (NonEmptyVector[E] => F[Step[F, E, A]]) => Z, ifDone: (A, Vector[E]) => Z): Z =
     ifDone(value, remaining)
@@ -25,8 +24,7 @@ private[internal] case class Done[F[_], E, A](
       case Done(otherValue, otherRemaining) => F.pure(Done(otherValue, otherRemaining ++ remaining))
       case step => remaining match {
         case xs if xs.isEmpty => f(value)
-        case xs if xs.size == 1 => step.feedEl(xs.head)
-        case h1 +: h2 +: t => step.feedChunk(h1, h2, t)
+        case xs => step.feed(NonEmptyVector(xs.head, xs.tail))
       }
     }
 

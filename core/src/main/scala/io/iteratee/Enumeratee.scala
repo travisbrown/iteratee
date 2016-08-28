@@ -1,7 +1,7 @@
 package io.iteratee
 
 import cats.{ Applicative, Eq, FlatMap, Monad }
-import io.iteratee.internal.{ Input, Step }
+import io.iteratee.internal.Step
 
 abstract class Enumeratee[F[_], O, I] extends Serializable { self =>
   def apply[A](step: Step[F, I, A]): F[Step[F, O, Step[F, I, A]]]

@@ -24,15 +24,17 @@ abstract class Step[F[_], E, A] extends Serializable {
    */
   def run: F[A]
 
+  def feed(chunk: NonEmptyVector[E]): F[Step[F, E, A]]
+
   /**
    * Feed a single element to this [[Step]].
-   */
+   *
   def feedEl(e: E): F[Step[F, E, A]]
 
   /**
    * Feed a multi-element [[Input]] to this [[Step]].
-   */
-  def feedChunk(h1: E, h2: E, t: Vector[E]): F[Step[F, E, A]]
+   *
+  def feedChunk(h1: E, h2: E, t: Vector[E]): F[Step[F, E, A]]*/
 
   /**
    * Map a function over the value of this [[Step]].
@@ -73,10 +75,7 @@ abstract class Step[F[_], E, A] extends Serializable {
  * @groupprio Collection 2
  */
 final object Step { self =>
-  abstract class Cont[F[_]: Applicative, E, A] extends EffectfulCont[F, E, A] with Input.Folder[E, F[Step[F, E, A]]] {
-    final def feedEl(e: E): F[Step[F, E, A]] = onEl(e)
-    final def feedChunk(h1: E, h2: E, t: Vector[E]): F[Step[F, E, A]] = onChunk(h1, h2, t)
-  }
+  abstract class Cont[F[_]: Applicative, E, A] extends EffectfulCont[F, E, A]
 
   object Cont {
     abstract class WithValue[F[_], E, A](value: A)(implicit F: Applicative[F]) extends Cont[F, E, A] {
@@ -84,9 +83,9 @@ final object Step { self =>
     }
   }
 
-  abstract class PureCont[F[_], E, A](implicit F: Applicative[F])
-    extends BaseCont[F, E, A] with Input.Folder[E, Step[F, E, A]]  { self =>
-    final def feedEl(e: E): F[Step[F, E, A]] = F.pure(onEl(e))
+  /*abstract class PureCont[F[_], E, A](implicit F: Applicative[F])
+    extends BaseCont[F, E, A]  { self =>
+    final def feed(chunk: NonEmptyVector[E]): F[Step[F, E, A]] = F.pure(onEl(e))
     final def feedChunk(h1: E, h2: E, t: Vector[E]): F[Step[F, E, A]] = F.pure(onChunk(h1, h2, t))
 
     final def map[B](f: A => B): Step[F, E, B] = new PureCont[F, E, B] {
@@ -107,7 +106,7 @@ final object Step { self =>
         final def run: F[B] = M.flatMap(self.run)(a => M.flatMap(f(a))(_.run))
       }
     )
-  }
+  }*/
 
   object PureCont {
     abstract class WithValue[F[_], E, A](value: A)(implicit F: Applicative[F]) extends PureCont[F, E, A] {
@@ -125,8 +124,7 @@ final object Step { self =>
     onInput: NonEmptyVector[E] => F[Step[F, E, A]],
     onEnd: F[A]
   )(implicit F: Applicative[F]): Step[F, E, A] = new EffectfulCont[F, E, A] {
-    final def feedEl(e: E): F[Step[F, E, A]] = onInput(NonEmptyVector(e, Vector.empty))
-    final def feedChunk(h1: E, h2: E, t: Vector[E]): F[Step[F, E, A]] = onInput(NonEmptyVector(h1, h2 +: t))
+    final def feed(chunk: NonEmptyVector[E]): F[Step[F, E, A]] = onInput(chunk)
     final def run: F[A] = onEnd
   }
 
@@ -160,9 +158,7 @@ final object Step { self =>
   final def liftMEval[F[_], E, A](fa: Eval[F[A]])(implicit F: Monad[F]): F[Step[F, E, A]] = F.pure(
     new Cont[F, E, A] {
       final def run: F[A] = fa.value
-      final def onEl(e: E): F[Step[F, E, A]] = F.map(fa.value)(a => Done(a, Vector(e)))
-      final def onChunk(h1: E, h2: E, t: Vector[E]): F[Step[F, E, A]] =
-        F.map(fa.value)(a => Done(a, h1 +: h2 +: t))
+      final def feed(chunk: NonEmptyVector[E]): F[Step[F, E, A]] = F.map(fa.value)(a => Done(a, chunk.toVector))
     }
   )
 
