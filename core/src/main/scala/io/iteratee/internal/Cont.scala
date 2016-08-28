@@ -17,7 +17,7 @@ private[internal] abstract class BaseCont[F[_], E, A](implicit F: Applicative[F]
     final def run: G[A] = f(self.run)
   }
   final def zip[B](other: Step[F, E, B]): Step[F, E, (A, B)] = other match {
-    case Step.Done(otherValue) => map((_, otherValue))
+    case Done(otherValue, _) => map((_, otherValue))
     case step => new EffectfulCont[F, E, (A, B)] {
       final def feedEl(e: E): F[Step[F, E, (A, B)]] = F.map2(self.feedEl(e), step.feedEl(e))(_.zip(_))
       final def feedChunk(h1: E, h2: E, t: Vector[E]): F[Step[F, E, (A, B)]] =

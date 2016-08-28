@@ -115,11 +115,6 @@ final object Step { self =>
     }
   }
 
-  final object Done {
-    final def unapply[F[_], E, A](step: Step[F, E, A]): Option[A] =
-      if (step.isDone) Some(step.asInstanceOf[BaseDone[F, E, A]].value) else None
-  }
-
   /**
    * Create an incomplete [[Step]] that will use the given functions to process
    * the next input.
@@ -140,7 +135,7 @@ final object Step { self =>
    *
    * @group Constructors
    */
-  final def done[F[_]: Applicative, E, A](value: A): Step[F, E, A] = new NoLeftovers(value)
+  final def done[F[_]: Applicative, E, A](value: A): Step[F, E, A] = Done(value, Vector.empty)
 
   /**
    * Create a new completed [[Step]] with the given result and leftover input.
@@ -148,19 +143,7 @@ final object Step { self =>
    * @group Constructors
    */
   final def doneWithLeftovers[F[_]: Applicative, E, A](value: A, remaining: Vector[E]): Step[F, E, A] =
-    remaining match {
-      case Vector() => new NoLeftovers(value)
-      case Vector(e) => new WithLeftovers(value, Input.el(e))
-      case h1 +: h2 +: t => new WithLeftovers(value, Input.chunk(h1, h2, t))
-    }
-
-  /**
-   * Create a new completed [[Step]] with the given result and leftover [[Input]].
-   *
-   * @group Constructors
-   */
-  final def doneWithLeftoverInput[F[_]: Applicative, E, A](value: A, remaining: Input[E]): Step[F, E, A] =
-    new WithLeftovers(value, remaining)
+    Done(value, remaining)
 
   /**
    * Lift an effectful value into a [[Step]].
@@ -177,9 +160,9 @@ final object Step { self =>
   final def liftMEval[F[_], E, A](fa: Eval[F[A]])(implicit F: Monad[F]): F[Step[F, E, A]] = F.pure(
     new Cont[F, E, A] {
       final def run: F[A] = fa.value
-      final def onEl(e: E): F[Step[F, E, A]] = F.map(fa.value)(a => new WithLeftovers(a, Input.el(e)))
+      final def onEl(e: E): F[Step[F, E, A]] = F.map(fa.value)(a => Done(a, Vector(e)))
       final def onChunk(h1: E, h2: E, t: Vector[E]): F[Step[F, E, A]] =
-        F.map(fa.value)(a => new WithLeftovers(a, Input.chunk(h1, h2, t)))
+        F.map(fa.value)(a => Done(a, h1 +: h2 +: t))
     }
   )
 
@@ -190,7 +173,7 @@ final object Step { self =>
    */
   final def joinI[F[_], A, B, C](step: Step[F, A, Step[F, B, C]])(implicit F: Monad[F]): F[Step[F, A, C]] =
     step.bind {
-      case Done(value) => F.pure(done(value))
+      case Done(value, _) => F.pure(done(value))
       case next => F.map(next.run)(done(_))
     }
 
@@ -265,8 +248,7 @@ final object Step { self =>
    */
   final def head[F[_], E](implicit F: Applicative[F]): Step[F, E, Option[E]] = new PureCont[F, E, Option[E]] {
     final def onEl(e: E): Step[F, E, Option[E]] = done(Some(e))
-    final def onChunk(h1: E, h2: E, t: Vector[E]): Step[F, E, Option[E]] =
-      new WithLeftovers(Some(h1), Input.fromPair(h2, t))
+    final def onChunk(h1: E, h2: E, t: Vector[E]): Step[F, E, Option[E]] = Done(Some(h1), h2 +: t)
     final def run: F[Option[E]] = F.pure(None)
   }
 
@@ -276,9 +258,8 @@ final object Step { self =>
    * @group Collection
    */
   final def peek[F[_], E](implicit F: Applicative[F]): Step[F, E, Option[E]] = new PureCont[F, E, Option[E]] {
-    final def onEl(e: E): Step[F, E, Option[E]] = new WithLeftovers(Some(e), Input.el(e))
-    final def onChunk(h1: E, h2: E, t: Vector[E]): Step[F, E, Option[E]] =
-      new WithLeftovers(Some(h1), Input.chunk(h1, h2, t))
+    final def onEl(e: E): Step[F, E, Option[E]] = Done(Some(e), Vector(e))
+    final def onChunk(h1: E, h2: E, t: Vector[E]): Step[F, E, Option[E]] = Done(Some(h1), h1 +: h2 +: t)
     final def run: F[Option[E]] = F.pure(None)
   }
 
@@ -369,7 +350,7 @@ final object Step { self =>
       if (diff > 0) new TakeCont(acc ++ v, diff) else if (diff == 0) done(acc ++ v) else {
         val (taken, left) = v.splitAt(n)
 
-        new WithLeftovers(acc ++ taken, Input.fromVectorUnsafe(left))
+        Done(acc ++ taken, left)
       }
     }
   }
@@ -386,12 +367,12 @@ final object Step { self =>
   private[this] final class TakeWhileCont[F[_], E](acc: Vector[E], p: E => Boolean)(implicit F: Applicative[F])
     extends PureCont.WithValue[F, E, Vector[E]](acc) {
     final def onEl(e: E): Step[F, E, Vector[E]] =
-      if (p(e)) new TakeWhileCont(acc :+ e, p) else new WithLeftovers(acc, Input.el(e))
+      if (p(e)) new TakeWhileCont(acc :+ e, p) else Done(acc, Vector(e))
     final def onChunk(h1: E, h2: E, t: Vector[E]): Step[F, E, Vector[E]] = {
       val (before, after) = (h1 +: h2 +: t).span(p)
 
       if (after.isEmpty) new TakeWhileCont(acc ++ before, p) else
-        new WithLeftovers(acc ++ before, Input.fromVectorUnsafe(after))
+        Done(acc ++ before, after)
     }
   }
 
@@ -409,7 +390,7 @@ final object Step { self =>
         if (len <= n) drop(n - len) else {
           val dropped = (h1 +: h2 +: t).drop(n)
 
-          new WithLeftovers((), Input.fromVectorUnsafe(dropped))
+          Done((), dropped)
         }
       }
       final def run: F[Unit] = F.pure(())
@@ -426,19 +407,18 @@ final object Step { self =>
 
   private[this] final class DropWhileCont[F[_], E](p: E => Boolean)(implicit F: Applicative[F])
     extends PureCont[F, E, Unit] {
-    final def onEl(e: E): Step[F, E, Unit] = if (p(e)) dropWhile(p) else new WithLeftovers((), Input.el(e))
+    final def onEl(e: E): Step[F, E, Unit] = if (p(e)) dropWhile(p) else Done((), Vector(e))
     final def onChunk(h1: E, h2: E, t: Vector[E]): Step[F, E, Unit] = {
       val after = (h1 +: h2 +: t).dropWhile(p)
 
-      if (after.isEmpty) dropWhile(p) else new WithLeftovers((), Input.fromVectorUnsafe(after))
+      if (after.isEmpty) dropWhile(p) else Done((), after)
     }
     final def run: F[Unit] = F.pure(())
   }
 
   final def isEnd[F[_], E](implicit F: Applicative[F]): Step[F, E, Boolean] = new PureCont[F, E, Boolean] {
-    final def onEl(e: E): Step[F, E, Boolean] = new WithLeftovers(false, Input.el(e))
-    final def onChunk(h1: E, h2: E, t: Vector[E]): Step[F, E, Boolean] =
-      new WithLeftovers(false, Input.chunk(h1, h2, t))
+    final def onEl(e: E): Step[F, E, Boolean] = Done(false, Vector(e))
+    final def onChunk(h1: E, h2: E, t: Vector[E]): Step[F, E, Boolean] = Done(false, h1 +: h2 +: t)
     final def run: F[Boolean] = F.pure(true)
   }
 }

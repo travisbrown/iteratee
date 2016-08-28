@@ -92,7 +92,7 @@ final object Enumeratee extends EnumerateeInstances {
         final def run: F[Step[F, E, A]] = F.pure(step)
         final def onEl(e: E): F[Step[F, E, Step[F, E, A]]] =
           if (remaining <= 0L) {
-            F.pure(Step.doneWithLeftoverInput(step, Input.el(e)))
+            F.pure(Step.doneWithLeftovers(step, Vector(e)))
           } else {
             F.map(step.feedEl(e))(loop(remaining - 1L))
           }
@@ -101,8 +101,8 @@ final object Enumeratee extends EnumerateeInstances {
             F.map(step.feedChunk(h1, h2, t))(loop(remaining - (t.size + 2).toLong))
           } else {
             (h1 +: h2 +: t).splitAt(remaining.toInt) match {
-              case (Vector(), nh1 +: nh2 +: nt) => F.pure(Step.doneWithLeftoverInput(step, Input.chunk(nh1, nh2, nt)))
-              case (Vector(nh), nt) => F.map(step.feedEl(nh))(Step.doneWithLeftoverInput(_, Input.fromVectorUnsafe(nt)))
+              case (Vector(), nh1 +: nh2 +: nt) => F.pure(Step.doneWithLeftovers(step, nh1 +: nh2 +: nt))
+              case (Vector(nh), nt) => F.map(step.feedEl(nh))(Step.doneWithLeftovers(_, nt))
               case (nh1 +: nh2 +: nt1, nt2) => if (nt2.isEmpty) {
                 F.map(step.feedChunk(nh1, nh2, nt1))(loop(remaining - (t.size + 2).toLong))
               } else {
@@ -125,14 +125,14 @@ final object Enumeratee extends EnumerateeInstances {
         final def run: F[Step[F, E, A]] = F.pure(step)
         final def onEl(e: E): F[Step[F, E, Step[F, E, A]]] =
           if (!p(e)) {
-            F.pure(Step.doneWithLeftoverInput(step, Input.el(e)))
+            F.pure(Step.doneWithLeftovers(step, Vector(e)))
           } else {
             F.map(step.feedEl(e))(doneOrLoop)
           }
         final def onChunk(h1: E, h2: E, t: Vector[E]): F[Step[F, E, Step[F, E, A]]] =
           (h1 +: h2 +: t).span(p) match {
-            case (Vector(), nh1 +: nh2 +: nt) => F.pure(Step.doneWithLeftoverInput(step, Input.chunk(nh1, nh2, nt)))
-            case (Vector(nh), nt) => F.map(step.feedEl(nh))(Step.doneWithLeftoverInput(_, Input.fromVectorUnsafe(nt)))
+            case (Vector(), nh1 +: nh2 +: nt) => F.pure(Step.doneWithLeftovers(step, nh1 +: nh2 +: nt))
+            case (Vector(nh), nt) => F.map(step.feedEl(nh))(Step.doneWithLeftovers(_, nt))
             case (nh1 +: nh2 +: nt1, nt2) => if (nt2.isEmpty) {
               F.map(step.feedChunk(nh1, nh2, nt1))(doneOrLoop)
             } else {
@@ -157,13 +157,13 @@ final object Enumeratee extends EnumerateeInstances {
         final def run: F[Step[F, E, A]] = F.pure(step)
         final def onEl(e: E): F[Step[F, E, Step[F, E, A]]] = {
           F.ifM(p(e))(
-            ifFalse = F.pure(Step.doneWithLeftoverInput(step, Input.el(e))),
+            ifFalse = F.pure(Step.doneWithLeftovers(step, Vector(e))),
             ifTrue  = F.map(step.feedEl(e))(doneOrLoop))
         }
         final def onChunk(h1: E, h2: E, t: Vector[E]): F[Step[F, E, Step[F, E, A]]] = {
           F.flatMap(vectorSpanM(p, h1 +: h2 +: t)) {
-            case (Vector(), nh1 +: nh2 +: nt) => F.pure(Step.doneWithLeftoverInput(step, Input.chunk(nh1, nh2, nt)))
-            case (Vector(nh), nt) => F.map(step.feedEl(nh))(Step.doneWithLeftoverInput(_, Input.fromVectorUnsafe(nt)))
+            case (Vector(), nh1 +: nh2 +: nt) => F.pure(Step.doneWithLeftovers(step, nh1 +: nh2 +: nt))
+            case (Vector(nh), nt) => F.map(step.feedEl(nh))(Step.doneWithLeftovers(_, nt))
             case (nh1 +: nh2 +: nt1, nt2) => if (nt2.isEmpty) {
               F.map(step.feedChunk(nh1, nh2, nt1))(doneOrLoop)
             } else {
