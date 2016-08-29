@@ -298,6 +298,19 @@ abstract class BaseIterateeSuite[F[_]: Monad] extends ModuleSuite[F] {
     assert(eav.resultWithLeftovers(iteratee) === F.pure(result))
   }
 
+  it should "zip two iteratees where only one has leftovers" in forAll { (v: Vector[Int], n: Int) =>
+    val taken = n % (v.size + 1)
+    val enumerator = enumVector(v)
+    val iteratee1 = takeI[Int](v.size).zip(takeI(taken)).flatMap(r => consume.map((r, _)))
+    val iteratee2 = takeI[Int](taken).zip(takeI(v.size)).flatMap(r => consume.map((r, _)))
+
+    val result1 = (v, v.take(taken))
+    val result2 = (v.take(taken), v)
+
+    assert(enumerator.into(iteratee1) === F.pure((result1, Vector.empty)))
+    assert(enumerator.into(iteratee2) === F.pure((result2, Vector.empty)))
+  }
+
   it should "zip two iteratees with single leftovers" in {
     val es = Vector(1, 2, 3, 4)
     val enumerator = enumVector(es)
