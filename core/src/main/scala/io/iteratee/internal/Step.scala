@@ -32,7 +32,7 @@ sealed abstract class Step[F[_], E, A] extends Serializable {
   /**
    * Feed a multi-element input to this [[Step]].
    */
-  def feedChunk(h1: E, h2: E, t: Vector[E]): F[Step[F, E, A]]
+  def feedChunk(h: E, t: NonEmptyVector[E]): F[Step[F, E, A]]
 
   /**
    * Map a function over the value of this [[Step]].
@@ -82,7 +82,7 @@ final object Step { self =>
     final def isDone: Boolean = true
     final def run: F[A] = F.pure(value)
     final def feedEl(e: E): F[Step[F, E, A]] = F.pure(this)
-    final def feedChunk(h1: E, h2: E, t: Vector[E]): F[Step[F, E, A]] = F.pure(this)
+    final def feedChunk(h: E, t: NonEmptyVector[E]): F[Step[F, E, A]] = F.pure(this)
 
     final def map[B](f: A => B): Step[F, E, B] = Done(f(value), remaining)
     final def contramap[E2](f: E2 => E): Step[F, E2, A] = Done(value, Vector.empty)
@@ -94,7 +94,7 @@ final object Step { self =>
         case step => remaining match {
           case xs if xs.isEmpty => f(value)
           case xs if xs.size == 1 => step.feedEl(xs.head)
-          case h1 +: h2 +: t => step.feedChunk(h1, h2, t)
+          case h +: t => step.feedChunk(h, NonEmptyVector.fromVectorUnsafe(t))
         }
       }
 
@@ -110,14 +110,14 @@ final object Step { self =>
   private[internal] abstract class BaseCont[F[_], E, A](implicit F: Applicative[F]) extends Step[F, E, A] { self =>
     final def fold[Z](ifCont: (NonEmptyVector[E] => F[Step[F, E, A]]) => Z, ifDone: (A, Vector[E]) => Z): Z =
       ifCont { nev =>
-        if (nev.length == 1) feedEl(nev.head) else feedChunk(nev.head, nev.getUnsafe(1), nev.tail.drop(1))
+        if (nev.length == 1) feedEl(nev.head) else feedChunk(nev.head, NonEmptyVector.fromVectorUnsafe(nev.tail))
       }
 
     final def isDone: Boolean = false
 
     final def mapI[G[_]: Applicative](f: FunctionK[F, G]): Step[G, E, A] = new Cont[G, E, A] {
       final def feedEl(e: E): G[Step[G, E, A]] = f(F.map(self.feedEl(e))(_.mapI(f)))
-      final def feedChunk(h1: E, h2: E, t: Vector[E]): G[Step[G, E, A]] = f(F.map(self.feedChunk(h1, h2, t))(_.mapI(f)))
+      final def feedChunk(h: E, t: NonEmptyVector[E]): G[Step[G, E, A]] = f(F.map(self.feedChunk(h, t))(_.mapI(f)))
       final def run: G[A] = f(self.run)
     }
 
@@ -125,8 +125,8 @@ final object Step { self =>
       case Done(otherValue, _) => map((_, otherValue))
       case step => new Cont[F, E, (A, B)] {
         final def feedEl(e: E): F[Step[F, E, (A, B)]] = F.map2(self.feedEl(e), step.feedEl(e))(_.zip(_))
-        final def feedChunk(h1: E, h2: E, t: Vector[E]): F[Step[F, E, (A, B)]] =
-          F.map2(self.feedChunk(h1, h2, t), step.feedChunk(h1, h2, t))(_.zip(_))
+        final def feedChunk(h: E, t: NonEmptyVector[E]): F[Step[F, E, (A, B)]] =
+          F.map2(self.feedChunk(h, t), step.feedChunk(h, t))(_.zip(_))
         final def run: F[(A, B)] = F.product(self.run, step.run)
       }
     }
@@ -135,22 +135,22 @@ final object Step { self =>
   abstract class Cont[F[_], E, A](implicit F: Applicative[F]) extends BaseCont[F, E, A] { self =>
     final def map[B](f: A => B): Step[F, E, B] = new Cont[F, E, B] {
       final def feedEl(e: E): F[Step[F, E, B]] = F.map(self.feedEl(e))(_.map(f))
-      final def feedChunk(h1: E, h2: E, t: Vector[E]): F[Step[F, E, B]] = F.map(self.feedChunk(h1, h2, t))(_.map(f))
+      final def feedChunk(h: E, t: NonEmptyVector[E]): F[Step[F, E, B]] = F.map(self.feedChunk(h, t))(_.map(f))
       final def run: F[B] = F.map(self.run)(f)
     }
 
     final def contramap[E2](f: E2 => E): Step[F, E2, A] = new Cont[F, E2, A] {
       final def feedEl(e: E2): F[Step[F, E2, A]] = F.map(self.feedEl(f(e)))(_.contramap(f))
-      final def feedChunk(h1: E2, h2: E2, t: Vector[E2]): F[Step[F, E2, A]] =
-        F.map(self.feedChunk(f(h1), f(h2), t.map(f)))(_.contramap(f))
+      final def feedChunk(h: E2, t: NonEmptyVector[E2]): F[Step[F, E2, A]] =
+        F.map(self.feedChunk(f(h), t.map(f)))(_.contramap(f))
       final def run: F[A] = self.run
     }
 
     final def bind[B](f: A => F[Step[F, E, B]])(implicit M: Monad[F]): F[Step[F, E, B]] = F.pure(
       new Cont[F, E, B] {
         final def feedEl(e: E): F[Step[F, E, B]] = M.flatMap(self.feedEl(e))(_.bind(f))
-        final def feedChunk(h1: E, h2: E, t: Vector[E]): F[Step[F, E, B]] =
-          M.flatMap(self.feedChunk(h1, h2, t))(_.bind(f))
+        final def feedChunk(h: E, t: NonEmptyVector[E]): F[Step[F, E, B]] =
+          M.flatMap(self.feedChunk(h, t))(_.bind(f))
         final def run: F[B] = M.flatMap(self.run)(a => M.flatMap(f(a))(_.run))
       }
     )
@@ -164,30 +164,30 @@ final object Step { self =>
 
   private[this] abstract class PureCont[F[_], E, A](implicit F: Applicative[F]) extends BaseCont[F, E, A] { self =>
     protected def feedElPure(e: E): Step[F, E, A]
-    protected def feedChunkPure(h1: E, h2: E, t: Vector[E]): Step[F, E, A]
+    protected def feedChunkPure(h: E, t: NonEmptyVector[E]): Step[F, E, A]
     protected def runPure: A
 
     final def feedEl(e: E): F[Step[F, E, A]] = F.pure(feedElPure(e))
-    final def feedChunk(h1: E, h2: E, t: Vector[E]): F[Step[F, E, A]] = F.pure(feedChunkPure(h1, h2, t))
+    final def feedChunk(h: E, t: NonEmptyVector[E]): F[Step[F, E, A]] = F.pure(feedChunkPure(h, t))
     final def run: F[A] = F.pure(runPure)
 
     final def map[B](f: A => B): Step[F, E, B] = new PureCont[F, E, B] {
       final def feedElPure(e: E): Step[F, E, B] = self.feedElPure(e).map(f)
-      final def feedChunkPure(h1: E, h2: E, t: Vector[E]): Step[F, E, B] = self.feedChunkPure(h1, h2, t).map(f)
+      final def feedChunkPure(h: E, t: NonEmptyVector[E]): Step[F, E, B] = self.feedChunkPure(h, t).map(f)
       final def runPure: B = f(self.runPure)
     }
 
     final def contramap[E2](f: E2 => E): Step[F, E2, A] = new PureCont[F, E2, A] {
       final def feedElPure(e: E2): Step[F, E2, A] = self.feedElPure(f(e)).contramap(f)
-      final def feedChunkPure(h1: E2, h2: E2, t: Vector[E2]): Step[F, E2, A] =
-        self.feedChunkPure(f(h1), f(h2), t.map(f)).contramap(f)
+      final def feedChunkPure(h: E2, t: NonEmptyVector[E2]): Step[F, E2, A] =
+        self.feedChunkPure(f(h), t.map(f)).contramap(f)
       final def runPure: A = self.runPure
     }
 
     final def bind[B](f: A => F[Step[F, E, B]])(implicit M: Monad[F]): F[Step[F, E, B]] = F.pure(
       new Cont[F, E, B] {
         final def feedEl(e: E): F[Step[F, E, B]] = self.feedElPure(e).bind(f)
-        final def feedChunk(h1: E, h2: E, t: Vector[E]): F[Step[F, E, B]] = self.feedChunkPure(h1, h2, t).bind(f)
+        final def feedChunk(h: E, t: NonEmptyVector[E]): F[Step[F, E, B]] = self.feedChunkPure(h, t).bind(f)
         final def run: F[B] = M.flatMap(f(self.runPure))(_.run)
       }
     )
@@ -208,7 +208,7 @@ final object Step { self =>
     onEnd: F[A]
   )(implicit F: Applicative[F]): Step[F, E, A] = new Cont[F, E, A] {
     final def feedEl(e: E): F[Step[F, E, A]] = onInput(NonEmptyVector(e, Vector.empty))
-    final def feedChunk(h1: E, h2: E, t: Vector[E]): F[Step[F, E, A]] = onInput(NonEmptyVector(h1, h2 +: t))
+    final def feedChunk(h: E, t: NonEmptyVector[E]): F[Step[F, E, A]] = onInput(NonEmptyVector(h, t.toVector))
     final def run: F[A] = onEnd
   }
 
@@ -243,8 +243,8 @@ final object Step { self =>
     new Cont[F, E, A] {
       final def run: F[A] = fa.value
       final def feedEl(e: E): F[Step[F, E, A]] = F.map(fa.value)(a => Done(a, Vector(e)))
-      final def feedChunk(h1: E, h2: E, t: Vector[E]): F[Step[F, E, A]] =
-        F.map(fa.value)(a => Done(a, h1 +: h2 +: t))
+      final def feedChunk(h: E, t: NonEmptyVector[E]): F[Step[F, E, A]] =
+        F.map(fa.value)(a => Done(a, h +: t.toVector))
     }
   )
 
@@ -268,8 +268,7 @@ final object Step { self =>
   final def fold[F[_], E, A](init: A)(f: (A, E) => A)(implicit F: Applicative[F]): Step[F, E, A] =
     new PureCont.WithValue[F, E, A](init) {
       final def feedElPure(e: E): Step[F, E, A] = self.fold(f(init, e))(f)
-      final def feedChunkPure(h1: E, h2: E, t: Vector[E]): Step[F, E, A] =
-        self.fold(t.foldLeft(f(f(init, h1), h2))(f))(f)
+      final def feedChunkPure(h: E, t: NonEmptyVector[E]): Step[F, E, A] = self.fold(t.foldLeft(f(init, h))(f))(f)
     }
 
   /**
@@ -281,9 +280,9 @@ final object Step { self =>
   final def foldM[F[_], E, A](init: A)(f: (A, E) => F[A])(implicit F: Monad[F]): Step[F, E, A] =
     new Cont.WithValue[F, E, A](init) {
       final def feedEl(e: E): F[Step[F, E, A]] = F.map(f(init, e))(a => foldM(a)(f))
-      final def feedChunk(h1: E, h2: E, t: Vector[E]): F[Step[F, E, A]] =
+      final def feedChunk(h: E, t: NonEmptyVector[E]): F[Step[F, E, A]] =
         F.map(
-          t.foldLeft(F.flatMap(f(init, h1))(a => f(a, h2)))((fa, e) => F.flatMap(fa)(a => f(a, e)))
+          t.foldLeft(f(init, h))((fa, e) => F.flatMap(fa)(a => f(a, e)))
         )(a => foldM(a)(f))
     }
 
@@ -295,9 +294,10 @@ final object Step { self =>
   final def consume[F[_]: Applicative, A]: Step[F, A, Vector[A]] = new ConsumeCont(Vector.empty)
 
   private[this] final class ConsumeCont[F[_], E](acc: Vector[E])(implicit F: Applicative[F])
-    extends PureCont.WithValue[F, E, Vector[E]](acc) {
+      extends PureCont.WithValue[F, E, Vector[E]](acc) {
     final def feedElPure(e: E): Step[F, E, Vector[E]] = new ConsumeCont(acc :+ e)
-    final def feedChunkPure(h1: E, h2: E, t: Vector[E]): Step[F, E, Vector[E]] = new ConsumeCont(acc ++ (h1 +: h2 +: t))
+    final def feedChunkPure(h: E, t: NonEmptyVector[E]): Step[F, E, Vector[E]] =
+      new ConsumeCont(acc ++ (h +: t.toVector))
   }
 
   /**
@@ -318,8 +318,8 @@ final object Step { self =>
     C: Applicative[C]
   ) extends PureCont.WithValue[F, E, C[E]](acc) {
     final def feedElPure(e: E): Step[F, E, C[E]] = new ConsumeInCont(M.combineK(acc, C.pure(e)))
-    final def feedChunkPure(h1: E, h2: E, t: Vector[E]): Step[F, E, C[E]] = new ConsumeInCont(
-      t.foldLeft(M.combineK(M.combineK(acc, C.pure(h1)), C.pure(h2)))((a, e) => M.combineK(a, C.pure(e)))
+    final def feedChunkPure(h: E, t: NonEmptyVector[E]): Step[F, E, C[E]] = new ConsumeInCont(
+      t.foldLeft(M.combineK(acc, C.pure(h)))((a, e) => M.combineK(a, C.pure(e)))
     )
   }
 
@@ -330,7 +330,7 @@ final object Step { self =>
    */
   final def head[F[_], E](implicit F: Applicative[F]): Step[F, E, Option[E]] = new PureCont[F, E, Option[E]] {
     final def feedElPure(e: E): Step[F, E, Option[E]] = done(Some(e))
-    final def feedChunkPure(h1: E, h2: E, t: Vector[E]): Step[F, E, Option[E]] = Done(Some(h1), h2 +: t)
+    final def feedChunkPure(h: E, t: NonEmptyVector[E]): Step[F, E, Option[E]] = Done(Some(h), t.toVector)
     final def runPure: Option[E] = None
   }
 
@@ -341,7 +341,7 @@ final object Step { self =>
    */
   final def peek[F[_], E](implicit F: Applicative[F]): Step[F, E, Option[E]] = new PureCont[F, E, Option[E]] {
     final def feedElPure(e: E): Step[F, E, Option[E]] = Done(Some(e), Vector(e))
-    final def feedChunkPure(h1: E, h2: E, t: Vector[E]): Step[F, E, Option[E]] = Done(Some(h1), h1 +: h2 +: t)
+    final def feedChunkPure(h: E, t: NonEmptyVector[E]): Step[F, E, Option[E]] = Done(Some(h), h +: t.toVector)
     final def runPure: Option[E] = None
   }
 
@@ -355,7 +355,8 @@ final object Step { self =>
   private[this] final class LengthCont[F[_], E](acc: Long)(implicit F: Applicative[F])
       extends PureCont.WithValue[F, E, Long](acc) {
     final def feedElPure(e: E): Step[F, E, Long] = new LengthCont(acc + 1L)
-    final def feedChunkPure(h1: E, h2: E, t: Vector[E]): Step[F, E, Long] = new LengthCont(acc + t.size.toLong + 2L)
+    final def feedChunkPure(h: E, t: NonEmptyVector[E]): Step[F, E, Long] =
+      new LengthCont(acc + 1L + t.toVector.size.toLong)
   }
 
   /**
@@ -366,21 +367,10 @@ final object Step { self =>
   final def sum[F[_], E](implicit F: Applicative[F], M: Monoid[E]): Step[F, E, E] = new SumCont(M.empty)
 
   private[this] final class SumCont[F[_], E](acc: E)(implicit F: Applicative[F], M: Semigroup[E])
-    extends PureCont.WithValue[F, E, E](acc) {
+      extends PureCont.WithValue[F, E, E](acc) {
     final def feedElPure(e: E): Step[F, E, E] = new SumCont(M.combine(acc, e))
-    final def feedChunkPure(h1: E, h2: E, t: Vector[E]): Step[F, E, E] =
-      new SumCont(
-        M.combine(
-          acc,
-          M.combine(
-            h1,
-            M.combineAllOption(t) match {
-              case Some(tc) => M.combine(h2, tc)
-              case None => h2
-            }
-          )
-        )
-      )
+    final def feedChunkPure(h: E, t: NonEmptyVector[E]): Step[F, E, E] =
+      new SumCont(M.combine(acc, M.combine(h, t.reduce)))
   }
 
   /**
@@ -389,29 +379,13 @@ final object Step { self =>
    * @group Collection
    */
   final def foldMap[F[_], E, A](f: E => A)(implicit F: Applicative[F], M: Monoid[A]): Step[F, E, A] =
-    new FoldMapCont(f, M.empty)
+    new FoldMapCont(M.empty)(f)
 
-  private[this] final class FoldMapCont[F[_], E, A](f: E => A, acc: A)(implicit F: Applicative[F], M: Semigroup[A])
-    extends PureCont.WithValue[F, E, A](acc) {
-    final def feedElPure(e: E): Step[F, E, A] = new FoldMapCont(f, M.combine(acc, f(e)))
-    final def feedChunkPure(h1: E, h2: E, t: Vector[E]): Step[F, E, A] =
-      new FoldMapCont(
-        f,
-        M.combine(
-          acc,
-          M.combine(
-            f(h1),
-            {
-              val h2f = f(h2)
-
-              M.combineAllOption(t.map(f)) match {
-                case Some(tc) => M.combine(h2f, tc)
-                case None => h2f
-              }
-            }
-          )
-        )
-      )
+  private[this] final class FoldMapCont[F[_], E, A](acc: A)(f: E => A)(implicit F: Applicative[F], M: Semigroup[A])
+      extends PureCont.WithValue[F, E, A](acc) {
+    final def feedElPure(e: E): Step[F, E, A] = new FoldMapCont(M.combine(acc, f(e)))(f)
+    final def feedChunkPure(h: E, t: NonEmptyVector[E]): Step[F, E, A] =
+      new FoldMapCont(M.combine(acc, M.combine(f(h), t.map(f).reduce)))(f)
   }
 
   /**
@@ -423,10 +397,10 @@ final object Step { self =>
     if (n <= 0) done[F, E, Vector[E]](Vector.empty) else new TakeCont(Vector.empty, n)
 
   private[this] final class TakeCont[F[_], E](acc: Vector[E], n: Int)(implicit F: Applicative[F])
-    extends PureCont.WithValue[F, E, Vector[E]](acc) {
+      extends PureCont.WithValue[F, E, Vector[E]](acc) {
     final def feedElPure(e: E): Step[F, E, Vector[E]] = if (n == 1) done(acc :+ e) else new TakeCont(acc :+ e, n - 1)
-    final def feedChunkPure(h1: E, h2: E, t: Vector[E]): Step[F, E, Vector[E]] = {
-      val v = h1 +: h2 +: t
+    final def feedChunkPure(h: E, t: NonEmptyVector[E]): Step[F, E, Vector[E]] = {
+      val v = h +: t.toVector
       val diff = n - v.size
 
       if (diff > 0) new TakeCont(acc ++ v, diff) else if (diff == 0) done(acc ++ v) else {
@@ -447,11 +421,11 @@ final object Step { self =>
     new TakeWhileCont(Vector.empty, p)
 
   private[this] final class TakeWhileCont[F[_], E](acc: Vector[E], p: E => Boolean)(implicit F: Applicative[F])
-    extends PureCont.WithValue[F, E, Vector[E]](acc) {
+      extends PureCont.WithValue[F, E, Vector[E]](acc) {
     final def feedElPure(e: E): Step[F, E, Vector[E]] =
       if (p(e)) new TakeWhileCont(acc :+ e, p) else Done(acc, Vector(e))
-    final def feedChunkPure(h1: E, h2: E, t: Vector[E]): Step[F, E, Vector[E]] = {
-      val (before, after) = (h1 +: h2 +: t).span(p)
+    final def feedChunkPure(h: E, t: NonEmptyVector[E]): Step[F, E, Vector[E]] = {
+      val (before, after) = (h +: t.toVector).span(p)
 
       if (after.isEmpty) new TakeWhileCont(acc ++ before, p) else
         Done(acc ++ before, after)
@@ -466,13 +440,11 @@ final object Step { self =>
   final def drop[F[_], E](n: Int)(implicit F: Applicative[F]): Step[F, E, Unit] =
     if (n <= 0) done(()) else new PureCont[F, E, Unit] {
       final def feedElPure(e: E): Step[F, E, Unit] = drop(n - 1)
-      final def feedChunkPure(h1: E, h2: E, t: Vector[E]): Step[F, E, Unit] = {
-        val len = t.size + 2
+      final def feedChunkPure(h: E, t: NonEmptyVector[E]): Step[F, E, Unit] = {
+        val len = t.toVector.size + 1
 
         if (len <= n) drop(n - len) else {
-          val dropped = (h1 +: h2 +: t).drop(n)
-
-          Done((), dropped)
+          Done((), (h +: t.toVector).drop(n))
         }
       }
       final def runPure: Unit = ()
@@ -488,10 +460,10 @@ final object Step { self =>
     new DropWhileCont(p)
 
   private[this] final class DropWhileCont[F[_], E](p: E => Boolean)(implicit F: Applicative[F])
-    extends PureCont[F, E, Unit] {
+      extends PureCont[F, E, Unit] {
     final def feedElPure(e: E): Step[F, E, Unit] = if (p(e)) dropWhile(p) else Done((), Vector(e))
-    final def feedChunkPure(h1: E, h2: E, t: Vector[E]): Step[F, E, Unit] = {
-      val after = (h1 +: h2 +: t).dropWhile(p)
+    final def feedChunkPure(h: E, t: NonEmptyVector[E]): Step[F, E, Unit] = {
+      val after = (h +: t.toVector).dropWhile(p)
 
       if (after.isEmpty) dropWhile(p) else Done((), after)
     }
@@ -500,7 +472,7 @@ final object Step { self =>
 
   final def isEnd[F[_], E](implicit F: Applicative[F]): Step[F, E, Boolean] = new PureCont[F, E, Boolean] {
     final def feedElPure(e: E): Step[F, E, Boolean] = Done(false, Vector(e))
-    final def feedChunkPure(h1: E, h2: E, t: Vector[E]): Step[F, E, Boolean] = Done(false, h1 +: h2 +: t)
+    final def feedChunkPure(h: E, t: NonEmptyVector[E]): Step[F, E, Boolean] = Done(false, h +: t.toVector)
     final def runPure: Boolean = true
   }
 }
