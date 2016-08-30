@@ -13,7 +13,7 @@ class NonSuspendableFileModuleTests extends BaseSuite {
     val txt = new File(getClass.getResource("/io/iteratee/examples/pg/11231/11231.txt").toURI)
     val enumerator = readLines(txt).flatMap(line => Enumerator.enumVector(line.trim.split("\\s+").toVector))
 
-    assert(enumerator.run(Iteratee.length) == Success(17973))
+    assert(enumerator.into(Iteratee.length) == Success(17973))
   }
 
   it should "work with an iteratee that stops early" in {
@@ -21,6 +21,6 @@ class NonSuspendableFileModuleTests extends BaseSuite {
     val result = "The Project Gutenberg EBook of Bartleby, The Scrivener, by Herman Melville"
     val enumerator = readLines(txt)
 
-    assert(enumerator.run(Iteratee.head) == Success(Some(result)))
+    assert(enumerator.into(Iteratee.head) == Success(Some(result)))
   }
 }
