@@ -30,7 +30,7 @@ abstract class Step[F[_], E, A] extends Serializable {
   def feedEl(e: E): F[Step[F, E, A]]
 
   /**
-   * Feed a multi-element [[Input]] to this [[Step]].
+   * Feed a multi-element input to this [[Step]].
    */
   def feedChunk(h1: E, h2: E, t: Vector[E]): F[Step[F, E, A]]
 
@@ -73,9 +73,9 @@ abstract class Step[F[_], E, A] extends Serializable {
  * @groupprio Collection 2
  */
 final object Step { self =>
-  abstract class Cont[F[_]: Applicative, E, A] extends EffectfulCont[F, E, A] with Input.Folder[E, F[Step[F, E, A]]] {
-    final def feedEl(e: E): F[Step[F, E, A]] = onEl(e)
-    final def feedChunk(h1: E, h2: E, t: Vector[E]): F[Step[F, E, A]] = onChunk(h1, h2, t)
+  abstract class Cont[F[_]: Applicative, E, A] extends EffectfulCont[F, E, A] {
+    def feedEl(e: E): F[Step[F, E, A]]
+    def feedChunk(h1: E, h2: E, t: Vector[E]): F[Step[F, E, A]]
   }
 
   object Cont {
@@ -84,8 +84,10 @@ final object Step { self =>
     }
   }
 
-  abstract class PureCont[F[_], E, A](implicit F: Applicative[F])
-    extends BaseCont[F, E, A] with Input.Folder[E, Step[F, E, A]]  { self =>
+  abstract class PureCont[F[_], E, A](implicit F: Applicative[F]) extends BaseCont[F, E, A] { self =>
+    def onEl(e: E): Step[F, E, A]
+    def onChunk(h1: E, h2: E, t: Vector[E]): Step[F, E, A]
+
     final def feedEl(e: E): F[Step[F, E, A]] = F.pure(onEl(e))
     final def feedChunk(h1: E, h2: E, t: Vector[E]): F[Step[F, E, A]] = F.pure(onChunk(h1, h2, t))
 
@@ -160,8 +162,8 @@ final object Step { self =>
   final def liftMEval[F[_], E, A](fa: Eval[F[A]])(implicit F: Monad[F]): F[Step[F, E, A]] = F.pure(
     new Cont[F, E, A] {
       final def run: F[A] = fa.value
-      final def onEl(e: E): F[Step[F, E, A]] = F.map(fa.value)(a => Done(a, Vector(e)))
-      final def onChunk(h1: E, h2: E, t: Vector[E]): F[Step[F, E, A]] =
+      final def feedEl(e: E): F[Step[F, E, A]] = F.map(fa.value)(a => Done(a, Vector(e)))
+      final def feedChunk(h1: E, h2: E, t: Vector[E]): F[Step[F, E, A]] =
         F.map(fa.value)(a => Done(a, h1 +: h2 +: t))
     }
   )
@@ -198,8 +200,8 @@ final object Step { self =>
    */
   final def foldM[F[_], E, A](init: A)(f: (A, E) => F[A])(implicit F: Monad[F]): Step[F, E, A] =
     new Cont.WithValue[F, E, A](init) {
-      final def onEl(e: E): F[Step[F, E, A]] = F.map(f(init, e))(a => foldM(a)(f))
-      final def onChunk(h1: E, h2: E, t: Vector[E]): F[Step[F, E, A]] =
+      final def feedEl(e: E): F[Step[F, E, A]] = F.map(f(init, e))(a => foldM(a)(f))
+      final def feedChunk(h1: E, h2: E, t: Vector[E]): F[Step[F, E, A]] =
         F.map(
           t.foldLeft(F.flatMap(f(init, h1))(a => f(a, h2)))((fa, e) => F.flatMap(fa)(a => f(a, e)))
         )(a => foldM(a)(f))
