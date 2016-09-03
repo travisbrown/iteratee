@@ -10,8 +10,6 @@ trait TaskSuite extends ModuleSuite[Task] with TaskModule {
   implicit def eqF[A: Eq]: Eq[Task[A]] = Eq.by(_.unsafePerformSyncAttempt.toEither)
 }
 
-class ScalazEnumerateeTests extends EnumerateeSuite[Task] with TaskSuite
-
-class ScalazEnumeratorTests extends EnumeratorSuite[Task] with TaskSuite
-
-class ScalazIterateeTests extends IterateeErrorSuite[Task, Throwable] with TaskSuite
+class TaskEnumerateeTests extends EnumerateeSuite[Task] with TaskSuite
+class TaskEnumeratorTests extends EnumeratorSuite[Task] with TaskSuite
+class TaskIterateeTests extends IterateeErrorSuite[Task, Throwable] with TaskSuite
