@@ -7,6 +7,8 @@ import io.catbird.util.Rerunnable
 import io.{ iteratee => i }
 import io.iteratee.scalaz.ScalazInstances
 import java.util.concurrent.TimeUnit
+import monix.cats._
+import monix.eval.{ Task => TaskM }
 import org.openjdk.jmh.annotations._
 import play.api.libs.{ iteratee => p }
 import scala.Predef.intWrapper
@@ -26,6 +28,7 @@ class InMemoryExampleData extends IterateeBenchmark {
 
   val intsC: Vector[Int] = (0 until count).toVector
   val intsII: i.Enumerator[Id, Int] = i.Enumerator.enumVector[Id, Int](intsC)
+  val intsIM: i.Enumerator[TaskM, Int] = i.Enumerator.enumVector[TaskM, Int](intsC)
   val intsIT: i.Enumerator[Task, Int] = i.Enumerator.enumVector[Task, Int](intsC)
   val intsIR: i.Enumerator[Rerunnable, Int] = i.Enumerator.enumVector[Rerunnable, Int](intsC)
   val intsS: Process[Task, Int] = Process.emitAll(intsC)
@@ -36,6 +39,7 @@ class InMemoryExampleData extends IterateeBenchmark {
 
 class StreamingExampleData extends IterateeBenchmark {
   val longStreamII: i.Enumerator[Id, Long] = i.Enumerator.iterate[Id, Long](0L)(_ + 1L)
+  val longStreamIM: i.Enumerator[TaskM, Long] = i.Enumerator.StackUnsafe.iterate[TaskM, Long](0L)(_ + 1L)
   val longStreamIT: i.Enumerator[Task, Long] = i.Enumerator.StackUnsafe.iterate[Task, Long](0L)(_ + 1L)
   val longStreamIR: i.Enumerator[Rerunnable, Long] = i.Enumerator.StackUnsafe.iterate[Rerunnable, Long](0L)(_ + 1L)
   val longStreamS: Process[Task, Long] = Process.iterate(0L)(_ + 1L)
@@ -67,25 +71,31 @@ class InMemoryBenchmark extends InMemoryExampleData {
   def sumInts0II: Int = intsII.into(i.Iteratee.sum)
 
   @Benchmark
-  def sumInts1IT: Int = intsIT.into(i.Iteratee.sum).unsafePerformSync
+  def sumInts1IM: Int = Await.result(
+    intsIM.into(i.Iteratee.sum).runAsync(monix.execution.Scheduler.Implicits.global),
+    Duration.Inf
+  )
 
   @Benchmark
-  def sumInts2IR: Int = AwaitT.result(intsIR.into(i.Iteratee.sum).run, DurationT.Top)
+  def sumInts2IT: Int = intsIT.into(i.Iteratee.sum).unsafePerformSync
 
   @Benchmark
-  def sumInts3S: Int = intsS.sum.runLastOr(sys.error("Impossible")).unsafePerformSync
+  def sumInts3IR: Int = AwaitT.result(intsIR.into(i.Iteratee.sum).run, DurationT.Top)
 
   @Benchmark
-  def sumInts4Z: Int = (z.IterateeT.sum[Int, Task] &= intsZ).run.unsafePerformSync
+  def sumInts4S: Int = intsS.sum.runLastOr(sys.error("Impossible")).unsafePerformSync
 
   @Benchmark
-  def sumInts5P: Int = Await.result(intsP.run(p.Iteratee.fold(0)(_ + _)), Duration.Inf)
+  def sumInts5Z: Int = (z.IterateeT.sum[Int, Task] &= intsZ).run.unsafePerformSync
 
   @Benchmark
-  def sumInts6C: Int = intsC.sum
+  def sumInts6P: Int = Await.result(intsP.run(p.Iteratee.fold(0)(_ + _)), Duration.Inf)
 
   @Benchmark
-  def sumInts7F: Int = intsF.sum.runLast.unsafeRun.get
+  def sumInts7C: Int = intsC.sum
+
+  @Benchmark
+  def sumInts8F: Int = intsF.sum.runLast.unsafeRun.get
 }
 
 /**
@@ -105,23 +115,29 @@ class StreamingBenchmark extends StreamingExampleData {
   def takeLongs0II: Vector[Long] = longStreamII.into(i.Iteratee.take(count))
 
   @Benchmark
-  def takeLongs1IT: Vector[Long] = longStreamIT.into(i.Iteratee.take(count)).unsafePerformSync
+  def takeLongs1IM: Vector[Long] = Await.result(
+    longStreamIM.into(i.Iteratee.take(count)).runAsync(monix.execution.Scheduler.Implicits.global),
+    Duration.Inf
+  )
 
   @Benchmark
-  def takeLongs2IR: Vector[Long] = AwaitT.result(longStreamIR.into(i.Iteratee.take(count)).run, DurationT.Top)
+  def takeLongs2IT: Vector[Long] = longStreamIT.into(i.Iteratee.take(count)).unsafePerformSync
 
   @Benchmark
-  def takeLongs3S: Vector[Long] = longStreamS.take(count).runLog.unsafePerformSync
+  def takeLongs3IR: Vector[Long] = AwaitT.result(longStreamIR.into(i.Iteratee.take(count)).run, DurationT.Top)
 
   @Benchmark
-  def takeLongs4Z: Vector[Long] = (z.Iteratee.take[Long, Vector](count).up[Task] &= longStreamZ).run.unsafePerformSync
+  def takeLongs4S: Vector[Long] = longStreamS.take(count).runLog.unsafePerformSync
 
   @Benchmark
-  def takeLongs5P: Seq[Long] = Await.result(longStreamP.run(p.Iteratee.takeUpTo(count)), Duration.Inf)
+  def takeLongs5Z: Vector[Long] = (z.Iteratee.take[Long, Vector](count).up[Task] &= longStreamZ).run.unsafePerformSync
 
   @Benchmark
-  def takeLongs6C: Vector[Long] = longStreamC.take(count).toVector
+  def takeLongs6P: Seq[Long] = Await.result(longStreamP.run(p.Iteratee.takeUpTo(count)), Duration.Inf)
 
   @Benchmark
-  def takeLongs7F: Vector[Long] = longStreamF.take(count.toLong).runLog.unsafeRun
+  def takeLongs7C: Vector[Long] = longStreamC.take(count).toVector
+
+  @Benchmark
+  def takeLongs8F: Vector[Long] = longStreamF.take(count.toLong).runLog.unsafeRun
 }

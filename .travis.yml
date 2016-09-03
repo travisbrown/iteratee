@@ -25,7 +25,7 @@ script:
         codecov;
       else
         sbt ++$TRAVIS_SCALA_VERSION clean core/test tests/test scalaz/test;
-        sbt ++$TRAVIS_SCALA_VERSION tests/it:test scalaz/it:test;
+        sbt ++$TRAVIS_SCALA_VERSION tests/it:test monix/it:test scalaz/it:test;
     fi;
 
   # See http://www.scala-sbt.org/0.13/docs/Travis-CI-with-sbt.html
