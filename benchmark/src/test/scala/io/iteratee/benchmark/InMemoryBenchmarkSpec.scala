@@ -10,31 +10,35 @@ class InMemoryBenchmarkSpec extends FlatSpec {
     assert(benchmark.sumInts0II === sum)
   }
 
+  it should "correctly calculate the sum using io.iteratee.monix" in {
+    assert(benchmark.sumInts1IM === sum)
+  }
+
   it should "correctly calculate the sum using io.iteratee.scalaz" in {
-    assert(benchmark.sumInts1IT === sum)
+    assert(benchmark.sumInts2IT === sum)
   }
 
   it should "correctly calculate the sum using io.iteratee.twitter" in {
-    assert(benchmark.sumInts2IR === sum)
+    assert(benchmark.sumInts3IR === sum)
   }
 
   it should "correctly calculate the sum using scalaz-stream" in {
-    assert(benchmark.sumInts3S === sum)
+    assert(benchmark.sumInts4S === sum)
   }
 
   it should "correctly calculate the sum using scalaz-iteratee" in {
-    assert(benchmark.sumInts4Z === sum)
+    assert(benchmark.sumInts5Z === sum)
   }
 
   it should "correctly calculate the sum using play-iteratee" in {
-    assert(benchmark.sumInts5P === sum)
+    assert(benchmark.sumInts6P === sum)
   }
 
   it should "correctly calculate the sum using the collections library" in {
-    assert(benchmark.sumInts6C === sum)
+    assert(benchmark.sumInts7C === sum)
   }
 
   it should "correctly calculate the sum using fs2" in {
-    assert(benchmark.sumInts7F === sum)
+    assert(benchmark.sumInts8F === sum)
   }
 }
