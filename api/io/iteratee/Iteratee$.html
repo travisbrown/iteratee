@@ -122,7 +122,7 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span title="gt4s: $hash$hash" class="name">##</span><span class="params">()</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Int" class="extype" target="_top">Int</a></span>
+        <span title="gt4s: $hash$hash" class="name">##</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Int">Int</span></span>
       </span>
       </h4><span class="permalink">
       <a href="../../index.html#io.iteratee.Iteratee$@##():Int" title="Permalink" target="_top">
@@ -188,7 +188,7 @@
               
         </dd></dl></div>
     </li><li name="io.iteratee.Iteratee#consume" visbl="pub" data-isabs="false" fullComment="no" group="Collection">
-      <a id="consume[F[_],A](implicitF:cats.Applicative[F]):io.iteratee.Iteratee[F,A,Vector[A]]"></a>
+      <a id="consume[F[_],A](implicitevidence$7:cats.Applicative[F]):io.iteratee.Iteratee[F,A,Vector[A]]"></a>
       <a id="consume[F[_],A](Applicative[F]):Iteratee[F,A,Vector[A]]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -196,16 +196,16 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">consume</span><span class="tparams">[<span name="F">F<span class="tparams">[<span name="_">_</span>]</span></span>, <span name="A">A</span>]</span><span class="params">(<span class="implicit">implicit </span><span name="F">F: <a href="http://typelevel.org/cats/api/index.html#cats.Applicative" class="extype" target="_top">Applicative</a>[<span class="extype" name="io.iteratee.Iteratee.consume.F">F</span>]</span>)</span><span class="result">: <a href="Iteratee.html" class="extype" name="io.iteratee.Iteratee">Iteratee</a>[<span class="extype" name="io.iteratee.Iteratee.consume.F">F</span>, <span class="extype" name="io.iteratee.Iteratee.consume.A">A</span>, <span class="extype" name="scala.Vector">Vector</span>[<span class="extype" name="io.iteratee.Iteratee.consume.A">A</span>]]</span>
+        <span class="name">consume</span><span class="tparams">[<span name="F">F<span class="tparams">[<span name="_">_</span>]</span></span>, <span name="A">A</span>]</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <a href="http://typelevel.org/cats/api/index.html#cats.Applicative" class="extype" target="_top">Applicative</a>[<span class="extype" name="io.iteratee.Iteratee.consume.F">F</span>]</span>)</span><span class="result">: <a href="Iteratee.html" class="extype" name="io.iteratee.Iteratee">Iteratee</a>[<span class="extype" name="io.iteratee.Iteratee.consume.F">F</span>, <span class="extype" name="io.iteratee.Iteratee.consume.A">A</span>, <span class="extype" name="scala.Vector">Vector</span>[<span class="extype" name="io.iteratee.Iteratee.consume.A">A</span>]]</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../index.html#io.iteratee.Iteratee$@consume[F[_],A](implicitF:cats.Applicative[F]):io.iteratee.Iteratee[F,A,Vector[A]]" title="Permalink" target="_top">
+      <a href="../../index.html#io.iteratee.Iteratee$@consume[F[_],A](implicitevidence$7:cats.Applicative[F]):io.iteratee.Iteratee[F,A,Vector[A]]" title="Permalink" target="_top">
         <img src="../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
       <p class="shortcomment cmt">An <a href="Iteratee.html" class="extype" name="io.iteratee.Iteratee">Iteratee</a> that collects all the elements in a stream in a vector.</p>
     </li><li name="io.iteratee.Iteratee#consumeIn" visbl="pub" data-isabs="false" fullComment="no" group="Collection">
-      <a id="consumeIn[F[_],A,C[_]](implicitevidence$7:cats.Applicative[F],implicitevidence$8:cats.Applicative[C],implicitevidence$9:cats.MonoidK[C]):io.iteratee.Iteratee[F,A,C[A]]"></a>
+      <a id="consumeIn[F[_],A,C[_]](implicitevidence$8:cats.Applicative[F],implicitevidence$9:cats.Applicative[C],implicitevidence$10:cats.MonoidK[C]):io.iteratee.Iteratee[F,A,C[A]]"></a>
       <a id="consumeIn[F[_],A,C[_]](Applicative[F],Applicative[C],MonoidK[C]):Iteratee[F,A,C[A]]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -216,7 +216,7 @@
         <span class="name">consumeIn</span><span class="tparams">[<span name="F">F<span class="tparams">[<span name="_">_</span>]</span></span>, <span name="A">A</span>, <span name="C">C<span class="tparams">[<span name="_">_</span>]</span></span>]</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <a href="http://typelevel.org/cats/api/index.html#cats.Applicative" class="extype" target="_top">Applicative</a>[<span class="extype" name="io.iteratee.Iteratee.consumeIn.F">F</span>]</span>, <span name="arg1">arg1: <a href="http://typelevel.org/cats/api/index.html#cats.Applicative" class="extype" target="_top">Applicative</a>[<span class="extype" name="io.iteratee.Iteratee.consumeIn.C">C</span>]</span>, <span name="arg2">arg2: <a href="http://typelevel.org/cats/api/index.html#cats.MonoidK" class="extype" target="_top">MonoidK</a>[<span class="extype" name="io.iteratee.Iteratee.consumeIn.C">C</span>]</span>)</span><span class="result">: <a href="Iteratee.html" class="extype" name="io.iteratee.Iteratee">Iteratee</a>[<span class="extype" name="io.iteratee.Iteratee.consumeIn.F">F</span>, <span class="extype" name="io.iteratee.Iteratee.consumeIn.A">A</span>, <span class="extype" name="io.iteratee.Iteratee.consumeIn.C">C</span>[<span class="extype" name="io.iteratee.Iteratee.consumeIn.A">A</span>]]</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../index.html#io.iteratee.Iteratee$@consumeIn[F[_],A,C[_]](implicitevidence$7:cats.Applicative[F],implicitevidence$8:cats.Applicative[C],implicitevidence$9:cats.MonoidK[C]):io.iteratee.Iteratee[F,A,C[A]]" title="Permalink" target="_top">
+      <a href="../../index.html#io.iteratee.Iteratee$@consumeIn[F[_],A,C[_]](implicitevidence$8:cats.Applicative[F],implicitevidence$9:cats.Applicative[C],implicitevidence$10:cats.MonoidK[C]):io.iteratee.Iteratee[F,A,C[A]]" title="Permalink" target="_top">
         <img src="../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
@@ -231,7 +231,7 @@ collection type.</p>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">cont</span><span class="tparams">[<span name="F">F<span class="tparams">[<span name="_">_</span>]</span></span>, <span name="E">E</span>, <span name="A">A</span>]</span><span class="params">(<span name="ifInput">ifInput: (<span class="extype" name="cats.data.NonEmptyVector">NonEmptyVector</span>[<span class="extype" name="io.iteratee.Iteratee.cont.E">E</span>]) ⇒ <a href="Iteratee.html" class="extype" name="io.iteratee.Iteratee">Iteratee</a>[<span class="extype" name="io.iteratee.Iteratee.cont.F">F</span>, <span class="extype" name="io.iteratee.Iteratee.cont.E">E</span>, <span class="extype" name="io.iteratee.Iteratee.cont.A">A</span>]</span>, <span name="ifEnd">ifEnd: <span class="extype" name="io.iteratee.Iteratee.cont.F">F</span>[<span class="extype" name="io.iteratee.Iteratee.cont.A">A</span>]</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <a href="http://typelevel.org/cats/api/index.html#cats.Applicative" class="extype" target="_top">Applicative</a>[<span class="extype" name="io.iteratee.Iteratee.cont.F">F</span>]</span>)</span><span class="result">: <a href="Iteratee.html" class="extype" name="io.iteratee.Iteratee">Iteratee</a>[<span class="extype" name="io.iteratee.Iteratee.cont.F">F</span>, <span class="extype" name="io.iteratee.Iteratee.cont.E">E</span>, <span class="extype" name="io.iteratee.Iteratee.cont.A">A</span>]</span>
+        <span class="name">cont</span><span class="tparams">[<span name="F">F<span class="tparams">[<span name="_">_</span>]</span></span>, <span name="E">E</span>, <span name="A">A</span>]</span><span class="params">(<span name="ifInput">ifInput: (<a href="http://typelevel.org/cats/api/index.html#cats.data.NonEmptyVector" class="extype" target="_top">NonEmptyVector</a>[<span class="extype" name="io.iteratee.Iteratee.cont.E">E</span>]) ⇒ <a href="Iteratee.html" class="extype" name="io.iteratee.Iteratee">Iteratee</a>[<span class="extype" name="io.iteratee.Iteratee.cont.F">F</span>, <span class="extype" name="io.iteratee.Iteratee.cont.E">E</span>, <span class="extype" name="io.iteratee.Iteratee.cont.A">A</span>]</span>, <span name="ifEnd">ifEnd: <span class="extype" name="io.iteratee.Iteratee.cont.F">F</span>[<span class="extype" name="io.iteratee.Iteratee.cont.A">A</span>]</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <a href="http://typelevel.org/cats/api/index.html#cats.Applicative" class="extype" target="_top">Applicative</a>[<span class="extype" name="io.iteratee.Iteratee.cont.F">F</span>]</span>)</span><span class="result">: <a href="Iteratee.html" class="extype" name="io.iteratee.Iteratee">Iteratee</a>[<span class="extype" name="io.iteratee.Iteratee.cont.F">F</span>, <span class="extype" name="io.iteratee.Iteratee.cont.E">E</span>, <span class="extype" name="io.iteratee.Iteratee.cont.A">A</span>]</span>
       </span>
       </h4><span class="permalink">
       <a href="../../index.html#io.iteratee.Iteratee$@cont[F[_],E,A](ifInput:cats.data.NonEmptyVector[E]=&gt;io.iteratee.Iteratee[F,E,A],ifEnd:F[A])(implicitevidence$2:cats.Applicative[F]):io.iteratee.Iteratee[F,E,A]" title="Permalink" target="_top">
@@ -276,7 +276,7 @@ process the next input.</p>
       <p class="shortcomment cmt">Create a new completed <a href="Iteratee.html" class="extype" name="io.iteratee.Iteratee">Iteratee</a> with the given result and leftover
 input.</p>
     </li><li name="io.iteratee.Iteratee#drop" visbl="pub" data-isabs="false" fullComment="no" group="Collection">
-      <a id="drop[F[_],E](n:Int)(implicitevidence$14:cats.Applicative[F]):io.iteratee.Iteratee[F,E,Unit]"></a>
+      <a id="drop[F[_],E](n:Int)(implicitevidence$15:cats.Applicative[F]):io.iteratee.Iteratee[F,E,Unit]"></a>
       <a id="drop[F[_],E](Int)(Applicative[F]):Iteratee[F,E,Unit]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -284,16 +284,16 @@ input.</p>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">drop</span><span class="tparams">[<span name="F">F<span class="tparams">[<span name="_">_</span>]</span></span>, <span name="E">E</span>]</span><span class="params">(<span name="n">n: <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Int" class="extype" target="_top">Int</a></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <a href="http://typelevel.org/cats/api/index.html#cats.Applicative" class="extype" target="_top">Applicative</a>[<span class="extype" name="io.iteratee.Iteratee.drop.F">F</span>]</span>)</span><span class="result">: <a href="Iteratee.html" class="extype" name="io.iteratee.Iteratee">Iteratee</a>[<span class="extype" name="io.iteratee.Iteratee.drop.F">F</span>, <span class="extype" name="io.iteratee.Iteratee.drop.E">E</span>, <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Unit" class="extype" target="_top">Unit</a>]</span>
+        <span class="name">drop</span><span class="tparams">[<span name="F">F<span class="tparams">[<span name="_">_</span>]</span></span>, <span name="E">E</span>]</span><span class="params">(<span name="n">n: <span class="extype" name="scala.Int">Int</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <a href="http://typelevel.org/cats/api/index.html#cats.Applicative" class="extype" target="_top">Applicative</a>[<span class="extype" name="io.iteratee.Iteratee.drop.F">F</span>]</span>)</span><span class="result">: <a href="Iteratee.html" class="extype" name="io.iteratee.Iteratee">Iteratee</a>[<span class="extype" name="io.iteratee.Iteratee.drop.F">F</span>, <span class="extype" name="io.iteratee.Iteratee.drop.E">E</span>, <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Unit" class="extype" target="_top">Unit</a>]</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../index.html#io.iteratee.Iteratee$@drop[F[_],E](n:Int)(implicitevidence$14:cats.Applicative[F]):io.iteratee.Iteratee[F,E,Unit]" title="Permalink" target="_top">
+      <a href="../../index.html#io.iteratee.Iteratee$@drop[F[_],E](n:Int)(implicitevidence$15:cats.Applicative[F]):io.iteratee.Iteratee[F,E,Unit]" title="Permalink" target="_top">
         <img src="../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
       <p class="shortcomment cmt">An <a href="Iteratee.html" class="extype" name="io.iteratee.Iteratee">Iteratee</a> that drops a given number of the values from a stream.</p>
     </li><li name="io.iteratee.Iteratee#dropWhile" visbl="pub" data-isabs="false" fullComment="no" group="Collection">
-      <a id="dropWhile[F[_],E](p:E=&gt;Boolean)(implicitevidence$15:cats.Applicative[F]):io.iteratee.Iteratee[F,E,Unit]"></a>
+      <a id="dropWhile[F[_],E](p:E=&gt;Boolean)(implicitevidence$16:cats.Applicative[F]):io.iteratee.Iteratee[F,E,Unit]"></a>
       <a id="dropWhile[F[_],E]((E)⇒Boolean)(Applicative[F]):Iteratee[F,E,Unit]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -304,7 +304,7 @@ input.</p>
         <span class="name">dropWhile</span><span class="tparams">[<span name="F">F<span class="tparams">[<span name="_">_</span>]</span></span>, <span name="E">E</span>]</span><span class="params">(<span name="p">p: (<span class="extype" name="io.iteratee.Iteratee.dropWhile.E">E</span>) ⇒ <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Boolean" class="extype" target="_top">Boolean</a></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <a href="http://typelevel.org/cats/api/index.html#cats.Applicative" class="extype" target="_top">Applicative</a>[<span class="extype" name="io.iteratee.Iteratee.dropWhile.F">F</span>]</span>)</span><span class="result">: <a href="Iteratee.html" class="extype" name="io.iteratee.Iteratee">Iteratee</a>[<span class="extype" name="io.iteratee.Iteratee.dropWhile.F">F</span>, <span class="extype" name="io.iteratee.Iteratee.dropWhile.E">E</span>, <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Unit" class="extype" target="_top">Unit</a>]</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../index.html#io.iteratee.Iteratee$@dropWhile[F[_],E](p:E=&gt;Boolean)(implicitevidence$15:cats.Applicative[F]):io.iteratee.Iteratee[F,E,Unit]" title="Permalink" target="_top">
+      <a href="../../index.html#io.iteratee.Iteratee$@dropWhile[F[_],E](p:E=&gt;Boolean)(implicitevidence$16:cats.Applicative[F]):io.iteratee.Iteratee[F,E,Unit]" title="Permalink" target="_top">
         <img src="../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
@@ -421,7 +421,7 @@ accumulation function.</p>
       <p class="shortcomment cmt">An <a href="Iteratee.html" class="extype" name="io.iteratee.Iteratee">Iteratee</a> that folds a stream using an initial value and a monadic
 accumulation function.</p>
     </li><li name="io.iteratee.Iteratee#foldMap" visbl="pub" data-isabs="false" fullComment="no" group="Collection">
-      <a id="foldMap[F[_],E,A](f:E=&gt;A)(implicitF:cats.Applicative[F],implicitA:algebra.Monoid[A]):io.iteratee.Iteratee[F,E,A]"></a>
+      <a id="foldMap[F[_],E,A](f:E=&gt;A)(implicitevidence$21:cats.Applicative[F],implicitevidence$22:cats.Monoid[A]):io.iteratee.Iteratee[F,E,A]"></a>
       <a id="foldMap[F[_],E,A]((E)⇒A)(Applicative[F],Monoid[A]):Iteratee[F,E,A]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -429,17 +429,17 @@ accumulation function.</p>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">foldMap</span><span class="tparams">[<span name="F">F<span class="tparams">[<span name="_">_</span>]</span></span>, <span name="E">E</span>, <span name="A">A</span>]</span><span class="params">(<span name="f">f: (<span class="extype" name="io.iteratee.Iteratee.foldMap.E">E</span>) ⇒ <span class="extype" name="io.iteratee.Iteratee.foldMap.A">A</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="F">F: <a href="http://typelevel.org/cats/api/index.html#cats.Applicative" class="extype" target="_top">Applicative</a>[<span class="extype" name="io.iteratee.Iteratee.foldMap.F">F</span>]</span>, <span name="A">A: <a href="https://non.github.io/algebra/api/index.html#algebra.Monoid" class="extype" target="_top">Monoid</a>[<span class="extype" name="io.iteratee.Iteratee.foldMap.A">A</span>]</span>)</span><span class="result">: <a href="Iteratee.html" class="extype" name="io.iteratee.Iteratee">Iteratee</a>[<span class="extype" name="io.iteratee.Iteratee.foldMap.F">F</span>, <span class="extype" name="io.iteratee.Iteratee.foldMap.E">E</span>, <span class="extype" name="io.iteratee.Iteratee.foldMap.A">A</span>]</span>
+        <span class="name">foldMap</span><span class="tparams">[<span name="F">F<span class="tparams">[<span name="_">_</span>]</span></span>, <span name="E">E</span>, <span name="A">A</span>]</span><span class="params">(<span name="f">f: (<span class="extype" name="io.iteratee.Iteratee.foldMap.E">E</span>) ⇒ <span class="extype" name="io.iteratee.Iteratee.foldMap.A">A</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <a href="http://typelevel.org/cats/api/index.html#cats.Applicative" class="extype" target="_top">Applicative</a>[<span class="extype" name="io.iteratee.Iteratee.foldMap.F">F</span>]</span>, <span name="arg1">arg1: <span class="extype" name="cats.Monoid">Monoid</span>[<span class="extype" name="io.iteratee.Iteratee.foldMap.A">A</span>]</span>)</span><span class="result">: <a href="Iteratee.html" class="extype" name="io.iteratee.Iteratee">Iteratee</a>[<span class="extype" name="io.iteratee.Iteratee.foldMap.F">F</span>, <span class="extype" name="io.iteratee.Iteratee.foldMap.E">E</span>, <span class="extype" name="io.iteratee.Iteratee.foldMap.A">A</span>]</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../index.html#io.iteratee.Iteratee$@foldMap[F[_],E,A](f:E=&gt;A)(implicitF:cats.Applicative[F],implicitA:algebra.Monoid[A]):io.iteratee.Iteratee[F,E,A]" title="Permalink" target="_top">
+      <a href="../../index.html#io.iteratee.Iteratee$@foldMap[F[_],E,A](f:E=&gt;A)(implicitevidence$21:cats.Applicative[F],implicitevidence$22:cats.Monoid[A]):io.iteratee.Iteratee[F,E,A]" title="Permalink" target="_top">
         <img src="../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
-      <p class="shortcomment cmt">An <a href="Iteratee.html" class="extype" name="io.iteratee.Iteratee">Iteratee</a> that combines values using a function to a type with an
-<a href="https://non.github.io/algebra/api/index.html#algebra.Monoid" class="extype" target="_top">algebra.Monoid</a> instance.</p>
+      <p class="shortcomment cmt">An <a href="Iteratee.html" class="extype" name="io.iteratee.Iteratee">Iteratee</a> that combines values using a function to a type with a
+<a href="http://typelevel.org/cats/api/index.html#cats.package@Monoid[A]=cats.kernel.Monoid[A]" class="extype" target="_top">cats.Monoid</a> instance.</p>
     </li><li name="io.iteratee.Iteratee#foreach" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="foreach[F[_],A](f:A=&gt;Unit)(implicitevidence$19:cats.Applicative[F]):io.iteratee.Iteratee[F,A,Unit]"></a>
+      <a id="foreach[F[_],A](f:A=&gt;Unit)(implicitevidence$24:cats.Applicative[F]):io.iteratee.Iteratee[F,A,Unit]"></a>
       <a id="foreach[F[_],A]((A)⇒Unit)(Applicative[F]):Iteratee[F,A,Unit]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -450,13 +450,13 @@ accumulation function.</p>
         <span class="name">foreach</span><span class="tparams">[<span name="F">F<span class="tparams">[<span name="_">_</span>]</span></span>, <span name="A">A</span>]</span><span class="params">(<span name="f">f: (<span class="extype" name="io.iteratee.Iteratee.foreach.A">A</span>) ⇒ <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Unit" class="extype" target="_top">Unit</a></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <a href="http://typelevel.org/cats/api/index.html#cats.Applicative" class="extype" target="_top">Applicative</a>[<span class="extype" name="io.iteratee.Iteratee.foreach.F">F</span>]</span>)</span><span class="result">: <a href="Iteratee.html" class="extype" name="io.iteratee.Iteratee">Iteratee</a>[<span class="extype" name="io.iteratee.Iteratee.foreach.F">F</span>, <span class="extype" name="io.iteratee.Iteratee.foreach.A">A</span>, <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Unit" class="extype" target="_top">Unit</a>]</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../index.html#io.iteratee.Iteratee$@foreach[F[_],A](f:A=&gt;Unit)(implicitevidence$19:cats.Applicative[F]):io.iteratee.Iteratee[F,A,Unit]" title="Permalink" target="_top">
+      <a href="../../index.html#io.iteratee.Iteratee$@foreach[F[_],A](f:A=&gt;Unit)(implicitevidence$24:cats.Applicative[F]):io.iteratee.Iteratee[F,A,Unit]" title="Permalink" target="_top">
         <img src="../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
       <p class="shortcomment cmt">An <a href="Iteratee.html" class="extype" name="io.iteratee.Iteratee">Iteratee</a> that runs a function for its side effects.</p>
     </li><li name="io.iteratee.Iteratee#foreachM" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="foreachM[F[_],A](f:A=&gt;F[Unit])(implicitevidence$20:cats.Monad[F]):io.iteratee.Iteratee[F,A,Unit]"></a>
+      <a id="foreachM[F[_],A](f:A=&gt;F[Unit])(implicitevidence$25:cats.Monad[F]):io.iteratee.Iteratee[F,A,Unit]"></a>
       <a id="foreachM[F[_],A]((A)⇒F[Unit])(Monad[F]):Iteratee[F,A,Unit]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -467,7 +467,7 @@ accumulation function.</p>
         <span class="name">foreachM</span><span class="tparams">[<span name="F">F<span class="tparams">[<span name="_">_</span>]</span></span>, <span name="A">A</span>]</span><span class="params">(<span name="f">f: (<span class="extype" name="io.iteratee.Iteratee.foreachM.A">A</span>) ⇒ <span class="extype" name="io.iteratee.Iteratee.foreachM.F">F</span>[<a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Unit" class="extype" target="_top">Unit</a>]</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <a href="http://typelevel.org/cats/api/index.html#cats.Monad" class="extype" target="_top">Monad</a>[<span class="extype" name="io.iteratee.Iteratee.foreachM.F">F</span>]</span>)</span><span class="result">: <a href="Iteratee.html" class="extype" name="io.iteratee.Iteratee">Iteratee</a>[<span class="extype" name="io.iteratee.Iteratee.foreachM.F">F</span>, <span class="extype" name="io.iteratee.Iteratee.foreachM.A">A</span>, <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Unit" class="extype" target="_top">Unit</a>]</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../index.html#io.iteratee.Iteratee$@foreachM[F[_],A](f:A=&gt;F[Unit])(implicitevidence$20:cats.Monad[F]):io.iteratee.Iteratee[F,A,Unit]" title="Permalink" target="_top">
+      <a href="../../index.html#io.iteratee.Iteratee$@foreachM[F[_],A](f:A=&gt;F[Unit])(implicitevidence$25:cats.Monad[F]):io.iteratee.Iteratee[F,A,Unit]" title="Permalink" target="_top">
         <img src="../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
@@ -515,7 +515,7 @@ accumulation function.</p>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">hashCode</span><span class="params">()</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Int" class="extype" target="_top">Int</a></span>
+        <span class="name">hashCode</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Int">Int</span></span>
       </span>
       </h4><span class="permalink">
       <a href="../../index.html#io.iteratee.Iteratee$@hashCode():Int" title="Permalink" target="_top">
@@ -524,7 +524,7 @@ accumulation function.</p>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
     </li><li name="io.iteratee.Iteratee#head" visbl="pub" data-isabs="false" fullComment="no" group="Collection">
-      <a id="head[F[_],E](implicitevidence$10:cats.Applicative[F]):io.iteratee.Iteratee[F,E,Option[E]]"></a>
+      <a id="head[F[_],E](implicitevidence$11:cats.Applicative[F]):io.iteratee.Iteratee[F,E,Option[E]]"></a>
       <a id="head[F[_],E](Applicative[F]):Iteratee[F,E,Option[E]]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -535,7 +535,7 @@ accumulation function.</p>
         <span class="name">head</span><span class="tparams">[<span name="F">F<span class="tparams">[<span name="_">_</span>]</span></span>, <span name="E">E</span>]</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <a href="http://typelevel.org/cats/api/index.html#cats.Applicative" class="extype" target="_top">Applicative</a>[<span class="extype" name="io.iteratee.Iteratee.head.F">F</span>]</span>)</span><span class="result">: <a href="Iteratee.html" class="extype" name="io.iteratee.Iteratee">Iteratee</a>[<span class="extype" name="io.iteratee.Iteratee.head.F">F</span>, <span class="extype" name="io.iteratee.Iteratee.head.E">E</span>, <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Option" class="extype" target="_top">Option</a>[<span class="extype" name="io.iteratee.Iteratee.head.E">E</span>]]</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../index.html#io.iteratee.Iteratee$@head[F[_],E](implicitevidence$10:cats.Applicative[F]):io.iteratee.Iteratee[F,E,Option[E]]" title="Permalink" target="_top">
+      <a href="../../index.html#io.iteratee.Iteratee$@head[F[_],E](implicitevidence$11:cats.Applicative[F]):io.iteratee.Iteratee[F,E,Option[E]]" title="Permalink" target="_top">
         <img src="../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
@@ -558,7 +558,7 @@ accumulation function.</p>
     </span>
       <p class="shortcomment cmt">An iteratee that reads nothing from a stream.</p>
     </li><li name="io.iteratee.Iteratee#isEnd" visbl="pub" data-isabs="false" fullComment="no" group="Collection">
-      <a id="isEnd[F[_],E](implicitevidence$18:cats.Applicative[F]):io.iteratee.Iteratee[F,E,Boolean]"></a>
+      <a id="isEnd[F[_],E](implicitevidence$23:cats.Applicative[F]):io.iteratee.Iteratee[F,E,Boolean]"></a>
       <a id="isEnd[F[_],E](Applicative[F]):Iteratee[F,E,Boolean]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -569,7 +569,7 @@ accumulation function.</p>
         <span class="name">isEnd</span><span class="tparams">[<span name="F">F<span class="tparams">[<span name="_">_</span>]</span></span>, <span name="E">E</span>]</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <a href="http://typelevel.org/cats/api/index.html#cats.Applicative" class="extype" target="_top">Applicative</a>[<span class="extype" name="io.iteratee.Iteratee.isEnd.F">F</span>]</span>)</span><span class="result">: <a href="Iteratee.html" class="extype" name="io.iteratee.Iteratee">Iteratee</a>[<span class="extype" name="io.iteratee.Iteratee.isEnd.F">F</span>, <span class="extype" name="io.iteratee.Iteratee.isEnd.E">E</span>, <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Boolean" class="extype" target="_top">Boolean</a>]</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../index.html#io.iteratee.Iteratee$@isEnd[F[_],E](implicitevidence$18:cats.Applicative[F]):io.iteratee.Iteratee[F,E,Boolean]" title="Permalink" target="_top">
+      <a href="../../index.html#io.iteratee.Iteratee$@isEnd[F[_],E](implicitevidence$23:cats.Applicative[F]):io.iteratee.Iteratee[F,E,Boolean]" title="Permalink" target="_top">
         <img src="../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
@@ -626,35 +626,35 @@ accumulation function.</p>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>IterateeInstances</dd></dl></div>
     </li><li name="io.iteratee.IterateeInstances0#iterateeMonad" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="iterateeMonad[F[_],E](implicitF:cats.Monad[F]):cats.Monad[[x]io.iteratee.Iteratee[F,E,x]]"></a>
-      <a id="iterateeMonad[F[_],E](Monad[F]):Monad[[x]Iteratee[F,E,x]]"></a>
+      <a id="iterateeMonad[F[_],E](implicitF:cats.Monad[F]):cats.Monad[[x]io.iteratee.Iteratee[F,E,x]]withcats.RecursiveTailRecM[[x]io.iteratee.Iteratee[F,E,x]]"></a>
+      <a id="iterateeMonad[F[_],E](Monad[F]):Monad[[x]Iteratee[F,E,x]]withRecursiveTailRecM[[x]Iteratee[F,E,x]]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier">implicit final </span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">iterateeMonad</span><span class="tparams">[<span name="F">F<span class="tparams">[<span name="_">_</span>]</span></span>, <span name="E">E</span>]</span><span class="params">(<span class="implicit">implicit </span><span name="F">F: <a href="http://typelevel.org/cats/api/index.html#cats.Monad" class="extype" target="_top">Monad</a>[<span class="extype" name="io.iteratee.IterateeInstances0.iterateeMonad.F">F</span>]</span>)</span><span class="result">: <a href="http://typelevel.org/cats/api/index.html#cats.Monad" class="extype" target="_top">Monad</a>[[x]<a href="Iteratee.html" class="extype" name="io.iteratee.Iteratee">Iteratee</a>[<span class="extype" name="io.iteratee.IterateeInstances0.iterateeMonad.F">F</span>, <span class="extype" name="io.iteratee.IterateeInstances0.iterateeMonad.E">E</span>, <span class="extype" name="io.iteratee.IterateeInstances0.&lt;refinement&gt;.L.x">x</span>]]</span>
+        <span class="name">iterateeMonad</span><span class="tparams">[<span name="F">F<span class="tparams">[<span name="_">_</span>]</span></span>, <span name="E">E</span>]</span><span class="params">(<span class="implicit">implicit </span><span name="F">F: <a href="http://typelevel.org/cats/api/index.html#cats.Monad" class="extype" target="_top">Monad</a>[<span class="extype" name="io.iteratee.IterateeInstances0.iterateeMonad.F">F</span>]</span>)</span><span class="result">: <a href="http://typelevel.org/cats/api/index.html#cats.Monad" class="extype" target="_top">Monad</a>[[x]<a href="Iteratee.html" class="extype" name="io.iteratee.Iteratee">Iteratee</a>[<span class="extype" name="io.iteratee.IterateeInstances0.iterateeMonad.F">F</span>, <span class="extype" name="io.iteratee.IterateeInstances0.iterateeMonad.E">E</span>, <span class="extype" name="io.iteratee.IterateeInstances0.&lt;refinement&gt;.L.x">x</span>]] with <a href="http://typelevel.org/cats/api/index.html#cats.RecursiveTailRecM" class="extype" target="_top">RecursiveTailRecM</a>[[x]<a href="Iteratee.html" class="extype" name="io.iteratee.Iteratee">Iteratee</a>[<span class="extype" name="io.iteratee.IterateeInstances0.iterateeMonad.F">F</span>, <span class="extype" name="io.iteratee.IterateeInstances0.iterateeMonad.E">E</span>, <span class="extype" name="io.iteratee.IterateeInstances0.&lt;refinement&gt;.L.x">x</span>]]</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../index.html#io.iteratee.Iteratee$@iterateeMonad[F[_],E](implicitF:cats.Monad[F]):cats.Monad[[x]io.iteratee.Iteratee[F,E,x]]" title="Permalink" target="_top">
+      <a href="../../index.html#io.iteratee.Iteratee$@iterateeMonad[F[_],E](implicitF:cats.Monad[F]):cats.Monad[[x]io.iteratee.Iteratee[F,E,x]]withcats.RecursiveTailRecM[[x]io.iteratee.Iteratee[F,E,x]]" title="Permalink" target="_top">
         <img src="../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>IterateeInstances0</dd></dl></div>
     </li><li name="io.iteratee.IterateeInstances#iterateeMonadError" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="iterateeMonadError[F[_],T,E](implicitF:cats.MonadError[F,T]):cats.MonadError[[x]io.iteratee.Iteratee[F,E,x],T]"></a>
-      <a id="iterateeMonadError[F[_],T,E](MonadError[F,T]):MonadError[[x]Iteratee[F,E,x],T]"></a>
+      <a id="iterateeMonadError[F[_],T,E](implicitF:cats.MonadError[F,T]):cats.MonadError[[x]io.iteratee.Iteratee[F,E,x],T]withcats.RecursiveTailRecM[[x]io.iteratee.Iteratee[F,E,x]]"></a>
+      <a id="iterateeMonadError[F[_],T,E](MonadError[F,T]):MonadError[[x]Iteratee[F,E,x],T]withRecursiveTailRecM[[x]Iteratee[F,E,x]]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier">implicit final </span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">iterateeMonadError</span><span class="tparams">[<span name="F">F<span class="tparams">[<span name="_">_</span>]</span></span>, <span name="T">T</span>, <span name="E">E</span>]</span><span class="params">(<span class="implicit">implicit </span><span name="F">F: <a href="http://typelevel.org/cats/api/index.html#cats.MonadError" class="extype" target="_top">MonadError</a>[<span class="extype" name="io.iteratee.IterateeInstances.iterateeMonadError.F">F</span>, <span class="extype" name="io.iteratee.IterateeInstances.iterateeMonadError.T">T</span>]</span>)</span><span class="result">: <a href="http://typelevel.org/cats/api/index.html#cats.MonadError" class="extype" target="_top">MonadError</a>[[x]<a href="Iteratee.html" class="extype" name="io.iteratee.Iteratee">Iteratee</a>[<span class="extype" name="io.iteratee.IterateeInstances.iterateeMonadError.F">F</span>, <span class="extype" name="io.iteratee.IterateeInstances.iterateeMonadError.E">E</span>, <span class="extype" name="io.iteratee.IterateeInstances.&lt;refinement&gt;.L.x">x</span>], <span class="extype" name="io.iteratee.IterateeInstances.iterateeMonadError.T">T</span>]</span>
+        <span class="name">iterateeMonadError</span><span class="tparams">[<span name="F">F<span class="tparams">[<span name="_">_</span>]</span></span>, <span name="T">T</span>, <span name="E">E</span>]</span><span class="params">(<span class="implicit">implicit </span><span name="F">F: <a href="http://typelevel.org/cats/api/index.html#cats.MonadError" class="extype" target="_top">MonadError</a>[<span class="extype" name="io.iteratee.IterateeInstances.iterateeMonadError.F">F</span>, <span class="extype" name="io.iteratee.IterateeInstances.iterateeMonadError.T">T</span>]</span>)</span><span class="result">: <a href="http://typelevel.org/cats/api/index.html#cats.MonadError" class="extype" target="_top">MonadError</a>[[x]<a href="Iteratee.html" class="extype" name="io.iteratee.Iteratee">Iteratee</a>[<span class="extype" name="io.iteratee.IterateeInstances.iterateeMonadError.F">F</span>, <span class="extype" name="io.iteratee.IterateeInstances.iterateeMonadError.E">E</span>, <span class="extype" name="io.iteratee.IterateeInstances.&lt;refinement&gt;.L.x">x</span>], <span class="extype" name="io.iteratee.IterateeInstances.iterateeMonadError.T">T</span>] with <a href="http://typelevel.org/cats/api/index.html#cats.RecursiveTailRecM" class="extype" target="_top">RecursiveTailRecM</a>[[x]<a href="Iteratee.html" class="extype" name="io.iteratee.Iteratee">Iteratee</a>[<span class="extype" name="io.iteratee.IterateeInstances.iterateeMonadError.F">F</span>, <span class="extype" name="io.iteratee.IterateeInstances.iterateeMonadError.E">E</span>, <span class="extype" name="io.iteratee.IterateeInstances.&lt;refinement&gt;.L.x">x</span>]]</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../index.html#io.iteratee.Iteratee$@iterateeMonadError[F[_],T,E](implicitF:cats.MonadError[F,T]):cats.MonadError[[x]io.iteratee.Iteratee[F,E,x],T]" title="Permalink" target="_top">
+      <a href="../../index.html#io.iteratee.Iteratee$@iterateeMonadError[F[_],T,E](implicitF:cats.MonadError[F,T]):cats.MonadError[[x]io.iteratee.Iteratee[F,E,x],T]withcats.RecursiveTailRecM[[x]io.iteratee.Iteratee[F,E,x]]" title="Permalink" target="_top">
         <img src="../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
@@ -678,7 +678,7 @@ accumulation function.</p>
       <p class="shortcomment cmt">Collapse an <a href="Iteratee.html" class="extype" name="io.iteratee.Iteratee">Iteratee</a> returning a <a href="internal/Step.html" class="extype" name="io.iteratee.internal.Step">io.iteratee.internal.Step</a> into one
 layer.</p>
     </li><li name="io.iteratee.Iteratee#length" visbl="pub" data-isabs="false" fullComment="no" group="Collection">
-      <a id="length[F[_],E](implicitevidence$17:cats.Applicative[F]):io.iteratee.Iteratee[F,E,Long]"></a>
+      <a id="length[F[_],E](implicitevidence$18:cats.Applicative[F]):io.iteratee.Iteratee[F,E,Long]"></a>
       <a id="length[F[_],E](Applicative[F]):Iteratee[F,E,Long]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -689,7 +689,7 @@ layer.</p>
         <span class="name">length</span><span class="tparams">[<span name="F">F<span class="tparams">[<span name="_">_</span>]</span></span>, <span name="E">E</span>]</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <a href="http://typelevel.org/cats/api/index.html#cats.Applicative" class="extype" target="_top">Applicative</a>[<span class="extype" name="io.iteratee.Iteratee.length.F">F</span>]</span>)</span><span class="result">: <a href="Iteratee.html" class="extype" name="io.iteratee.Iteratee">Iteratee</a>[<span class="extype" name="io.iteratee.Iteratee.length.F">F</span>, <span class="extype" name="io.iteratee.Iteratee.length.E">E</span>, <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Long" class="extype" target="_top">Long</a>]</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../index.html#io.iteratee.Iteratee$@length[F[_],E](implicitevidence$17:cats.Applicative[F]):io.iteratee.Iteratee[F,E,Long]" title="Permalink" target="_top">
+      <a href="../../index.html#io.iteratee.Iteratee$@length[F[_],E](implicitevidence$18:cats.Applicative[F]):io.iteratee.Iteratee[F,E,Long]" title="Permalink" target="_top">
         <img src="../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
@@ -707,6 +707,23 @@ layer.</p>
       </span>
       </h4><span class="permalink">
       <a href="../../index.html#io.iteratee.Iteratee$@liftM[F[_],E,A](fa:F[A])(implicitF:cats.Monad[F]):io.iteratee.Iteratee[F,E,A]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Lift an effectful value into an iteratee.</p>
+    </li><li name="io.iteratee.Iteratee#liftMEval" visbl="pub" data-isabs="false" fullComment="no" group="Utilities">
+      <a id="liftMEval[F[_],E,A](fa:cats.Eval[F[A]])(implicitF:cats.Monad[F]):io.iteratee.Iteratee[F,E,A]"></a>
+      <a id="liftMEval[F[_],E,A](Eval[F[A]])(Monad[F]):Iteratee[F,E,A]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">liftMEval</span><span class="tparams">[<span name="F">F<span class="tparams">[<span name="_">_</span>]</span></span>, <span name="E">E</span>, <span name="A">A</span>]</span><span class="params">(<span name="fa">fa: <a href="http://typelevel.org/cats/api/index.html#cats.Eval" class="extype" target="_top">Eval</a>[<span class="extype" name="io.iteratee.Iteratee.liftMEval.F">F</span>[<span class="extype" name="io.iteratee.Iteratee.liftMEval.A">A</span>]]</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="F">F: <a href="http://typelevel.org/cats/api/index.html#cats.Monad" class="extype" target="_top">Monad</a>[<span class="extype" name="io.iteratee.Iteratee.liftMEval.F">F</span>]</span>)</span><span class="result">: <a href="Iteratee.html" class="extype" name="io.iteratee.Iteratee">Iteratee</a>[<span class="extype" name="io.iteratee.Iteratee.liftMEval.F">F</span>, <span class="extype" name="io.iteratee.Iteratee.liftMEval.E">E</span>, <span class="extype" name="io.iteratee.Iteratee.liftMEval.A">A</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.iteratee.Iteratee$@liftMEval[F[_],E,A](fa:cats.Eval[F[A]])(implicitF:cats.Monad[F]):io.iteratee.Iteratee[F,E,A]" title="Permalink" target="_top">
         <img src="../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
@@ -763,7 +780,7 @@ layer.</p>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
     </li><li name="io.iteratee.Iteratee#peek" visbl="pub" data-isabs="false" fullComment="no" group="Collection">
-      <a id="peek[F[_],E](implicitevidence$11:cats.Applicative[F]):io.iteratee.Iteratee[F,E,Option[E]]"></a>
+      <a id="peek[F[_],E](implicitevidence$12:cats.Applicative[F]):io.iteratee.Iteratee[F,E,Option[E]]"></a>
       <a id="peek[F[_],E](Applicative[F]):Iteratee[F,E,Option[E]]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -774,14 +791,14 @@ layer.</p>
         <span class="name">peek</span><span class="tparams">[<span name="F">F<span class="tparams">[<span name="_">_</span>]</span></span>, <span name="E">E</span>]</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <a href="http://typelevel.org/cats/api/index.html#cats.Applicative" class="extype" target="_top">Applicative</a>[<span class="extype" name="io.iteratee.Iteratee.peek.F">F</span>]</span>)</span><span class="result">: <a href="Iteratee.html" class="extype" name="io.iteratee.Iteratee">Iteratee</a>[<span class="extype" name="io.iteratee.Iteratee.peek.F">F</span>, <span class="extype" name="io.iteratee.Iteratee.peek.E">E</span>, <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Option" class="extype" target="_top">Option</a>[<span class="extype" name="io.iteratee.Iteratee.peek.E">E</span>]]</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../index.html#io.iteratee.Iteratee$@peek[F[_],E](implicitevidence$11:cats.Applicative[F]):io.iteratee.Iteratee[F,E,Option[E]]" title="Permalink" target="_top">
+      <a href="../../index.html#io.iteratee.Iteratee$@peek[F[_],E](implicitevidence$12:cats.Applicative[F]):io.iteratee.Iteratee[F,E,Option[E]]" title="Permalink" target="_top">
         <img src="../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
       <p class="shortcomment cmt">An <a href="Iteratee.html" class="extype" name="io.iteratee.Iteratee">Iteratee</a> that returns the first value in a stream without consuming
 it.</p>
     </li><li name="io.iteratee.Iteratee#reversed" visbl="pub" data-isabs="false" fullComment="no" group="Collection">
-      <a id="reversed[F[_],A](implicitevidence$16:cats.Applicative[F]):io.iteratee.Iteratee[F,A,List[A]]"></a>
+      <a id="reversed[F[_],A](implicitevidence$17:cats.Applicative[F]):io.iteratee.Iteratee[F,A,List[A]]"></a>
       <a id="reversed[F[_],A](Applicative[F]):Iteratee[F,A,List[A]]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -792,13 +809,13 @@ it.</p>
         <span class="name">reversed</span><span class="tparams">[<span name="F">F<span class="tparams">[<span name="_">_</span>]</span></span>, <span name="A">A</span>]</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <a href="http://typelevel.org/cats/api/index.html#cats.Applicative" class="extype" target="_top">Applicative</a>[<span class="extype" name="io.iteratee.Iteratee.reversed.F">F</span>]</span>)</span><span class="result">: <a href="Iteratee.html" class="extype" name="io.iteratee.Iteratee">Iteratee</a>[<span class="extype" name="io.iteratee.Iteratee.reversed.F">F</span>, <span class="extype" name="io.iteratee.Iteratee.reversed.A">A</span>, <span class="extype" name="scala.List">List</span>[<span class="extype" name="io.iteratee.Iteratee.reversed.A">A</span>]]</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../index.html#io.iteratee.Iteratee$@reversed[F[_],A](implicitevidence$16:cats.Applicative[F]):io.iteratee.Iteratee[F,A,List[A]]" title="Permalink" target="_top">
+      <a href="../../index.html#io.iteratee.Iteratee$@reversed[F[_],A](implicitevidence$17:cats.Applicative[F]):io.iteratee.Iteratee[F,A,List[A]]" title="Permalink" target="_top">
         <img src="../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
       <p class="shortcomment cmt">An <a href="Iteratee.html" class="extype" name="io.iteratee.Iteratee">Iteratee</a> that collects all inputs in reverse order.</p>
     </li><li name="io.iteratee.Iteratee#sum" visbl="pub" data-isabs="false" fullComment="no" group="Collection">
-      <a id="sum[F[_],E](implicitF:cats.Applicative[F],implicitE:algebra.Monoid[E]):io.iteratee.Iteratee[F,E,E]"></a>
+      <a id="sum[F[_],E](implicitevidence$19:cats.Applicative[F],implicitevidence$20:cats.Monoid[E]):io.iteratee.Iteratee[F,E,E]"></a>
       <a id="sum[F[_],E](Applicative[F],Monoid[E]):Iteratee[F,E,E]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -806,14 +823,14 @@ it.</p>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">sum</span><span class="tparams">[<span name="F">F<span class="tparams">[<span name="_">_</span>]</span></span>, <span name="E">E</span>]</span><span class="params">(<span class="implicit">implicit </span><span name="F">F: <a href="http://typelevel.org/cats/api/index.html#cats.Applicative" class="extype" target="_top">Applicative</a>[<span class="extype" name="io.iteratee.Iteratee.sum.F">F</span>]</span>, <span name="E">E: <a href="https://non.github.io/algebra/api/index.html#algebra.Monoid" class="extype" target="_top">Monoid</a>[<span class="extype" name="io.iteratee.Iteratee.sum.E">E</span>]</span>)</span><span class="result">: <a href="Iteratee.html" class="extype" name="io.iteratee.Iteratee">Iteratee</a>[<span class="extype" name="io.iteratee.Iteratee.sum.F">F</span>, <span class="extype" name="io.iteratee.Iteratee.sum.E">E</span>, <span class="extype" name="io.iteratee.Iteratee.sum.E">E</span>]</span>
+        <span class="name">sum</span><span class="tparams">[<span name="F">F<span class="tparams">[<span name="_">_</span>]</span></span>, <span name="E">E</span>]</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <a href="http://typelevel.org/cats/api/index.html#cats.Applicative" class="extype" target="_top">Applicative</a>[<span class="extype" name="io.iteratee.Iteratee.sum.F">F</span>]</span>, <span name="arg1">arg1: <span class="extype" name="cats.Monoid">Monoid</span>[<span class="extype" name="io.iteratee.Iteratee.sum.E">E</span>]</span>)</span><span class="result">: <a href="Iteratee.html" class="extype" name="io.iteratee.Iteratee">Iteratee</a>[<span class="extype" name="io.iteratee.Iteratee.sum.F">F</span>, <span class="extype" name="io.iteratee.Iteratee.sum.E">E</span>, <span class="extype" name="io.iteratee.Iteratee.sum.E">E</span>]</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../index.html#io.iteratee.Iteratee$@sum[F[_],E](implicitF:cats.Applicative[F],implicitE:algebra.Monoid[E]):io.iteratee.Iteratee[F,E,E]" title="Permalink" target="_top">
+      <a href="../../index.html#io.iteratee.Iteratee$@sum[F[_],E](implicitevidence$19:cats.Applicative[F],implicitevidence$20:cats.Monoid[E]):io.iteratee.Iteratee[F,E,E]" title="Permalink" target="_top">
         <img src="../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
-      <p class="shortcomment cmt">An <a href="Iteratee.html" class="extype" name="io.iteratee.Iteratee">Iteratee</a> that combines values using an <a href="https://non.github.io/algebra/api/index.html#algebra.Monoid" class="extype" target="_top">algebra.Monoid</a> instance.</p>
+      <p class="shortcomment cmt">An <a href="Iteratee.html" class="extype" name="io.iteratee.Iteratee">Iteratee</a> that combines values using an <a href="http://typelevel.org/cats/api/index.html#cats.package@Monoid[A]=cats.kernel.Monoid[A]" class="extype" target="_top">cats.Monoid</a> instance.</p>
     </li><li name="scala.AnyRef#synchronized" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="synchronized[T0](x$1:=&gt;T0):T0"></a>
       <a id="synchronized[T0](⇒T0):T0"></a>
@@ -832,7 +849,7 @@ it.</p>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
     </li><li name="io.iteratee.Iteratee#take" visbl="pub" data-isabs="false" fullComment="no" group="Collection">
-      <a id="take[F[_],A](n:Int)(implicitevidence$12:cats.Applicative[F]):io.iteratee.Iteratee[F,A,Vector[A]]"></a>
+      <a id="take[F[_],A](n:Int)(implicitevidence$13:cats.Applicative[F]):io.iteratee.Iteratee[F,A,Vector[A]]"></a>
       <a id="take[F[_],A](Int)(Applicative[F]):Iteratee[F,A,Vector[A]]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -840,17 +857,17 @@ it.</p>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">take</span><span class="tparams">[<span name="F">F<span class="tparams">[<span name="_">_</span>]</span></span>, <span name="A">A</span>]</span><span class="params">(<span name="n">n: <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Int" class="extype" target="_top">Int</a></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <a href="http://typelevel.org/cats/api/index.html#cats.Applicative" class="extype" target="_top">Applicative</a>[<span class="extype" name="io.iteratee.Iteratee.take.F">F</span>]</span>)</span><span class="result">: <a href="Iteratee.html" class="extype" name="io.iteratee.Iteratee">Iteratee</a>[<span class="extype" name="io.iteratee.Iteratee.take.F">F</span>, <span class="extype" name="io.iteratee.Iteratee.take.A">A</span>, <span class="extype" name="scala.Vector">Vector</span>[<span class="extype" name="io.iteratee.Iteratee.take.A">A</span>]]</span>
+        <span class="name">take</span><span class="tparams">[<span name="F">F<span class="tparams">[<span name="_">_</span>]</span></span>, <span name="A">A</span>]</span><span class="params">(<span name="n">n: <span class="extype" name="scala.Int">Int</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <a href="http://typelevel.org/cats/api/index.html#cats.Applicative" class="extype" target="_top">Applicative</a>[<span class="extype" name="io.iteratee.Iteratee.take.F">F</span>]</span>)</span><span class="result">: <a href="Iteratee.html" class="extype" name="io.iteratee.Iteratee">Iteratee</a>[<span class="extype" name="io.iteratee.Iteratee.take.F">F</span>, <span class="extype" name="io.iteratee.Iteratee.take.A">A</span>, <span class="extype" name="scala.Vector">Vector</span>[<span class="extype" name="io.iteratee.Iteratee.take.A">A</span>]]</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../index.html#io.iteratee.Iteratee$@take[F[_],A](n:Int)(implicitevidence$12:cats.Applicative[F]):io.iteratee.Iteratee[F,A,Vector[A]]" title="Permalink" target="_top">
+      <a href="../../index.html#io.iteratee.Iteratee$@take[F[_],A](n:Int)(implicitevidence$13:cats.Applicative[F]):io.iteratee.Iteratee[F,A,Vector[A]]" title="Permalink" target="_top">
         <img src="../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
       <p class="shortcomment cmt">An <a href="Iteratee.html" class="extype" name="io.iteratee.Iteratee">Iteratee</a> that returns a given number of the first values in a
 stream.</p>
     </li><li name="io.iteratee.Iteratee#takeWhile" visbl="pub" data-isabs="false" fullComment="no" group="Collection">
-      <a id="takeWhile[F[_],A](p:A=&gt;Boolean)(implicitevidence$13:cats.Applicative[F]):io.iteratee.Iteratee[F,A,Vector[A]]"></a>
+      <a id="takeWhile[F[_],A](p:A=&gt;Boolean)(implicitevidence$14:cats.Applicative[F]):io.iteratee.Iteratee[F,A,Vector[A]]"></a>
       <a id="takeWhile[F[_],A]((A)⇒Boolean)(Applicative[F]):Iteratee[F,A,Vector[A]]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -861,7 +878,7 @@ stream.</p>
         <span class="name">takeWhile</span><span class="tparams">[<span name="F">F<span class="tparams">[<span name="_">_</span>]</span></span>, <span name="A">A</span>]</span><span class="params">(<span name="p">p: (<span class="extype" name="io.iteratee.Iteratee.takeWhile.A">A</span>) ⇒ <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Boolean" class="extype" target="_top">Boolean</a></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <a href="http://typelevel.org/cats/api/index.html#cats.Applicative" class="extype" target="_top">Applicative</a>[<span class="extype" name="io.iteratee.Iteratee.takeWhile.F">F</span>]</span>)</span><span class="result">: <a href="Iteratee.html" class="extype" name="io.iteratee.Iteratee">Iteratee</a>[<span class="extype" name="io.iteratee.Iteratee.takeWhile.F">F</span>, <span class="extype" name="io.iteratee.Iteratee.takeWhile.A">A</span>, <span class="extype" name="scala.Vector">Vector</span>[<span class="extype" name="io.iteratee.Iteratee.takeWhile.A">A</span>]]</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../index.html#io.iteratee.Iteratee$@takeWhile[F[_],A](p:A=&gt;Boolean)(implicitevidence$13:cats.Applicative[F]):io.iteratee.Iteratee[F,A,Vector[A]]" title="Permalink" target="_top">
+      <a href="../../index.html#io.iteratee.Iteratee$@takeWhile[F[_],A](p:A=&gt;Boolean)(implicitevidence$14:cats.Applicative[F]):io.iteratee.Iteratee[F,A,Vector[A]]" title="Permalink" target="_top">
         <img src="../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
@@ -916,7 +933,7 @@ the given predicate.</p>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">wait</span><span class="params">(<span name="arg0">arg0: <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Long" class="extype" target="_top">Long</a></span>, <span name="arg1">arg1: <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Int" class="extype" target="_top">Int</a></span>)</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Unit" class="extype" target="_top">Unit</a></span>
+        <span class="name">wait</span><span class="params">(<span name="arg0">arg0: <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Long" class="extype" target="_top">Long</a></span>, <span name="arg1">arg1: <span class="extype" name="scala.Int">Int</span></span>)</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Unit" class="extype" target="_top">Unit</a></span>
       </span>
       </h4><span class="permalink">
       <a href="../../index.html#io.iteratee.Iteratee$@wait(x$1:Long,x$2:Int):Unit" title="Permalink" target="_top">

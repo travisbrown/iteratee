@@ -1,0 +1,640 @@
+<!DOCTYPE html >
+<html>
+        <head>
+          <title>cats - monix.cats</title>
+          <meta name="description" content="cats - monix.cats" />
+          <meta name="keywords" content="cats monix.cats" />
+          <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+          
+      <link href="../../lib/template.css" media="screen" type="text/css" rel="stylesheet" />
+      <link href="../../lib/diagrams.css" media="screen" type="text/css" rel="stylesheet" id="diagrams-css" />
+      <script type="text/javascript" src="../../lib/jquery.js" id="jquery-js"></script>
+      <script type="text/javascript" src="../../lib/jquery-ui.js"></script>
+      <script type="text/javascript" src="../../lib/template.js"></script>
+      <script type="text/javascript" src="../../lib/tools.tooltip.js"></script>
+      
+      <script type="text/javascript">
+         if(top === self) {
+            var url = '../../index.html';
+            var hash = 'monix.cats.package';
+            var anchor = window.location.hash;
+            var anchor_opt = '';
+            if (anchor.length >= 1)
+              anchor_opt = '@' + anchor.substring(1);
+            window.location.href = url + '#' + hash + anchor_opt;
+         }
+   	  </script>
+    
+        </head>
+        <body class="value">
+      <div id="definition">
+        <img alt="Package" src="../../lib/package_big.png" />
+        <p id="owner"><a href="../package.html" class="extype" name="monix">monix</a></p>
+        <h1>cats</h1><span class="permalink">
+      <a href="../../index.html#monix.cats.package" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      </div>
+
+      <h4 id="signature" class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">package</span>
+      </span>
+      <span class="symbol">
+        <span class="name">cats</span>
+      </span>
+      </h4>
+      
+          <div id="comment" class="fullcommenttop"><div class="toggleContainer block">
+          <span class="toggle">Linear Supertypes</span>
+          <div class="superTypes hiddenContent"><span class="extype" name="monix.cats.MonixToCatsConversions">MonixToCatsConversions</span>, <span class="extype" name="monix.cats.MonixToCatsCore12">MonixToCatsCore12</span>, <span class="extype" name="monix.cats.MonixToCatsCore11">MonixToCatsCore11</span>, <span class="extype" name="monix.cats.MonixToCatsCore10">MonixToCatsCore10</span>, <span class="extype" name="monix.cats.MonixToCatsCore9">MonixToCatsCore9</span>, <span class="extype" name="monix.cats.MonixToCatsCore8">MonixToCatsCore8</span>, <span class="extype" name="monix.cats.MonixToCatsCore7">MonixToCatsCore7</span>, <span class="extype" name="monix.cats.MonixToCatsCore6">MonixToCatsCore6</span>, <span class="extype" name="monix.cats.MonixToCatsCore5">MonixToCatsCore5</span>, <span class="extype" name="monix.cats.MonixToCatsCore4">MonixToCatsCore4</span>, <span class="extype" name="monix.cats.MonixToCatsCore3">MonixToCatsCore3</span>, <span class="extype" name="monix.cats.MonixToCatsCore2">MonixToCatsCore2</span>, <span class="extype" name="monix.cats.MonixToCatsCore1">MonixToCatsCore1</span>, <span class="extype" name="monix.cats.MonixToCatsCore0">MonixToCatsCore0</span>, <span class="extype" name="monix.cats.MonixToCatsKernel2">MonixToCatsKernel2</span>, <span class="extype" name="monix.cats.MonixToCatsKernel1">MonixToCatsKernel1</span>, <span class="extype" name="monix.cats.MonixToCatsKernel0">MonixToCatsKernel0</span>, <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a>, <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Any" class="extype" target="_top">Any</a></div>
+        </div></div>
+        
+
+      <div id="mbrsel">
+        <div id="textfilter"><span class="pre"></span><span class="input"><input id="mbrsel-input" type="text" accesskey="/" /></span><span class="post"></span></div>
+        <div id="order">
+              <span class="filtertype">Ordering</span>
+              <ol>
+                
+                <li class="alpha in"><span>Alphabetic</span></li>
+                <li class="inherit out"><span>By Inheritance</span></li>
+              </ol>
+            </div>
+        <div id="ancestors">
+                <span class="filtertype">Inherited<br />
+                </span>
+                <ol id="linearization">
+                  <li class="in" name="monix.cats"><span>cats</span></li><li class="in" name="monix.cats.MonixToCatsConversions"><span>MonixToCatsConversions</span></li><li class="in" name="monix.cats.MonixToCatsCore12"><span>MonixToCatsCore12</span></li><li class="in" name="monix.cats.MonixToCatsCore11"><span>MonixToCatsCore11</span></li><li class="in" name="monix.cats.MonixToCatsCore10"><span>MonixToCatsCore10</span></li><li class="in" name="monix.cats.MonixToCatsCore9"><span>MonixToCatsCore9</span></li><li class="in" name="monix.cats.MonixToCatsCore8"><span>MonixToCatsCore8</span></li><li class="in" name="monix.cats.MonixToCatsCore7"><span>MonixToCatsCore7</span></li><li class="in" name="monix.cats.MonixToCatsCore6"><span>MonixToCatsCore6</span></li><li class="in" name="monix.cats.MonixToCatsCore5"><span>MonixToCatsCore5</span></li><li class="in" name="monix.cats.MonixToCatsCore4"><span>MonixToCatsCore4</span></li><li class="in" name="monix.cats.MonixToCatsCore3"><span>MonixToCatsCore3</span></li><li class="in" name="monix.cats.MonixToCatsCore2"><span>MonixToCatsCore2</span></li><li class="in" name="monix.cats.MonixToCatsCore1"><span>MonixToCatsCore1</span></li><li class="in" name="monix.cats.MonixToCatsCore0"><span>MonixToCatsCore0</span></li><li class="in" name="monix.cats.MonixToCatsKernel2"><span>MonixToCatsKernel2</span></li><li class="in" name="monix.cats.MonixToCatsKernel1"><span>MonixToCatsKernel1</span></li><li class="in" name="monix.cats.MonixToCatsKernel0"><span>MonixToCatsKernel0</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
+                </ol>
+              </div><div id="ancestors">
+            <span class="filtertype"></span>
+            <ol>
+              <li class="hideall out"><span>Hide All</span></li>
+              <li class="showall in"><span>Show All</span></li>
+            </ol>
+          </div>
+        <div id="visbl">
+            <span class="filtertype">Visibility</span>
+            <ol><li class="public in"><span>Public</span></li><li class="all out"><span>All</span></li></ol>
+          </div>
+      </div>
+
+      <div id="template">
+        <div id="allMembers">
+        
+
+        <div id="types" class="types members">
+              <h3>Type Members</h3>
+              <ol><li name="monix.cats.MonixToCatsCore1.ConvertMonixToCatsApplicative" visbl="prt" data-isabs="true" fullComment="yes" group="Ungrouped">
+      <a id="ConvertMonixToCatsApplicative[F&lt;:&lt;?&gt;]extendsApplicative[F]withMonixToCatsCore1.this.ConvertMonixToCatsFunctor[F]"></a>
+      <a id="ConvertMonixToCatsApplicative[F[_]]:ConvertMonixToCatsApplicative[F]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <span class="name">ConvertMonixToCatsApplicative</span><span class="tparams">[<span name="F">F<span class="tparams">[<span name="_">_</span>]</span></span>]</span><span class="result"> extends <a href="http://typelevel.org/cats/api/index.html#cats.Applicative" class="extype" target="_top">Applicative</a>[<span class="extype" name="monix.cats.MonixToCatsCore1.ConvertMonixToCatsApplicative.F">F</span>] with <span class="extype" name="monix.cats.MonixToCatsCore0.ConvertMonixToCatsFunctor">cats.MonixToCatsCore1.ConvertMonixToCatsFunctor</span>[<span class="extype" name="monix.cats.MonixToCatsCore1.ConvertMonixToCatsApplicative.F">F</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#monix.cats.package@ConvertMonixToCatsApplicative[F[_]]extendsApplicative[F]withMonixToCatsCore1.this.ConvertMonixToCatsFunctor[F]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected </dd><dt>Definition Classes</dt><dd>MonixToCatsCore1</dd></dl></div>
+    </li><li name="monix.cats.MonixToCatsCore2.ConvertMonixToCatsApplicativeError" visbl="prt" data-isabs="true" fullComment="yes" group="Ungrouped">
+      <a id="ConvertMonixToCatsApplicativeError[F&lt;:&lt;?&gt;,E&lt;:&lt;?&gt;]extendsApplicativeError[F,E]withMonixToCatsCore2.this.ConvertMonixToCatsApplicative[F]"></a>
+      <a id="ConvertMonixToCatsApplicativeError[F[_],E]:ConvertMonixToCatsApplicativeError[F,E]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <span class="name">ConvertMonixToCatsApplicativeError</span><span class="tparams">[<span name="F">F<span class="tparams">[<span name="_">_</span>]</span></span>, <span name="E">E</span>]</span><span class="result"> extends <a href="http://typelevel.org/cats/api/index.html#cats.ApplicativeError" class="extype" target="_top">ApplicativeError</a>[<span class="extype" name="monix.cats.MonixToCatsCore2.ConvertMonixToCatsApplicativeError.F">F</span>, <span class="extype" name="monix.cats.MonixToCatsCore2.ConvertMonixToCatsApplicativeError.E">E</span>] with <span class="extype" name="monix.cats.MonixToCatsCore1.ConvertMonixToCatsApplicative">cats.MonixToCatsCore2.ConvertMonixToCatsApplicative</span>[<span class="extype" name="monix.cats.MonixToCatsCore2.ConvertMonixToCatsApplicativeError.F">F</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#monix.cats.package@ConvertMonixToCatsApplicativeError[F[_],E]extendsApplicativeError[F,E]withMonixToCatsCore2.this.ConvertMonixToCatsApplicative[F]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected </dd><dt>Definition Classes</dt><dd>MonixToCatsCore2</dd></dl></div>
+    </li><li name="monix.cats.MonixToCatsCore5.ConvertMonixToCatsCoflatMap" visbl="prt" data-isabs="true" fullComment="yes" group="Ungrouped">
+      <a id="ConvertMonixToCatsCoflatMap[F&lt;:&lt;?&gt;]extendsCoflatMap[F]withMonixToCatsCore5.this.ConvertMonixToCatsFunctor[F]"></a>
+      <a id="ConvertMonixToCatsCoflatMap[F[_]]:ConvertMonixToCatsCoflatMap[F]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <span class="name">ConvertMonixToCatsCoflatMap</span><span class="tparams">[<span name="F">F<span class="tparams">[<span name="_">_</span>]</span></span>]</span><span class="result"> extends <a href="http://typelevel.org/cats/api/index.html#cats.CoflatMap" class="extype" target="_top">CoflatMap</a>[<span class="extype" name="monix.cats.MonixToCatsCore5.ConvertMonixToCatsCoflatMap.F">F</span>] with <span class="extype" name="monix.cats.MonixToCatsCore0.ConvertMonixToCatsFunctor">cats.MonixToCatsCore5.ConvertMonixToCatsFunctor</span>[<span class="extype" name="monix.cats.MonixToCatsCore5.ConvertMonixToCatsCoflatMap.F">F</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#monix.cats.package@ConvertMonixToCatsCoflatMap[F[_]]extendsCoflatMap[F]withMonixToCatsCore5.this.ConvertMonixToCatsFunctor[F]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected </dd><dt>Definition Classes</dt><dd>MonixToCatsCore5</dd></dl></div>
+    </li><li name="monix.cats.MonixToCatsCore6.ConvertMonixToCatsComonad" visbl="prt" data-isabs="true" fullComment="yes" group="Ungrouped">
+      <a id="ConvertMonixToCatsComonad[F&lt;:&lt;?&gt;]extendsComonad[F]withMonixToCatsCore6.this.ConvertMonixToCatsCoflatMap[F]"></a>
+      <a id="ConvertMonixToCatsComonad[F[_]]:ConvertMonixToCatsComonad[F]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <span class="name">ConvertMonixToCatsComonad</span><span class="tparams">[<span name="F">F<span class="tparams">[<span name="_">_</span>]</span></span>]</span><span class="result"> extends <a href="http://typelevel.org/cats/api/index.html#cats.Comonad" class="extype" target="_top">Comonad</a>[<span class="extype" name="monix.cats.MonixToCatsCore6.ConvertMonixToCatsComonad.F">F</span>] with <span class="extype" name="monix.cats.MonixToCatsCore5.ConvertMonixToCatsCoflatMap">cats.MonixToCatsCore6.ConvertMonixToCatsCoflatMap</span>[<span class="extype" name="monix.cats.MonixToCatsCore6.ConvertMonixToCatsComonad.F">F</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#monix.cats.package@ConvertMonixToCatsComonad[F[_]]extendsComonad[F]withMonixToCatsCore6.this.ConvertMonixToCatsCoflatMap[F]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected </dd><dt>Definition Classes</dt><dd>MonixToCatsCore6</dd></dl></div>
+    </li><li name="monix.cats.MonixToCatsCore0.ConvertMonixToCatsFunctor" visbl="prt" data-isabs="true" fullComment="yes" group="Ungrouped">
+      <a id="ConvertMonixToCatsFunctor[F&lt;:&lt;?&gt;]extendsFunctor[F]"></a>
+      <a id="ConvertMonixToCatsFunctor[F[_]]:ConvertMonixToCatsFunctor[F]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <span class="name">ConvertMonixToCatsFunctor</span><span class="tparams">[<span name="F">F<span class="tparams">[<span name="_">_</span>]</span></span>]</span><span class="result"> extends <a href="http://typelevel.org/cats/api/index.html#cats.Functor" class="extype" target="_top">Functor</a>[<span class="extype" name="monix.cats.MonixToCatsCore0.ConvertMonixToCatsFunctor.F">F</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#monix.cats.package@ConvertMonixToCatsFunctor[F[_]]extendsFunctor[F]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected </dd><dt>Definition Classes</dt><dd>MonixToCatsCore0</dd></dl></div>
+    </li><li name="monix.cats.MonixToCatsCore3.ConvertMonixToCatsMonad" visbl="prt" data-isabs="true" fullComment="yes" group="Ungrouped">
+      <a id="ConvertMonixToCatsMonad[F&lt;:&lt;?&gt;]extendsMonad[F]withMonixToCatsCore3.this.ConvertMonixToCatsApplicative[F]"></a>
+      <a id="ConvertMonixToCatsMonad[F[_]]:ConvertMonixToCatsMonad[F]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <span class="name">ConvertMonixToCatsMonad</span><span class="tparams">[<span name="F">F<span class="tparams">[<span name="_">_</span>]</span></span>]</span><span class="result"> extends <a href="http://typelevel.org/cats/api/index.html#cats.Monad" class="extype" target="_top">Monad</a>[<span class="extype" name="monix.cats.MonixToCatsCore3.ConvertMonixToCatsMonad.F">F</span>] with <span class="extype" name="monix.cats.MonixToCatsCore1.ConvertMonixToCatsApplicative">cats.MonixToCatsCore3.ConvertMonixToCatsApplicative</span>[<span class="extype" name="monix.cats.MonixToCatsCore3.ConvertMonixToCatsMonad.F">F</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#monix.cats.package@ConvertMonixToCatsMonad[F[_]]extendsMonad[F]withMonixToCatsCore3.this.ConvertMonixToCatsApplicative[F]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected </dd><dt>Definition Classes</dt><dd>MonixToCatsCore3</dd></dl></div>
+    </li><li name="monix.cats.MonixToCatsCore11.ConvertMonixToCatsMonadCombine" visbl="prt" data-isabs="true" fullComment="yes" group="Ungrouped">
+      <a id="ConvertMonixToCatsMonadCombine[F&lt;:&lt;?&gt;]extendsMonadCombine[F]withMonixToCatsCore11.this.ConvertMonixToCatsMonoidK[F]withMonixToCatsCore11.this.ConvertMonixToCatsMonadFilter[F]"></a>
+      <a id="ConvertMonixToCatsMonadCombine[F[_]]:ConvertMonixToCatsMonadCombine[F]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <span class="name">ConvertMonixToCatsMonadCombine</span><span class="tparams">[<span name="F">F<span class="tparams">[<span name="_">_</span>]</span></span>]</span><span class="result"> extends <a href="http://typelevel.org/cats/api/index.html#cats.MonadCombine" class="extype" target="_top">MonadCombine</a>[<span class="extype" name="monix.cats.MonixToCatsCore11.ConvertMonixToCatsMonadCombine.F">F</span>] with <span class="extype" name="monix.cats.MonixToCatsCore10.ConvertMonixToCatsMonoidK">cats.MonixToCatsCore11.ConvertMonixToCatsMonoidK</span>[<span class="extype" name="monix.cats.MonixToCatsCore11.ConvertMonixToCatsMonadCombine.F">F</span>] with <span class="extype" name="monix.cats.MonixToCatsCore8.ConvertMonixToCatsMonadFilter">cats.MonixToCatsCore11.ConvertMonixToCatsMonadFilter</span>[<span class="extype" name="monix.cats.MonixToCatsCore11.ConvertMonixToCatsMonadCombine.F">F</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#monix.cats.package@ConvertMonixToCatsMonadCombine[F[_]]extendsMonadCombine[F]withMonixToCatsCore11.this.ConvertMonixToCatsMonoidK[F]withMonixToCatsCore11.this.ConvertMonixToCatsMonadFilter[F]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected </dd><dt>Definition Classes</dt><dd>MonixToCatsCore11</dd></dl></div>
+    </li><li name="monix.cats.MonixToCatsCore4.ConvertMonixToCatsMonadError" visbl="prt" data-isabs="true" fullComment="yes" group="Ungrouped">
+      <a id="ConvertMonixToCatsMonadError[F&lt;:&lt;?&gt;,E&lt;:&lt;?&gt;]extendsMonadError[F,E]withMonixToCatsCore4.this.ConvertMonixToCatsMonad[F]withMonixToCatsCore4.this.ConvertMonixToCatsApplicativeError[F,E]"></a>
+      <a id="ConvertMonixToCatsMonadError[F[_],E]:ConvertMonixToCatsMonadError[F,E]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <span class="name">ConvertMonixToCatsMonadError</span><span class="tparams">[<span name="F">F<span class="tparams">[<span name="_">_</span>]</span></span>, <span name="E">E</span>]</span><span class="result"> extends <a href="http://typelevel.org/cats/api/index.html#cats.MonadError" class="extype" target="_top">MonadError</a>[<span class="extype" name="monix.cats.MonixToCatsCore4.ConvertMonixToCatsMonadError.F">F</span>, <span class="extype" name="monix.cats.MonixToCatsCore4.ConvertMonixToCatsMonadError.E">E</span>] with <span class="extype" name="monix.cats.MonixToCatsCore3.ConvertMonixToCatsMonad">cats.MonixToCatsCore4.ConvertMonixToCatsMonad</span>[<span class="extype" name="monix.cats.MonixToCatsCore4.ConvertMonixToCatsMonadError.F">F</span>] with <span class="extype" name="monix.cats.MonixToCatsCore2.ConvertMonixToCatsApplicativeError">cats.MonixToCatsCore4.ConvertMonixToCatsApplicativeError</span>[<span class="extype" name="monix.cats.MonixToCatsCore4.ConvertMonixToCatsMonadError.F">F</span>, <span class="extype" name="monix.cats.MonixToCatsCore4.ConvertMonixToCatsMonadError.E">E</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#monix.cats.package@ConvertMonixToCatsMonadError[F[_],E]extendsMonadError[F,E]withMonixToCatsCore4.this.ConvertMonixToCatsMonad[F]withMonixToCatsCore4.this.ConvertMonixToCatsApplicativeError[F,E]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected </dd><dt>Definition Classes</dt><dd>MonixToCatsCore4</dd></dl></div>
+    </li><li name="monix.cats.MonixToCatsCore8.ConvertMonixToCatsMonadFilter" visbl="prt" data-isabs="true" fullComment="yes" group="Ungrouped">
+      <a id="ConvertMonixToCatsMonadFilter[F&lt;:&lt;?&gt;]extendsMonadFilter[F]withMonixToCatsCore8.this.ConvertMonixToCatsMonad[F]"></a>
+      <a id="ConvertMonixToCatsMonadFilter[F[_]]:ConvertMonixToCatsMonadFilter[F]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <span class="name">ConvertMonixToCatsMonadFilter</span><span class="tparams">[<span name="F">F<span class="tparams">[<span name="_">_</span>]</span></span>]</span><span class="result"> extends <a href="http://typelevel.org/cats/api/index.html#cats.MonadFilter" class="extype" target="_top">MonadFilter</a>[<span class="extype" name="monix.cats.MonixToCatsCore8.ConvertMonixToCatsMonadFilter.F">F</span>] with <span class="extype" name="monix.cats.MonixToCatsCore3.ConvertMonixToCatsMonad">cats.MonixToCatsCore8.ConvertMonixToCatsMonad</span>[<span class="extype" name="monix.cats.MonixToCatsCore8.ConvertMonixToCatsMonadFilter.F">F</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#monix.cats.package@ConvertMonixToCatsMonadFilter[F[_]]extendsMonadFilter[F]withMonixToCatsCore8.this.ConvertMonixToCatsMonad[F]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected </dd><dt>Definition Classes</dt><dd>MonixToCatsCore8</dd></dl></div>
+    </li><li name="monix.cats.MonixToCatsCore12.ConvertMonixToCatsMonadRec" visbl="prt" data-isabs="true" fullComment="yes" group="Ungrouped">
+      <a id="ConvertMonixToCatsMonadRec[F&lt;:&lt;?&gt;]extendsRecursiveTailRecM[F]withMonixToCatsCore12.this.ConvertMonixToCatsMonad[F]"></a>
+      <a id="ConvertMonixToCatsMonadRec[F[_]]:ConvertMonixToCatsMonadRec[F]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <span class="name">ConvertMonixToCatsMonadRec</span><span class="tparams">[<span name="F">F<span class="tparams">[<span name="_">_</span>]</span></span>]</span><span class="result"> extends <a href="http://typelevel.org/cats/api/index.html#cats.RecursiveTailRecM" class="extype" target="_top">RecursiveTailRecM</a>[<span class="extype" name="monix.cats.MonixToCatsCore12.ConvertMonixToCatsMonadRec.F">F</span>] with <span class="extype" name="monix.cats.MonixToCatsCore3.ConvertMonixToCatsMonad">cats.MonixToCatsCore12.ConvertMonixToCatsMonad</span>[<span class="extype" name="monix.cats.MonixToCatsCore12.ConvertMonixToCatsMonadRec.F">F</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#monix.cats.package@ConvertMonixToCatsMonadRec[F[_]]extendsRecursiveTailRecM[F]withMonixToCatsCore12.this.ConvertMonixToCatsMonad[F]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected </dd><dt>Definition Classes</dt><dd>MonixToCatsCore12</dd></dl></div>
+    </li><li name="monix.cats.MonixToCatsCore10.ConvertMonixToCatsMonoidK" visbl="prt" data-isabs="true" fullComment="yes" group="Ungrouped">
+      <a id="ConvertMonixToCatsMonoidK[F&lt;:&lt;?&gt;]extendsMonoidK[F]withMonixToCatsCore10.this.ConvertMonixToCatsSemigroupK[F]"></a>
+      <a id="ConvertMonixToCatsMonoidK[F[_]]:ConvertMonixToCatsMonoidK[F]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <span class="name">ConvertMonixToCatsMonoidK</span><span class="tparams">[<span name="F">F<span class="tparams">[<span name="_">_</span>]</span></span>]</span><span class="result"> extends <a href="http://typelevel.org/cats/api/index.html#cats.MonoidK" class="extype" target="_top">MonoidK</a>[<span class="extype" name="monix.cats.MonixToCatsCore10.ConvertMonixToCatsMonoidK.F">F</span>] with <span class="extype" name="monix.cats.MonixToCatsCore9.ConvertMonixToCatsSemigroupK">cats.MonixToCatsCore10.ConvertMonixToCatsSemigroupK</span>[<span class="extype" name="monix.cats.MonixToCatsCore10.ConvertMonixToCatsMonoidK.F">F</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#monix.cats.package@ConvertMonixToCatsMonoidK[F[_]]extendsMonoidK[F]withMonixToCatsCore10.this.ConvertMonixToCatsSemigroupK[F]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected </dd><dt>Definition Classes</dt><dd>MonixToCatsCore10</dd></dl></div>
+    </li><li name="monix.cats.MonixToCatsCore9.ConvertMonixToCatsSemigroupK" visbl="prt" data-isabs="true" fullComment="yes" group="Ungrouped">
+      <a id="ConvertMonixToCatsSemigroupK[F&lt;:&lt;?&gt;]extendsSemigroupK[F]"></a>
+      <a id="ConvertMonixToCatsSemigroupK[F[_]]:ConvertMonixToCatsSemigroupK[F]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <span class="name">ConvertMonixToCatsSemigroupK</span><span class="tparams">[<span name="F">F<span class="tparams">[<span name="_">_</span>]</span></span>]</span><span class="result"> extends <a href="http://typelevel.org/cats/api/index.html#cats.SemigroupK" class="extype" target="_top">SemigroupK</a>[<span class="extype" name="monix.cats.MonixToCatsCore9.ConvertMonixToCatsSemigroupK.F">F</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#monix.cats.package@ConvertMonixToCatsSemigroupK[F[_]]extendsSemigroupK[F]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected </dd><dt>Definition Classes</dt><dd>MonixToCatsCore9</dd></dl></div>
+    </li></ol>
+            </div>
+
+        
+
+        <div id="values" class="values members">
+              <h3>Value Members</h3>
+              <ol><li name="monix.cats.MonixToCatsCore3#convertMonixToCatsMonad" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="convertMonixToCatsMonad[F&lt;:&lt;?&gt;](implicitev:&lt;?&gt;):cats.Monad[F]"></a>
+      <a id="convertMonixToCatsMonad[F[_]](Monad[F]):Monad[F]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">convertMonixToCatsMonad</span><span class="tparams">[<span name="F">F<span class="tparams">[<span name="_">_</span>]</span></span>]</span><span class="params">(<span class="implicit">implicit </span><span name="ev">ev: <span class="extype" name="monix.types.Monad">Monad</span>[<span class="extype" name="monix.cats.MonixToCatsCore3.convertMonixToCatsMonad.F">F</span>]</span>)</span><span class="result">: <a href="http://typelevel.org/cats/api/index.html#cats.Monad" class="extype" target="_top">Monad</a>[<span class="extype" name="monix.cats.MonixToCatsCore3.convertMonixToCatsMonad.F">F</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#monix.cats.package@convertMonixToCatsMonad[F[_]](implicitev:monix.types.Monad[F]):cats.Monad[F]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>MonixToCatsCore3</dd></dl></div>
+    </li><li name="monix.cats.MonixToCatsKernel2#monixApplicativeToCatsGroup" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="monixApplicativeToCatsGroup[F&lt;:&lt;?&gt;,A&lt;:&lt;?&gt;](implicitF:&lt;?&gt;,implicitA:&lt;?&gt;):cats.kernel.Group[F[A]]"></a>
+      <a id="monixApplicativeToCatsGroup[F[_],A](Applicative[F],Group[A]):Group[F[A]]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">monixApplicativeToCatsGroup</span><span class="tparams">[<span name="F">F<span class="tparams">[<span name="_">_</span>]</span></span>, <span name="A">A</span>]</span><span class="params">(<span class="implicit">implicit </span><span name="F">F: <span class="extype" name="monix.types.Applicative">Applicative</span>[<span class="extype" name="monix.cats.MonixToCatsKernel2.monixApplicativeToCatsGroup.F">F</span>]</span>, <span name="A">A: <a href="http://typelevel.org/cats/api/index.html#cats.kernel.Group" class="extype" target="_top">Group</a>[<span class="extype" name="monix.cats.MonixToCatsKernel2.monixApplicativeToCatsGroup.A">A</span>]</span>)</span><span class="result">: <a href="http://typelevel.org/cats/api/index.html#cats.kernel.Group" class="extype" target="_top">Group</a>[<span class="extype" name="monix.cats.MonixToCatsKernel2.monixApplicativeToCatsGroup.F">F</span>[<span class="extype" name="monix.cats.MonixToCatsKernel2.monixApplicativeToCatsGroup.A">A</span>]]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#monix.cats.package@monixApplicativeToCatsGroup[F[_],A](implicitF:monix.types.Applicative[F],implicitA:cats.kernel.Group[A]):cats.kernel.Group[F[A]]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>MonixToCatsKernel2</dd></dl></div>
+    </li><li name="monix.cats.MonixToCatsKernel1#monixApplicativeToCatsMonoid" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="monixApplicativeToCatsMonoid[F&lt;:&lt;?&gt;,A&lt;:&lt;?&gt;](implicitF:&lt;?&gt;,implicitA:&lt;?&gt;):cats.kernel.Monoid[F[A]]"></a>
+      <a id="monixApplicativeToCatsMonoid[F[_],A](Applicative[F],Monoid[A]):Monoid[F[A]]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">monixApplicativeToCatsMonoid</span><span class="tparams">[<span name="F">F<span class="tparams">[<span name="_">_</span>]</span></span>, <span name="A">A</span>]</span><span class="params">(<span class="implicit">implicit </span><span name="F">F: <span class="extype" name="monix.types.Applicative">Applicative</span>[<span class="extype" name="monix.cats.MonixToCatsKernel1.monixApplicativeToCatsMonoid.F">F</span>]</span>, <span name="A">A: <a href="http://typelevel.org/cats/api/index.html#cats.kernel.Monoid" class="extype" target="_top">Monoid</a>[<span class="extype" name="monix.cats.MonixToCatsKernel1.monixApplicativeToCatsMonoid.A">A</span>]</span>)</span><span class="result">: <a href="http://typelevel.org/cats/api/index.html#cats.kernel.Monoid" class="extype" target="_top">Monoid</a>[<span class="extype" name="monix.cats.MonixToCatsKernel1.monixApplicativeToCatsMonoid.F">F</span>[<span class="extype" name="monix.cats.MonixToCatsKernel1.monixApplicativeToCatsMonoid.A">A</span>]]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#monix.cats.package@monixApplicativeToCatsMonoid[F[_],A](implicitF:monix.types.Applicative[F],implicitA:cats.kernel.Monoid[A]):cats.kernel.Monoid[F[A]]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>MonixToCatsKernel1</dd></dl></div>
+    </li><li name="monix.cats.MonixToCatsKernel0#monixApplicativeToCatsSemigroup" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="monixApplicativeToCatsSemigroup[F&lt;:&lt;?&gt;,A&lt;:&lt;?&gt;](implicitF:&lt;?&gt;,implicitA:&lt;?&gt;):cats.kernel.Semigroup[F[A]]"></a>
+      <a id="monixApplicativeToCatsSemigroup[F[_],A](Applicative[F],Semigroup[A]):Semigroup[F[A]]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">monixApplicativeToCatsSemigroup</span><span class="tparams">[<span name="F">F<span class="tparams">[<span name="_">_</span>]</span></span>, <span name="A">A</span>]</span><span class="params">(<span class="implicit">implicit </span><span name="F">F: <span class="extype" name="monix.types.Applicative">Applicative</span>[<span class="extype" name="monix.cats.MonixToCatsKernel0.monixApplicativeToCatsSemigroup.F">F</span>]</span>, <span name="A">A: <span class="extype" name="cats.kernel.Semigroup">Semigroup</span>[<span class="extype" name="monix.cats.MonixToCatsKernel0.monixApplicativeToCatsSemigroup.A">A</span>]</span>)</span><span class="result">: <span class="extype" name="cats.kernel.Semigroup">Semigroup</span>[<span class="extype" name="monix.cats.MonixToCatsKernel0.monixApplicativeToCatsSemigroup.F">F</span>[<span class="extype" name="monix.cats.MonixToCatsKernel0.monixApplicativeToCatsSemigroup.A">A</span>]]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#monix.cats.package@monixApplicativeToCatsSemigroup[F[_],A](implicitF:monix.types.Applicative[F],implicitA:cats.kernel.Semigroup[A]):cats.kernel.Semigroup[F[A]]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>MonixToCatsKernel0</dd></dl></div>
+    </li><li name="monix.cats.MonixToCatsCore1#monixToCatsApplicative" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="monixToCatsApplicative[F&lt;:&lt;?&gt;](implicitev:&lt;?&gt;):cats.Applicative[F]"></a>
+      <a id="monixToCatsApplicative[F[_]](Applicative[F]):Applicative[F]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">monixToCatsApplicative</span><span class="tparams">[<span name="F">F<span class="tparams">[<span name="_">_</span>]</span></span>]</span><span class="params">(<span class="implicit">implicit </span><span name="ev">ev: <span class="extype" name="monix.types.Applicative">Applicative</span>[<span class="extype" name="monix.cats.MonixToCatsCore1.monixToCatsApplicative.F">F</span>]</span>)</span><span class="result">: <a href="http://typelevel.org/cats/api/index.html#cats.Applicative" class="extype" target="_top">Applicative</a>[<span class="extype" name="monix.cats.MonixToCatsCore1.monixToCatsApplicative.F">F</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#monix.cats.package@monixToCatsApplicative[F[_]](implicitev:monix.types.Applicative[F]):cats.Applicative[F]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>MonixToCatsCore1</dd></dl></div>
+    </li><li name="monix.cats.MonixToCatsCore2#monixToCatsApplicativeError" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="monixToCatsApplicativeError[F&lt;:&lt;?&gt;,E&lt;:&lt;?&gt;](implicitev:&lt;?&gt;):cats.ApplicativeError[F,E]"></a>
+      <a id="monixToCatsApplicativeError[F[_],E](Recoverable[F,E]):ApplicativeError[F,E]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">monixToCatsApplicativeError</span><span class="tparams">[<span name="F">F<span class="tparams">[<span name="_">_</span>]</span></span>, <span name="E">E</span>]</span><span class="params">(<span class="implicit">implicit </span><span name="ev">ev: <span class="extype" name="monix.types.Recoverable">Recoverable</span>[<span class="extype" name="monix.cats.MonixToCatsCore2.monixToCatsApplicativeError.F">F</span>, <span class="extype" name="monix.cats.MonixToCatsCore2.monixToCatsApplicativeError.E">E</span>]</span>)</span><span class="result">: <a href="http://typelevel.org/cats/api/index.html#cats.ApplicativeError" class="extype" target="_top">ApplicativeError</a>[<span class="extype" name="monix.cats.MonixToCatsCore2.monixToCatsApplicativeError.F">F</span>, <span class="extype" name="monix.cats.MonixToCatsCore2.monixToCatsApplicativeError.E">E</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#monix.cats.package@monixToCatsApplicativeError[F[_],E](implicitev:monix.types.Recoverable[F,E]):cats.ApplicativeError[F,E]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>MonixToCatsCore2</dd></dl></div>
+    </li><li name="monix.cats.MonixToCatsCore7#monixToCatsBimonad" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="monixToCatsBimonad[F&lt;:&lt;?&gt;](implicitev1:&lt;?&gt;,implicitev2:&lt;?&gt;):cats.Bimonad[F]"></a>
+      <a id="monixToCatsBimonad[F[_]](Monad[F],Comonad[F]):Bimonad[F]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">monixToCatsBimonad</span><span class="tparams">[<span name="F">F<span class="tparams">[<span name="_">_</span>]</span></span>]</span><span class="params">(<span class="implicit">implicit </span><span name="ev1">ev1: <span class="extype" name="monix.types.Monad">Monad</span>[<span class="extype" name="monix.cats.MonixToCatsCore7.monixToCatsBimonad.F">F</span>]</span>, <span name="ev2">ev2: <span class="extype" name="monix.types.Comonad">Comonad</span>[<span class="extype" name="monix.cats.MonixToCatsCore7.monixToCatsBimonad.F">F</span>]</span>)</span><span class="result">: <a href="http://typelevel.org/cats/api/index.html#cats.Bimonad" class="extype" target="_top">Bimonad</a>[<span class="extype" name="monix.cats.MonixToCatsCore7.monixToCatsBimonad.F">F</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#monix.cats.package@monixToCatsBimonad[F[_]](implicitev1:monix.types.Monad[F],implicitev2:monix.types.Comonad[F]):cats.Bimonad[F]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>MonixToCatsCore7</dd></dl></div>
+    </li><li name="monix.cats.MonixToCatsCore5#monixToCatsCoflatMap" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="monixToCatsCoflatMap[F&lt;:&lt;?&gt;](implicitev:&lt;?&gt;):cats.CoflatMap[F]"></a>
+      <a id="monixToCatsCoflatMap[F[_]](CoflatMap[F]):CoflatMap[F]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">monixToCatsCoflatMap</span><span class="tparams">[<span name="F">F<span class="tparams">[<span name="_">_</span>]</span></span>]</span><span class="params">(<span class="implicit">implicit </span><span name="ev">ev: <span class="extype" name="monix.types.CoflatMap">CoflatMap</span>[<span class="extype" name="monix.cats.MonixToCatsCore5.monixToCatsCoflatMap.F">F</span>]</span>)</span><span class="result">: <a href="http://typelevel.org/cats/api/index.html#cats.CoflatMap" class="extype" target="_top">CoflatMap</a>[<span class="extype" name="monix.cats.MonixToCatsCore5.monixToCatsCoflatMap.F">F</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#monix.cats.package@monixToCatsCoflatMap[F[_]](implicitev:monix.types.CoflatMap[F]):cats.CoflatMap[F]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>MonixToCatsCore5</dd></dl></div>
+    </li><li name="monix.cats.MonixToCatsCore6#monixToCatsComonad" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="monixToCatsComonad[F&lt;:&lt;?&gt;](implicitev:&lt;?&gt;):cats.Comonad[F]"></a>
+      <a id="monixToCatsComonad[F[_]](Comonad[F]):Comonad[F]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">monixToCatsComonad</span><span class="tparams">[<span name="F">F<span class="tparams">[<span name="_">_</span>]</span></span>]</span><span class="params">(<span class="implicit">implicit </span><span name="ev">ev: <span class="extype" name="monix.types.Comonad">Comonad</span>[<span class="extype" name="monix.cats.MonixToCatsCore6.monixToCatsComonad.F">F</span>]</span>)</span><span class="result">: <a href="http://typelevel.org/cats/api/index.html#cats.Comonad" class="extype" target="_top">Comonad</a>[<span class="extype" name="monix.cats.MonixToCatsCore6.monixToCatsComonad.F">F</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#monix.cats.package@monixToCatsComonad[F[_]](implicitev:monix.types.Comonad[F]):cats.Comonad[F]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>MonixToCatsCore6</dd></dl></div>
+    </li><li name="monix.cats.MonixToCatsCore0#monixToCatsFunctor" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="monixToCatsFunctor[F&lt;:&lt;?&gt;](implicitev:&lt;?&gt;):cats.Functor[F]"></a>
+      <a id="monixToCatsFunctor[F[_]](Functor[F]):Functor[F]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">monixToCatsFunctor</span><span class="tparams">[<span name="F">F<span class="tparams">[<span name="_">_</span>]</span></span>]</span><span class="params">(<span class="implicit">implicit </span><span name="ev">ev: <span class="extype" name="monix.types.Functor">Functor</span>[<span class="extype" name="monix.cats.MonixToCatsCore0.monixToCatsFunctor.F">F</span>]</span>)</span><span class="result">: <a href="http://typelevel.org/cats/api/index.html#cats.Functor" class="extype" target="_top">Functor</a>[<span class="extype" name="monix.cats.MonixToCatsCore0.monixToCatsFunctor.F">F</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#monix.cats.package@monixToCatsFunctor[F[_]](implicitev:monix.types.Functor[F]):cats.Functor[F]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>MonixToCatsCore0</dd></dl></div>
+    </li><li name="monix.cats.MonixToCatsCore11#monixToCatsMonadCombine" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="monixToCatsMonadCombine[F&lt;:&lt;?&gt;](implicitM:&lt;?&gt;,implicitMK:&lt;?&gt;):cats.MonadCombine[F]"></a>
+      <a id="monixToCatsMonadCombine[F[_]](MonadFilter[F],MonoidK[F]):MonadCombine[F]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">monixToCatsMonadCombine</span><span class="tparams">[<span name="F">F<span class="tparams">[<span name="_">_</span>]</span></span>]</span><span class="params">(<span class="implicit">implicit </span><span name="M">M: <span class="extype" name="monix.types.MonadFilter">MonadFilter</span>[<span class="extype" name="monix.cats.MonixToCatsCore11.monixToCatsMonadCombine.F">F</span>]</span>, <span name="MK">MK: <span class="extype" name="monix.types.MonoidK">MonoidK</span>[<span class="extype" name="monix.cats.MonixToCatsCore11.monixToCatsMonadCombine.F">F</span>]</span>)</span><span class="result">: <a href="http://typelevel.org/cats/api/index.html#cats.MonadCombine" class="extype" target="_top">MonadCombine</a>[<span class="extype" name="monix.cats.MonixToCatsCore11.monixToCatsMonadCombine.F">F</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#monix.cats.package@monixToCatsMonadCombine[F[_]](implicitM:monix.types.MonadFilter[F],implicitMK:monix.types.MonoidK[F]):cats.MonadCombine[F]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>MonixToCatsCore11</dd></dl></div>
+    </li><li name="monix.cats.MonixToCatsCore4#monixToCatsMonadError" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="monixToCatsMonadError[F[_],E](implicitM:monix.types.Monad[F],implicitR:monix.types.Recoverable[F,E]):cats.MonadError[F,E]"></a>
+      <a id="monixToCatsMonadError[F[_],E](Monad[F],Recoverable[F,E]):MonadError[F,E]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">monixToCatsMonadError</span><span class="tparams">[<span name="F">F<span class="tparams">[<span name="_">_</span>]</span></span>, <span name="E">E</span>]</span><span class="params">(<span class="implicit">implicit </span><span name="M">M: <span class="extype" name="monix.types.Monad">Monad</span>[<span class="extype" name="monix.cats.MonixToCatsCore4.monixToCatsMonadError.F">F</span>]</span>, <span name="R">R: <span class="extype" name="monix.types.Recoverable">Recoverable</span>[<span class="extype" name="monix.cats.MonixToCatsCore4.monixToCatsMonadError.F">F</span>, <span class="extype" name="monix.cats.MonixToCatsCore4.monixToCatsMonadError.E">E</span>]</span>)</span><span class="result">: <a href="http://typelevel.org/cats/api/index.html#cats.MonadError" class="extype" target="_top">MonadError</a>[<span class="extype" name="monix.cats.MonixToCatsCore4.monixToCatsMonadError.F">F</span>, <span class="extype" name="monix.cats.MonixToCatsCore4.monixToCatsMonadError.E">E</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#monix.cats.package@monixToCatsMonadError[F[_],E](implicitM:monix.types.Monad[F],implicitR:monix.types.Recoverable[F,E]):cats.MonadError[F,E]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>MonixToCatsCore4</dd></dl></div>
+    </li><li name="monix.cats.MonixToCatsCore8#monixToCatsMonadFilter" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="monixToCatsMonadFilter[F&lt;:&lt;?&gt;](implicitev:&lt;?&gt;):cats.MonadFilter[F]"></a>
+      <a id="monixToCatsMonadFilter[F[_]](MonadFilter[F]):MonadFilter[F]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">monixToCatsMonadFilter</span><span class="tparams">[<span name="F">F<span class="tparams">[<span name="_">_</span>]</span></span>]</span><span class="params">(<span class="implicit">implicit </span><span name="ev">ev: <span class="extype" name="monix.types.MonadFilter">MonadFilter</span>[<span class="extype" name="monix.cats.MonixToCatsCore8.monixToCatsMonadFilter.F">F</span>]</span>)</span><span class="result">: <a href="http://typelevel.org/cats/api/index.html#cats.MonadFilter" class="extype" target="_top">MonadFilter</a>[<span class="extype" name="monix.cats.MonixToCatsCore8.monixToCatsMonadFilter.F">F</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#monix.cats.package@monixToCatsMonadFilter[F[_]](implicitev:monix.types.MonadFilter[F]):cats.MonadFilter[F]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>MonixToCatsCore8</dd></dl></div>
+    </li><li name="monix.cats.MonixToCatsCore12#monixToCatsMonadRec" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="monixToCatsMonadRec[F&lt;:&lt;?&gt;](implicitev:&lt;?&gt;):cats.Monad[F]withcats.RecursiveTailRecM[F]"></a>
+      <a id="monixToCatsMonadRec[F[_]](MonadRec[F]):Monad[F]withRecursiveTailRecM[F]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">monixToCatsMonadRec</span><span class="tparams">[<span name="F">F<span class="tparams">[<span name="_">_</span>]</span></span>]</span><span class="params">(<span class="implicit">implicit </span><span name="ev">ev: <span class="extype" name="monix.types.MonadRec">MonadRec</span>[<span class="extype" name="monix.cats.MonixToCatsCore12.monixToCatsMonadRec.F">F</span>]</span>)</span><span class="result">: <a href="http://typelevel.org/cats/api/index.html#cats.Monad" class="extype" target="_top">Monad</a>[<span class="extype" name="monix.cats.MonixToCatsCore12.monixToCatsMonadRec.F">F</span>] with <a href="http://typelevel.org/cats/api/index.html#cats.RecursiveTailRecM" class="extype" target="_top">RecursiveTailRecM</a>[<span class="extype" name="monix.cats.MonixToCatsCore12.monixToCatsMonadRec.F">F</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#monix.cats.package@monixToCatsMonadRec[F[_]](implicitev:monix.types.MonadRec[F]):cats.Monad[F]withcats.RecursiveTailRecM[F]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>MonixToCatsCore12</dd></dl></div>
+    </li><li name="monix.cats.MonixToCatsCore10#monixToCatsMonoidK" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="monixToCatsMonoidK[F&lt;:&lt;?&gt;](implicitev:&lt;?&gt;):cats.MonoidK[F]"></a>
+      <a id="monixToCatsMonoidK[F[_]](MonoidK[F]):MonoidK[F]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">monixToCatsMonoidK</span><span class="tparams">[<span name="F">F<span class="tparams">[<span name="_">_</span>]</span></span>]</span><span class="params">(<span class="implicit">implicit </span><span name="ev">ev: <span class="extype" name="monix.types.MonoidK">MonoidK</span>[<span class="extype" name="monix.cats.MonixToCatsCore10.monixToCatsMonoidK.F">F</span>]</span>)</span><span class="result">: <a href="http://typelevel.org/cats/api/index.html#cats.MonoidK" class="extype" target="_top">MonoidK</a>[<span class="extype" name="monix.cats.MonixToCatsCore10.monixToCatsMonoidK.F">F</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#monix.cats.package@monixToCatsMonoidK[F[_]](implicitev:monix.types.MonoidK[F]):cats.MonoidK[F]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>MonixToCatsCore10</dd></dl></div>
+    </li><li name="monix.cats.MonixToCatsCore9#monixToCatsSemigroupK" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="monixToCatsSemigroupK[F&lt;:&lt;?&gt;](implicitev:&lt;?&gt;):cats.SemigroupK[F]"></a>
+      <a id="monixToCatsSemigroupK[F[_]](SemigroupK[F]):SemigroupK[F]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">monixToCatsSemigroupK</span><span class="tparams">[<span name="F">F<span class="tparams">[<span name="_">_</span>]</span></span>]</span><span class="params">(<span class="implicit">implicit </span><span name="ev">ev: <span class="extype" name="monix.types.SemigroupK">SemigroupK</span>[<span class="extype" name="monix.cats.MonixToCatsCore9.monixToCatsSemigroupK.F">F</span>]</span>)</span><span class="result">: <a href="http://typelevel.org/cats/api/index.html#cats.SemigroupK" class="extype" target="_top">SemigroupK</a>[<span class="extype" name="monix.cats.MonixToCatsCore9.monixToCatsSemigroupK.F">F</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#monix.cats.package@monixToCatsSemigroupK[F[_]](implicitev:monix.types.SemigroupK[F]):cats.SemigroupK[F]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>MonixToCatsCore9</dd></dl></div>
+    </li></ol>
+            </div>
+
+        
+
+        
+        </div>
+
+        <div id="inheritedMembers">
+        <div class="parent" name="monix.cats.MonixToCatsConversions">
+              <h3>Inherited from <span class="extype" name="monix.cats.MonixToCatsConversions">MonixToCatsConversions</span></h3>
+            </div><div class="parent" name="monix.cats.MonixToCatsCore12">
+              <h3>Inherited from <span class="extype" name="monix.cats.MonixToCatsCore12">MonixToCatsCore12</span></h3>
+            </div><div class="parent" name="monix.cats.MonixToCatsCore11">
+              <h3>Inherited from <span class="extype" name="monix.cats.MonixToCatsCore11">MonixToCatsCore11</span></h3>
+            </div><div class="parent" name="monix.cats.MonixToCatsCore10">
+              <h3>Inherited from <span class="extype" name="monix.cats.MonixToCatsCore10">MonixToCatsCore10</span></h3>
+            </div><div class="parent" name="monix.cats.MonixToCatsCore9">
+              <h3>Inherited from <span class="extype" name="monix.cats.MonixToCatsCore9">MonixToCatsCore9</span></h3>
+            </div><div class="parent" name="monix.cats.MonixToCatsCore8">
+              <h3>Inherited from <span class="extype" name="monix.cats.MonixToCatsCore8">MonixToCatsCore8</span></h3>
+            </div><div class="parent" name="monix.cats.MonixToCatsCore7">
+              <h3>Inherited from <span class="extype" name="monix.cats.MonixToCatsCore7">MonixToCatsCore7</span></h3>
+            </div><div class="parent" name="monix.cats.MonixToCatsCore6">
+              <h3>Inherited from <span class="extype" name="monix.cats.MonixToCatsCore6">MonixToCatsCore6</span></h3>
+            </div><div class="parent" name="monix.cats.MonixToCatsCore5">
+              <h3>Inherited from <span class="extype" name="monix.cats.MonixToCatsCore5">MonixToCatsCore5</span></h3>
+            </div><div class="parent" name="monix.cats.MonixToCatsCore4">
+              <h3>Inherited from <span class="extype" name="monix.cats.MonixToCatsCore4">MonixToCatsCore4</span></h3>
+            </div><div class="parent" name="monix.cats.MonixToCatsCore3">
+              <h3>Inherited from <span class="extype" name="monix.cats.MonixToCatsCore3">MonixToCatsCore3</span></h3>
+            </div><div class="parent" name="monix.cats.MonixToCatsCore2">
+              <h3>Inherited from <span class="extype" name="monix.cats.MonixToCatsCore2">MonixToCatsCore2</span></h3>
+            </div><div class="parent" name="monix.cats.MonixToCatsCore1">
+              <h3>Inherited from <span class="extype" name="monix.cats.MonixToCatsCore1">MonixToCatsCore1</span></h3>
+            </div><div class="parent" name="monix.cats.MonixToCatsCore0">
+              <h3>Inherited from <span class="extype" name="monix.cats.MonixToCatsCore0">MonixToCatsCore0</span></h3>
+            </div><div class="parent" name="monix.cats.MonixToCatsKernel2">
+              <h3>Inherited from <span class="extype" name="monix.cats.MonixToCatsKernel2">MonixToCatsKernel2</span></h3>
+            </div><div class="parent" name="monix.cats.MonixToCatsKernel1">
+              <h3>Inherited from <span class="extype" name="monix.cats.MonixToCatsKernel1">MonixToCatsKernel1</span></h3>
+            </div><div class="parent" name="monix.cats.MonixToCatsKernel0">
+              <h3>Inherited from <span class="extype" name="monix.cats.MonixToCatsKernel0">MonixToCatsKernel0</span></h3>
+            </div><div class="parent" name="scala.AnyRef">
+              <h3>Inherited from <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a></h3>
+            </div><div class="parent" name="scala.Any">
+              <h3>Inherited from <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Any" class="extype" target="_top">Any</a></h3>
+            </div>
+        
+        </div>
+
+        <div id="groupedMembers">
+        <div class="group" name="Ungrouped">
+              <h3>Ungrouped</h3>
+              
+            </div>
+        </div>
+
+      </div>
+
+      <div id="tooltip"></div>
+
+      <div id="footer">  </div>
+
+
+    </body>
+      </html>

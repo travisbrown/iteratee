@@ -159,7 +159,7 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span title="gt4s: $hash$hash" class="name">##</span><span class="params">()</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Int" class="extype" target="_top">Int</a></span>
+        <span title="gt4s: $hash$hash" class="name">##</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Int">Int</span></span>
       </span>
       </h4><span class="permalink">
       <a href="../../../index.html#io.iteratee.internal.Step$@##():Int" title="Permalink" target="_top">
@@ -319,7 +319,7 @@ type.</p>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">cont</span><span class="tparams">[<span name="F">F<span class="tparams">[<span name="_">_</span>]</span></span>, <span name="E">E</span>, <span name="A">A</span>]</span><span class="params">(<span name="onInput">onInput: (<span class="extype" name="cats.data.NonEmptyVector">NonEmptyVector</span>[<span class="extype" name="io.iteratee.internal.Step.cont.E">E</span>]) ⇒ <span class="extype" name="io.iteratee.internal.Step.cont.F">F</span>[<a href="Step.html" class="extype" name="io.iteratee.internal.Step">Step</a>[<span class="extype" name="io.iteratee.internal.Step.cont.F">F</span>, <span class="extype" name="io.iteratee.internal.Step.cont.E">E</span>, <span class="extype" name="io.iteratee.internal.Step.cont.A">A</span>]]</span>, <span name="onEnd">onEnd: <span class="extype" name="io.iteratee.internal.Step.cont.F">F</span>[<span class="extype" name="io.iteratee.internal.Step.cont.A">A</span>]</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="F">F: <a href="http://typelevel.org/cats/api/index.html#cats.Applicative" class="extype" target="_top">Applicative</a>[<span class="extype" name="io.iteratee.internal.Step.cont.F">F</span>]</span>)</span><span class="result">: <a href="Step.html" class="extype" name="io.iteratee.internal.Step">Step</a>[<span class="extype" name="io.iteratee.internal.Step.cont.F">F</span>, <span class="extype" name="io.iteratee.internal.Step.cont.E">E</span>, <span class="extype" name="io.iteratee.internal.Step.cont.A">A</span>]</span>
+        <span class="name">cont</span><span class="tparams">[<span name="F">F<span class="tparams">[<span name="_">_</span>]</span></span>, <span name="E">E</span>, <span name="A">A</span>]</span><span class="params">(<span name="onInput">onInput: (<a href="http://typelevel.org/cats/api/index.html#cats.data.NonEmptyVector" class="extype" target="_top">NonEmptyVector</a>[<span class="extype" name="io.iteratee.internal.Step.cont.E">E</span>]) ⇒ <span class="extype" name="io.iteratee.internal.Step.cont.F">F</span>[<a href="Step.html" class="extype" name="io.iteratee.internal.Step">Step</a>[<span class="extype" name="io.iteratee.internal.Step.cont.F">F</span>, <span class="extype" name="io.iteratee.internal.Step.cont.E">E</span>, <span class="extype" name="io.iteratee.internal.Step.cont.A">A</span>]]</span>, <span name="onEnd">onEnd: <span class="extype" name="io.iteratee.internal.Step.cont.F">F</span>[<span class="extype" name="io.iteratee.internal.Step.cont.A">A</span>]</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="F">F: <a href="http://typelevel.org/cats/api/index.html#cats.Applicative" class="extype" target="_top">Applicative</a>[<span class="extype" name="io.iteratee.internal.Step.cont.F">F</span>]</span>)</span><span class="result">: <a href="Step.html" class="extype" name="io.iteratee.internal.Step">Step</a>[<span class="extype" name="io.iteratee.internal.Step.cont.F">F</span>, <span class="extype" name="io.iteratee.internal.Step.cont.E">E</span>, <span class="extype" name="io.iteratee.internal.Step.cont.A">A</span>]</span>
       </span>
       </h4><span class="permalink">
       <a href="../../../index.html#io.iteratee.internal.Step$@cont[F[_],E,A](onInput:cats.data.NonEmptyVector[E]=&gt;F[io.iteratee.internal.Step[F,E,A]],onEnd:F[A])(implicitF:cats.Applicative[F]):io.iteratee.internal.Step[F,E,A]" title="Permalink" target="_top">
@@ -388,7 +388,7 @@ the next input.</p>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">drop</span><span class="tparams">[<span name="F">F<span class="tparams">[<span name="_">_</span>]</span></span>, <span name="E">E</span>]</span><span class="params">(<span name="n">n: <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Int" class="extype" target="_top">Int</a></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="F">F: <a href="http://typelevel.org/cats/api/index.html#cats.Applicative" class="extype" target="_top">Applicative</a>[<span class="extype" name="io.iteratee.internal.Step.drop.F">F</span>]</span>)</span><span class="result">: <a href="Step.html" class="extype" name="io.iteratee.internal.Step">Step</a>[<span class="extype" name="io.iteratee.internal.Step.drop.F">F</span>, <span class="extype" name="io.iteratee.internal.Step.drop.E">E</span>, <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Unit" class="extype" target="_top">Unit</a>]</span>
+        <span class="name">drop</span><span class="tparams">[<span name="F">F<span class="tparams">[<span name="_">_</span>]</span></span>, <span name="E">E</span>]</span><span class="params">(<span name="n">n: <span class="extype" name="scala.Int">Int</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="F">F: <a href="http://typelevel.org/cats/api/index.html#cats.Applicative" class="extype" target="_top">Applicative</a>[<span class="extype" name="io.iteratee.internal.Step.drop.F">F</span>]</span>)</span><span class="result">: <a href="Step.html" class="extype" name="io.iteratee.internal.Step">Step</a>[<span class="extype" name="io.iteratee.internal.Step.drop.F">F</span>, <span class="extype" name="io.iteratee.internal.Step.drop.E">E</span>, <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Unit" class="extype" target="_top">Unit</a>]</span>
       </span>
       </h4><span class="permalink">
       <a href="../../../index.html#io.iteratee.internal.Step$@drop[F[_],E](n:Int)(implicitF:cats.Applicative[F]):io.iteratee.internal.Step[F,E,Unit]" title="Permalink" target="_top">
@@ -507,6 +507,23 @@ function.</p>
     </span>
       <p class="shortcomment cmt">A <a href="Step.html" class="extype" name="io.iteratee.internal.Step">Step</a> that folds a stream using an initial value and a monadic
 accumulation function.</p>
+    </li><li name="io.iteratee.internal.Step#foldMap" visbl="pub" data-isabs="false" fullComment="no" group="Collection">
+      <a id="foldMap[F[_],E,A](f:E=&gt;A)(implicitF:cats.Applicative[F],implicitM:cats.Monoid[A]):io.iteratee.internal.Step[F,E,A]"></a>
+      <a id="foldMap[F[_],E,A]((E)⇒A)(Applicative[F],Monoid[A]):Step[F,E,A]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">foldMap</span><span class="tparams">[<span name="F">F<span class="tparams">[<span name="_">_</span>]</span></span>, <span name="E">E</span>, <span name="A">A</span>]</span><span class="params">(<span name="f">f: (<span class="extype" name="io.iteratee.internal.Step.foldMap.E">E</span>) ⇒ <span class="extype" name="io.iteratee.internal.Step.foldMap.A">A</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="F">F: <a href="http://typelevel.org/cats/api/index.html#cats.Applicative" class="extype" target="_top">Applicative</a>[<span class="extype" name="io.iteratee.internal.Step.foldMap.F">F</span>]</span>, <span name="M">M: <span class="extype" name="cats.Monoid">Monoid</span>[<span class="extype" name="io.iteratee.internal.Step.foldMap.A">A</span>]</span>)</span><span class="result">: <a href="Step.html" class="extype" name="io.iteratee.internal.Step">Step</a>[<span class="extype" name="io.iteratee.internal.Step.foldMap.F">F</span>, <span class="extype" name="io.iteratee.internal.Step.foldMap.E">E</span>, <span class="extype" name="io.iteratee.internal.Step.foldMap.A">A</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.iteratee.internal.Step$@foldMap[F[_],E,A](f:E=&gt;A)(implicitF:cats.Applicative[F],implicitM:cats.Monoid[A]):io.iteratee.internal.Step[F,E,A]" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">A <a href="Step.html" class="extype" name="io.iteratee.internal.Step">Step</a> that transforms and sums values in a stream.</p>
     </li><li name="scala.AnyRef#getClass" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="getClass():Class[_]"></a>
       <a id="getClass():Class[_]"></a>
@@ -533,7 +550,7 @@ accumulation function.</p>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">hashCode</span><span class="params">()</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Int" class="extype" target="_top">Int</a></span>
+        <span class="name">hashCode</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Int">Int</span></span>
       </span>
       </h4><span class="permalink">
       <a href="../../../index.html#io.iteratee.internal.Step$@hashCode():Int" title="Permalink" target="_top">
@@ -642,7 +659,24 @@ accumulation function.</p>
         <img src="../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
-      <p class="shortcomment cmt">Lift a monadic value into a <a href="Step.html" class="extype" name="io.iteratee.internal.Step">Step</a>.</p>
+      <p class="shortcomment cmt">Lift an effectful value into a <a href="Step.html" class="extype" name="io.iteratee.internal.Step">Step</a>.</p>
+    </li><li name="io.iteratee.internal.Step#liftMEval" visbl="pub" data-isabs="false" fullComment="no" group="Utilities">
+      <a id="liftMEval[F[_],E,A](fa:cats.Eval[F[A]])(implicitF:cats.Monad[F]):F[io.iteratee.internal.Step[F,E,A]]"></a>
+      <a id="liftMEval[F[_],E,A](Eval[F[A]])(Monad[F]):F[Step[F,E,A]]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">liftMEval</span><span class="tparams">[<span name="F">F<span class="tparams">[<span name="_">_</span>]</span></span>, <span name="E">E</span>, <span name="A">A</span>]</span><span class="params">(<span name="fa">fa: <a href="http://typelevel.org/cats/api/index.html#cats.Eval" class="extype" target="_top">Eval</a>[<span class="extype" name="io.iteratee.internal.Step.liftMEval.F">F</span>[<span class="extype" name="io.iteratee.internal.Step.liftMEval.A">A</span>]]</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="F">F: <a href="http://typelevel.org/cats/api/index.html#cats.Monad" class="extype" target="_top">Monad</a>[<span class="extype" name="io.iteratee.internal.Step.liftMEval.F">F</span>]</span>)</span><span class="result">: <span class="extype" name="io.iteratee.internal.Step.liftMEval.F">F</span>[<a href="Step.html" class="extype" name="io.iteratee.internal.Step">Step</a>[<span class="extype" name="io.iteratee.internal.Step.liftMEval.F">F</span>, <span class="extype" name="io.iteratee.internal.Step.liftMEval.E">E</span>, <span class="extype" name="io.iteratee.internal.Step.liftMEval.A">A</span>]]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.iteratee.internal.Step$@liftMEval[F[_],E,A](fa:cats.Eval[F[A]])(implicitF:cats.Monad[F]):F[io.iteratee.internal.Step[F,E,A]]" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Lift an effectful value in a <a href="http://typelevel.org/cats/api/index.html#cats.Eval" class="extype" target="_top">cats.Eval</a> into a <a href="Step.html" class="extype" name="io.iteratee.internal.Step">Step</a>.</p>
     </li><li name="scala.AnyRef#ne" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="ne(x$1:AnyRef):Boolean"></a>
       <a id="ne(AnyRef):Boolean"></a>
@@ -711,6 +745,23 @@ accumulation function.</p>
       </a>
     </span>
       <p class="shortcomment cmt">A <a href="Step.html" class="extype" name="io.iteratee.internal.Step">Step</a> that returns the first value in a stream without consuming it.</p>
+    </li><li name="io.iteratee.internal.Step#sum" visbl="pub" data-isabs="false" fullComment="no" group="Collection">
+      <a id="sum[F[_],E](implicitF:cats.Applicative[F],implicitM:cats.Monoid[E]):io.iteratee.internal.Step[F,E,E]"></a>
+      <a id="sum[F[_],E](Applicative[F],Monoid[E]):Step[F,E,E]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">sum</span><span class="tparams">[<span name="F">F<span class="tparams">[<span name="_">_</span>]</span></span>, <span name="E">E</span>]</span><span class="params">(<span class="implicit">implicit </span><span name="F">F: <a href="http://typelevel.org/cats/api/index.html#cats.Applicative" class="extype" target="_top">Applicative</a>[<span class="extype" name="io.iteratee.internal.Step.sum.F">F</span>]</span>, <span name="M">M: <span class="extype" name="cats.Monoid">Monoid</span>[<span class="extype" name="io.iteratee.internal.Step.sum.E">E</span>]</span>)</span><span class="result">: <a href="Step.html" class="extype" name="io.iteratee.internal.Step">Step</a>[<span class="extype" name="io.iteratee.internal.Step.sum.F">F</span>, <span class="extype" name="io.iteratee.internal.Step.sum.E">E</span>, <span class="extype" name="io.iteratee.internal.Step.sum.E">E</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.iteratee.internal.Step$@sum[F[_],E](implicitF:cats.Applicative[F],implicitM:cats.Monoid[E]):io.iteratee.internal.Step[F,E,E]" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">A <a href="Step.html" class="extype" name="io.iteratee.internal.Step">Step</a> that sums of values in a stream.</p>
     </li><li name="scala.AnyRef#synchronized" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="synchronized[T0](x$1:=&gt;T0):T0"></a>
       <a id="synchronized[T0](⇒T0):T0"></a>
@@ -737,7 +788,7 @@ accumulation function.</p>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">take</span><span class="tparams">[<span name="F">F<span class="tparams">[<span name="_">_</span>]</span></span>, <span name="E">E</span>]</span><span class="params">(<span name="n">n: <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Int" class="extype" target="_top">Int</a></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <a href="http://typelevel.org/cats/api/index.html#cats.Applicative" class="extype" target="_top">Applicative</a>[<span class="extype" name="io.iteratee.internal.Step.take.F">F</span>]</span>)</span><span class="result">: <a href="Step.html" class="extype" name="io.iteratee.internal.Step">Step</a>[<span class="extype" name="io.iteratee.internal.Step.take.F">F</span>, <span class="extype" name="io.iteratee.internal.Step.take.E">E</span>, <span class="extype" name="scala.Vector">Vector</span>[<span class="extype" name="io.iteratee.internal.Step.take.E">E</span>]]</span>
+        <span class="name">take</span><span class="tparams">[<span name="F">F<span class="tparams">[<span name="_">_</span>]</span></span>, <span name="E">E</span>]</span><span class="params">(<span name="n">n: <span class="extype" name="scala.Int">Int</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <a href="http://typelevel.org/cats/api/index.html#cats.Applicative" class="extype" target="_top">Applicative</a>[<span class="extype" name="io.iteratee.internal.Step.take.F">F</span>]</span>)</span><span class="result">: <a href="Step.html" class="extype" name="io.iteratee.internal.Step">Step</a>[<span class="extype" name="io.iteratee.internal.Step.take.F">F</span>, <span class="extype" name="io.iteratee.internal.Step.take.E">E</span>, <span class="extype" name="scala.Vector">Vector</span>[<span class="extype" name="io.iteratee.internal.Step.take.E">E</span>]]</span>
       </span>
       </h4><span class="permalink">
       <a href="../../../index.html#io.iteratee.internal.Step$@take[F[_],E](n:Int)(implicitevidence$8:cats.Applicative[F]):io.iteratee.internal.Step[F,E,Vector[E]]" title="Permalink" target="_top">
@@ -812,7 +863,7 @@ given predicate.</p>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">wait</span><span class="params">(<span name="arg0">arg0: <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Long" class="extype" target="_top">Long</a></span>, <span name="arg1">arg1: <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Int" class="extype" target="_top">Int</a></span>)</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Unit" class="extype" target="_top">Unit</a></span>
+        <span class="name">wait</span><span class="params">(<span name="arg0">arg0: <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Long" class="extype" target="_top">Long</a></span>, <span name="arg1">arg1: <span class="extype" name="scala.Int">Int</span></span>)</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Unit" class="extype" target="_top">Unit</a></span>
       </span>
       </h4><span class="permalink">
       <a href="../../../index.html#io.iteratee.internal.Step$@wait(x$1:Long,x$2:Int):Unit" title="Permalink" target="_top">
