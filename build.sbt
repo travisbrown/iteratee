@@ -205,6 +205,7 @@ lazy val benchmark = project
     libraryDependencies ++= Seq(
       "co.fs2" %% "fs2-core" % "0.9.0-RC1",
       "com.typesafe.play" %% "play-iteratees" % "2.6.0",
+      "io.monix" %%% "monix-reactive" % "2.0.0",
       "org.scalatest" %% "scalatest" % scalaTestVersion % "test",
       "org.scalaz" %% "scalaz-iteratee" % "7.2.5",
       "org.scalaz.stream" %% "scalaz-stream" % "0.8.3a",

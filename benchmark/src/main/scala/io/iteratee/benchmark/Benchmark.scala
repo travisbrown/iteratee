@@ -9,9 +9,11 @@ import io.iteratee.scalaz.ScalazInstances
 import java.util.concurrent.TimeUnit
 import monix.cats._
 import monix.eval.{ Task => TaskM }
+import monix.reactive.Observable
 import org.openjdk.jmh.annotations._
 import play.api.libs.{ iteratee => p }
 import scala.Predef.intWrapper
+import scala.collection.immutable.VectorBuilder
 import scala.concurrent.Await
 import scala.concurrent.duration._
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -35,6 +37,7 @@ class InMemoryExampleData extends IterateeBenchmark {
   val intsZ: z.EnumeratorT[Int, Task] = z.EnumeratorT.enumIndexedSeq(intsC)
   val intsP: p.Enumerator[Int] = p.Enumerator(intsC: _*)
   val intsF: fs2.Stream[fs2.Task, Int] = fs2.Stream.emits(intsC)
+  val intsM: Observable[Int] = Observable.fromIterable(intsC)
 }
 
 class StreamingExampleData extends IterateeBenchmark {
@@ -54,6 +57,7 @@ class StreamingExampleData extends IterateeBenchmark {
     }
     iterate(0L)(_ + 1L)
   }
+  val longStreamM: Observable[Long] = Observable.fromStateAction[Long, Long](l => (l, l + 1L))(0L)
 }
 
 /**
@@ -96,6 +100,12 @@ class InMemoryBenchmark extends InMemoryExampleData {
 
   @Benchmark
   def sumInts8F: Int = intsF.sum.runLast.unsafeRun.get
+
+  @Benchmark
+  def sumInts9M: Int = Await.result(
+    intsM.sumL.runAsync(monix.execution.Scheduler.Implicits.global),
+    Duration.Inf
+  )
 }
 
 /**
@@ -140,4 +150,15 @@ class StreamingBenchmark extends StreamingExampleData {
 
   @Benchmark
   def takeLongs8F: Vector[Long] = longStreamF.take(count.toLong).runLog.unsafeRun
+
+  @Benchmark
+  def takeLongs9M: Vector[Long] = Await.result(
+    longStreamM
+      .take(count.toLong)
+      .foldLeftF(new VectorBuilder[Long])(_ += _)
+      .map(_.result)
+      .runAsyncGetFirst(monix.execution.Scheduler.Implicits.global)
+      .map(_.getOrElse(Vector.empty)),
+    Duration.Inf
+  )
 }

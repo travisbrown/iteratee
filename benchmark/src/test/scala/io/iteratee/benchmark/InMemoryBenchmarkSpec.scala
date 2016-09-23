@@ -41,4 +41,8 @@ class InMemoryBenchmarkSpec extends FlatSpec {
   it should "correctly calculate the sum using fs2" in {
     assert(benchmark.sumInts8F === sum)
   }
+
+  it should "correctly calculate the sum using monix observable" in {
+    assert(benchmark.sumInts9M === sum)
+  }
 }

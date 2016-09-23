@@ -22,7 +22,7 @@ often likely to be a simpler, faster solution.
 The initial performance benchmarks look promising. For example, here are the throughput results for
 summing a sequence of numbers with this library and `cats.Id` (`II`), this library and Scalaz's
 `Task` (`IT`), this library and Twitter futures (`IR`), Scalaz Stream (`S`), scalaz-iteratee (`Z`),
-[play-iteratee][play-iteratee] (`P`), the collections library (`C`), and fs2 (`F`). Higher numbers
+[play-iteratee][play-iteratee] (`P`), the collections library (`C`), fs2 (`F`), and Monix Observable (`M`). Higher numbers
 are better.
 
 ```

@@ -42,4 +42,8 @@ class StreamingBenchmarkSpec extends FlatSpec {
   it should "correctly gather elements using fs2" in {
     assert(benchmark.takeLongs8F === taken)
   }
+
+  it should "correctly gather elements using monix observable" in {
+    assert(benchmark.takeLongs9M === taken)
+  }
 }
