@@ -45,7 +45,7 @@ lazy val baseSettings = Seq(
     Resolver.sonatypeRepo("releases"),
     Resolver.sonatypeRepo("snapshots")
   ),
-  ScoverageSbtPlugin.ScoverageKeys.coverageHighlighting := (
+  coverageHighlighting := (
     CrossVersion.partialVersion(scalaVersion.value) match {
       case Some((2, 10)) => false
       case _ => true
@@ -124,7 +124,7 @@ lazy val testsBase = crossProject.in(file("tests"))
     testForkedParallel in IntegrationTest := true
   )
   .settings(
-    ScoverageSbtPlugin.ScoverageKeys.coverageExcludedPackages := "io\\.iteratee\\.tests\\..*",
+    coverageExcludedPackages := "io\\.iteratee\\.tests\\..*",
     testOptions in Test ++= (
       CrossVersion.partialVersion(scalaVersion.value) match {
         case Some((2, 10)) => Seq(Tests.Argument("-l", "io.iteratee.tests.NoScala210Test"))
@@ -181,8 +181,8 @@ lazy val monixBase = crossProject.in(file("monix"))
   .settings(Defaults.itSettings: _*)
   .settings(
     libraryDependencies ++= Seq(
-      "io.monix" %%% "monix-eval" % "2.0.0",
-      "io.monix" %%% "monix-cats" % "2.0.0"
+      "io.monix" %%% "monix-eval" % "2.0.2",
+      "io.monix" %%% "monix-cats" % "2.0.2"
     )
   )
   .jsSettings(commonJsSettings: _*)
@@ -203,11 +203,11 @@ lazy val benchmark = project
   .settings(noPublishSettings)
   .settings(
     libraryDependencies ++= Seq(
-      "co.fs2" %% "fs2-core" % "0.9.0-RC1",
+      "co.fs2" %% "fs2-core" % "0.9.1",
       "com.typesafe.play" %% "play-iteratees" % "2.6.0",
       "org.scalatest" %% "scalatest" % scalaTestVersion % "test",
-      "org.scalaz" %% "scalaz-iteratee" % "7.2.5",
-      "org.scalaz.stream" %% "scalaz-stream" % "0.8.3a",
+      "org.scalaz" %% "scalaz-iteratee" % "7.2.6",
+      "org.scalaz.stream" %% "scalaz-stream" % "0.8.4a",
       "org.typelevel" %% "cats-free" % catsVersion
     )
   )
