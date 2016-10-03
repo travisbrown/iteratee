@@ -1,7 +1,6 @@
 package io.iteratee
 
 import cats.{ Applicative, Eq, FlatMap, Monad }
-import cats.data.NonEmptyVector
 import io.iteratee.internal.Step
 
 abstract class Enumeratee[F[_], O, I] extends Serializable { self =>
@@ -83,7 +82,7 @@ final object Enumeratee extends EnumerateeInstances {
         final def run: F[Step[F, I, A]] = F.pure(step)
         final def feedEl(e: O): F[Step[F, O, Step[F, I, A]]] = F.map(f(e)(step))(doneOrLoop)
         final def feedChunk(h: O, t: NonEmptyVector[O]): F[Step[F, O, Step[F, I, A]]] =
-          F.map(t.foldLeft(f(h))((acc, e) => acc.append(f(e)))(step))(doneOrLoop)
+          F.map(t.foldLeft(f(h))((acc, e) => acc.append(f(e))).apply(step))(doneOrLoop)
       }
     }
 

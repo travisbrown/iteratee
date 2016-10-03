@@ -1,7 +1,6 @@
 package io.iteratee
 
 import cats.{ Applicative, MonadError, Monoid, MonoidK }
-import cats.data.NonEmptyVector
 
 /**
  * @groupname Iteratees Iteratees

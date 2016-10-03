@@ -1,7 +1,6 @@
 package io.iteratee
 
 import cats.{ Applicative, FlatMap, Monad, MonadError, Semigroup, Eval }
-import cats.data.NonEmptyVector
 import io.iteratee.internal.Step
 import scala.Predef.=:=
 import scala.util.{ Left, Right }

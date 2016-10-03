@@ -1,7 +1,8 @@
-package io.iteratee.internal
+package io.iteratee
+package internal
 
 import cats.{ Applicative, Eval, Monad, Monoid, MonoidK, Semigroup }
-import cats.data.NonEmptyVector
+import io.iteratee.NonEmptyVector
 import cats.arrow.FunctionK
 
 /**
