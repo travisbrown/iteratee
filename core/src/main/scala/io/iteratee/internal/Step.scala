@@ -26,7 +26,8 @@ sealed abstract class Step[F[_], E, A] extends Serializable {
   def run: F[A]
 
   /**
-   *
+   * A helper method that accepts a chunk that may be empty (and simply returns
+   * the current step in that case).
    */
   def feed(chunk: Vector[E])(implicit F: Applicative[F]): F[Step[F, E, A]] = {
     val c = chunk.lengthCompare(1)
@@ -37,10 +38,14 @@ sealed abstract class Step[F[_], E, A] extends Serializable {
   /**
    * Feed a single element to this [[Step]].
    */
-  def feedEl(e: E): F[Step[F, E, A]] //= feedChunk(NonEmptyVector(e, Vector.empty))
+  def feedEl(e: E): F[Step[F, E, A]]
 
   /**
    * Feed a multi-element input to this [[Step]].
+   *
+   * Note that it is the implementer's responsibility to ensure that this is not
+   * inconsistent with `feedEl` in the case where the chunk has a single
+   * element.
    */
   def feedChunk(chunk: NonEmptyVector[E]): F[Step[F, E, A]]
 
