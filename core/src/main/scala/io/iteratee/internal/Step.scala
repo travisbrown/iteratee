@@ -172,7 +172,7 @@ final object Step { self =>
     }
   }
 
-  private[this] abstract class PureCont[F[_], E, A](implicit F: Applicative[F]) extends BaseCont[F, E, A] { self =>
+  abstract class PureCont[F[_], E, A](implicit F: Applicative[F]) extends BaseCont[F, E, A] { self =>
     protected def feedElPure(e: E): Step[F, E, A]
     protected def feedChunkPure(chunk: NonEmptyVector[E]): Step[F, E, A]
     protected def runPure: A
@@ -202,7 +202,7 @@ final object Step { self =>
     )
   }
 
-  private[this] object PureCont {
+  object PureCont {
     abstract class WithValue[F[_], E, A](val runPure: A)(implicit F: Applicative[F]) extends PureCont[F, E, A]
   }
 

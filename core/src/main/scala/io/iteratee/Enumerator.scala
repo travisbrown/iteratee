@@ -3,6 +3,8 @@ package io.iteratee
 import cats.{ Applicative, FlatMap, Monad, MonadError, Semigroup, Eval }
 import io.iteratee.internal.Step
 import scala.Predef.=:=
+import scala.collection.generic.CanBuildFrom
+import scala.collection.mutable.Builder
 import scala.util.{ Left, Right }
 
 abstract class Enumerator[F[_], E] extends Serializable { self =>
@@ -61,7 +63,18 @@ abstract class Enumerator[F[_], E] extends Serializable { self =>
       F.flatMap(self(Step.foldM[F, E, B](b)(f)))(next => F.flatMap(next.run)(step.feedEl))
   }
 
-  final def toVector(implicit F: Monad[F]): F[Vector[E]] = into(Iteratee.consume)
+  private[this] final class ConsumeToCont[C[_], E](acc: Builder[E, C[E]])(implicit F: Applicative[F])
+      extends Step.PureCont[F, E, C[E]] {
+    final def runPure: C[E] = acc.result
+    final def feedElPure(e: E): Step[F, E, C[E]] = new ConsumeToCont(acc += e)
+    final def feedChunkPure(chunk: NonEmptyVector[E]): Step[F, E, C[E]] = new ConsumeToCont(acc ++= chunk.toVector)
+  }
+
+  final def to[C[_]](implicit F: Monad[F], cbf: CanBuildFrom[Nothing, E, C[E]]): F[C[E]] = intoStep(
+    new ConsumeToCont[C, E](cbf())
+  )
+
+  final def toVector(implicit F: Monad[F]): F[Vector[E]] = to[Vector]
 
   final def ensure[T](action: F[Unit])(implicit F: MonadError[F, T]): Enumerator[F, E] =
     ensureEval(Eval.now(action))
