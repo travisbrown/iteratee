@@ -145,9 +145,11 @@ final object Enumerator extends EnumeratorInstances {
 
     private[this] final def go[A](it: Iterator[Vector[E]], step: Step[F, E, A]): F[Step[F, E, A]] =
       if (it.isEmpty || step.isDone) F.pure(step) else {
-        it.next() match {
-          case Vector(e) => F.flatMap(step.feedEl(e))(go(it, _))
-          case h +: t => F.flatMap(step.feedChunk(NonEmptyVector(h, t)))(go(it, _))
+        val next = it.next()
+        val c = next.lengthCompare(1)
+
+        if (c < 0) F.pure(step) else if (c == 0) F.flatMap(step.feedEl(next.head))(go(it, _)) else {
+          F.flatMap(step.feedChunk(NonEmptyVector.fromVectorUnsafe(next))(go(it, _))
         }
       }
 
@@ -167,9 +169,11 @@ final object Enumerator extends EnumeratorInstances {
 
     final def apply[A](s: Step[F, E, A]): F[Step[F, E, A]] = F.tailRecM((s, chunks)) {
       case (step, it) => if (it.isEmpty || step.isDone) F.pure(Right(step)) else {
-        it.next() match {
-          case Vector(e) => F.map(step.feedEl(e))(s => Left((s, it)))
-          case h +: t => F.map(step.feedChunk(NonEmptyVector(h, t)))(s => Left((s, it)))
+        val next = it.next()
+        val c = next.lengthCompare(1)
+
+        if (c < 0) F.pure(step) else if (c == 0) F.flatMap(step.feedEl(next.head))(go(it, _)) else {
+          F.flatMap(step.feedChunk(NonEmptyVector.fromVectorUnsafe(next))(go(it, _))
         }
       }
     }
