@@ -24,6 +24,7 @@ val scalaVersions = Seq("2.10.6", "2.11.8")
 
 lazy val catsVersion = "0.7.2"
 lazy val disciplineVersion = "0.4"
+lazy val monixVersion = "2.0.4"
 lazy val scalaCheckVersion = "1.12.5"
 lazy val scalaTestVersion = "3.0.0-M9"
 
@@ -181,8 +182,8 @@ lazy val monixBase = crossProject.in(file("monix"))
   .settings(Defaults.itSettings: _*)
   .settings(
     libraryDependencies ++= Seq(
-      "io.monix" %%% "monix-eval" % "2.0.2",
-      "io.monix" %%% "monix-cats" % "2.0.2"
+      "io.monix" %%% "monix-eval" % monixVersion,
+      "io.monix" %%% "monix-cats" % monixVersion
     )
   )
   .jsSettings(commonJsSettings: _*)
