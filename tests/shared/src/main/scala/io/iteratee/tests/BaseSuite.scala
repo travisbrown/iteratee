@@ -1,7 +1,7 @@
 package io.iteratee.tests
 
 import cats.{ Eq, Eval }
-import cats.data.{ EitherT, Xor, XorT }
+import cats.data.EitherT
 import cats.instances.AllInstances
 import cats.instances.either.catsStdEqForEither
 import cats.instances.option.catsKernelStdEqForOption
@@ -110,11 +110,3 @@ trait TrySuite extends TryModule {
 
 }
 
-trait XorSuite extends XorModule {
-  def monadName: String = "XorT[Eval, Throwable, ?]"
-
-  implicit def eqEval[A](implicit A: Eq[A]): Eq[Eval[Xor[Throwable, A]]] =
-    Eval.catsEqForEval(Xor.catsDataEqForXor(Eq.fromUniversalEquals, A))
-
-  implicit def eqF[A](implicit A: Eq[A]): Eq[XorT[Eval, Throwable, A]] = XorT.catsDataEqForXorT(eqEval(A))
-}
