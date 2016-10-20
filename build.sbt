@@ -52,12 +52,11 @@ lazy val baseSettings = Seq(
       case _ => true
     }
   ),
-  (scalastyleSources in Compile) <++= sourceDirectories in Compile
+  (scalastyleSources in Compile) ++= (sourceDirectories in Compile).value
 )
 lazy val allSettings = buildSettings ++ baseSettings ++ publishSettings
 
 lazy val commonJsSettings = Seq(
-  postLinkJSEnv := NodeJSEnv().value,
   scalaJSStage in Global := FastOptStage
 )
 
