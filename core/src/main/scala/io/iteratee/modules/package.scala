@@ -1,7 +1,7 @@
 package io.iteratee
 
 import cats.{ Eval, Id, Monad, MonadError, catsInstancesForId }
-import cats.data.{ EitherT, XorT }
+import cats.data.EitherT
 import cats.instances.either.catsStdInstancesForEither
 import cats.instances.future.catsStdInstancesForFuture
 import cats.instances.option.catsStdInstancesForOption
@@ -22,9 +22,6 @@ package modules {
   final object id extends IdModule
   final object option extends OptionModule
   final object try_ extends TryModule
-
-  @deprecated("Use eitherT", "0.6.0")
-  final object xor extends XorModule
 
   trait EitherModule extends Module[({ type L[x] = Either[Throwable, x] })#L]
       with EnumerateeModule[({ type L[x] = Either[Throwable, x] })#L]
@@ -83,16 +80,5 @@ package modules {
     final type M[f[_]] = MonadError[f, Throwable]
 
     final protected val F: MonadError[Try, Throwable] = catsStdInstancesForTry
-  }
-
-  @deprecated("Use EitherTModule", "0.6.0")
-  trait XorModule extends Module[({ type L[x] = XorT[Eval, Throwable, x] })#L]
-      with EnumerateeModule[({ type L[x] = XorT[Eval, Throwable, x] })#L]
-      with EnumeratorErrorModule[({ type L[x] = XorT[Eval, Throwable, x] })#L, Throwable]
-      with IterateeErrorModule[({ type L[x] = XorT[Eval, Throwable, x] })#L, Throwable] {
-    final type M[f[_]] = MonadError[f, Throwable]
-
-    final protected val F: MonadError[({ type L[x] = XorT[Eval, Throwable, x] })#L, Throwable] =
-      XorT.catsDataMonadErrorForXorT
   }
 }

@@ -1,9 +1,9 @@
 package io.iteratee
 
 import cats.{ Eval, MonadError }
-import cats.data.{ EitherT, Xor, XorT }
+import cats.data.EitherT
 import cats.instances.either.catsStdInstancesForEither
-import io.iteratee.modules.{ EitherModule, EitherTModule, FutureModule, TryModule, XorModule }
+import io.iteratee.modules.{ EitherModule, EitherTModule, FutureModule, TryModule }
 import scala.concurrent.{ ExecutionContext, Future }
 import scala.util.Try
 
@@ -18,9 +18,6 @@ package files {
   final object eitherT extends EitherTFileModule
   final object try_ extends TryFileModule
 
-  @deprecated("Use eitherT", "0.6.0")
-  final object xor extends XorFileModule
-
   trait EitherFileModule extends EitherModule with NonSuspendableFileModule[({ type L[x] = Either[Throwable, x] })#L]
 
   trait EitherTFileModule extends EitherTModule
@@ -33,9 +30,4 @@ package files {
 
   trait FutureFileModule extends FutureModule with NonSuspendableFileModule[Future]
   trait TryFileModule extends TryModule with NonSuspendableFileModule[Try]
-
-  @deprecated("Use EitherTFileModule", "0.6.0")
-  trait XorFileModule extends XorModule with SuspendableFileModule[({ type L[x] = XorT[Eval, Throwable, x] })#L] {
-    final protected def captureEffect[A](a: => A): XorT[Eval, Throwable, A] = XorT(Eval.always(Xor.catchNonFatal(a)))
-  }
 }
