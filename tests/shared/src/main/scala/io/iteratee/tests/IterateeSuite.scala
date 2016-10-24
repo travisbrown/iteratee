@@ -1,10 +1,10 @@
 package io.iteratee.tests
 
 import cats.{ Eq, Eval, Monad, MonadError }
-import cats.data.{ NonEmptyVector, Xor, XorT }
+import cats.data.{ EitherT, NonEmptyVector }
 import cats.laws.discipline.{ CartesianTests, ContravariantTests, MonadTests, MonadErrorTests }
 import io.iteratee.{ EnumerateeModule, EnumeratorModule, Iteratee, IterateeErrorModule, IterateeModule, Module }
-import org.scalacheck.Arbitrary
+import org.scalacheck.{ Arbitrary, Cogen }
 
 abstract class IterateeSuite[F[_]: Monad] extends BaseIterateeSuite[F] {
   this: EnumerateeModule[F] with EnumeratorModule[F] with IterateeModule[F] with Module[F] =>
@@ -15,7 +15,9 @@ abstract class IterateeSuite[F[_]: Monad] extends BaseIterateeSuite[F] {
   )
 }
 
-abstract class IterateeErrorSuite[F[_], T: Arbitrary: Eq](implicit MEF: MonadError[F, T]) extends BaseIterateeSuite[F] {
+abstract class IterateeErrorSuite[F[_], T: Arbitrary: Eq: Cogen](implicit
+  MEF: MonadError[F, T]
+) extends BaseIterateeSuite[F] {
   this: EnumerateeModule[F] with EnumeratorModule[F] with IterateeErrorModule[F, T]
     with Module[F] { type M[f[_]] = MonadError[f, T] } =>
 
@@ -27,17 +29,17 @@ abstract class IterateeErrorSuite[F[_], T: Arbitrary: Eq](implicit MEF: MonadErr
   implicit val eqVectorIntIteratee: Eq[VectorIntFoldingIteratee[Vector[Int]]] =
     eqIteratee[F, Vector[Int], Vector[Int]]
 
-  implicit val eqXorUnitIteratee: Eq[VectorIntFoldingIteratee[Xor[T, Unit]]] =
-    eqIteratee[F, Vector[Int], Xor[T, Unit]]
+  implicit val eqEitherUnitIteratee: Eq[VectorIntFoldingIteratee[Either[T, Unit]]] =
+    eqIteratee[F, Vector[Int], Either[T, Unit]]
 
-  implicit val eqXorVectorIntIteratee: Eq[VectorIntFoldingIteratee[Xor[T, Vector[Int]]]] =
-    eqIteratee[F, Vector[Int], Xor[T, Vector[Int]]]
+  implicit val eqEitherVectorIntIteratee: Eq[VectorIntFoldingIteratee[Either[T, Vector[Int]]]] =
+    eqIteratee[F, Vector[Int], Either[T, Vector[Int]]]
 
   implicit val eqVectorInt3Iteratee: Eq[VectorIntFoldingIteratee[(Vector[Int], Vector[Int], Vector[Int])]] =
     eqIteratee[F, Vector[Int], (Vector[Int], Vector[Int], Vector[Int])]
 
-  implicit val eqXorTVectorInt: Eq[XorT[({ type L[x] = Iteratee[F, Vector[Int], x] })#L, T, Vector[Int]]] =
-    XorT.catsDataEqForXorT(eqXorVectorIntIteratee)
+  implicit val eqEitherTVectorInt: Eq[EitherT[({ type L[x] = Iteratee[F, Vector[Int], x] })#L, T, Vector[Int]]] =
+    EitherT.catsDataEqForEitherT(eqEitherVectorIntIteratee)
 
   implicit val arbitraryVectorIntFunctionIteratee: Arbitrary[VectorIntFoldingIteratee[Vector[Int] => Vector[Int]]] =
     arbitraryFunctionIteratee[F, Vector[Int]]
@@ -61,9 +63,9 @@ abstract class IterateeErrorSuite[F[_], T: Arbitrary: Eq](implicit MEF: MonadErr
 abstract class BaseIterateeSuite[F[_]: Monad] extends ModuleSuite[F] {
   this: EnumerateeModule[F] with EnumeratorModule[F] with IterateeModule[F] with Module[F] =>
 
-  implicit override val generatorDrivenConfig: PropertyCheckConfiguration = PropertyCheckConfig(
+  implicit override val generatorDrivenConfig: PropertyCheckConfiguration = PropertyCheckConfiguration(
     minSize = 0,
-    maxSize = 5000
+    sizeRange = 5000
   )
 
   type VectorIntProducingIteratee[E] = Iteratee[F, E, Vector[Int]]

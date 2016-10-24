@@ -1,7 +1,7 @@
 package io.iteratee.monix
 
 import cats.Eq
-import cats.data.Xor
+import cats.laws.discipline.arbitrary.catsLawsCogenForThrowable
 import io.iteratee.monix.task._
 import io.iteratee.tests.{ EnumerateeSuite, EnumeratorSuite, IterateeErrorSuite, ModuleSuite, eqThrowable }
 import monix.eval.Task
@@ -13,7 +13,7 @@ trait TaskSuite extends ModuleSuite[Task] with DefaultTaskModule {
   def monadName: String = "Task"
 
   implicit def eqF[A: Eq]: Eq[Task[A]] = Eq.by { task =>
-    Await.result(task.materialize.map(Xor.fromTry).runAsync, 5.seconds)
+    Await.result(task.materialize.runAsync, 5.seconds)
   }
 }
 
