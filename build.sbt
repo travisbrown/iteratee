@@ -30,7 +30,7 @@ lazy val scalaTestVersion = "3.0.0"
 lazy val baseSettings = Seq(
   scalacOptions ++= (compilerOptions :+ "-Yno-predef") ++ (
     CrossVersion.partialVersion(scalaVersion.value) match {
-      case Some((2, 11)) => Seq("-Ywarn-unused-import")
+      case Some((2, p)) if p >= 11 => Seq("-Ywarn-unused-import")
       case _ => Nil
     }
   ),
