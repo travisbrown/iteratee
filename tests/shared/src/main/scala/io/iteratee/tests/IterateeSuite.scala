@@ -1,9 +1,10 @@
 package io.iteratee.tests
 
 import cats.{ Eq, Eval, Monad, MonadError }
-import cats.data.{ NonEmptyVector, Xor, XorT }
+import cats.data.{ Xor, XorT }
 import cats.laws.discipline.{ CartesianTests, ContravariantTests, MonadTests, MonadErrorTests }
 import io.iteratee.{ EnumerateeModule, EnumeratorModule, Iteratee, IterateeErrorModule, IterateeModule, Module }
+import io.iteratee.NonEmptyVector
 import org.scalacheck.Arbitrary
 
 abstract class IterateeSuite[F[_]: Monad] extends BaseIterateeSuite[F] {

@@ -126,7 +126,7 @@ final object Enumerator extends EnumeratorInstances {
       if (it.isEmpty || step.isDone) F.pure(step) else {
         it.next() match {
           case Vector(e) => F.flatMap(step.feedEl(e))(go(it, _))
-          case h1 +: h2 +: t => F.flatMap(step.feedChunk(h1, h2, t))(go(it, _))
+          case h +: t => F.flatMap(step.feedChunk(h, NonEmptyVector.fromVectorUnsafe(t)))(go(it, _))
         }
       }
 
@@ -149,7 +149,7 @@ final object Enumerator extends EnumeratorInstances {
       case (step, it) => if (it.isEmpty || step.isDone) F.pure(Right(step)) else {
         it.next() match {
           case Vector(e) => F.map(step.feedEl(e))(s => Left((s, it)))
-          case h1 +: h2 +: t => F.map(step.feedChunk(h1, h2, t))(s => Left((s, it)))
+          case h +: t => F.map(step.feedChunk(h, NonEmptyVector.fromVectorUnsafe(t)))(s => Left((s, it)))
         }
       }
     }
@@ -171,7 +171,7 @@ final object Enumerator extends EnumeratorInstances {
       final def apply[A](s: Step[F, E, A]): F[Step[F, E, A]] = xs match {
         case Nil => F.pure(s)
         case e :: Nil => s.feedEl(e)
-        case h1 :: h2 :: t => s.feedChunk(h1, h2, t.toVector)
+        case h :: t => s.feedChunk(h, NonEmptyVector.fromVectorUnsafe(t.toVector))
       }
     }
 
@@ -184,7 +184,7 @@ final object Enumerator extends EnumeratorInstances {
         xs match {
           case Vector() => F.pure(s)
           case Vector(e) => s.feedEl(e)
-          case h1 +: h2 +: t => s.feedChunk(h1, h2, t)
+          case h +: t => s.feedChunk(h, NonEmptyVector.fromVectorUnsafe(t))
         }
     }
 
@@ -201,7 +201,7 @@ final object Enumerator extends EnumeratorInstances {
         xs.slice(min, max) match {
           case is if is.isEmpty => F.pure(s)
           case IndexedSeq(e) => s.feedEl(e)
-          case h1 +: h2 +: t => s.feedChunk(h1, h2, t.toVector)
+          case h +: t => s.feedChunk(h, NonEmptyVector.fromVectorUnsafe(t.toVector))
         }
     }
 
