@@ -1,9 +1,17 @@
 package io.iteratee.tests
 
 import cats.{ Eq, Eval, Monad, MonadError }
-import cats.data.{ EitherT, NonEmptyVector }
+import cats.data.EitherT
 import cats.laws.discipline.{ CartesianTests, ContravariantTests, MonadTests, MonadErrorTests }
-import io.iteratee.{ EnumerateeModule, EnumeratorModule, Iteratee, IterateeErrorModule, IterateeModule, Module }
+import io.iteratee.{
+  EnumerateeModule,
+  EnumeratorModule,
+  Iteratee,
+  IterateeErrorModule,
+  IterateeModule,
+  Module,
+  NonEmptyVector
+}
 import org.scalacheck.{ Arbitrary, Cogen }
 
 abstract class IterateeSuite[F[_]: Monad] extends BaseIterateeSuite[F] {
