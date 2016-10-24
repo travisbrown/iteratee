@@ -22,7 +22,7 @@ script:
       then
         sbt ++$TRAVIS_SCALA_VERSION clean validateJVM coverage coverageReport;
         sbt ++$TRAVIS_SCALA_VERSION coverageAggregate;
-        codecov;
+        bash <(curl -s https://codecov.io/bash);
       else
         sbt ++$TRAVIS_SCALA_VERSION clean core/test tests/test scalaz/test;
         sbt ++$TRAVIS_SCALA_VERSION tests/it:test monix/it:test scalaz/it:test;
