@@ -3,6 +3,7 @@ package io.iteratee
 import cats.{ Eval, Id, MonadError }
 import cats.arrow.FunctionK
 import cats.data.EitherT
+import cats.laws.discipline.arbitrary.catsLawsCogenForThrowable
 import io.iteratee.tests.{ EnumerateeSuite, StackSafeEnumeratorSuite, IterateeErrorSuite, EitherTSuite, eqThrowable }
 import org.scalacheck.Arbitrary
 

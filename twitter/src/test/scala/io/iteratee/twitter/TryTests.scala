@@ -1,12 +1,13 @@
 package io.iteratee.twitter
 
 import cats.Eq
+import cats.laws.discipline.arbitrary.catsLawsCogenForThrowable
 import com.twitter.util.Try
 import io.catbird.util.{ twitterTryEq, twitterTryInstance }
 import io.iteratee.tests.{ EnumerateeSuite, EnumeratorSuite, IterateeErrorSuite, ModuleSuite, eqThrowable }
 
 trait TrySuite extends ModuleSuite[Try] with TryModule {
-  def monadName: String = "Try"
+  def monadName: String = "com.twitter.util.Try"
 
   implicit def eqF[A: Eq]: Eq[Try[A]] = twitterTryEq[A]
 }

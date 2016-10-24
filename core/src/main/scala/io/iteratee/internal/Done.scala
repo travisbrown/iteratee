@@ -13,7 +13,7 @@ private[internal] abstract class BaseDone[F[_], E, A](implicit F: Applicative[F]
   final def contramap[E2](f: E2 => E): Step[F, E2, A] = new NoLeftovers(value)
 }
 
-private[internal] case class NoLeftovers[F[_]: Applicative, E, A](value: A) extends BaseDone[F, E, A] {
+private[iteratee] case class NoLeftovers[F[_]: Applicative, E, A](value: A) extends BaseDone[F, E, A] {
   final def fold[Z](ifCont: (NonEmptyVector[E] => F[Step[F, E, A]]) => Z, ifDone: (A, Vector[E]) => Z): Z =
     ifDone(value, Vector.empty)
 
@@ -28,7 +28,7 @@ private[internal] case class NoLeftovers[F[_]: Applicative, E, A](value: A) exte
   }
 }
 
-private[internal] case class WithLeftovers[F[_]: Applicative, E, A](value: A, remaining: Input[E])
+private[iteratee] case class WithLeftovers[F[_]: Applicative, E, A](value: A, remaining: Input[E])
   extends BaseDone[F, E, A] {
   final def fold[Z](ifCont: (NonEmptyVector[E] => F[Step[F, E, A]]) => Z, ifDone: (A, Vector[E]) => Z): Z =
     ifDone(value, remaining.toVector)
