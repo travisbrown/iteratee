@@ -2,7 +2,7 @@ package io.iteratee.tests
 
 import cats.{ Eq, Monad }
 import cats.kernel.laws.GroupLaws
-import cats.laws.discipline.{ ApplicativeTests, CartesianTests, FlatMapTests }
+import cats.laws.discipline.{ CartesianTests, MonadTests }
 import io.iteratee.{ EnumerateeModule, Enumerator, EnumeratorModule, IterateeModule, Module }
 
 abstract class EnumeratorSuite[F[_]: Monad] extends ModuleSuite[F] {
@@ -14,8 +14,7 @@ abstract class EnumeratorSuite[F[_]: Monad] extends ModuleSuite[F] {
     CartesianTests.Isomorphisms.invariant[EnumeratorF]
 
   checkLaws(s"Enumerator[$monadName, Int]", GroupLaws[Enumerator[F, Int]].monoid)
-  checkLaws(s"Enumerator[$monadName, Int]", ApplicativeTests[EnumeratorF].applicative[Int, Int, Int])
-  checkLaws(s"Enumerator[$monadName, Int]", FlatMapTests[EnumeratorF].flatMap[Int, Int, Int])
+  checkLaws(s"Enumerator[$monadName, Int]", MonadTests[EnumeratorF].stackUnsafeMonad[Int, Int, Int])
 
   "liftToEnumerator" should "lift a value in a context into an enumerator" in forAll { (i: Int) =>
     assert(liftToEnumerator(F.pure(i)).toVector === F.pure(Vector(i)))
