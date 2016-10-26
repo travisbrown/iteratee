@@ -21,7 +21,7 @@ lazy val compilerOptions = Seq(
 
 val scalaVersions = Seq("2.10.6", "2.11.8", "2.12.0-RC2")
 
-lazy val catsVersion = "0.8.0-SNAPSHOT"
+lazy val catsVersion = "0.8.0"
 lazy val disciplineVersion = "0.7.1"
 lazy val monixVersion = "2.0.5"
 lazy val scalaCheckVersion = "1.13.3"
