@@ -1,6 +1,7 @@
 package io.iteratee
 
 import cats.instances.either._
+import cats.laws.discipline.arbitrary.catsLawsCogenForThrowable
 import io.iteratee.tests.{ EnumerateeSuite, EnumeratorSuite, IterateeErrorSuite, EitherSuite, eqThrowable }
 
 class EitherEnumerateeTests extends EnumerateeSuite[({ type L[x] = Either[Throwable, x] })#L] with EitherSuite

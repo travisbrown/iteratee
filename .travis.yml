@@ -9,6 +9,11 @@ jdk:
   - oraclejdk7
   - oraclejdk8
 
+matrix:
+  include:
+  - scala: 2.12.0-RC2
+    jdk: oraclejdk8
+
 cache:
   directories:
     - $HOME/.ivy2/cache

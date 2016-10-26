@@ -2,7 +2,6 @@ package io.iteratee
 
 import cats.{ Applicative, Comonad, Eval, Functor, Monad, MonadError, Monoid, MonoidK }
 import cats.arrow.FunctionK
-import cats.data.NonEmptyVector
 import io.iteratee.internal.Step
 
 /**

@@ -1,6 +1,7 @@
 package io.iteratee.twitter
 
 import cats.Eq
+import cats.laws.discipline.arbitrary.catsLawsCogenForThrowable
 import com.twitter.conversions.time._
 import io.catbird.util.Rerunnable
 import io.iteratee.tests.{ EnumerateeSuite, IterateeErrorSuite, ModuleSuite, StackSafeEnumeratorSuite, eqThrowable }

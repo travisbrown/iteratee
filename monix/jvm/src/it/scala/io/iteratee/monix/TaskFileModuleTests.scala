@@ -1,7 +1,6 @@
 package io.iteratee.monix
 
 import cats.Eq
-import cats.data.Xor
 import io.iteratee.monix.task._
 import io.iteratee.tests.files.FileModuleSuite
 import monix.eval.Task
@@ -13,6 +12,6 @@ class TaskFileModuleTests extends FileModuleSuite[Task] with DefaultTaskModule {
   def monadName: String = "Task"
 
   implicit def eqF[A: Eq]: Eq[Task[A]] = Eq.by { task =>
-    Await.result(task.materialize.map(Xor.fromTry).runAsync, 5.seconds)
+    Await.result(task.materialize.runAsync, 5.seconds)
   }
 }
