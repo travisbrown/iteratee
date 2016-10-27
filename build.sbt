@@ -1,6 +1,5 @@
 import sbtunidoc.Plugin.UnidocKeys._
 import ReleaseTransformations._
-import scala.xml.transform.{ RewriteRule, RuleTransformer }
 
 lazy val buildSettings = Seq(
   organization := "io.iteratee",
@@ -20,18 +19,20 @@ lazy val compilerOptions = Seq(
   "-Xfuture"
 )
 
-val scalaVersions = Seq("2.10.6", "2.11.8")
+val scalaVersions = Seq("2.10.6", "2.11.8", "2.12.0-RC2")
 
-lazy val catsVersion = "0.7.2"
-lazy val disciplineVersion = "0.4"
+lazy val catsVersion = "0.8.0"
+lazy val disciplineVersion = "0.7.1"
 lazy val monixVersion = "2.0.5"
-lazy val scalaCheckVersion = "1.12.5"
-lazy val scalaTestVersion = "3.0.0-M9"
+lazy val scalaCheckVersion = "1.13.3"
+lazy val scalaTestVersion = "3.0.0"
+
+lazy val previousIterateeVersion = "0.6.1"
 
 lazy val baseSettings = Seq(
   scalacOptions ++= (compilerOptions :+ "-Yno-predef") ++ (
     CrossVersion.partialVersion(scalaVersion.value) match {
-      case Some((2, 11)) => Seq("-Ywarn-unused-import")
+      case Some((2, p)) if p >= 11 => Seq("-Ywarn-unused-import")
       case _ => Nil
     }
   ),
@@ -54,6 +55,7 @@ lazy val baseSettings = Seq(
   ),
   (scalastyleSources in Compile) ++= (sourceDirectories in Compile).value
 )
+
 lazy val allSettings = buildSettings ++ baseSettings ++ publishSettings
 
 lazy val commonJsSettings = Seq(
@@ -90,6 +92,9 @@ lazy val coreBase = crossProject.crossType(CrossType.Pure).in(file("core"))
   .settings(allSettings: _*)
   .settings(
     libraryDependencies += "org.typelevel" %%% "cats-core" % catsVersion
+  )
+  .jvmSettings(
+    mimaPreviousArtifacts := Set("io.iteratee" %% "iteratee-core" % previousIterateeVersion)
   )
   .jsSettings(commonJsSettings: _*)
   .jvmConfigure(_.copy(id = "core"))
@@ -144,7 +149,8 @@ lazy val testsJS = testsBase.js
 lazy val files = project
   .settings(
     crossScalaVersions := scalaVersions,
-    moduleName := "iteratee-files"
+    moduleName := "iteratee-files",
+    mimaPreviousArtifacts := Set("io.iteratee" %% "iteratee-files" % previousIterateeVersion)
   )
   .settings(allSettings)
   .dependsOn(core)
@@ -152,19 +158,21 @@ lazy val files = project
 lazy val twitter = project
   .configs(IntegrationTest)
   .settings(
-    crossScalaVersions := scalaVersions.tail,
-    moduleName := "iteratee-twitter"
+    crossScalaVersions := scalaVersions.tail.init,
+    moduleName := "iteratee-twitter",
+    mimaPreviousArtifacts := Set("io.iteratee" %% "iteratee-twitter" % previousIterateeVersion)
   )
   .settings(allSettings ++ Defaults.itSettings)
   .settings(
-    libraryDependencies += "io.catbird" %% "catbird-util" % "0.7.0"
+    libraryDependencies += "io.catbird" %% "catbird-util" % "0.8.0"
   ).dependsOn(core, files, tests % "test,it")
 
 lazy val scalaz = project
   .configs(IntegrationTest)
   .settings(
     crossScalaVersions := scalaVersions,
-    moduleName := "iteratee-scalaz"
+    moduleName := "iteratee-scalaz",
+    mimaPreviousArtifacts := Set("io.iteratee" %% "iteratee-scalaz" % previousIterateeVersion)
   )
   .settings(allSettings ++ Defaults.itSettings)
   .settings(
@@ -180,9 +188,10 @@ lazy val monixBase = crossProject.in(file("monix"))
   .settings(allSettings: _*)
   .settings(Defaults.itSettings: _*)
   .settings(
-    libraryDependencies ++= Seq(
-      "io.monix" %%% "monix-eval" % monixVersion
-    )
+    libraryDependencies += "io.monix" %%% "monix-eval" % monixVersion
+  )
+  .jvmSettings(
+    mimaPreviousArtifacts := Set("io.iteratee" %% "iteratee-monix" % previousIterateeVersion)
   )
   .jsSettings(commonJsSettings: _*)
   .jvmConfigure(_.copy(id = "monix").dependsOn(files))
@@ -195,7 +204,7 @@ lazy val monixJS = monixBase.js
 lazy val benchmark = project
   .configs(IntegrationTest)
   .settings(
-    crossScalaVersions := scalaVersions.tail,
+    crossScalaVersions := scalaVersions.tail.init,
     moduleName := "iteratee-benchmark"
   )
   .settings(allSettings ++ Defaults.itSettings)
@@ -212,18 +221,6 @@ lazy val benchmark = project
   )
   .enablePlugins(JmhPlugin)
   .dependsOn(core, monix, scalaz, tests, twitter)
-
-val removeScoverage = new RuleTransformer(
-  new RewriteRule {
-    private[this] def isGroupScoverage(child: xml.Node): Boolean =
-      child.label == "groupId" && child.text == "org.scoverage"
-
-    override def transform(node: xml.Node): Seq[xml.Node] = node match {
-      case e: xml.Elem if e.label == "dependency" && e.child.exists(isGroupScoverage) => Nil
-      case _ => Seq(node)
-    }
-  }
-)
 
 lazy val publishSettings = Seq(
   releaseCrossBuild := true,
@@ -256,8 +253,7 @@ lazy val publishSettings = Seq(
         <url>https://twitter.com/travisbrown</url>
       </developer>
     </developers>
-  ),
-  pomPostProcess := { (node: xml.Node) => removeScoverage.transform(node).head }
+  )
 )
 
 lazy val noPublishSettings = Seq(

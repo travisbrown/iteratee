@@ -9,7 +9,7 @@ import cats.instances.try_.catsStdEqForTry
 import cats.syntax.AllSyntax
 import io.iteratee._
 import io.iteratee.modules._
-import java.util.concurrent.ExecutionException
+import org.scalacheck.Arbitrary
 import org.scalatest.FlatSpec
 import org.scalatest.prop.{ Checkers, GeneratorDrivenPropertyChecks }
 import org.typelevel.discipline.Laws
@@ -71,7 +71,7 @@ trait FutureSuite extends FutureModule {
     def eqv(fx: Future[A], fy: Future[A]): Boolean =
       Await.result(
         liftToTry(fx).zip(liftToTry(fy)).map {
-          case (tx, ty) => catsStdEqForTry(A, FutureSuite.eqThrowableInStdLibFuture).eqv(tx, ty)
+          case (tx, ty) => Eq[Try[A]].eqv(tx, ty)
         },
         2.seconds
       )
@@ -82,13 +82,8 @@ object FutureSuite {
   /**
    * Needed because `scala.concurrent.Future` boxes `java.lang.Error`.
    */
-  implicit val eqThrowableInStdLibFuture: Eq[Throwable] = new Eq[Throwable] {
-    def eqv(tx: Throwable, ty: Throwable): Boolean = (tx, ty) match {
-      case (_: ExecutionException, _) => true
-      case (_, _: ExecutionException) => true
-      case (x, y) => x == y
-    }
-  }
+  implicit val arbitraryNonFatalThrowable: Arbitrary[Throwable] =
+    Arbitrary(Arbitrary.arbitrary[Exception].map(identity))
 }
 
 trait IdSuite extends IdModule {

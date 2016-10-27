@@ -1,6 +1,7 @@
 package io.iteratee.scalaz
 
 import cats.Eq
+import cats.laws.discipline.arbitrary.catsLawsCogenForThrowable
 import io.iteratee.tests.{ EnumerateeSuite, EnumeratorSuite, IterateeErrorSuite, ModuleSuite, eqThrowable }
 import scalaz.concurrent.Task
 
