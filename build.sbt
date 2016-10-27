@@ -174,15 +174,13 @@ lazy val scalaz = project
 lazy val monixBase = crossProject.in(file("monix"))
   .configs(IntegrationTest)
   .settings(
-    crossScalaVersions := scalaVersions.init,
+    crossScalaVersions := scalaVersions,
     moduleName := "iteratee-monix"
   )
   .settings(allSettings: _*)
   .settings(Defaults.itSettings: _*)
   .settings(
-    libraryDependencies ++= Seq(
-      "io.monix" %%% "monix-eval" % monixVersion
-    )
+    libraryDependencies += "io.monix" %%% "monix-eval" % monixVersion
   )
   .jsSettings(commonJsSettings: _*)
   .jvmConfigure(_.copy(id = "monix").dependsOn(files))
