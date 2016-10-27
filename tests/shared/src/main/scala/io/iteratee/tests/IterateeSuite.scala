@@ -1,7 +1,7 @@
 package io.iteratee.tests
 
 import cats.{ Eq, Eval, Monad, MonadError }
-import cats.data.EitherT
+import cats.data.{ EitherT, NonEmptyList }
 import cats.laws.discipline.{ CartesianTests, ContravariantTests, MonadTests, MonadErrorTests }
 import io.iteratee.{
   EnumerateeModule,
@@ -9,8 +9,7 @@ import io.iteratee.{
   Iteratee,
   IterateeErrorModule,
   IterateeModule,
-  Module,
-  NonEmptyVector
+  Module
 }
 import org.scalacheck.{ Arbitrary, Cogen }
 
@@ -102,13 +101,13 @@ abstract class BaseIterateeSuite[F[_]: Monad] extends ModuleSuite[F] {
   }
 
   it should "work with fold with one value" in forAll { (es: List[Int]) =>
-    val folded = myDrain(es).fold[F[List[Int]]](_(NonEmptyVector(0, Vector.empty)).run, (_, _) => F.pure(Nil))
+    val folded = myDrain(es).fold[F[List[Int]]](_(NonEmptyList(0, Nil)).run, (_, _) => F.pure(Nil))
 
     assert(F.flatten(folded) === F.pure(es :+ 0))
   }
 
   it should "work with fold with multiple values" in forAll { (es: List[Int]) =>
-    val folded = myDrain(es).fold[F[List[Int]]](_(NonEmptyVector(0, Vector(1, 2, 3))).run, (_, _) => F.pure(Nil))
+    val folded = myDrain(es).fold[F[List[Int]]](_(NonEmptyList(0, List(1, 2, 3))).run, (_, _) => F.pure(Nil))
 
     assert(F.flatten(folded) === F.pure(es ++ Vector(0, 1, 2, 3)))
   }
@@ -119,19 +118,19 @@ abstract class BaseIterateeSuite[F[_]: Monad] extends ModuleSuite[F] {
 
   it should "work correctly with exactly one leftover" in {
     forAll { (eav: EnumeratorAndValues[Int], s: String, e: Int) =>
-      assert(eav.resultWithLeftovers(done(s, Vector(e))) === F.pure((s, e +: eav.values)))
+      assert(eav.resultWithLeftovers(done(s, List(e))) === F.pure((s, e +: eav.values)))
     }
   }
 
-  it should "work correctly with leftovers" in forAll { (eav: EnumeratorAndValues[Int], s: String, es: Vector[Int]) =>
-    assert(eav.resultWithLeftovers(done(s, es)) === F.pure((s, es ++ eav.values)))
+  it should "work correctly with leftovers" in forAll { (eav: EnumeratorAndValues[Int], s: String, es: List[Int]) =>
+    assert(eav.resultWithLeftovers(done(s, es)) === F.pure((s, es.toVector ++ eav.values)))
   }
 
   it should "work with fold with no leftovers" in forAll { (s: String) =>
-    assert(done[Int, String](s).fold(_ => None, (v, r) => Some((v, r))) === F.pure(Some((s, Vector.empty))))
+    assert(done[Int, String](s).fold(_ => None, (v, r) => Some((v, r))) === F.pure(Some((s, Nil))))
   }
 
-  it should "work with fold with leftovers" in forAll { (s: String, es: Vector[Int]) =>
+  it should "work with fold with leftovers" in forAll { (s: String, es: List[Int]) =>
     assert(done[Int, String](s, es).fold(_ => None, (v, r) => Some((v, r))) === F.pure(Some((s, es))))
   }
 
@@ -351,7 +350,7 @@ abstract class BaseIterateeSuite[F[_]: Monad] extends ModuleSuite[F] {
    * as possible).
    */
   "iteratees that inject values" should "not break the associativity of flatMap" in {
-    forAll { (l1: Vector[Int], l2: Vector[Int]) =>
+    forAll { (l1: List[Int], l2: List[Int]) =>
       val allL1I = done((), l1)
       val allL2I = done((), l2)
       val oneL1I = done((), l1.take(1))

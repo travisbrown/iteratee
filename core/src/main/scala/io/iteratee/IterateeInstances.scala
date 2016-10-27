@@ -38,19 +38,21 @@ private class IterateeMonad[F[_], E](implicit F: Monad[F]) extends Monad[({ type
 
     private[this] def loop(s: Step[F, E, Either[A, B]]): F[Either[Step[F, E, Either[A, B]], Step[F, E, B]]] =
       s match {
-        case Step.Done(Right(b), remaining) => F.pure(Right(Step.doneWithLeftovers(b, remaining)))
-        case Step.Done(Left(a), remaining) if remaining.isEmpty => F.map(f(a))(s => Right(new TailRecStep(f)(s)))
-        case Step.Done(Left(a), remaining) if remaining.size == 1 =>
-          F.flatMap(f(a))(s => F.map(s.feedEl(remaining.head))(Left(_)))
+        case Step.Done(Right(b), remaining) => F.pure(Right(Step.Done(b, remaining)))
         case Step.Done(Left(a), remaining) =>
-          F.flatMap(f(a))(s =>
-            F.map(s.feedChunk(remaining.head, NonEmptyVector.fromVectorUnsafe(remaining.tail)))(Left(_))
-          )
+          val c = remaining.lengthCompare(1)
+
+          if (c < 0) F.map(f(a))(s => Right(new TailRecStep(f)(s))) else if (remaining == 0) {
+            F.flatMap(f(a))(s => F.map(s.feedEl(remaining.head))(Left(_)))
+          } else {
+            F.flatMap(f(a))(s => F.map(s.feedNonEmpty(remaining))(Left(_)))
+          }
         case cont => F.pure(Right(new TailRecStep(f)(cont)))
       }
 
-    def feedEl(e: E): F[Step[F, E, B]] = F.flatMap(s.feedEl(e))(F.tailRecM(_)(loop))
-    def feedChunk(h: E, t: NonEmptyVector[E]): F[Step[F, E, B]] = F.flatMap(s.feedChunk(h, t))(F.tailRecM(_)(loop))
+    final def feedEl(e: E): F[Step[F, E, B]] = F.flatMap(s.feedEl(e))(F.tailRecM(_)(loop))
+    final private[iteratee] def feedNonEmpty(chunk: Seq[E]): F[Step[F, E, B]] =
+      F.flatMap(s.feedNonEmpty(chunk))(F.tailRecM(_)(loop))
   }
 
   final def tailRecM[A, B](a: A)(f: A => Iteratee[F, E, Either[A, B]]): Iteratee[F, E, B] = Iteratee.iteratee(
