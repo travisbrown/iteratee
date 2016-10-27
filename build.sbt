@@ -27,6 +27,8 @@ lazy val monixVersion = "2.0.5"
 lazy val scalaCheckVersion = "1.13.3"
 lazy val scalaTestVersion = "3.0.0"
 
+lazy val previousIterateeVersion = "0.6.1"
+
 lazy val baseSettings = Seq(
   scalacOptions ++= (compilerOptions :+ "-Yno-predef") ++ (
     CrossVersion.partialVersion(scalaVersion.value) match {
@@ -91,6 +93,9 @@ lazy val coreBase = crossProject.crossType(CrossType.Pure).in(file("core"))
   .settings(
     libraryDependencies += "org.typelevel" %%% "cats-core" % catsVersion
   )
+  .jvmSettings(
+    mimaPreviousArtifacts := Set("io.iteratee" %% "iteratee-core" % previousIterateeVersion)
+  )
   .jsSettings(commonJsSettings: _*)
   .jvmConfigure(_.copy(id = "core"))
   .jsConfigure(_.copy(id = "coreJS"))
@@ -144,7 +149,8 @@ lazy val testsJS = testsBase.js
 lazy val files = project
   .settings(
     crossScalaVersions := scalaVersions,
-    moduleName := "iteratee-files"
+    moduleName := "iteratee-files",
+    mimaPreviousArtifacts := Set("io.iteratee" %% "iteratee-files" % previousIterateeVersion)
   )
   .settings(allSettings)
   .dependsOn(core)
@@ -153,7 +159,8 @@ lazy val twitter = project
   .configs(IntegrationTest)
   .settings(
     crossScalaVersions := scalaVersions.tail.init,
-    moduleName := "iteratee-twitter"
+    moduleName := "iteratee-twitter",
+    mimaPreviousArtifacts := Set("io.iteratee" %% "iteratee-twitter" % previousIterateeVersion)
   )
   .settings(allSettings ++ Defaults.itSettings)
   .settings(
@@ -164,7 +171,8 @@ lazy val scalaz = project
   .configs(IntegrationTest)
   .settings(
     crossScalaVersions := scalaVersions,
-    moduleName := "iteratee-scalaz"
+    moduleName := "iteratee-scalaz",
+    mimaPreviousArtifacts := Set("io.iteratee" %% "iteratee-scalaz" % previousIterateeVersion)
   )
   .settings(allSettings ++ Defaults.itSettings)
   .settings(
@@ -181,6 +189,9 @@ lazy val monixBase = crossProject.in(file("monix"))
   .settings(Defaults.itSettings: _*)
   .settings(
     libraryDependencies += "io.monix" %%% "monix-eval" % monixVersion
+  )
+  .jvmSettings(
+    mimaPreviousArtifacts := Set("io.iteratee" %% "iteratee-monix" % previousIterateeVersion)
   )
   .jsSettings(commonJsSettings: _*)
   .jvmConfigure(_.copy(id = "monix").dependsOn(files))
