@@ -2,7 +2,7 @@ package io.iteratee
 
 import cats.{ Applicative, Comonad, Eval, Functor, Monad, MonadError, Monoid, MonoidK, Semigroup }
 import cats.arrow.FunctionK
-import cats.data.NonEmptyVector
+import cats.data.NonEmptyList
 import io.iteratee.internal.Step
 
 /**
@@ -25,7 +25,7 @@ sealed class Iteratee[F[_], E, A] private[iteratee] (final val state: F[Step[F, 
   /**
    * Reduce this [[Iteratee]] to an effectful value using the given functions.
    */
-  final def fold[Z](ifCont: (NonEmptyVector[E] => Iteratee[F, E, A]) => Z, ifDone: (A, Vector[E]) => Z)
+  final def fold[Z](ifCont: (NonEmptyList[E] => Iteratee[F, E, A]) => Z, ifDone: (A, List[E]) => Z)
     (implicit F: Functor[F]): F[Z] = F.map(state)(_.fold(f => ifCont(in => Iteratee.iteratee(f(in))), ifDone))
 
   /**
@@ -133,7 +133,7 @@ final object Iteratee extends IterateeInstances {
    * @group Constructors
    */
   final def cont[F[_]: Applicative, E, A](
-    ifInput: NonEmptyVector[E] => Iteratee[F, E, A],
+    ifInput: NonEmptyList[E] => Iteratee[F, E, A],
     ifEnd: F[A]
   ): Iteratee[F, E, A] = fromStep(Step.cont(es => ifInput(es).state, ifEnd))
 
@@ -150,7 +150,7 @@ final object Iteratee extends IterateeInstances {
    *
    * @group Constructors
    */
-  final def doneWithLeftovers[F[_]: Applicative, E, A](value: A, remaining: Vector[E]): Iteratee[F, E, A] =
+  final def doneWithLeftovers[F[_]: Applicative, E, A](value: A, remaining: List[E]): Iteratee[F, E, A] =
     fromStep(Step.doneWithLeftovers(value, remaining))
 
   /**

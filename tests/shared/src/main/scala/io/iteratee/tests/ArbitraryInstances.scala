@@ -3,22 +3,9 @@ package io.iteratee.tests
 import cats.Monad
 import cats.instances.int._
 import io.iteratee.{ Iteratee, Enumeratee, Enumerator }
-import io.iteratee.internal.Input
 import org.scalacheck.{ Arbitrary, Gen }
 
 trait ArbitraryInstances {
-  implicit def arbitraryInput[A](implicit A: Arbitrary[A]): Arbitrary[Input[A]] =
-    Arbitrary(
-      Gen.oneOf(
-        A.arbitrary.map(Input.el),
-        for {
-          a1 <- A.arbitrary
-          a2 <- A.arbitrary
-          as <- Arbitrary.arbitrary[Vector[A]]
-        } yield Input.chunk(a1, a2, as)
-      )
-    )
-
   implicit def arbitraryEnumerator[F[_]: Monad, A](implicit
     A: Arbitrary[A]
   ): Arbitrary[Enumerator[F, A]] =

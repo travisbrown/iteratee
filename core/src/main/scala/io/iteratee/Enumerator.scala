@@ -124,10 +124,9 @@ final object Enumerator extends EnumeratorInstances {
 
     private[this] final def go[A](it: Iterator[Vector[E]], step: Step[F, E, A]): F[Step[F, E, A]] =
       if (it.isEmpty || step.isDone) F.pure(step) else {
-        it.next() match {
-          case Vector(e) => F.flatMap(step.feedEl(e))(go(it, _))
-          case h1 +: h2 +: t => F.flatMap(step.feedChunk(h1, h2, t))(go(it, _))
-        }
+        val next = it.next()
+
+        F.flatMap(step.feed(next))(go(it, _))
       }
 
     final def apply[A](s: Step[F, E, A]): F[Step[F, E, A]] = go(chunks, s)
@@ -147,10 +146,7 @@ final object Enumerator extends EnumeratorInstances {
 
     final def apply[A](s: Step[F, E, A]): F[Step[F, E, A]] = F.tailRecM((s, chunks)) {
       case (step, it) => if (it.isEmpty || step.isDone) F.pure(Right(step)) else {
-        it.next() match {
-          case Vector(e) => F.map(step.feedEl(e))(s => Left((s, it)))
-          case h1 +: h2 +: t => F.map(step.feedChunk(h1, h2, t))(s => Left((s, it)))
-        }
+        F.map(step.feed(it.next()))(s => Left((s, it)))
       }
     }
   }
@@ -168,11 +164,7 @@ final object Enumerator extends EnumeratorInstances {
    */
   final def enumList[F[_], E](xs: List[E])(implicit F: Applicative[F]): Enumerator[F, E] =
     new Enumerator[F, E] {
-      final def apply[A](s: Step[F, E, A]): F[Step[F, E, A]] = xs match {
-        case Nil => F.pure(s)
-        case e :: Nil => s.feedEl(e)
-        case h1 :: h2 :: t => s.feedChunk(h1, h2, t.toVector)
-      }
+      final def apply[A](s: Step[F, E, A]): F[Step[F, E, A]] = s.feed(xs)
     }
 
   /**
@@ -180,12 +172,7 @@ final object Enumerator extends EnumeratorInstances {
    */
   final def enumVector[F[_], E](xs: Vector[E])(implicit F: Applicative[F]): Enumerator[F, E] =
     new Enumerator[F, E] {
-      final def apply[A](s: Step[F, E, A]): F[Step[F, E, A]] =
-        xs match {
-          case Vector() => F.pure(s)
-          case Vector(e) => s.feedEl(e)
-          case h1 +: h2 +: t => s.feedChunk(h1, h2, t)
-        }
+      final def apply[A](s: Step[F, E, A]): F[Step[F, E, A]] = s.feed(xs)
     }
 
   /**
@@ -197,12 +184,7 @@ final object Enumerator extends EnumeratorInstances {
     max: Int = Int.MaxValue
   )(implicit F: Applicative[F]): Enumerator[F, E] =
     new Enumerator[F, E] {
-      final def apply[A](s: Step[F, E, A]): F[Step[F, E, A]] =
-        xs.slice(min, max) match {
-          case is if is.isEmpty => F.pure(s)
-          case IndexedSeq(e) => s.feedEl(e)
-          case h1 +: h2 +: t => s.feedChunk(h1, h2, t.toVector)
-        }
+      final def apply[A](s: Step[F, E, A]): F[Step[F, E, A]] = s.feed(xs.slice(min, max))
     }
 
   /**
