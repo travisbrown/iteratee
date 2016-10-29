@@ -351,6 +351,11 @@ final object Step { self =>
       )
   }
 
+  final def foldMapOption[F[_], E, A](f: E => A)
+    (implicit F: Applicative[F], S: Semigroup[A]): Step[F, E, Option[A]] = {
+      import cats.kernel.instances.option._
+      foldMap[F, E, Option[A]](e => Some(f(e)))
+    }
   /**
    * A [[Step]] that returns a given number of the first values in a stream.
    *

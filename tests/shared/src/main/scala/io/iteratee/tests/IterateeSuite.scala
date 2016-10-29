@@ -330,6 +330,16 @@ abstract class BaseIterateeSuite[F[_]: Monad] extends ModuleSuite[F] {
     assert(eav.resultWithLeftovers(foldMap(_ + 1)) === result)
   }
 
+  "foldMapOption" should "fold a stream while transforming it" in
+    forAll { (eav: EnumeratorAndValues[Int]) =>
+      val result = F.pure((
+        if (eav.values.isEmpty) None else Some(eav.values.sum + eav.values.size),
+        Vector.empty[Int]
+      ))
+
+      assert(eav.resultWithLeftovers(foldMapOption(_ + 1)) === result)
+   }
+
   "intoIteratee" should "be available on values in a context" in forAll { (i: Int) =>
     import syntax._
 
