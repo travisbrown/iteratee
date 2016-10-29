@@ -73,7 +73,7 @@ trait FutureSuite extends FutureModule {
         liftToTry(fx).zip(liftToTry(fy)).map {
           case (tx, ty) => Eq[Try[A]].eqv(tx, ty)
         },
-        2.seconds
+        20.seconds
       )
   }
 }
