@@ -1,6 +1,6 @@
 package io.iteratee
 
-import cats.{ Applicative, Comonad, Eval, Functor, Monad, MonadError, Monoid, MonoidK }
+import cats.{ Applicative, Comonad, Eval, Functor, Monad, MonadError, Monoid, MonoidK, Semigroup }
 import cats.arrow.FunctionK
 import cats.data.NonEmptyVector
 import io.iteratee.internal.Step
@@ -318,6 +318,15 @@ final object Iteratee extends IterateeInstances {
    * @group Collection
    */
   final def foldMap[F[_]: Applicative, E, A: Monoid](f: E => A): Iteratee[F, E, A] = Iteratee.fromStep(Step.foldMap(f))
+
+  /**
+   * An [[Iteratee]] that combines values using a function to a type with a
+   * [[cats.Semigroup]] instance.
+   *
+   * @group Collection
+   */
+  final def foldMapOption[F[_]: Applicative, E, A: Semigroup](f: E => A): Iteratee[F, E, Option[A]] =
+     Iteratee.fromStep(Step.foldMapOption(f))
 
   /**
    * An [[Iteratee]] that checks if the stream is at its end.

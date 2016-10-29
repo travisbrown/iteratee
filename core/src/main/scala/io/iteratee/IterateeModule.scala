@@ -1,6 +1,6 @@
 package io.iteratee
 
-import cats.{ Applicative, MonadError, Monoid, MonoidK }
+import cats.{ Applicative, MonadError, Monoid, MonoidK, Semigroup }
 import cats.data.NonEmptyVector
 
 /**
@@ -157,6 +157,15 @@ trait IterateeModule[F[_]] { self: Module[F] =>
    * @group Iteratees
    */
   final def foldMap[E, A](f: E => A)(implicit A: Monoid[A]): Iteratee[F, E, A] = Iteratee.foldMap(f)(F, A)
+
+  /**
+   * An [[Iteratee]] that combines values using a function to a type with a
+   * [[cats.Semigroup]] instance.
+   *
+   * @group Iteratees
+   */
+  final def foldMapOption[E, A](f: E => A)(implicit A: Semigroup[A]): Iteratee[F, E, Option[A]] =
+    Iteratee.foldMapOption(f)(F, A)
 
   /**
    * An [[Iteratee]] that checks if the stream is at its end.
