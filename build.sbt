@@ -27,7 +27,7 @@ lazy val monixVersion = "2.0.5"
 lazy val scalaCheckVersion = "1.13.3"
 lazy val scalaTestVersion = "3.0.0"
 
-lazy val previousIterateeVersion = "0.6.1"
+lazy val previousIterateeVersion = "0.7.0"
 
 lazy val baseSettings = Seq(
   scalacOptions ++= (compilerOptions :+ "-Yno-predef") ++ (
