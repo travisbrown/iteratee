@@ -1,7 +1,7 @@
 package io.iteratee
 
 import cats.{ Applicative, MonadError, Monoid, MonoidK, Semigroup }
-import cats.data.NonEmptyVector
+import cats.data.NonEmptyList
 
 /**
  * @groupname Iteratees Iteratees
@@ -17,7 +17,7 @@ trait IterateeModule[F[_]] { self: Module[F] =>
    *
    * @group Constructors
    */
-  final def cont[E, A](ifInput: NonEmptyVector[E] => Iteratee[F, E, A], ifEnd: F[A]): Iteratee[F, E, A] =
+  final def cont[E, A](ifInput: NonEmptyList[E] => Iteratee[F, E, A], ifEnd: F[A]): Iteratee[F, E, A] =
     Iteratee.cont(ifInput, ifEnd)(F)
 
   /**
@@ -26,7 +26,7 @@ trait IterateeModule[F[_]] { self: Module[F] =>
    *
    * @group Constructors
    */
-  final def done[E, A](value: A, remaining: Vector[E] = Vector.empty): Iteratee[F, E, A] =
+  final def done[E, A](value: A, remaining: List[E] = Nil): Iteratee[F, E, A] =
     Iteratee.doneWithLeftovers(value, remaining)(F)
 
   /**
