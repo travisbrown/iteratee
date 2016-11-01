@@ -20,21 +20,22 @@ parallelism are primary goals. Where the use cases of fs2 and this library do ov
 often likely to be a simpler, faster solution.
 
 The initial performance benchmarks look promising. For example, here are the throughput results for
-summing a sequence of numbers with this library and `cats.Id` (`II`), this library and Scalaz's
-`Task` (`IT`), this library and Twitter futures (`IR`), Scalaz Stream (`S`), scalaz-iteratee (`Z`),
-[play-iteratee][play-iteratee] (`P`), the collections library (`C`), and fs2 (`F`). Higher numbers
-are better.
+summing a sequence of numbers with this library and `cats.Id` (`II`), this library and Monix's
+`Task` (`IM`), this library and Scalaz's `Task` (`IT`), this library and Twitter futures (`IR`),
+Scalaz Stream (`S`), scalaz-iteratee (`Z`), [play-iteratee][play-iteratee] (`P`), the Scala
+collections library (`C`), and fs2 (`F`). Higher numbers are better.
 
 ```
 Benchmark                      Mode  Cnt      Score     Error  Units
-InMemoryBenchmark.sumInts0II  thrpt   80  12891.838 ±  95.943  ops/s
-InMemoryBenchmark.sumInts1IT  thrpt   80  11934.148 ± 117.666  ops/s
-InMemoryBenchmark.sumInts2IR  thrpt   80  19735.557 ± 161.410  ops/s
-InMemoryBenchmark.sumInts3S   thrpt   80     73.350 ±   1.065  ops/s
-InMemoryBenchmark.sumInts4Z   thrpt   80    293.150 ±   2.559  ops/s
-InMemoryBenchmark.sumInts5P   thrpt   80     44.486 ±   0.899  ops/s
-InMemoryBenchmark.sumInts6C   thrpt   80  12816.016 ±  78.990  ops/s
-InMemoryBenchmark.sumInts7F   thrpt   80  10276.384 ±  67.759  ops/s
+InMemoryBenchmark.sumInts0II  thrpt   80  10225.388 ± 191.612  ops/s
+InMemoryBenchmark.sumInts1IM  thrpt   80  13395.800 ±  30.912  ops/s
+InMemoryBenchmark.sumInts2IT  thrpt   80  18609.579 ±  47.491  ops/s
+InMemoryBenchmark.sumInts3IR  thrpt   80  15999.740 ± 114.949  ops/s
+InMemoryBenchmark.sumInts4S   thrpt   80     72.074 ±   1.209  ops/s
+InMemoryBenchmark.sumInts5Z   thrpt   80    310.472 ±   4.368  ops/s
+InMemoryBenchmark.sumInts6P   thrpt   80     43.071 ±   0.543  ops/s
+InMemoryBenchmark.sumInts7C   thrpt   80  12975.042 ±  48.702  ops/s
+InMemoryBenchmark.sumInts8F   thrpt   80   9610.699 ±  41.936  ops/s
 ```
 
 And the results for collecting the first 10,000 values from an infinite stream of non-negative
@@ -42,48 +43,41 @@ numbers into a `Vector`:
 
 ```
 Benchmark                         Mode  Cnt     Score    Error  Units
-StreamingBenchmark.takeLongs0IS  thrpt   80  1090.926 ± 21.696  ops/s
-StreamingBenchmark.takeLongs1IR  thrpt   80   932.749 ±  7.862  ops/s
-StreamingBenchmark.takeLongs2IM  thrpt   80  1485.798 ± 17.697  ops/s
-StreamingBenchmark.takeLongs3S   thrpt   80    59.347 ±  0.340  ops/s
-StreamingBenchmark.takeLongs4Z   thrpt   80   194.763 ±  3.603  ops/s
-StreamingBenchmark.takeLongs5P   thrpt   80     1.313 ±  0.035  ops/s
-StreamingBenchmark.takeLongs6C   thrpt   80  3196.885 ± 25.715  ops/s
-StreamingBenchmark.takeLongs7F   thrpt   80     6.760 ±  0.036  ops/s
-
-Benchmark                         Mode  Cnt     Score     Error  Units
-StreamingBenchmark.takeLongs0II  thrpt   80  2300.547 ±  35.063  ops/s
-StreamingBenchmark.takeLongs1IT  thrpt   80  1054.962 ±   7.078  ops/s
-StreamingBenchmark.takeLongs2IR  thrpt   80   814.381 ±  19.351  ops/s
-StreamingBenchmark.takeLongs3S   thrpt   80    58.351 ±   0.528  ops/s
-StreamingBenchmark.takeLongs4Z   thrpt   80   191.689 ±   1.277  ops/s
-StreamingBenchmark.takeLongs5P   thrpt   80     1.855 ±   0.081  ops/s
-StreamingBenchmark.takeLongs6C   thrpt   80  2780.370 ± 150.970  ops/s
-StreamingBenchmark.takeLongs7F   thrpt   80     6.667 ±   0.056  ops/s
+StreamingBenchmark.takeLongs0II  thrpt   80  2787.725 ± 16.812  ops/s
+StreamingBenchmark.takeLongs1IM  thrpt   80  1617.848 ± 19.899  ops/s
+StreamingBenchmark.takeLongs2IT  thrpt   80  1052.494 ±  7.707  ops/s
+StreamingBenchmark.takeLongs3IR  thrpt   80   979.514 ± 26.197  ops/s
+StreamingBenchmark.takeLongs4S   thrpt   80    56.882 ±  0.969  ops/s
+StreamingBenchmark.takeLongs5Z   thrpt   80   154.103 ± 10.350  ops/s
+StreamingBenchmark.takeLongs6P   thrpt   80     1.216 ±  0.005  ops/s
+StreamingBenchmark.takeLongs7C   thrpt   80  3273.158 ± 55.187  ops/s
+StreamingBenchmark.takeLongs8F   thrpt   80     7.915 ±  0.044  ops/s
 ```
 
 And allocation rates (lower is better):
 
 ```
-Benchmark                                            Mode  Cnt          Score          Error  Units
-InMemoryBenchmark.sumInts0II:gc.alloc.rate.norm     thrpt   10     161083.473 ±       10.157   B/op
-InMemoryBenchmark.sumInts1IT:gc.alloc.rate.norm     thrpt   10     161756.601 ±       10.011   B/op
-InMemoryBenchmark.sumInts2IR:gc.alloc.rate.norm     thrpt   10     161554.880 ±        9.051   B/op
-InMemoryBenchmark.sumInts3S:gc.alloc.rate.norm      thrpt   10   63416636.376 ±   255002.884   B/op
-InMemoryBenchmark.sumInts4Z:gc.alloc.rate.norm      thrpt   10   16401515.857 ±   255007.657   B/op
-InMemoryBenchmark.sumInts5P:gc.alloc.rate.norm      thrpt   10   13635867.405 ±    10698.402   B/op
-InMemoryBenchmark.sumInts6C:gc.alloc.rate.norm      thrpt   10     159851.919 ±       25.649   B/op
-InMemoryBenchmark.sumInts7F:gc.alloc.rate.norm      thrpt   10     288158.919 ±     3021.725   B/op
+Benchmark                                            Mode  Cnt           Score          Error  Units
+InMemoryBenchmark.sumInts0II:gc.alloc.rate.norm     thrpt   20      159953.462 ±       11.863   B/op
+InMemoryBenchmark.sumInts1IM:gc.alloc.rate.norm     thrpt   20      160203.272 ±        5.949   B/op
+InMemoryBenchmark.sumInts2IT:gc.alloc.rate.norm     thrpt   20      160622.026 ±        6.323   B/op
+InMemoryBenchmark.sumInts3IR:gc.alloc.rate.norm     thrpt   20      160398.303 ±        6.685   B/op
+InMemoryBenchmark.sumInts4S:gc.alloc.rate.norm      thrpt   20    63936897.241 ±   320928.043   B/op
+InMemoryBenchmark.sumInts5Z:gc.alloc.rate.norm      thrpt   20    16401510.998 ±        6.115   B/op
+InMemoryBenchmark.sumInts6P:gc.alloc.rate.norm      thrpt   20    13802446.593 ±   229152.745   B/op
+InMemoryBenchmark.sumInts7C:gc.alloc.rate.norm      thrpt   20      159851.547 ±       14.556   B/op
+InMemoryBenchmark.sumInts8F:gc.alloc.rate.norm      thrpt   20      260454.260 ±     1522.736   B/op
 
-Benchmark                                            Mode  Cnt          Score          Error  Units
-StreamingBenchmark.takeLongs0II:gc.alloc.rate.norm  thrpt   10     3123720.463 ±       0.004   B/op
-StreamingBenchmark.takeLongs1IT:gc.alloc.rate.norm  thrpt   10     5924305.297 ±       1.184   B/op
-StreamingBenchmark.takeLongs2IR:gc.alloc.rate.norm  thrpt   10     5204125.702 ±       9.920   B/op
-StreamingBenchmark.takeLongs3S:gc.alloc.rate.norm   thrpt   10    75607211.366 ±  255032.949   B/op
-StreamingBenchmark.takeLongs4Z:gc.alloc.rate.norm   thrpt   10    28888073.078 ±      17.792   B/op
-StreamingBenchmark.takeLongs5P:gc.alloc.rate.norm   thrpt   10  1206276610.133 ±    1008.603   B/op
-StreamingBenchmark.takeLongs6C:gc.alloc.rate.norm   thrpt   10      526752.381 ±       0.005   B/op
-StreamingBenchmark.takeLongs7F:gc.alloc.rate.norm   thrpt   10   650663709.714 ±  127478.253   B/op
+Benchmark                                            Mode  Cnt           Score          Error  Units
+StreamingBenchmark.takeLongs0II:gc.alloc.rate.norm  thrpt   20     3043720.338 ±        0.018   B/op
+StreamingBenchmark.takeLongs1IM:gc.alloc.rate.norm  thrpt   20     3444961.639 ±        4.168   B/op
+StreamingBenchmark.takeLongs2IT:gc.alloc.rate.norm  thrpt   20     5804308.795 ±    61718.228   B/op
+StreamingBenchmark.takeLongs3IR:gc.alloc.rate.norm  thrpt   20     5124124.296 ±        5.147   B/op
+StreamingBenchmark.takeLongs4S:gc.alloc.rate.norm   thrpt   20    75347149.315 ±   555268.150   B/op
+StreamingBenchmark.takeLongs5Z:gc.alloc.rate.norm   thrpt   20    28588033.048 ±   238419.245   B/op
+StreamingBenchmark.takeLongs6P:gc.alloc.rate.norm   thrpt   20  1206196498.000 ±    71329.621   B/op
+StreamingBenchmark.takeLongs7C:gc.alloc.rate.norm   thrpt   20      526752.310 ±        0.029   B/op
+StreamingBenchmark.takeLongs8F:gc.alloc.rate.norm   thrpt   20   531380973.839 ± 13505581.754   B/op
 ```
 
 ## License
