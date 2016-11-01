@@ -28,10 +28,12 @@
         </head>
         <body class="type">
       <div id="definition">
-        <img alt="Trait" src="../../../lib/trait_big.png" />
+        <a href="TaskModule$.html" title="See companion object"><img alt="Trait/Object" src="../../../lib/trait_to_object_big.png" /></a>
         <p id="owner"><a href="../../package.html" class="extype" name="io">io</a>.<a href="../package.html" class="extype" name="io.iteratee">iteratee</a>.<a href="package.html" class="extype" name="io.iteratee.monix">monix</a></p>
-        <h1>TaskModule</h1><h3><span class="morelinks"><div>Related Doc:
-            <a href="package.html" class="extype" name="io.iteratee.monix">package monix</a>
+        <h1><a href="TaskModule$.html" title="See companion object">TaskModule</a></h1><h3><span class="morelinks"><div>
+            Related Docs:
+            <a href="TaskModule$.html" title="See companion object">object TaskModule</a>
+            | <a href="package.html" class="extype" name="io.iteratee.monix">package monix</a>
           </div></span></h3><span class="permalink">
       <a href="../../../index.html#io.iteratee.monix.TaskModule" title="Permalink" target="_top">
         <img src="../../../lib/permalink.png" alt="Permalink" />
@@ -54,7 +56,7 @@
           <div class="superTypes hiddenContent"><a href="../files/SuspendableFileModule.html" class="extype" name="io.iteratee.files.SuspendableFileModule">SuspendableFileModule</a>[<span class="extype" name="monix.eval.Task">Task</span>], <a href="../files/FileModule.html" class="extype" name="io.iteratee.files.FileModule">FileModule</a>[<span class="extype" name="monix.eval.Task">Task</span>], <a href="../IterateeErrorModule.html" class="extype" name="io.iteratee.IterateeErrorModule">IterateeErrorModule</a>[<span class="extype" name="monix.eval.Task">Task</span>, <span class="extype" name="scala.Throwable">Throwable</span>], <a href="../IterateeModule.html" class="extype" name="io.iteratee.IterateeModule">IterateeModule</a>[<span class="extype" name="monix.eval.Task">Task</span>], <a href="../EnumeratorErrorModule.html" class="extype" name="io.iteratee.EnumeratorErrorModule">EnumeratorErrorModule</a>[<span class="extype" name="monix.eval.Task">Task</span>, <span class="extype" name="scala.Throwable">Throwable</span>], <a href="../EnumeratorModule.html" class="extype" name="io.iteratee.EnumeratorModule">EnumeratorModule</a>[<span class="extype" name="monix.eval.Task">Task</span>], <a href="../EnumerateeModule.html" class="extype" name="io.iteratee.EnumerateeModule">EnumerateeModule</a>[<span class="extype" name="monix.eval.Task">Task</span>], <a href="../Module.html" class="extype" name="io.iteratee.Module">Module</a>[<span class="extype" name="monix.eval.Task">Task</span>], <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a>, <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Any" class="extype" target="_top">Any</a></div>
         </div><div class="toggleContainer block">
             <span class="toggle">Known Subclasses</span>
-            <div class="subClasses hiddenContent"><a href="package$$task$.html" class="extype" name="io.iteratee.monix.task">task</a></div>
+            <div class="subClasses hiddenContent"><a href="DefaultTaskModule.html" class="extype" name="io.iteratee.monix.DefaultTaskModule">DefaultTaskModule</a>, <a href="package$$task$.html" class="extype" name="io.iteratee.monix.task">task</a></div>
           </div></div>
         
 
@@ -147,10 +149,30 @@
     </li></ol>
             </div>
 
-        
+        <div id="values" class="values members">
+              <h3>Abstract Value Members</h3>
+              <ol><li name="io.iteratee.Module#F" visbl="prt" data-isabs="true" fullComment="yes" group="Ungrouped">
+      <a id="F:Module.this.M[F]"></a>
+      <a id="F:M[Task]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">abstract </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">F</span><span class="result">: <a href="#M[f[_]]=cats.MonadError[f,Throwable]" class="extmbr" name="io.iteratee.monix.TaskModule.M">M</a>[<span class="extype" name="monix.eval.Task">Task</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.iteratee.monix.TaskModule@F:Module.this.M[F]" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected </dd><dt>Definition Classes</dt><dd><a href="../Module.html" class="extype" name="io.iteratee.Module">Module</a></dd></dl></div>
+    </li></ol>
+            </div>
 
         <div id="values" class="values members">
-              <h3>Value Members</h3>
+              <h3>Concrete Value Members</h3>
               <ol><li name="scala.AnyRef#!=" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="!=(x$1:Any):Boolean"></a>
       <a id="!=(Any):Boolean"></a>
@@ -202,23 +224,6 @@
       </a>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
-    </li><li name="io.iteratee.monix.TaskModule#F" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="F:cats.MonadError[monix.eval.Task,Throwable]"></a>
-      <a id="F:MonadError[Task,Throwable]"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier">final </span>
-        <span class="kind">val</span>
-      </span>
-      <span class="symbol">
-        <span class="name">F</span><span class="result">: <a href="http://typelevel.org/cats/api/index.html#cats.MonadError" class="extype" target="_top">MonadError</a>[<span class="extype" name="monix.eval.Task">Task</span>, <span class="extype" name="scala.Throwable">Throwable</span>]</span>
-      </span>
-      </h4><span class="permalink">
-      <a href="../../../index.html#io.iteratee.monix.TaskModule@F:cats.MonadError[monix.eval.Task,Throwable]" title="Permalink" target="_top">
-        <img src="../../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected </dd><dt>Definition Classes</dt><dd><a href="" class="extype" name="io.iteratee.monix.TaskModule">TaskModule</a> → <a href="../Module.html" class="extype" name="io.iteratee.Module">Module</a></dd></dl></div>
     </li><li name="scala.Any#asInstanceOf" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="asInstanceOf[T0]:T0"></a>
       <a id="asInstanceOf[T0]:T0"></a>
@@ -352,18 +357,18 @@ collection type.</p><div class="fullcomment"><div class="comment cmt"><p>An <a h
 collection type.
 </p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../IterateeModule.html" class="extype" name="io.iteratee.IterateeModule">IterateeModule</a></dd></dl></div>
     </li><li name="io.iteratee.IterateeModule#cont" visbl="pub" data-isabs="false" fullComment="yes" group="Constructors">
-      <a id="cont[E,A](ifInput:cats.data.NonEmptyVector[E]=&gt;io.iteratee.Iteratee[F,E,A],ifEnd:F[A]):io.iteratee.Iteratee[F,E,A]"></a>
-      <a id="cont[E,A]((NonEmptyVector[E])⇒Iteratee[Task,E,A],Task[A]):Iteratee[Task,E,A]"></a>
+      <a id="cont[E,A](ifInput:cats.data.NonEmptyList[E]=&gt;io.iteratee.Iteratee[F,E,A],ifEnd:F[A]):io.iteratee.Iteratee[F,E,A]"></a>
+      <a id="cont[E,A]((NonEmptyList[E])⇒Iteratee[Task,E,A],Task[A]):Iteratee[Task,E,A]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier">final </span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">cont</span><span class="tparams">[<span name="E">E</span>, <span name="A">A</span>]</span><span class="params">(<span name="ifInput">ifInput: (<a href="http://typelevel.org/cats/api/index.html#cats.data.NonEmptyVector" class="extype" target="_top">NonEmptyVector</a>[<span class="extype" name="io.iteratee.IterateeModule.cont.E">E</span>]) ⇒ <a href="../Iteratee.html" class="extype" name="io.iteratee.Iteratee">Iteratee</a>[<span class="extype" name="monix.eval.Task">Task</span>, <span class="extype" name="io.iteratee.IterateeModule.cont.E">E</span>, <span class="extype" name="io.iteratee.IterateeModule.cont.A">A</span>]</span>, <span name="ifEnd">ifEnd: <span class="extype" name="monix.eval.Task">Task</span>[<span class="extype" name="io.iteratee.IterateeModule.cont.A">A</span>]</span>)</span><span class="result">: <a href="../Iteratee.html" class="extype" name="io.iteratee.Iteratee">Iteratee</a>[<span class="extype" name="monix.eval.Task">Task</span>, <span class="extype" name="io.iteratee.IterateeModule.cont.E">E</span>, <span class="extype" name="io.iteratee.IterateeModule.cont.A">A</span>]</span>
+        <span class="name">cont</span><span class="tparams">[<span name="E">E</span>, <span name="A">A</span>]</span><span class="params">(<span name="ifInput">ifInput: (<a href="http://typelevel.org/cats/api/index.html#cats.data.NonEmptyList" class="extype" target="_top">NonEmptyList</a>[<span class="extype" name="io.iteratee.IterateeModule.cont.E">E</span>]) ⇒ <a href="../Iteratee.html" class="extype" name="io.iteratee.Iteratee">Iteratee</a>[<span class="extype" name="monix.eval.Task">Task</span>, <span class="extype" name="io.iteratee.IterateeModule.cont.E">E</span>, <span class="extype" name="io.iteratee.IterateeModule.cont.A">A</span>]</span>, <span name="ifEnd">ifEnd: <span class="extype" name="monix.eval.Task">Task</span>[<span class="extype" name="io.iteratee.IterateeModule.cont.A">A</span>]</span>)</span><span class="result">: <a href="../Iteratee.html" class="extype" name="io.iteratee.Iteratee">Iteratee</a>[<span class="extype" name="monix.eval.Task">Task</span>, <span class="extype" name="io.iteratee.IterateeModule.cont.E">E</span>, <span class="extype" name="io.iteratee.IterateeModule.cont.A">A</span>]</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../index.html#io.iteratee.monix.TaskModule@cont[E,A](ifInput:cats.data.NonEmptyVector[E]=&gt;io.iteratee.Iteratee[F,E,A],ifEnd:F[A]):io.iteratee.Iteratee[F,E,A]" title="Permalink" target="_top">
+      <a href="../../../index.html#io.iteratee.monix.TaskModule@cont[E,A](ifInput:cats.data.NonEmptyList[E]=&gt;io.iteratee.Iteratee[F,E,A],ifEnd:F[A]):io.iteratee.Iteratee[F,E,A]" title="Permalink" target="_top">
         <img src="../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
@@ -392,18 +397,18 @@ process the next input.
 <a href="../Enumerator.html" class="extype" name="io.iteratee.Enumerator">Enumerator</a>.
 </p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../EnumerateeModule.html" class="extype" name="io.iteratee.EnumerateeModule">EnumerateeModule</a></dd></dl></div>
     </li><li name="io.iteratee.IterateeModule#done" visbl="pub" data-isabs="false" fullComment="yes" group="Constructors">
-      <a id="done[E,A](value:A,remaining:Vector[E]):io.iteratee.Iteratee[F,E,A]"></a>
-      <a id="done[E,A](A,Vector[E]):Iteratee[Task,E,A]"></a>
+      <a id="done[E,A](value:A,remaining:List[E]):io.iteratee.Iteratee[F,E,A]"></a>
+      <a id="done[E,A](A,List[E]):Iteratee[Task,E,A]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier">final </span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">done</span><span class="tparams">[<span name="E">E</span>, <span name="A">A</span>]</span><span class="params">(<span name="value">value: <span class="extype" name="io.iteratee.IterateeModule.done.A">A</span></span>, <span name="remaining">remaining: <span class="extype" name="scala.Vector">Vector</span>[<span class="extype" name="io.iteratee.IterateeModule.done.E">E</span>] = <span class="symbol">Vector.empty</span></span>)</span><span class="result">: <a href="../Iteratee.html" class="extype" name="io.iteratee.Iteratee">Iteratee</a>[<span class="extype" name="monix.eval.Task">Task</span>, <span class="extype" name="io.iteratee.IterateeModule.done.E">E</span>, <span class="extype" name="io.iteratee.IterateeModule.done.A">A</span>]</span>
+        <span class="name">done</span><span class="tparams">[<span name="E">E</span>, <span name="A">A</span>]</span><span class="params">(<span name="value">value: <span class="extype" name="io.iteratee.IterateeModule.done.A">A</span></span>, <span name="remaining">remaining: <span class="extype" name="scala.List">List</span>[<span class="extype" name="io.iteratee.IterateeModule.done.E">E</span>] = <span class="symbol">Nil</span></span>)</span><span class="result">: <a href="../Iteratee.html" class="extype" name="io.iteratee.Iteratee">Iteratee</a>[<span class="extype" name="monix.eval.Task">Task</span>, <span class="extype" name="io.iteratee.IterateeModule.done.E">E</span>, <span class="extype" name="io.iteratee.IterateeModule.done.A">A</span>]</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../index.html#io.iteratee.monix.TaskModule@done[E,A](value:A,remaining:Vector[E]):io.iteratee.Iteratee[F,E,A]" title="Permalink" target="_top">
+      <a href="../../../index.html#io.iteratee.monix.TaskModule@done[E,A](value:A,remaining:List[E]):io.iteratee.Iteratee[F,E,A]" title="Permalink" target="_top">
         <img src="../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
@@ -843,6 +848,26 @@ accumulation function.
       <p class="shortcomment cmt">An <a href="../Iteratee.html" class="extype" name="io.iteratee.Iteratee">Iteratee</a> that combines values using a function to a type with a
 <a href="http://typelevel.org/cats/api/index.html#cats.package@Monoid[A]=cats.kernel.Monoid[A]" class="extype" target="_top">cats.Monoid</a> instance.</p><div class="fullcomment"><div class="comment cmt"><p>An <a href="../Iteratee.html" class="extype" name="io.iteratee.Iteratee">Iteratee</a> that combines values using a function to a type with a
 <a href="http://typelevel.org/cats/api/index.html#cats.package@Monoid[A]=cats.kernel.Monoid[A]" class="extype" target="_top">cats.Monoid</a> instance.
+</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../IterateeModule.html" class="extype" name="io.iteratee.IterateeModule">IterateeModule</a></dd></dl></div>
+    </li><li name="io.iteratee.IterateeModule#foldMapOption" visbl="pub" data-isabs="false" fullComment="yes" group="Iteratees">
+      <a id="foldMapOption[E,A](f:E=&gt;A)(implicitA:cats.Semigroup[A]):io.iteratee.Iteratee[F,E,Option[A]]"></a>
+      <a id="foldMapOption[E,A]((E)⇒A)(Semigroup[A]):Iteratee[Task,E,Option[A]]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">foldMapOption</span><span class="tparams">[<span name="E">E</span>, <span name="A">A</span>]</span><span class="params">(<span name="f">f: (<span class="extype" name="io.iteratee.IterateeModule.foldMapOption.E">E</span>) ⇒ <span class="extype" name="io.iteratee.IterateeModule.foldMapOption.A">A</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="A">A: <span class="extype" name="cats.Semigroup">Semigroup</span>[<span class="extype" name="io.iteratee.IterateeModule.foldMapOption.A">A</span>]</span>)</span><span class="result">: <a href="../Iteratee.html" class="extype" name="io.iteratee.Iteratee">Iteratee</a>[<span class="extype" name="monix.eval.Task">Task</span>, <span class="extype" name="io.iteratee.IterateeModule.foldMapOption.E">E</span>, <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Option" class="extype" target="_top">Option</a>[<span class="extype" name="io.iteratee.IterateeModule.foldMapOption.A">A</span>]]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.iteratee.monix.TaskModule@foldMapOption[E,A](f:E=&gt;A)(implicitA:cats.Semigroup[A]):io.iteratee.Iteratee[F,E,Option[A]]" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">An <a href="../Iteratee.html" class="extype" name="io.iteratee.Iteratee">Iteratee</a> that combines values using a function to a type with a
+<a href="http://typelevel.org/cats/api/index.html#cats.package@Semigroup[A]=cats.kernel.Semigroup[A]" class="extype" target="_top">cats.Semigroup</a> instance.</p><div class="fullcomment"><div class="comment cmt"><p>An <a href="../Iteratee.html" class="extype" name="io.iteratee.Iteratee">Iteratee</a> that combines values using a function to a type with a
+<a href="http://typelevel.org/cats/api/index.html#cats.package@Semigroup[A]=cats.kernel.Semigroup[A]" class="extype" target="_top">cats.Semigroup</a> instance.
 </p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../IterateeModule.html" class="extype" name="io.iteratee.IterateeModule">IterateeModule</a></dd></dl></div>
     </li><li name="io.iteratee.IterateeModule#foreach" visbl="pub" data-isabs="false" fullComment="yes" group="Iteratees">
       <a id="foreach[E](f:E=&gt;Unit):io.iteratee.Iteratee[F,E,Unit]"></a>

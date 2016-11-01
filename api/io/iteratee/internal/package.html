@@ -92,32 +92,12 @@ library.
 
         <div id="types" class="types members">
               <h3>Type Members</h3>
-              <ol><li name="io.iteratee.internal.Input" visbl="pub" data-isabs="true" fullComment="yes" group="Ungrouped">
-      <a id="Input[E]extendsSerializable"></a>
-      <a id="Input[E]:Input[E]"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier">sealed abstract </span>
-        <span class="kind">class</span>
-      </span>
-      <span class="symbol">
-        <a href="Input.html"><span class="name">Input</span></a><span class="tparams">[<span name="E">E</span>]</span><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Serializable" class="extype" target="_top">Serializable</a></span>
-      </span>
-      </h4><span class="permalink">
-      <a href="../../../index.html#io.iteratee.internal.package@Input[E]extendsSerializable" title="Permalink" target="_top">
-        <img src="../../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
-      <p class="shortcomment cmt">An input to an <a href="../Iteratee.html" class="extype" name="io.iteratee.Iteratee">io.iteratee.Iteratee</a>.</p><div class="fullcomment"><div class="comment cmt"><p>An input to an <a href="../Iteratee.html" class="extype" name="io.iteratee.Iteratee">io.iteratee.Iteratee</a>.</p><p>This type is isomorphic to a <a href="http://typelevel.org/cats/api/index.html#cats.data.NonEmptyVector" class="extype" target="_top">cats.data.NonEmptyVector</a>, but exists as a
-separate type for the sake of performance (using <code>NonEmptyVector</code> proved
-significantly slower in experiments).
-</p></div><dl class="paramcmts block"><dt class="tparam">E</dt><dd class="cmt"><p>The element type</p></dd></dl></div>
-    </li><li name="io.iteratee.internal.Step" visbl="pub" data-isabs="true" fullComment="yes" group="Ungrouped">
+              <ol><li name="io.iteratee.internal.Step" visbl="pub" data-isabs="true" fullComment="yes" group="Ungrouped">
       <a id="Step[F[_],E,A]extendsSerializable"></a>
       <a id="Step[F[_],E,A]:Step[F,E,A]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
-        <span class="modifier">abstract </span>
+        <span class="modifier">sealed abstract </span>
         <span class="kind">class</span>
       </span>
       <span class="symbol">
@@ -137,24 +117,7 @@ significantly slower in experiments).
 
         <div id="values" class="values members">
               <h3>Value Members</h3>
-              <ol><li name="io.iteratee.internal.Input" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="Input"></a>
-      <a id="Input:Input"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">object</span>
-      </span>
-      <span class="symbol">
-        <a href="Input$.html"><span class="name">Input</span></a><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Serializable" class="extype" target="_top">Serializable</a></span>
-      </span>
-      </h4><span class="permalink">
-      <a href="../../../index.html#io.iteratee.internal.package@Input" title="Permalink" target="_top">
-        <img src="../../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
-      
-    </li><li name="io.iteratee.internal.Step" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+              <ol><li name="io.iteratee.internal.Step" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="Step"></a>
       <a id="Step:Step"></a>
       <h4 class="signature">

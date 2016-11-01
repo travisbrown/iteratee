@@ -47,7 +47,12 @@
       </span>
       </h4>
       
-          <div id="comment" class="fullcommenttop"><dl class="attributes block"> <dt>Source</dt><dd><a href="https://github.com/travisbrown/iteratee/tree/master/monix/shared/src/main/scala/io/iteratee/monix/package.scala" target="_blank">package.scala</a></dd></dl><div class="toggleContainer block">
+          <div id="comment" class="fullcommenttop"><div class="comment cmt"><p>Module and instances for Monix.</p><p>There are two ways to use this package. If your project has a monix-cats
+dependency, you can import the type class instances it provides and then
+instantiate a Monix module with <code>val module = TaskModule.instance</code>. If you do
+not have a monix-cats dependency, you can use the <code>io.iteratee.monix.task</code>
+module directly.
+</p></div><dl class="attributes block"> <dt>Source</dt><dd><a href="https://github.com/travisbrown/iteratee/tree/master/monix/shared/src/main/scala/io/iteratee/monix/package.scala" target="_blank">package.scala</a></dd></dl><div class="toggleContainer block">
           <span class="toggle">Linear Supertypes</span>
           <div class="superTypes hiddenContent"><a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a>, <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Any" class="extype" target="_top">Any</a></div>
         </div></div>
@@ -88,7 +93,43 @@
 
         <div id="types" class="types members">
               <h3>Type Members</h3>
-              <ol><li name="io.iteratee.monix.TaskModule" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+              <ol><li name="io.iteratee.monix.DefaultTaskModule" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="DefaultTaskModuleextendsTaskModulewithMonixInstances"></a>
+      <a id="DefaultTaskModule:DefaultTaskModule"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a href="DefaultTaskModule.html"><span class="name">DefaultTaskModule</span></a><span class="result"> extends <a href="TaskModule.html" class="extype" name="io.iteratee.monix.TaskModule">TaskModule</a> with <a href="MonixInstances.html" class="extype" name="io.iteratee.monix.MonixInstances">MonixInstances</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.iteratee.monix.package@DefaultTaskModuleextendsTaskModulewithMonixInstances" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="io.iteratee.monix.MonixInstances" visbl="pub" data-isabs="true" fullComment="yes" group="Ungrouped">
+      <a id="MonixInstancesextendsAnyRef"></a>
+      <a id="MonixInstances:MonixInstances"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a href="MonixInstances.html"><span class="name">MonixInstances</span></a><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.iteratee.monix.package@MonixInstancesextendsAnyRef" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Type class instances for Monix types.</p><div class="fullcomment"><div class="comment cmt"><p>Type class instances for Monix types.</p><p>Note that in most cases you should use the instances provided by monix-cats.
+This trait is provided for convenience when monix-cats is not available.
+</p></div></div>
+    </li><li name="io.iteratee.monix.TaskModule" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
       <a id="TaskModuleextendsModule[monix.eval.Task]withEnumerateeModule[monix.eval.Task]withEnumeratorErrorModule[monix.eval.Task,Throwable]withIterateeErrorModule[monix.eval.Task,Throwable]withSuspendableFileModule[monix.eval.Task]"></a>
       <a id="TaskModule:TaskModule"></a>
       <h4 class="signature">
@@ -112,7 +153,24 @@
 
         <div id="values" class="values members">
               <h3>Value Members</h3>
-              <ol><li name="io.iteratee.monix.task" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+              <ol><li name="io.iteratee.monix.TaskModule" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="TaskModule"></a>
+      <a id="TaskModule:TaskModule"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="TaskModule$.html"><span class="name">TaskModule</span></a>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.iteratee.monix.package@TaskModule" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="io.iteratee.monix.task" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="task"></a>
       <a id="task:task"></a>
       <h4 class="signature">
@@ -121,7 +179,7 @@
         <span class="kind">object</span>
       </span>
       <span class="symbol">
-        <a href="package$$task$.html"><span class="name">task</span></a><span class="result"> extends <a href="TaskModule.html" class="extype" name="io.iteratee.monix.TaskModule">TaskModule</a></span>
+        <a href="package$$task$.html"><span class="name">task</span></a><span class="result"> extends <a href="DefaultTaskModule.html" class="extype" name="io.iteratee.monix.DefaultTaskModule">DefaultTaskModule</a></span>
       </span>
       </h4><span class="permalink">
       <a href="../../../index.html#io.iteratee.monix.package@task" title="Permalink" target="_top">

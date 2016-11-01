@@ -93,7 +93,7 @@
         <div id="types" class="types members">
               <h3>Type Members</h3>
               <ol><li name="io.iteratee.internal.Step.Cont" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
-      <a id="Cont[F[_],E,A]extendsEffectfulCont[F,E,A]withInput.Folder[E,F[io.iteratee.internal.Step[F,E,A]]]"></a>
+      <a id="Cont[F[_],E,A]extendsStep.BaseCont[F,E,A]"></a>
       <a id="Cont[F[_],E,A]:Cont[F,E,A]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -101,27 +101,27 @@
         <span class="kind">class</span>
       </span>
       <span class="symbol">
-        <a href="Step$$Cont.html"><span class="name">Cont</span></a><span class="tparams">[<span name="F">F<span class="tparams">[<span name="_">_</span>]</span></span>, <span name="E">E</span>, <span name="A">A</span>]</span><span class="result"> extends <span class="extype" name="io.iteratee.internal.EffectfulCont">EffectfulCont</span>[<span class="extype" name="io.iteratee.internal.Step.Cont.F">F</span>, <span class="extype" name="io.iteratee.internal.Step.Cont.E">E</span>, <span class="extype" name="io.iteratee.internal.Step.Cont.A">A</span>] with <a href="Input$$Folder.html" class="extype" name="io.iteratee.internal.Input.Folder">Folder</a>[<span class="extype" name="io.iteratee.internal.Step.Cont.E">E</span>, <span class="extype" name="io.iteratee.internal.Step.Cont.F">F</span>[<a href="Step.html" class="extype" name="io.iteratee.internal.Step">Step</a>[<span class="extype" name="io.iteratee.internal.Step.Cont.F">F</span>, <span class="extype" name="io.iteratee.internal.Step.Cont.E">E</span>, <span class="extype" name="io.iteratee.internal.Step.Cont.A">A</span>]]]</span>
+        <a href="Step$$Cont.html"><span class="name">Cont</span></a><span class="tparams">[<span name="F">F<span class="tparams">[<span name="_">_</span>]</span></span>, <span name="E">E</span>, <span name="A">A</span>]</span><span class="result"> extends <span class="extype" name="io.iteratee.internal.Step.BaseCont">BaseCont</span>[<span class="extype" name="io.iteratee.internal.Step.Cont.F">F</span>, <span class="extype" name="io.iteratee.internal.Step.Cont.E">E</span>, <span class="extype" name="io.iteratee.internal.Step.Cont.A">A</span>]</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../index.html#io.iteratee.internal.Step$@Cont[F[_],E,A]extendsEffectfulCont[F,E,A]withInput.Folder[E,F[io.iteratee.internal.Step[F,E,A]]]" title="Permalink" target="_top">
+      <a href="../../../index.html#io.iteratee.internal.Step$@Cont[F[_],E,A]extendsStep.BaseCont[F,E,A]" title="Permalink" target="_top">
         <img src="../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
       
-    </li><li name="io.iteratee.internal.Step.PureCont" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
-      <a id="PureCont[F[_],E,A]extendsBaseCont[F,E,A]withInput.Folder[E,io.iteratee.internal.Step[F,E,A]]"></a>
-      <a id="PureCont[F[_],E,A]:PureCont[F,E,A]"></a>
+    </li><li name="io.iteratee.internal.Step.Done" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="Done[F[_],E,A]extendsStep[F,E,A]withProductwithSerializable"></a>
+      <a id="Done[F[_],E,A]:Done[F,E,A]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
-        <span class="modifier">abstract </span>
-        <span class="kind">class</span>
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <a href="Step$$PureCont.html"><span class="name">PureCont</span></a><span class="tparams">[<span name="F">F<span class="tparams">[<span name="_">_</span>]</span></span>, <span name="E">E</span>, <span name="A">A</span>]</span><span class="result"> extends <span class="extype" name="io.iteratee.internal.BaseCont">BaseCont</span>[<span class="extype" name="io.iteratee.internal.Step.PureCont.F">F</span>, <span class="extype" name="io.iteratee.internal.Step.PureCont.E">E</span>, <span class="extype" name="io.iteratee.internal.Step.PureCont.A">A</span>] with <a href="Input$$Folder.html" class="extype" name="io.iteratee.internal.Input.Folder">Folder</a>[<span class="extype" name="io.iteratee.internal.Step.PureCont.E">E</span>, <a href="Step.html" class="extype" name="io.iteratee.internal.Step">Step</a>[<span class="extype" name="io.iteratee.internal.Step.PureCont.F">F</span>, <span class="extype" name="io.iteratee.internal.Step.PureCont.E">E</span>, <span class="extype" name="io.iteratee.internal.Step.PureCont.A">A</span>]]</span>
+        <a href="Step$$Done.html"><span class="name">Done</span></a><span class="tparams">[<span name="F">F<span class="tparams">[<span name="_">_</span>]</span></span>, <span name="E">E</span>, <span name="A">A</span>]</span><span class="params">(<span name="value">value: <span class="extype" name="io.iteratee.internal.Step.Done.A">A</span></span>, <span name="remaining">remaining: <span class="extype" name="scala.Seq">Seq</span>[<span class="extype" name="io.iteratee.internal.Step.Done.E">E</span>]</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="F">F: <a href="http://typelevel.org/cats/api/index.html#cats.Applicative" class="extype" target="_top">Applicative</a>[<span class="extype" name="io.iteratee.internal.Step.Done.F">F</span>]</span>)</span><span class="result"> extends <a href="Step.html" class="extype" name="io.iteratee.internal.Step">Step</a>[<span class="extype" name="io.iteratee.internal.Step.Done.F">F</span>, <span class="extype" name="io.iteratee.internal.Step.Done.E">E</span>, <span class="extype" name="io.iteratee.internal.Step.Done.A">A</span>] with <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Product" class="extype" target="_top">Product</a> with <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Serializable" class="extype" target="_top">Serializable</a></span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../index.html#io.iteratee.internal.Step$@PureCont[F[_],E,A]extendsBaseCont[F,E,A]withInput.Folder[E,io.iteratee.internal.Step[F,E,A]]" title="Permalink" target="_top">
+      <a href="../../../index.html#io.iteratee.internal.Step$@Done[F[_],E,A]extendsStep[F,E,A]withProductwithSerializable" title="Permalink" target="_top">
         <img src="../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
@@ -197,40 +197,6 @@
       </span>
       </h4><span class="permalink">
       <a href="../../../index.html#io.iteratee.internal.Step$@Cont" title="Permalink" target="_top">
-        <img src="../../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
-      
-    </li><li name="io.iteratee.internal.Step.Done" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="Done"></a>
-      <a id="Done:Done"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">object</span>
-      </span>
-      <span class="symbol">
-        <a href="Step$$Done$.html"><span class="name">Done</span></a>
-      </span>
-      </h4><span class="permalink">
-      <a href="../../../index.html#io.iteratee.internal.Step$@Done" title="Permalink" target="_top">
-        <img src="../../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
-      
-    </li><li name="io.iteratee.internal.Step.PureCont" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="PureCont"></a>
-      <a id="PureCont:PureCont"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">object</span>
-      </span>
-      <span class="symbol">
-        <a href="Step$$PureCont$.html"><span class="name">PureCont</span></a><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Serializable" class="extype" target="_top">Serializable</a></span>
-      </span>
-      </h4><span class="permalink">
-      <a href="../../../index.html#io.iteratee.internal.Step$@PureCont" title="Permalink" target="_top">
         <img src="../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
@@ -311,25 +277,25 @@
       <p class="shortcomment cmt">A <a href="Step.html" class="extype" name="io.iteratee.internal.Step">Step</a> that collects all the elements in a stream in a given collection
 type.</p>
     </li><li name="io.iteratee.internal.Step#cont" visbl="pub" data-isabs="false" fullComment="no" group="Constructors">
-      <a id="cont[F[_],E,A](onInput:cats.data.NonEmptyVector[E]=&gt;F[io.iteratee.internal.Step[F,E,A]],onEnd:F[A])(implicitF:cats.Applicative[F]):io.iteratee.internal.Step[F,E,A]"></a>
-      <a id="cont[F[_],E,A]((NonEmptyVector[E])⇒F[Step[F,E,A]],F[A])(Applicative[F]):Step[F,E,A]"></a>
+      <a id="cont[F[_],E,A](onInput:cats.data.NonEmptyList[E]=&gt;F[io.iteratee.internal.Step[F,E,A]],onEnd:F[A])(implicitF:cats.Applicative[F]):io.iteratee.internal.Step[F,E,A]"></a>
+      <a id="cont[F[_],E,A]((NonEmptyList[E])⇒F[Step[F,E,A]],F[A])(Applicative[F]):Step[F,E,A]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier">final </span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">cont</span><span class="tparams">[<span name="F">F<span class="tparams">[<span name="_">_</span>]</span></span>, <span name="E">E</span>, <span name="A">A</span>]</span><span class="params">(<span name="onInput">onInput: (<a href="http://typelevel.org/cats/api/index.html#cats.data.NonEmptyVector" class="extype" target="_top">NonEmptyVector</a>[<span class="extype" name="io.iteratee.internal.Step.cont.E">E</span>]) ⇒ <span class="extype" name="io.iteratee.internal.Step.cont.F">F</span>[<a href="Step.html" class="extype" name="io.iteratee.internal.Step">Step</a>[<span class="extype" name="io.iteratee.internal.Step.cont.F">F</span>, <span class="extype" name="io.iteratee.internal.Step.cont.E">E</span>, <span class="extype" name="io.iteratee.internal.Step.cont.A">A</span>]]</span>, <span name="onEnd">onEnd: <span class="extype" name="io.iteratee.internal.Step.cont.F">F</span>[<span class="extype" name="io.iteratee.internal.Step.cont.A">A</span>]</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="F">F: <a href="http://typelevel.org/cats/api/index.html#cats.Applicative" class="extype" target="_top">Applicative</a>[<span class="extype" name="io.iteratee.internal.Step.cont.F">F</span>]</span>)</span><span class="result">: <a href="Step.html" class="extype" name="io.iteratee.internal.Step">Step</a>[<span class="extype" name="io.iteratee.internal.Step.cont.F">F</span>, <span class="extype" name="io.iteratee.internal.Step.cont.E">E</span>, <span class="extype" name="io.iteratee.internal.Step.cont.A">A</span>]</span>
+        <span class="name">cont</span><span class="tparams">[<span name="F">F<span class="tparams">[<span name="_">_</span>]</span></span>, <span name="E">E</span>, <span name="A">A</span>]</span><span class="params">(<span name="onInput">onInput: (<a href="http://typelevel.org/cats/api/index.html#cats.data.NonEmptyList" class="extype" target="_top">NonEmptyList</a>[<span class="extype" name="io.iteratee.internal.Step.cont.E">E</span>]) ⇒ <span class="extype" name="io.iteratee.internal.Step.cont.F">F</span>[<a href="Step.html" class="extype" name="io.iteratee.internal.Step">Step</a>[<span class="extype" name="io.iteratee.internal.Step.cont.F">F</span>, <span class="extype" name="io.iteratee.internal.Step.cont.E">E</span>, <span class="extype" name="io.iteratee.internal.Step.cont.A">A</span>]]</span>, <span name="onEnd">onEnd: <span class="extype" name="io.iteratee.internal.Step.cont.F">F</span>[<span class="extype" name="io.iteratee.internal.Step.cont.A">A</span>]</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="F">F: <a href="http://typelevel.org/cats/api/index.html#cats.Applicative" class="extype" target="_top">Applicative</a>[<span class="extype" name="io.iteratee.internal.Step.cont.F">F</span>]</span>)</span><span class="result">: <a href="Step.html" class="extype" name="io.iteratee.internal.Step">Step</a>[<span class="extype" name="io.iteratee.internal.Step.cont.F">F</span>, <span class="extype" name="io.iteratee.internal.Step.cont.E">E</span>, <span class="extype" name="io.iteratee.internal.Step.cont.A">A</span>]</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../index.html#io.iteratee.internal.Step$@cont[F[_],E,A](onInput:cats.data.NonEmptyVector[E]=&gt;F[io.iteratee.internal.Step[F,E,A]],onEnd:F[A])(implicitF:cats.Applicative[F]):io.iteratee.internal.Step[F,E,A]" title="Permalink" target="_top">
+      <a href="../../../index.html#io.iteratee.internal.Step$@cont[F[_],E,A](onInput:cats.data.NonEmptyList[E]=&gt;F[io.iteratee.internal.Step[F,E,A]],onEnd:F[A])(implicitF:cats.Applicative[F]):io.iteratee.internal.Step[F,E,A]" title="Permalink" target="_top">
         <img src="../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
       <p class="shortcomment cmt">Create an incomplete <a href="Step.html" class="extype" name="io.iteratee.internal.Step">Step</a> that will use the given functions to process
 the next input.</p>
     </li><li name="io.iteratee.internal.Step#done" visbl="pub" data-isabs="false" fullComment="no" group="Constructors">
-      <a id="done[F[_],E,A](value:A)(implicitevidence$3:cats.Applicative[F]):io.iteratee.internal.Step[F,E,A]"></a>
+      <a id="done[F[_],E,A](value:A)(implicitevidence$4:cats.Applicative[F]):io.iteratee.internal.Step[F,E,A]"></a>
       <a id="done[F[_],E,A](A)(Applicative[F]):Step[F,E,A]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -340,41 +306,24 @@ the next input.</p>
         <span class="name">done</span><span class="tparams">[<span name="F">F<span class="tparams">[<span name="_">_</span>]</span></span>, <span name="E">E</span>, <span name="A">A</span>]</span><span class="params">(<span name="value">value: <span class="extype" name="io.iteratee.internal.Step.done.A">A</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <a href="http://typelevel.org/cats/api/index.html#cats.Applicative" class="extype" target="_top">Applicative</a>[<span class="extype" name="io.iteratee.internal.Step.done.F">F</span>]</span>)</span><span class="result">: <a href="Step.html" class="extype" name="io.iteratee.internal.Step">Step</a>[<span class="extype" name="io.iteratee.internal.Step.done.F">F</span>, <span class="extype" name="io.iteratee.internal.Step.done.E">E</span>, <span class="extype" name="io.iteratee.internal.Step.done.A">A</span>]</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../index.html#io.iteratee.internal.Step$@done[F[_],E,A](value:A)(implicitevidence$3:cats.Applicative[F]):io.iteratee.internal.Step[F,E,A]" title="Permalink" target="_top">
+      <a href="../../../index.html#io.iteratee.internal.Step$@done[F[_],E,A](value:A)(implicitevidence$4:cats.Applicative[F]):io.iteratee.internal.Step[F,E,A]" title="Permalink" target="_top">
         <img src="../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
       <p class="shortcomment cmt">Create a new completed <a href="Step.html" class="extype" name="io.iteratee.internal.Step">Step</a> with the given result and leftover input.</p>
-    </li><li name="io.iteratee.internal.Step#doneWithLeftoverInput" visbl="pub" data-isabs="false" fullComment="no" group="Constructors">
-      <a id="doneWithLeftoverInput[F[_],E,A](value:A,remaining:io.iteratee.internal.Input[E])(implicitevidence$5:cats.Applicative[F]):io.iteratee.internal.Step[F,E,A]"></a>
-      <a id="doneWithLeftoverInput[F[_],E,A](A,Input[E])(Applicative[F]):Step[F,E,A]"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier">final </span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">doneWithLeftoverInput</span><span class="tparams">[<span name="F">F<span class="tparams">[<span name="_">_</span>]</span></span>, <span name="E">E</span>, <span name="A">A</span>]</span><span class="params">(<span name="value">value: <span class="extype" name="io.iteratee.internal.Step.doneWithLeftoverInput.A">A</span></span>, <span name="remaining">remaining: <a href="Input.html" class="extype" name="io.iteratee.internal.Input">Input</a>[<span class="extype" name="io.iteratee.internal.Step.doneWithLeftoverInput.E">E</span>]</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <a href="http://typelevel.org/cats/api/index.html#cats.Applicative" class="extype" target="_top">Applicative</a>[<span class="extype" name="io.iteratee.internal.Step.doneWithLeftoverInput.F">F</span>]</span>)</span><span class="result">: <a href="Step.html" class="extype" name="io.iteratee.internal.Step">Step</a>[<span class="extype" name="io.iteratee.internal.Step.doneWithLeftoverInput.F">F</span>, <span class="extype" name="io.iteratee.internal.Step.doneWithLeftoverInput.E">E</span>, <span class="extype" name="io.iteratee.internal.Step.doneWithLeftoverInput.A">A</span>]</span>
-      </span>
-      </h4><span class="permalink">
-      <a href="../../../index.html#io.iteratee.internal.Step$@doneWithLeftoverInput[F[_],E,A](value:A,remaining:io.iteratee.internal.Input[E])(implicitevidence$5:cats.Applicative[F]):io.iteratee.internal.Step[F,E,A]" title="Permalink" target="_top">
-        <img src="../../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
-      <p class="shortcomment cmt">Create a new completed <a href="Step.html" class="extype" name="io.iteratee.internal.Step">Step</a> with the given result and leftover <a href="Input.html" class="extype" name="io.iteratee.internal.Input">Input</a>.</p>
     </li><li name="io.iteratee.internal.Step#doneWithLeftovers" visbl="pub" data-isabs="false" fullComment="no" group="Constructors">
-      <a id="doneWithLeftovers[F[_],E,A](value:A,remaining:Vector[E])(implicitevidence$4:cats.Applicative[F]):io.iteratee.internal.Step[F,E,A]"></a>
-      <a id="doneWithLeftovers[F[_],E,A](A,Vector[E])(Applicative[F]):Step[F,E,A]"></a>
+      <a id="doneWithLeftovers[F[_],E,A](value:A,remaining:List[E])(implicitevidence$5:cats.Applicative[F]):io.iteratee.internal.Step[F,E,A]"></a>
+      <a id="doneWithLeftovers[F[_],E,A](A,List[E])(Applicative[F]):Step[F,E,A]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier">final </span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">doneWithLeftovers</span><span class="tparams">[<span name="F">F<span class="tparams">[<span name="_">_</span>]</span></span>, <span name="E">E</span>, <span name="A">A</span>]</span><span class="params">(<span name="value">value: <span class="extype" name="io.iteratee.internal.Step.doneWithLeftovers.A">A</span></span>, <span name="remaining">remaining: <span class="extype" name="scala.Vector">Vector</span>[<span class="extype" name="io.iteratee.internal.Step.doneWithLeftovers.E">E</span>]</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <a href="http://typelevel.org/cats/api/index.html#cats.Applicative" class="extype" target="_top">Applicative</a>[<span class="extype" name="io.iteratee.internal.Step.doneWithLeftovers.F">F</span>]</span>)</span><span class="result">: <a href="Step.html" class="extype" name="io.iteratee.internal.Step">Step</a>[<span class="extype" name="io.iteratee.internal.Step.doneWithLeftovers.F">F</span>, <span class="extype" name="io.iteratee.internal.Step.doneWithLeftovers.E">E</span>, <span class="extype" name="io.iteratee.internal.Step.doneWithLeftovers.A">A</span>]</span>
+        <span class="name">doneWithLeftovers</span><span class="tparams">[<span name="F">F<span class="tparams">[<span name="_">_</span>]</span></span>, <span name="E">E</span>, <span name="A">A</span>]</span><span class="params">(<span name="value">value: <span class="extype" name="io.iteratee.internal.Step.doneWithLeftovers.A">A</span></span>, <span name="remaining">remaining: <span class="extype" name="scala.List">List</span>[<span class="extype" name="io.iteratee.internal.Step.doneWithLeftovers.E">E</span>]</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <a href="http://typelevel.org/cats/api/index.html#cats.Applicative" class="extype" target="_top">Applicative</a>[<span class="extype" name="io.iteratee.internal.Step.doneWithLeftovers.F">F</span>]</span>)</span><span class="result">: <a href="Step.html" class="extype" name="io.iteratee.internal.Step">Step</a>[<span class="extype" name="io.iteratee.internal.Step.doneWithLeftovers.F">F</span>, <span class="extype" name="io.iteratee.internal.Step.doneWithLeftovers.E">E</span>, <span class="extype" name="io.iteratee.internal.Step.doneWithLeftovers.A">A</span>]</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../index.html#io.iteratee.internal.Step$@doneWithLeftovers[F[_],E,A](value:A,remaining:Vector[E])(implicitevidence$4:cats.Applicative[F]):io.iteratee.internal.Step[F,E,A]" title="Permalink" target="_top">
+      <a href="../../../index.html#io.iteratee.internal.Step$@doneWithLeftovers[F[_],E,A](value:A,remaining:List[E])(implicitevidence$5:cats.Applicative[F]):io.iteratee.internal.Step[F,E,A]" title="Permalink" target="_top">
         <img src="../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
@@ -524,6 +473,23 @@ accumulation function.</p>
       </a>
     </span>
       <p class="shortcomment cmt">A <a href="Step.html" class="extype" name="io.iteratee.internal.Step">Step</a> that transforms and sums values in a stream.</p>
+    </li><li name="io.iteratee.internal.Step#foldMapOption" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="foldMapOption[F[_],E,A](f:E=&gt;A)(implicitF:cats.Applicative[F],implicitS:cats.Semigroup[A]):io.iteratee.internal.Step[F,E,Option[A]]"></a>
+      <a id="foldMapOption[F[_],E,A]((E)⇒A)(Applicative[F],Semigroup[A]):Step[F,E,Option[A]]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">foldMapOption</span><span class="tparams">[<span name="F">F<span class="tparams">[<span name="_">_</span>]</span></span>, <span name="E">E</span>, <span name="A">A</span>]</span><span class="params">(<span name="f">f: (<span class="extype" name="io.iteratee.internal.Step.foldMapOption.E">E</span>) ⇒ <span class="extype" name="io.iteratee.internal.Step.foldMapOption.A">A</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="F">F: <a href="http://typelevel.org/cats/api/index.html#cats.Applicative" class="extype" target="_top">Applicative</a>[<span class="extype" name="io.iteratee.internal.Step.foldMapOption.F">F</span>]</span>, <span name="S">S: <span class="extype" name="cats.Semigroup">Semigroup</span>[<span class="extype" name="io.iteratee.internal.Step.foldMapOption.A">A</span>]</span>)</span><span class="result">: <a href="Step.html" class="extype" name="io.iteratee.internal.Step">Step</a>[<span class="extype" name="io.iteratee.internal.Step.foldMapOption.F">F</span>, <span class="extype" name="io.iteratee.internal.Step.foldMapOption.E">E</span>, <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Option" class="extype" target="_top">Option</a>[<span class="extype" name="io.iteratee.internal.Step.foldMapOption.A">A</span>]]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.iteratee.internal.Step$@foldMapOption[F[_],E,A](f:E=&gt;A)(implicitF:cats.Applicative[F],implicitS:cats.Semigroup[A]):io.iteratee.internal.Step[F,E,Option[A]]" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
     </li><li name="scala.AnyRef#getClass" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="getClass():Class[_]"></a>
       <a id="getClass():Class[_]"></a>
@@ -779,6 +745,23 @@ accumulation function.</p>
       </a>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li name="io.iteratee.internal.Step#tailRecM" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="tailRecM[F[_],E,A,B](f:A=&gt;F[io.iteratee.internal.Step[F,E,Either[A,B]]])(s:io.iteratee.internal.Step[F,E,Either[A,B]])(implicitevidence$11:cats.Monad[F]):io.iteratee.internal.Step[F,E,B]"></a>
+      <a id="tailRecM[F[_],E,A,B]((A)⇒F[Step[F,E,Either[A,B]]])(Step[F,E,Either[A,B]])(Monad[F]):Step[F,E,B]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">tailRecM</span><span class="tparams">[<span name="F">F<span class="tparams">[<span name="_">_</span>]</span></span>, <span name="E">E</span>, <span name="A">A</span>, <span name="B">B</span>]</span><span class="params">(<span name="f">f: (<span class="extype" name="io.iteratee.internal.Step.tailRecM.A">A</span>) ⇒ <span class="extype" name="io.iteratee.internal.Step.tailRecM.F">F</span>[<a href="Step.html" class="extype" name="io.iteratee.internal.Step">Step</a>[<span class="extype" name="io.iteratee.internal.Step.tailRecM.F">F</span>, <span class="extype" name="io.iteratee.internal.Step.tailRecM.E">E</span>, <span class="extype" name="scala.Either">Either</span>[<span class="extype" name="io.iteratee.internal.Step.tailRecM.A">A</span>, <span class="extype" name="io.iteratee.internal.Step.tailRecM.B">B</span>]]]</span>)</span><span class="params">(<span name="s">s: <a href="Step.html" class="extype" name="io.iteratee.internal.Step">Step</a>[<span class="extype" name="io.iteratee.internal.Step.tailRecM.F">F</span>, <span class="extype" name="io.iteratee.internal.Step.tailRecM.E">E</span>, <span class="extype" name="scala.Either">Either</span>[<span class="extype" name="io.iteratee.internal.Step.tailRecM.A">A</span>, <span class="extype" name="io.iteratee.internal.Step.tailRecM.B">B</span>]]</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <a href="http://typelevel.org/cats/api/index.html#cats.Monad" class="extype" target="_top">Monad</a>[<span class="extype" name="io.iteratee.internal.Step.tailRecM.F">F</span>]</span>)</span><span class="result">: <a href="Step.html" class="extype" name="io.iteratee.internal.Step">Step</a>[<span class="extype" name="io.iteratee.internal.Step.tailRecM.F">F</span>, <span class="extype" name="io.iteratee.internal.Step.tailRecM.E">E</span>, <span class="extype" name="io.iteratee.internal.Step.tailRecM.B">B</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.iteratee.internal.Step$@tailRecM[F[_],E,A,B](f:A=&gt;F[io.iteratee.internal.Step[F,E,Either[A,B]]])(s:io.iteratee.internal.Step[F,E,Either[A,B]])(implicitevidence$11:cats.Monad[F]):io.iteratee.internal.Step[F,E,B]" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
     </li><li name="io.iteratee.internal.Step#take" visbl="pub" data-isabs="false" fullComment="no" group="Collection">
       <a id="take[F[_],E](n:Int)(implicitevidence$8:cats.Applicative[F]):io.iteratee.internal.Step[F,E,Vector[E]]"></a>
       <a id="take[F[_],E](Int)(Applicative[F]):Step[F,E,Vector[E]]"></a>

@@ -43,7 +43,7 @@
 
       <h4 id="signature" class="signature">
       <span class="modifier_kind">
-        <span class="modifier">abstract </span>
+        <span class="modifier">sealed abstract </span>
         <span class="kind">class</span>
       </span>
       <span class="symbol">
@@ -55,7 +55,10 @@
 </p></div><dl class="paramcmts block"><dt class="tparam">F</dt><dd class="cmt"><p>The effect type constructor</p></dd><dt class="tparam">E</dt><dd class="cmt"><p>The type of the input data</p></dd><dt class="tparam">A</dt><dd class="cmt"><p>The type of the result calculated by the <a href="../Iteratee.html" class="extype" name="io.iteratee.Iteratee">io.iteratee.Iteratee</a></p></dd></dl><dl class="attributes block"> <dt>Source</dt><dd><a href="https://github.com/travisbrown/iteratee/tree/master/core/src/main/scala/io/iteratee/internal/Step.scala" target="_blank">Step.scala</a></dd></dl><div class="toggleContainer block">
           <span class="toggle">Linear Supertypes</span>
           <div class="superTypes hiddenContent"><a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Serializable" class="extype" target="_top">Serializable</a>, <span class="extype" name="java.io.Serializable">Serializable</span>, <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a>, <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Any" class="extype" target="_top">Any</a></div>
-        </div></div>
+        </div><div class="toggleContainer block">
+            <span class="toggle">Known Subclasses</span>
+            <div class="subClasses hiddenContent"><a href="Step$$Done.html" class="extype" name="io.iteratee.internal.Step.Done">Done</a></div>
+          </div></div>
         
 
       <div id="mbrsel">
@@ -89,27 +92,7 @@
 
       <div id="template">
         <div id="allMembers">
-        <div id="constructors" class="members">
-              <h3>Instance Constructors</h3>
-              <ol><li name="io.iteratee.internal.Step#&lt;init&gt;" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="&lt;init&gt;():io.iteratee.internal.Step[F,E,A]"></a>
-      <a id="&lt;init&gt;:Step[F,E,A]"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">new</span>
-      </span>
-      <span class="symbol">
-        <span class="name">Step</span><span class="params">()</span>
-      </span>
-      </h4><span class="permalink">
-      <a href="../../../index.html#io.iteratee.internal.Step@&lt;init&gt;():io.iteratee.internal.Step[F,E,A]" title="Permalink" target="_top">
-        <img src="../../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
-      <p class="shortcomment cmt"></p>
-    </li></ol>
-            </div>
+        
 
         
 
@@ -150,24 +133,26 @@ this <a href="" class="extype" name="io.iteratee.internal.Step">Step</a> and fla
       </a>
     </span>
       <p class="shortcomment cmt">Map a function over the inputs of this <a href="" class="extype" name="io.iteratee.internal.Step">Step</a>.</p>
-    </li><li name="io.iteratee.internal.Step#feedChunk" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
-      <a id="feedChunk(h1:E,h2:E,t:Vector[E]):F[io.iteratee.internal.Step[F,E,A]]"></a>
-      <a id="feedChunk(E,E,Vector[E]):F[Step[F,E,A]]"></a>
+    </li><li name="io.iteratee.internal.Step#feed" visbl="pub" data-isabs="true" fullComment="yes" group="Ungrouped">
+      <a id="feed(chunk:Seq[E]):F[io.iteratee.internal.Step[F,E,A]]"></a>
+      <a id="feed(Seq[E]):F[Step[F,E,A]]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier">abstract </span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">feedChunk</span><span class="params">(<span name="h1">h1: <span class="extype" name="io.iteratee.internal.Step.E">E</span></span>, <span name="h2">h2: <span class="extype" name="io.iteratee.internal.Step.E">E</span></span>, <span name="t">t: <span class="extype" name="scala.Vector">Vector</span>[<span class="extype" name="io.iteratee.internal.Step.E">E</span>]</span>)</span><span class="result">: <span class="extype" name="io.iteratee.internal.Step.F">F</span>[<a href="" class="extype" name="io.iteratee.internal.Step">Step</a>[<span class="extype" name="io.iteratee.internal.Step.F">F</span>, <span class="extype" name="io.iteratee.internal.Step.E">E</span>, <span class="extype" name="io.iteratee.internal.Step.A">A</span>]]</span>
+        <span class="name">feed</span><span class="params">(<span name="chunk">chunk: <span class="extype" name="scala.Seq">Seq</span>[<span class="extype" name="io.iteratee.internal.Step.E">E</span>]</span>)</span><span class="result">: <span class="extype" name="io.iteratee.internal.Step.F">F</span>[<a href="" class="extype" name="io.iteratee.internal.Step">Step</a>[<span class="extype" name="io.iteratee.internal.Step.F">F</span>, <span class="extype" name="io.iteratee.internal.Step.E">E</span>, <span class="extype" name="io.iteratee.internal.Step.A">A</span>]]</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../index.html#io.iteratee.internal.Step@feedChunk(h1:E,h2:E,t:Vector[E]):F[io.iteratee.internal.Step[F,E,A]]" title="Permalink" target="_top">
+      <a href="../../../index.html#io.iteratee.internal.Step@feed(chunk:Seq[E]):F[io.iteratee.internal.Step[F,E,A]]" title="Permalink" target="_top">
         <img src="../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
-      <p class="shortcomment cmt">Feed a multi-element <a href="Input.html" class="extype" name="io.iteratee.internal.Input">Input</a> to this <a href="" class="extype" name="io.iteratee.internal.Step">Step</a>.</p>
-    </li><li name="io.iteratee.internal.Step#feedEl" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <p class="shortcomment cmt">Feed a chunk (possibly empty) to this <a href="" class="extype" name="io.iteratee.internal.Step">Step</a>.</p><div class="fullcomment"><div class="comment cmt"><p>Feed a chunk (possibly empty) to this <a href="" class="extype" name="io.iteratee.internal.Step">Step</a>.</p><p>If the chunk is empty, this method will return the <a href="" class="extype" name="io.iteratee.internal.Step">Step</a> itself in the
+context <code>F</code>.
+</p></div></div>
+    </li><li name="io.iteratee.internal.Step#feedEl" visbl="pub" data-isabs="true" fullComment="yes" group="Ungrouped">
       <a id="feedEl(e:E):F[io.iteratee.internal.Step[F,E,A]]"></a>
       <a id="feedEl(E):F[Step[F,E,A]]"></a>
       <h4 class="signature">
@@ -183,20 +168,40 @@ this <a href="" class="extype" name="io.iteratee.internal.Step">Step</a> and fla
         <img src="../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
-      <p class="shortcomment cmt">Feed a single element to this <a href="" class="extype" name="io.iteratee.internal.Step">Step</a>.</p>
-    </li><li name="io.iteratee.internal.Step#fold" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
-      <a id="fold[Z](ifCont:(cats.data.NonEmptyVector[E]=&gt;F[io.iteratee.internal.Step[F,E,A]])=&gt;Z,ifDone:(A,Vector[E])=&gt;Z):Z"></a>
-      <a id="fold[Z](((NonEmptyVector[E])⇒F[Step[F,E,A]])⇒Z,(A,Vector[E])⇒Z):Z"></a>
+      <p class="shortcomment cmt">Feed a single element to this <a href="" class="extype" name="io.iteratee.internal.Step">Step</a>.</p><div class="fullcomment"><div class="comment cmt"><p>Feed a single element to this <a href="" class="extype" name="io.iteratee.internal.Step">Step</a>.</p><p>Must be consistent with <code>feed</code> and <code>feedNonEmpty</code>.
+</p></div></div>
+    </li><li name="io.iteratee.internal.Step#feedNonEmpty" visbl="prt" data-isabs="true" fullComment="yes" group="Ungrouped">
+      <a id="feedNonEmpty(chunk:Seq[E]):F[io.iteratee.internal.Step[F,E,A]]"></a>
+      <a id="feedNonEmpty(Seq[E]):F[Step[F,E,A]]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier">abstract </span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">fold</span><span class="tparams">[<span name="Z">Z</span>]</span><span class="params">(<span name="ifCont">ifCont: ((<a href="http://typelevel.org/cats/api/index.html#cats.data.NonEmptyVector" class="extype" target="_top">NonEmptyVector</a>[<span class="extype" name="io.iteratee.internal.Step.E">E</span>]) ⇒ <span class="extype" name="io.iteratee.internal.Step.F">F</span>[<a href="" class="extype" name="io.iteratee.internal.Step">Step</a>[<span class="extype" name="io.iteratee.internal.Step.F">F</span>, <span class="extype" name="io.iteratee.internal.Step.E">E</span>, <span class="extype" name="io.iteratee.internal.Step.A">A</span>]]) ⇒ <span class="extype" name="io.iteratee.internal.Step.fold.Z">Z</span></span>, <span name="ifDone">ifDone: (<span class="extype" name="io.iteratee.internal.Step.A">A</span>, <span class="extype" name="scala.Vector">Vector</span>[<span class="extype" name="io.iteratee.internal.Step.E">E</span>]) ⇒ <span class="extype" name="io.iteratee.internal.Step.fold.Z">Z</span></span>)</span><span class="result">: <span class="extype" name="io.iteratee.internal.Step.fold.Z">Z</span></span>
+        <span class="name">feedNonEmpty</span><span class="params">(<span name="chunk">chunk: <span class="extype" name="scala.Seq">Seq</span>[<span class="extype" name="io.iteratee.internal.Step.E">E</span>]</span>)</span><span class="result">: <span class="extype" name="io.iteratee.internal.Step.F">F</span>[<a href="" class="extype" name="io.iteratee.internal.Step">Step</a>[<span class="extype" name="io.iteratee.internal.Step.F">F</span>, <span class="extype" name="io.iteratee.internal.Step.E">E</span>, <span class="extype" name="io.iteratee.internal.Step.A">A</span>]]</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../index.html#io.iteratee.internal.Step@fold[Z](ifCont:(cats.data.NonEmptyVector[E]=&gt;F[io.iteratee.internal.Step[F,E,A]])=&gt;Z,ifDone:(A,Vector[E])=&gt;Z):Z" title="Permalink" target="_top">
+      <a href="../../../index.html#io.iteratee.internal.Step@feedNonEmpty(chunk:Seq[E]):F[io.iteratee.internal.Step[F,E,A]]" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Feed a chunk that is known to be non-empty to this <a href="" class="extype" name="io.iteratee.internal.Step">Step</a>.</p><div class="fullcomment"><div class="comment cmt"><p>Feed a chunk that is known to be non-empty to this <a href="" class="extype" name="io.iteratee.internal.Step">Step</a>.</p><p>Note that this method is unsafe! If you do not know that the chunk contains
+at least one element, you must call <code>feed</code> instead.
+</p></div><dl class="attributes block"> <dt>Attributes</dt><dd>protected </dd></dl></div>
+    </li><li name="io.iteratee.internal.Step#fold" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="fold[Z](ifCont:(cats.data.NonEmptyList[E]=&gt;F[io.iteratee.internal.Step[F,E,A]])=&gt;Z,ifDone:(A,List[E])=&gt;Z):Z"></a>
+      <a id="fold[Z](((NonEmptyList[E])⇒F[Step[F,E,A]])⇒Z,(A,List[E])⇒Z):Z"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">abstract </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">fold</span><span class="tparams">[<span name="Z">Z</span>]</span><span class="params">(<span name="ifCont">ifCont: ((<a href="http://typelevel.org/cats/api/index.html#cats.data.NonEmptyList" class="extype" target="_top">NonEmptyList</a>[<span class="extype" name="io.iteratee.internal.Step.E">E</span>]) ⇒ <span class="extype" name="io.iteratee.internal.Step.F">F</span>[<a href="" class="extype" name="io.iteratee.internal.Step">Step</a>[<span class="extype" name="io.iteratee.internal.Step.F">F</span>, <span class="extype" name="io.iteratee.internal.Step.E">E</span>, <span class="extype" name="io.iteratee.internal.Step.A">A</span>]]) ⇒ <span class="extype" name="io.iteratee.internal.Step.fold.Z">Z</span></span>, <span name="ifDone">ifDone: (<span class="extype" name="io.iteratee.internal.Step.A">A</span>, <span class="extype" name="scala.List">List</span>[<span class="extype" name="io.iteratee.internal.Step.E">E</span>]) ⇒ <span class="extype" name="io.iteratee.internal.Step.fold.Z">Z</span></span>)</span><span class="result">: <span class="extype" name="io.iteratee.internal.Step.fold.Z">Z</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.iteratee.internal.Step@fold[Z](ifCont:(cats.data.NonEmptyList[E]=&gt;F[io.iteratee.internal.Step[F,E,A]])=&gt;Z,ifDone:(A,List[E])=&gt;Z):Z" title="Permalink" target="_top">
         <img src="../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>

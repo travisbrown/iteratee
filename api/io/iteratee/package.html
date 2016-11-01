@@ -352,7 +352,7 @@ library.
       </a>
     </span>
       
-    </li><li name="io.iteratee.monix" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+    </li><li name="io.iteratee.monix" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="monix"></a>
       <a id="monix:monix"></a>
       <h4 class="signature">
@@ -368,7 +368,12 @@ library.
         <img src="../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
-      
+      <p class="shortcomment cmt">Module and instances for Monix.</p><div class="fullcomment"><div class="comment cmt"><p>Module and instances for Monix.</p><p>There are two ways to use this package. If your project has a monix-cats
+dependency, you can import the type class instances it provides and then
+instantiate a Monix module with <code>val module = TaskModule.instance</code>. If you do
+not have a monix-cats dependency, you can use the <code>io.iteratee.monix.task</code>
+module directly.
+</p></div></div>
     </li><li name="io.iteratee.scalaz" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="scalaz"></a>
       <a id="scalaz:scalaz"></a>
