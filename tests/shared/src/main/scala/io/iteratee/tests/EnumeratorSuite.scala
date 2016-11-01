@@ -161,6 +161,12 @@ abstract class EnumeratorSuite[F[_]: Monad] extends ModuleSuite[F] {
 abstract class StackSafeEnumeratorSuite[F[_]: Monad] extends EnumeratorSuite[F] {
     this: Module[F] with EnumerateeModule[F] with EnumeratorModule[F] with IterateeModule[F] =>
 
+  "StackUnsafe.enumStream" should "be consistent with enumStream" in forAll { (xs: Stream[Int]) =>
+    val expected = enumStream(xs).toVector
+
+    assert(Enumerator.StackUnsafe.enumStream[F, Int](xs).toVector === expected)
+  }
+
   "StackUnsafe.repeat" should "be consistent with repeat" in forAll { (i: Int, count: Short) =>
     val expected = repeat(i).into(takeI(count.toInt))
 

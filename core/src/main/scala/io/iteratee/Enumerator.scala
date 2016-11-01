@@ -118,30 +118,7 @@ final object Enumerator extends EnumeratorInstances {
     final def apply[A](s: Step[F, E, A]): F[Step[F, E, A]] = s.feedEl(e)
   }
 
-  private[this] abstract class ChunkedIteratorEnumerator0[F[_], E](implicit F: Monad[F])
-    extends Enumerator[F, E] {
-    def chunks: Iterator[Vector[E]]
-
-    private[this] final def go[A](it: Iterator[Vector[E]], step: Step[F, E, A]): F[Step[F, E, A]] =
-      if (it.isEmpty || step.isDone) F.pure(step) else {
-        val next = it.next()
-
-        F.flatMap(step.feed(next))(go(it, _))
-      }
-
-    final def apply[A](s: Step[F, E, A]): F[Step[F, E, A]] = go(chunks, s)
-  }
-
-  /**
-   * An enumerator that produces values from a stream.
-   */
-  final def enumStream0[F[_]: Monad, E](xs: Stream[E], chunkSize: Int = defaultChunkSize): Enumerator[F, E] =
-    new ChunkedIteratorEnumerator0[F, E] {
-      final def chunks: Iterator[Vector[E]] = xs.grouped(chunkSize).map(_.toVector)
-    }
-
-  private[this] abstract class ChunkedIteratorEnumerator[F[_], E](implicit F: Monad[F])
-    extends Enumerator[F, E] {
+  private[this] abstract class ChunkedIteratorEnumerator[F[_], E](implicit F: Monad[F]) extends Enumerator[F, E] {
     def chunks: Iterator[Vector[E]]
 
     final def apply[A](s: Step[F, E, A]): F[Step[F, E, A]] = F.tailRecM((s, chunks)) {
@@ -269,6 +246,27 @@ final object Enumerator extends EnumeratorInstances {
    * stack safe.
    */
   final object StackUnsafe {
+    private[this] abstract class ChunkedIteratorEnumerator[F[_], E](implicit F: Monad[F]) extends Enumerator[F, E] {
+      def chunks: Iterator[Vector[E]]
+
+      private[this] final def go[A](it: Iterator[Vector[E]], step: Step[F, E, A]): F[Step[F, E, A]] =
+        if (it.isEmpty || step.isDone) F.pure(step) else {
+          val next = it.next()
+
+          F.flatMap(step.feed(next))(go(it, _))
+        }
+
+      final def apply[A](s: Step[F, E, A]): F[Step[F, E, A]] = go(chunks, s)
+    }
+
+    /**
+     * An enumerator that produces values from a stream.
+     */
+    final def enumStream[F[_]: Monad, E](xs: Stream[E], chunkSize: Int = defaultChunkSize): Enumerator[F, E] =
+      new ChunkedIteratorEnumerator[F, E] {
+        final def chunks: Iterator[Vector[E]] = xs.grouped(chunkSize).map(_.toVector)
+      }
+
     /**
      * An enumerator that repeats the given value indefinitely.
      *
