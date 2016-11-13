@@ -23,22 +23,22 @@ package modules {
   final object option extends OptionModule
   final object try_ extends TryModule
 
-  trait EitherModule extends Module[({ type L[x] = Either[Throwable, x] })#L]
-      with EnumerateeModule[({ type L[x] = Either[Throwable, x] })#L]
-      with EnumeratorErrorModule[({ type L[x] = Either[Throwable, x] })#L, Throwable]
-      with IterateeErrorModule[({ type L[x] = Either[Throwable, x] })#L, Throwable] {
+  trait EitherModule extends Module[Either[Throwable, ?]]
+      with EnumerateeModule[Either[Throwable, ?]]
+      with EnumeratorErrorModule[Either[Throwable, ?], Throwable]
+      with IterateeErrorModule[Either[Throwable, ?], Throwable] {
     final type M[f[_]] = MonadError[f, Throwable]
 
-    final protected val F: MonadError[({ type L[x] = Either[Throwable, x] })#L, Throwable] = catsStdInstancesForEither
+    final protected val F: MonadError[Either[Throwable, ?], Throwable] = catsStdInstancesForEither
   }
 
-  trait EitherTModule extends Module[({ type L[x] = EitherT[Eval, Throwable, x] })#L]
-      with EnumerateeModule[({ type L[x] = EitherT[Eval, Throwable, x] })#L]
-      with EnumeratorErrorModule[({ type L[x] = EitherT[Eval, Throwable, x] })#L, Throwable]
-      with IterateeErrorModule[({ type L[x] = EitherT[Eval, Throwable, x] })#L, Throwable] {
+  trait EitherTModule extends Module[EitherT[Eval, Throwable, ?]]
+      with EnumerateeModule[EitherT[Eval, Throwable, ?]]
+      with EnumeratorErrorModule[EitherT[Eval, Throwable, ?], Throwable]
+      with IterateeErrorModule[EitherT[Eval, Throwable, ?], Throwable] {
     final type M[f[_]] = MonadError[f, Throwable]
 
-    final protected val F: MonadError[({ type L[x] = EitherT[Eval, Throwable, x] })#L, Throwable] =
+    final protected val F: MonadError[EitherT[Eval, Throwable, ?], Throwable] =
       EitherT.catsDataMonadErrorForEitherT
   }
 

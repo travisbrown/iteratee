@@ -9,21 +9,17 @@ private[iteratee] trait EnumeratorInstances {
       def empty: Enumerator[F, E] = Enumerator.empty
     }
 
-  implicit final def enumeratorMonad[F[_]](implicit
-    M0: Monad[F]
-  ): Monad[({ type L[x] = Enumerator[F, x] })#L] =
-    new EnumeratorMonad[F] {
-      implicit val M: Monad[F] = M0
-    }
+  implicit final def enumeratorMonad[F[_]](implicit M0: Monad[F]): Monad[Enumerator[F, ?]] = new EnumeratorMonad[F] {
+    implicit val M: Monad[F] = M0
+  }
 }
 
-private trait EnumeratorFunctor[F[_]] extends Functor[({ type L[x] = Enumerator[F, x] })#L] {
+private trait EnumeratorFunctor[F[_]] extends Functor[Enumerator[F, ?]] {
   implicit def M: Monad[F]
   abstract override def map[A, B](fa: Enumerator[F, A])(f: A => B): Enumerator[F, B] = fa.map(f)
 }
 
-private trait EnumeratorMonad[F[_]] extends Monad[({ type L[x] = Enumerator[F, x] })#L]
-    with EnumeratorFunctor[F] {
+private trait EnumeratorMonad[F[_]] extends Monad[Enumerator[F, ?]] with EnumeratorFunctor[F] {
   final def flatMap[A, B](fa: Enumerator[F, A])(f: A => Enumerator[F, B]): Enumerator[F, B] = fa.flatMap(f)
   final def pure[E](e: E): Enumerator[F, E] = Enumerator.enumOne[F, E](e)
 

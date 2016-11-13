@@ -53,7 +53,8 @@ lazy val baseSettings = Seq(
       case _ => true
     }
   ),
-  (scalastyleSources in Compile) ++= (sourceDirectories in Compile).value
+  (scalastyleSources in Compile) ++= (sourceDirectories in Compile).value,
+  addCompilerPlugin("org.spire-math" % "kind-projector" % "0.9.3" cross CrossVersion.binary)
 )
 
 lazy val allSettings = buildSettings ++ baseSettings ++ publishSettings
@@ -72,7 +73,7 @@ lazy val docSettings = site.settings ++ ghpages.settings ++ unidocSettings ++ Se
   ),
   git.remoteRepo := "git@github.com:travisbrown/iteratee.git",
   unidocProjectFilter in (ScalaUnidoc, unidoc) :=
-    inAnyProject -- inProjects(coreJS, benchmark, monixJS, tests, testsJS)
+    inAnyProject -- inProjects(coreJS, benchmark, monixJS, tests, testsJS, twitter)
 )
 
 lazy val iteratee = project.in(file("."))
