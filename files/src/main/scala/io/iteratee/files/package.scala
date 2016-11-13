@@ -18,12 +18,10 @@ package files {
   final object eitherT extends EitherTFileModule
   final object try_ extends TryFileModule
 
-  trait EitherFileModule extends EitherModule with NonSuspendableFileModule[({ type L[x] = Either[Throwable, x] })#L]
+  trait EitherFileModule extends EitherModule with NonSuspendableFileModule[Either[Throwable, ?]]
 
-  trait EitherTFileModule extends EitherTModule
-      with SuspendableFileModule[({ type L[x] = EitherT[Eval, Throwable, x] })#L] {
-    private[this] val E: MonadError[({ type L[x] = Either[Throwable, x] })#L, Throwable] =
-     catsStdInstancesForEither[Throwable]
+  trait EitherTFileModule extends EitherTModule with SuspendableFileModule[EitherT[Eval, Throwable, ?]] {
+    private[this] val E: MonadError[Either[Throwable, ?], Throwable] = catsStdInstancesForEither[Throwable]
     final protected def captureEffect[A](a: => A): EitherT[Eval, Throwable, A] =
       EitherT(Eval.always(E.catchNonFatal(a)))
   }

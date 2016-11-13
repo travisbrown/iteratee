@@ -1,6 +1,7 @@
 package io.iteratee.benchmark
 
 import cats.Monad
+import cats.free.Free
 import cats.instances.int._
 import com.twitter.util.{ Await => AwaitT, Duration => DurationT, Future => FutureT, Try => TryT }
 import io.catbird.util._
@@ -31,7 +32,7 @@ class FileModuleBenchmark extends ScalazInstances {
   val linesTF: Enumerator[FutureT, String] = t.future.readLines(bartebly)
   val linesTT: Enumerator[TryT, String] = t.try_.readLines(bartebly)
   val linesS: Enumerator[Task, String] = s.task.readLines(bartebly)
-  val linesTTF: Enumerator[FreeTryModule.FreeTry, String] = FreeTryModule.readLines(bartebly)
+  val linesTTF: Enumerator[Free[TryT, ?], String] = FreeTryModule.readLines(bartebly)
 
   def words[F[_]: Monad](line: String): Enumerator[F, String] = Enumerator.enumVector(line.split(" ").toVector)
   def avgLen[F[_]: Monad]: Iteratee[F, String, Double] = Iteratee.length[F, String].zip(
@@ -53,5 +54,5 @@ class FileModuleBenchmark extends ScalazInstances {
   def avgWordLengthS: Double = linesS.flatMap(words[Task]).into(avgLen).unsafePerformSync
 
   @Benchmark
-  def avgWordLengthTTF: Double = linesTTF.flatMap(words[FreeTryModule.FreeTry]).into(avgLen).runTailRec.get
+  def avgWordLengthTTF: Double = linesTTF.flatMap(words[Free[TryT, ?]]).into(avgLen[Free[TryT, ?]]).runTailRec.get
 }
