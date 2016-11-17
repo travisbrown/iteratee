@@ -23,11 +23,13 @@ val scalaVersions = Seq("2.10.6", "2.11.8", "2.12.0")
 
 lazy val catsVersion = "0.8.1"
 lazy val disciplineVersion = "0.7.2"
-lazy val monixVersion = "2.0.6"
+lazy val monixVersion = "2.1.0"
 lazy val scalaCheckVersion = "1.13.4"
 lazy val scalaTestVersion = "3.0.0"
 
 lazy val previousIterateeVersion = "0.7.0"
+
+val docMappingsApiDir = settingKey[String]("Subdirectory in site target directory for API docs")
 
 lazy val baseSettings = Seq(
   scalacOptions ++= (compilerOptions :+ "-Yno-predef") ++ (
@@ -63,8 +65,9 @@ lazy val commonJsSettings = Seq(
   scalaJSStage in Global := FastOptStage
 )
 
-lazy val docSettings = site.settings ++ ghpages.settings ++ unidocSettings ++ Seq(
-  site.addMappingsToSiteDir(mappings in (ScalaUnidoc, packageDoc), "api"),
+lazy val docSettings = ghpages.settings ++ unidocSettings ++ Seq(
+  docMappingsApiDir := "api",
+  addMappingsToSiteDir(mappings in (ScalaUnidoc, packageDoc), docMappingsApiDir),
   scalacOptions in (ScalaUnidoc, unidoc) ++= Seq(
     "-groups",
     "-implicits",
