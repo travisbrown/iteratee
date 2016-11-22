@@ -27,7 +27,7 @@ lazy val monixVersion = "2.1.1"
 lazy val scalaCheckVersion = "1.13.4"
 lazy val scalaTestVersion = "3.0.0"
 
-lazy val previousIterateeVersion = "0.7.0"
+lazy val previousIterateeVersion = "0.7.1"
 
 val docMappingsApiDir = settingKey[String]("Subdirectory in site target directory for API docs")
 
