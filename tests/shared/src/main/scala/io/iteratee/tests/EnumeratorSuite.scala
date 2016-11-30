@@ -156,6 +156,87 @@ abstract class EnumeratorSuite[F[_]: Monad] extends ModuleSuite[F] {
       assert(enumerator.toVector === F.pure(eav.values.flatMap(v => Vector(v, v))))
     }
   }
+
+  "take" should "match using an Enumeratee directly" in forAll { (eav: EnumeratorAndValues[Int], n: Long) =>
+    assert(eav.enumerator.take(n) === eav.enumerator.through(take(n)))
+  }
+
+  "takeWhile" should "match using an Enumeratee directly" in {
+    forAll { (eav: EnumeratorAndValues[Int], p: Int => Boolean) =>
+      assert(eav.enumerator.takeWhile(p) === eav.enumerator.through(takeWhile(p)))
+    }
+  }
+
+  "takeWhileM" should "match using an Enumeratee directly" in {
+    forAll { (eav: EnumeratorAndValues[Int], p: Int => Boolean) =>
+      assert(eav.enumerator.takeWhileM(p.andThen(F.pure)) === eav.enumerator.through(takeWhileM(p.andThen(F.pure))))
+    }
+  }
+
+  "drop" should "match using an Enumeratee directly" in forAll { (eav: EnumeratorAndValues[Int], n: Long) =>
+    assert(eav.enumerator.drop(n) === eav.enumerator.through(drop(n)))
+  }
+
+  "dropWhile" should "match using an Enumeratee directly" in {
+    forAll { (eav: EnumeratorAndValues[Int], p: Int => Boolean) =>
+      assert(eav.enumerator.dropWhile(p) === eav.enumerator.through(dropWhile(p)))
+    }
+  }
+
+  "dropWhileM" should "match using an Enumeratee directly" in {
+    forAll { (eav: EnumeratorAndValues[Int], p: Int => Boolean) =>
+      assert(eav.enumerator.dropWhileM(p.andThen(F.pure)) === eav.enumerator.through(dropWhileM(p.andThen(F.pure))))
+    }
+  }
+
+  "collect" should "match using an Enumeratee directly" in {
+    forAll { (eav: EnumeratorAndValues[Int], f: Int => Option[String]) =>
+      val pf: PartialFunction[Int, String] = {
+        case x if f(x).isDefined => f(x).get
+      }
+      assert(eav.enumerator.collect(pf) === eav.enumerator.through(collect(pf)))
+    }
+  }
+
+  "filter" should "match using an Enumeratee directly" in forAll { (eav: EnumeratorAndValues[Int], p: Int => Boolean) =>
+    assert(eav.enumerator.filter(p) === eav.enumerator.through(filter(p)))
+  }
+
+  "filterM" should "match using an Enumeratee directly" in {
+    forAll { (eav: EnumeratorAndValues[Int], p: Int => Boolean) =>
+      assert(eav.enumerator.filterM(p.andThen(F.pure)) === eav.enumerator.through(filterM(p.andThen(F.pure))))
+    }
+  }
+
+  "sequenceI" should "match using an Enumeratee directly" in forAll { (eav: EnumeratorAndValues[Int]) =>
+    assert(eav.enumerator.sequenceI(takeI(2)) === eav.enumerator.through(sequenceI(takeI(2))))
+  }
+
+  "uniq" should "match using an Enumeratee directly" in forAll { (eav: EnumeratorAndValues[Int]) =>
+    assert(eav.enumerator.uniq === eav.enumerator.through(uniq))
+  }
+
+  "zipWithIndex" should "match using an Enumeratee directly" in forAll { (eav: EnumeratorAndValues[Int]) =>
+    assert(eav.enumerator.zipWithIndex === eav.enumerator.through(zipWithIndex))
+  }
+
+  "grouped" should "match using an Enumeratee directly" in forAll { (eav: EnumeratorAndValues[Int]) =>
+    assert(eav.enumerator.grouped(2) === eav.enumerator.through(grouped(2)))
+  }
+
+  "splitOn" should "match using an Enumeratee directly" in {
+    forAll { (eav: EnumeratorAndValues[Int], p: Int => Boolean) =>
+      assert(eav.enumerator.splitOn(p) === eav.enumerator.through(splitOn(p)))
+    }
+  }
+
+  "cross" should "match using an Enumeratee directly" in forAll { (eav: EnumeratorAndValues[Int]) =>
+    assert(eav.enumerator.cross(enumList(List(1, 2))) === eav.enumerator.through(cross(enumList(List(1, 2)))))
+  }
+
+  "intersperse" should "match using an Enumeratee directly" in forAll { (eav: EnumeratorAndValues[Int]) =>
+    assert(eav.enumerator.intersperse(-1) === eav.enumerator.through(intersperse(-1)))
+  }
 }
 
 abstract class StackSafeEnumeratorSuite[F[_]: Monad] extends EnumeratorSuite[F] {
