@@ -24,13 +24,17 @@ install:
 
 script:
   - if [[ "$TRAVIS_JDK_VERSION" == *jdk8* ]] && [[ "$TRAVIS_SCALA_VERSION" == 2.11.* ]];
-      then
-        sbt ++$TRAVIS_SCALA_VERSION clean validateJVM coverage coverageReport &&
-        sbt ++$TRAVIS_SCALA_VERSION coverageAggregate &&
-        codecov;
-      else
-        sbt ++$TRAVIS_SCALA_VERSION clean core/test tests/test scalaz/test &&
-        sbt ++$TRAVIS_SCALA_VERSION tests/it:test monix/it:test scalaz/it:test;
+    then
+      sbt ++$TRAVIS_SCALA_VERSION clean validateJVM coverage coverageReport &&
+      sbt ++$TRAVIS_SCALA_VERSION coverageAggregate &&
+      codecov;
+    else
+      sbt ++$TRAVIS_SCALA_VERSION clean core/test tests/test scalaz/test &&
+      sbt ++$TRAVIS_SCALA_VERSION tests/it:test monix/it:test scalaz/it:test;
+    fi;
+  - if [[ "$TRAVIS_SCALA_VERSION" == 2.12.* ]];
+    then
+      sbt ++$TRAVIS_SCALA_VERSION twitter/test twitter/it:test;
     fi;
 
   # See http://www.scala-sbt.org/0.13/docs/Travis-CI-with-sbt.html

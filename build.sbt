@@ -162,13 +162,13 @@ lazy val files = project
 lazy val twitter = project
   .configs(IntegrationTest)
   .settings(
-    crossScalaVersions := scalaVersions.tail.init,
+    crossScalaVersions := scalaVersions.tail,
     moduleName := "iteratee-twitter",
     mimaPreviousArtifacts := Set("io.iteratee" %% "iteratee-twitter" % previousIterateeVersion)
   )
   .settings(allSettings ++ Defaults.itSettings)
   .settings(
-    libraryDependencies += "io.catbird" %% "catbird-util" % "0.8.0"
+    libraryDependencies += "io.catbird" %% "catbird-util" % "0.9.0"
   ).dependsOn(core, files, tests % "test,it")
 
 lazy val scalaz = project
