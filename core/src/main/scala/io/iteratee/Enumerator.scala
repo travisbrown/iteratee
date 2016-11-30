@@ -1,6 +1,7 @@
 package io.iteratee
 
 import cats.{ Applicative, FlatMap, Monad, MonadError, Semigroup, Eval }
+import cats.kernel.Eq
 import io.iteratee.internal.Step
 import scala.Predef.=:=
 import scala.util.{ Left, Right }
@@ -21,6 +22,27 @@ abstract class Enumerator[F[_], E] extends Serializable { self =>
 
   final def flatMap[B](f: E => Enumerator[F, B])(implicit F: Monad[F]): Enumerator[F, B] =
     through(Enumeratee.flatMap(f))
+
+  final def take(n: Long)(implicit F: Monad[F]): Enumerator[F, E] = through(Enumeratee.take[F, E](n))
+  final def takeWhile(p: E => Boolean)(implicit F: Monad[F]): Enumerator[F, E] = through(Enumeratee.takeWhile[F, E](p))
+  final def takeWhileM(p: E => F[Boolean])(implicit F: Monad[F]): Enumerator[F, E] = through(Enumeratee.takeWhileM(p))
+  final def drop(n: Long)(implicit F: Monad[F]): Enumerator[F, E] = through(Enumeratee.drop[F, E](n))
+  final def dropWhile(p: E => Boolean)(implicit F: Monad[F]): Enumerator[F, E] = through(Enumeratee.dropWhile[F, E](p))
+  final def dropWhileM(p: E => F[Boolean])(implicit F: Monad[F]): Enumerator[F, E] = through(Enumeratee.dropWhileM(p))
+  final def collect[B](pf: PartialFunction[E, B])(implicit F: Monad[F]): Enumerator[F, B] =
+    through(Enumeratee.collect[F, E, B](pf))
+  final def filter(p: E => Boolean)(implicit F: Monad[F]): Enumerator[F, E] = through(Enumeratee.filter[F, E](p))
+  final def filterM(p: E => F[Boolean])(implicit F: Monad[F]): Enumerator[F, E] = through(Enumeratee.filterM(p))
+  final def sequenceI[B](iteratee: Iteratee[F, E, B])(implicit F: Monad[F]): Enumerator[F, B] =
+    through(Enumeratee.sequenceI(iteratee))
+  final def uniq(implicit F: Monad[F], E: Eq[E]): Enumerator[F, E] = through(Enumeratee.uniq[F, E])
+  final def zipWithIndex(implicit F: Monad[F]): Enumerator[F, (E, Long)] = through(Enumeratee.zipWithIndex[F, E])
+  final def grouped(n: Int)(implicit F: Monad[F]): Enumerator[F, Vector[E]] = through(Enumeratee.grouped[F, E](n))
+  final def splitOn(p: E => Boolean)(implicit F: Monad[F]): Enumerator[F, Vector[E]] =
+    through(Enumeratee.splitOn[F, E](p))
+  final def cross[E2](e2: Enumerator[F, E2])(implicit F: Monad[F]): Enumerator[F, (E, E2)] =
+    through(Enumeratee.cross(e2))
+  final def intersperse(delim: E)(implicit F: Monad[F]): Enumerator[F, E] = through(Enumeratee.intersperse[F, E](delim))
 
   final def prepend(e: E)(implicit F: Monad[F]): Enumerator[F, E] = new Enumerator[F, E] {
     def apply[A](step: Step[F, E, A]): F[Step[F, E, A]] =
