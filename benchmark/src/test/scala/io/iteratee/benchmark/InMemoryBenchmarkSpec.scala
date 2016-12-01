@@ -30,15 +30,11 @@ class InMemoryBenchmarkSpec extends FlatSpec {
     assert(benchmark.sumInts5Z === sum)
   }
 
-  it should "correctly calculate the sum using play-iteratee" in {
-    assert(benchmark.sumInts6P === sum)
+  it should "correctly calculate the sum using fs2" in {
+    assert(benchmark.sumInts6F === sum)
   }
 
   it should "correctly calculate the sum using the collections library" in {
     assert(benchmark.sumInts7C === sum)
-  }
-
-  it should "correctly calculate the sum using fs2" in {
-    assert(benchmark.sumInts8F === sum)
   }
 }

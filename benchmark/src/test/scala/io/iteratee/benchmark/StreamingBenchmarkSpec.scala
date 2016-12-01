@@ -31,15 +31,11 @@ class StreamingBenchmarkSpec extends FlatSpec {
     assert(benchmark.takeLongs5Z === taken)
   }
 
-  it should "correctly gather elements using play-iteratee" in {
-    assert(benchmark.takeLongs6P === taken)
+  it should "correctly gather elements using fs2" in {
+    assert(benchmark.takeLongs6F === taken)
   }
 
   it should "correctly gather elements using the collections library" in {
     assert(benchmark.takeLongs7C === taken)
-  }
-
-  it should "correctly gather elements using fs2" in {
-    assert(benchmark.takeLongs8F === taken)
   }
 }
