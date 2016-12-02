@@ -208,18 +208,17 @@ lazy val monixJS = monixBase.js
 lazy val benchmark = project
   .configs(IntegrationTest)
   .settings(
-    crossScalaVersions := scalaVersions.tail.init,
+    crossScalaVersions := scalaVersions.tail,
     moduleName := "iteratee-benchmark"
   )
   .settings(allSettings ++ Defaults.itSettings)
   .settings(noPublishSettings)
   .settings(
     libraryDependencies ++= Seq(
-      "co.fs2" %% "fs2-core" % "0.9.1",
-      "com.typesafe.play" %% "play-iteratees" % "2.6.0",
+      "co.fs2" %% "fs2-core" % "0.9.2",
       "org.scalatest" %% "scalatest" % scalaTestVersion % "test",
-      "org.scalaz" %% "scalaz-iteratee" % "7.2.6",
-      "org.scalaz.stream" %% "scalaz-stream" % "0.8.4a",
+      "org.scalaz" %% "scalaz-iteratee" % "7.2.7",
+      "org.scalaz.stream" %% "scalaz-stream" % "0.8.6a",
       "org.typelevel" %% "cats-free" % catsVersion
     )
   )

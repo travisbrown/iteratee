@@ -10,7 +10,6 @@ import io.iteratee.scalaz.ScalazInstances
 import java.util.concurrent.TimeUnit
 import monix.eval.{ Task => TaskM }
 import org.openjdk.jmh.annotations._
-import play.api.libs.{ iteratee => p }
 import scala.Predef.intWrapper
 import scala.concurrent.Await
 import scala.concurrent.duration._
@@ -33,7 +32,6 @@ class InMemoryExampleData extends IterateeBenchmark {
   val intsIR: i.Enumerator[Rerunnable, Int] = i.Enumerator.enumVector[Rerunnable, Int](intsC)
   val intsS: Process[Task, Int] = Process.emitAll(intsC)
   val intsZ: z.EnumeratorT[Int, Task] = z.EnumeratorT.enumIndexedSeq(intsC)
-  val intsP: p.Enumerator[Int] = p.Enumerator(intsC: _*)
   val intsF: fs2.Stream[fs2.Task, Int] = fs2.Stream.emits(intsC)
 }
 
@@ -45,8 +43,6 @@ class StreamingExampleData extends IterateeBenchmark {
   val longStreamS: Process[Task, Long] = Process.iterate(0L)(_ + 1L)
   // scalaz-iteratee's iterate is broken.
   val longStreamZ: z.EnumeratorT[Long, Task] = z.EnumeratorT.repeat[Unit, Task](()).zipWithIndex.map(_._2)
-  val longStreamP: p.Enumerator[Long] = p.Enumerator.unfold(0L)(i => Some((i + 1L, i)))
-  val longStreamC: Stream[Long] = Stream.iterate(0L)(_ + 1L)
   val longStreamF: fs2.Stream[fs2.Task, Long] = {
     // fs2 doesn't have an iterate yet.
     def iterate[A](start: A)(f: A => A): fs2.Stream[Nothing, A] = {
@@ -54,6 +50,7 @@ class StreamingExampleData extends IterateeBenchmark {
     }
     iterate(0L)(_ + 1L)
   }
+  val longStreamC: Stream[Long] = Stream.iterate(0L)(_ + 1L)
 }
 
 /**
@@ -89,13 +86,10 @@ class InMemoryBenchmark extends InMemoryExampleData {
   def sumInts5Z: Int = (z.IterateeT.sum[Int, Task] &= intsZ).run.unsafePerformSync
 
   @Benchmark
-  def sumInts6P: Int = Await.result(intsP.run(p.Iteratee.fold(0)(_ + _)), Duration.Inf)
+  def sumInts6F: Int = intsF.sum.runLast.unsafeRun.get
 
   @Benchmark
   def sumInts7C: Int = intsC.sum
-
-  @Benchmark
-  def sumInts8F: Int = intsF.sum.runLast.unsafeRun.get
 }
 
 /**
@@ -133,11 +127,8 @@ class StreamingBenchmark extends StreamingExampleData {
   def takeLongs5Z: Vector[Long] = (z.Iteratee.take[Long, Vector](count).up[Task] &= longStreamZ).run.unsafePerformSync
 
   @Benchmark
-  def takeLongs6P: Seq[Long] = Await.result(longStreamP.run(p.Iteratee.takeUpTo(count)), Duration.Inf)
+  def takeLongs6F: Vector[Long] = longStreamF.take(count.toLong).runLog.unsafeRun
 
   @Benchmark
   def takeLongs7C: Vector[Long] = longStreamC.take(count).toVector
-
-  @Benchmark
-  def takeLongs8F: Vector[Long] = longStreamF.take(count.toLong).runLog.unsafeRun
 }
