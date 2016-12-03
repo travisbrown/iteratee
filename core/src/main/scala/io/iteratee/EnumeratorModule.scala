@@ -46,6 +46,14 @@ trait EnumeratorModule[F[_]] { this: Module[F] =>
   final def enumOne[E](e: E): Enumerator[F, E] = Enumerator.enumOne(e)(F)
 
   /**
+   * An enumerator that produces the characters of a string (potentially without
+   * representing it as a sequence).
+   *
+   * @group Enumerators
+   */
+  final def enumString(input: String): Enumerator[F, Char] = Enumerator.enumString(input)(F)
+
+  /**
    * An enumerator that produces values from a stream.
    *
    * @group Enumerators

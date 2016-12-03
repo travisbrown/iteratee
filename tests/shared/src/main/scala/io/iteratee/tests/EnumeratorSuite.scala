@@ -28,6 +28,10 @@ abstract class EnumeratorSuite[F[_]: Monad] extends ModuleSuite[F] {
     assert(enumOne(i).toVector === F.pure(Vector(i)))
   }
 
+  "enumString" should "produce the same values as enumList" in forAll { (input: String) =>
+    assert(enumString(input).toVector === enumList(input.toList).toVector)
+  }
+
   "enumStream" should "enumerate values from a stream" in forAll { (xs: Stream[Int]) =>
     assert(enumStream(xs).toVector === F.pure(xs.toVector))
   }

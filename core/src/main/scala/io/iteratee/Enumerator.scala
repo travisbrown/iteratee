@@ -3,7 +3,7 @@ package io.iteratee
 import cats.{ Applicative, FlatMap, Monad, MonadError, Semigroup, Eval }
 import cats.kernel.Eq
 import io.iteratee.internal.Step
-import scala.Predef.=:=
+import scala.Predef.{ $conforms, =:= }
 import scala.util.{ Left, Right }
 
 abstract class Enumerator[F[_], E] extends Serializable { self =>
@@ -139,6 +139,15 @@ final object Enumerator extends EnumeratorInstances {
   final def enumOne[F[_]: Applicative, E](e: E): Enumerator[F, E] = new Enumerator[F, E] {
     final def apply[A](s: Step[F, E, A]): F[Step[F, E, A]] = s.feedEl(e)
   }
+
+  /**
+   * An enumerator that produces the characters of a string (potentially without
+   * representing it as a sequence).
+   */
+  final def enumString[F[_]](input: String)(implicit F: Applicative[F]): Enumerator[F, Char] =
+    new Enumerator[F, Char] {
+      final def apply[A](s: Step[F, Char, A]): F[Step[F, Char, A]] = s.feed(input)
+    }
 
   private[this] abstract class ChunkedIteratorEnumerator[F[_], E](implicit F: Monad[F]) extends Enumerator[F, E] {
     def chunks: Iterator[Vector[E]]
