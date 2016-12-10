@@ -20,6 +20,10 @@ abstract class EnumeratorSuite[F[_]: Monad] extends ModuleSuite[F] {
     assert(liftToEnumerator(F.pure(i)).toVector === F.pure(Vector(i)))
   }
 
+  "enumerate" should "enumerate varargs values" in forAll { (xs: List[Int]) =>
+    assert(enumerate(xs: _*).toVector === F.pure(xs.toVector))
+  }
+
   "empty" should "not enumerate any values" in {
     assert(empty[Int].toVector === F.pure(Vector.empty))
   }
