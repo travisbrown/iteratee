@@ -97,6 +97,13 @@ final object Enumerator extends EnumeratorInstances {
   private[this] final val defaultChunkSize: Int = 1024
 
   /**
+   * An enumerator that produces the given values.
+   */
+  final def enumerate[F[_], E](xs: E*)(implicit F: Applicative[F]): Enumerator[F, E] = new Enumerator[F, E] {
+    final def apply[A](s: Step[F, E, A]): F[Step[F, E, A]] = s.feed(xs)
+  }
+
+  /**
    * Lift an effectful value into an enumerator.
    */
   final def liftM[F[_], E](fa: F[E])(implicit F: FlatMap[F]): Enumerator[F, E] =
@@ -139,6 +146,15 @@ final object Enumerator extends EnumeratorInstances {
   final def enumOne[F[_]: Applicative, E](e: E): Enumerator[F, E] = new Enumerator[F, E] {
     final def apply[A](s: Step[F, E, A]): F[Step[F, E, A]] = s.feedEl(e)
   }
+
+  /**
+   * An enumerator that either produces a single value or fails.
+   */
+  final def enumEither[F[_], T, E](either: Either[T, E])(implicit F: MonadError[F, T]): Enumerator[F, E] =
+    either match {
+      case Right(a) => enumOne(a)
+      case Left(t) => fail(t)
+    }
 
   private[this] abstract class ChunkedIteratorEnumerator[F[_], E](implicit F: Monad[F]) extends Enumerator[F, E] {
     def chunks: Iterator[Vector[E]]

@@ -52,6 +52,10 @@ class EitherTEnumeratorTests extends StackSafeEnumeratorSuite[({ type L[x] = Eit
     assert(eav.enumerator.append(failEnumerator(error)).toVector.value.value === Left(error))
   }
 
+  "enumEither" should "either enumerate a single value or fail" in forAll { (either: Either[Throwable, Int]) =>
+    assert(enumEither(either).toVector === EitherT.fromEither[Eval](either).map(Vector(_)))
+  }
+
   "handleErrorWith" should "allow recovery from failures" in {
     forAll { (eav: EnumeratorAndValues[Int], message: String) =>
       val error: Throwable = new Exception(message)

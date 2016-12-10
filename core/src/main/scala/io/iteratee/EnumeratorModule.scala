@@ -18,6 +18,13 @@ trait EnumeratorModule[F[_]] { this: Module[F] =>
   final def liftToEnumerator[E](fe: F[E]): Enumerator[F, E] = Enumerator.liftM(fe)(F)
 
   /**
+   * An enumerator that produces the given values.
+   *
+   * @group Enumerators
+   */
+  final def enumerate[E](xs: E*): Enumerator[F, E] = Enumerator.enumerate(xs: _*)(F)
+
+  /**
    * An empty enumerator.
    *
    * @group Enumerators
@@ -131,4 +138,11 @@ trait EnumeratorErrorModule[F[_], T] extends EnumeratorModule[F] {
    * @group Iteratees
    */
   final def failEnumerator[E](t: T): Enumerator[F, E] = Enumerator.fail(t)(F)
+
+  /**
+   * An enumerator that either produces a single value or fails.
+   *
+   * @group Iteratees
+   */
+  final def enumEither[E](either: Either[T, E]): Enumerator[F, E] = Enumerator.enumEither(either)(F)
 }
