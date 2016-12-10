@@ -13,7 +13,6 @@ import org.openjdk.jmh.annotations._
 import scala.Predef.intWrapper
 import scala.concurrent.Await
 import scala.concurrent.duration._
-import scala.concurrent.ExecutionContext.Implicits.global
 import scalaz.concurrent.Task
 import scalaz.{ iteratee => z }
 import scalaz.std.anyVal.intInstance
