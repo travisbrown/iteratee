@@ -19,7 +19,7 @@ lazy val compilerOptions = Seq(
   "-Xfuture"
 )
 
-val scalaVersions = Seq("2.10.6", "2.11.8", "2.12.0")
+val scalaVersions = Seq("2.10.6", "2.11.8", "2.12.1")
 
 lazy val catsVersion = "0.8.1"
 lazy val disciplineVersion = "0.7.2"
