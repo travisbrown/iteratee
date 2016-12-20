@@ -1,10 +1,7 @@
 import sbtunidoc.Plugin.UnidocKeys._
 import ReleaseTransformations._
 
-lazy val buildSettings = Seq(
-  organization := "io.iteratee",
-  scalaVersion := "2.11.8"
-)
+organization in ThisBuild := "io.iteratee"
 
 lazy val compilerOptions = Seq(
   "-deprecation",
@@ -19,13 +16,11 @@ lazy val compilerOptions = Seq(
   "-Xfuture"
 )
 
-val scalaVersions = Seq("2.10.6", "2.11.8", "2.12.1")
-
 lazy val catsVersion = "0.8.1"
 lazy val disciplineVersion = "0.7.2"
-lazy val monixVersion = "2.1.1"
+lazy val monixVersion = "2.1.2"
 lazy val scalaCheckVersion = "1.13.4"
-lazy val scalaTestVersion = "3.0.0"
+lazy val scalaTestVersion = "3.0.1"
 
 lazy val previousIterateeVersion = "0.8.0"
 
@@ -59,7 +54,7 @@ lazy val baseSettings = Seq(
   addCompilerPlugin("org.spire-math" % "kind-projector" % "0.9.3" cross CrossVersion.binary)
 )
 
-lazy val allSettings = buildSettings ++ baseSettings ++ publishSettings
+lazy val allSettings = baseSettings ++ publishSettings
 
 lazy val commonJsSettings = Seq(
   scalaJSStage in Global := FastOptStage
@@ -89,7 +84,6 @@ lazy val iteratee = project.in(file("."))
 
 lazy val coreBase = crossProject.crossType(CrossType.Pure).in(file("core"))
   .settings(
-    crossScalaVersions := scalaVersions,
     moduleName := "iteratee-core",
     name := "core"
   )
@@ -110,7 +104,6 @@ lazy val coreJS = coreBase.js
 lazy val testsBase = crossProject.in(file("tests"))
   .configs(IntegrationTest)
   .settings(
-    crossScalaVersions := scalaVersions,
     moduleName := "iteratee-tests",
     name := "tests"
   )
@@ -152,7 +145,6 @@ lazy val testsJS = testsBase.js
 
 lazy val files = project
   .settings(
-    crossScalaVersions := scalaVersions,
     moduleName := "iteratee-files",
     mimaPreviousArtifacts := Set("io.iteratee" %% "iteratee-files" % previousIterateeVersion)
   )
@@ -162,7 +154,7 @@ lazy val files = project
 lazy val twitter = project
   .configs(IntegrationTest)
   .settings(
-    crossScalaVersions := scalaVersions.tail,
+    crossScalaVersions ~= (_.tail),
     moduleName := "iteratee-twitter",
     mimaPreviousArtifacts := Set("io.iteratee" %% "iteratee-twitter" % previousIterateeVersion)
   )
@@ -174,7 +166,6 @@ lazy val twitter = project
 lazy val scalaz = project
   .configs(IntegrationTest)
   .settings(
-    crossScalaVersions := scalaVersions,
     moduleName := "iteratee-scalaz",
     mimaPreviousArtifacts := Set("io.iteratee" %% "iteratee-scalaz" % previousIterateeVersion)
   )
@@ -186,7 +177,6 @@ lazy val scalaz = project
 lazy val monixBase = crossProject.in(file("monix"))
   .configs(IntegrationTest)
   .settings(
-    crossScalaVersions := scalaVersions,
     moduleName := "iteratee-monix"
   )
   .settings(allSettings: _*)
@@ -208,7 +198,7 @@ lazy val monixJS = monixBase.js
 lazy val benchmark = project
   .configs(IntegrationTest)
   .settings(
-    crossScalaVersions := scalaVersions.tail,
+    crossScalaVersions ~= (_.tail),
     moduleName := "iteratee-benchmark"
   )
   .settings(allSettings ++ Defaults.itSettings)
