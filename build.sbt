@@ -160,7 +160,7 @@ lazy val twitter = project
   )
   .settings(allSettings ++ Defaults.itSettings)
   .settings(
-    libraryDependencies += "io.catbird" %% "catbird-util" % "0.9.0"
+    libraryDependencies += "io.catbird" %% "catbird-util" % "0.10.0"
   ).dependsOn(core, files, tests % "test,it")
 
 lazy val scalaz = project
@@ -171,7 +171,7 @@ lazy val scalaz = project
   )
   .settings(allSettings ++ Defaults.itSettings)
   .settings(
-    libraryDependencies += "org.scalaz" %% "scalaz-concurrent" % "7.2.7"
+    libraryDependencies += "org.scalaz" %% "scalaz-concurrent" % "7.2.8"
   ).dependsOn(core, files, tests % "test,it")
 
 lazy val monixBase = crossProject.in(file("monix"))
