@@ -25,7 +25,7 @@ install:
 script:
   - if [[ "$TRAVIS_JDK_VERSION" == *jdk8* ]] && [[ "$TRAVIS_SCALA_VERSION" == 2.11.* ]];
     then
-      sbt ++$TRAVIS_SCALA_VERSION clean validateJVM coverage coverageReport &&
+      sbt ++$TRAVIS_SCALA_VERSION clean coverage validateJVM coverageReport &&
       sbt ++$TRAVIS_SCALA_VERSION coverageAggregate &&
       codecov;
     else
