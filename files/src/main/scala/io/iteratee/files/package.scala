@@ -9,7 +9,7 @@ import scala.util.Try
 
 package object files {
   def future(implicit ec0: ExecutionContext): FileModule[Future] = new FutureFileModule {
-    final protected val ec: ExecutionContext = ec0
+    final protected def ec: ExecutionContext = ec0
   }
 }
 
