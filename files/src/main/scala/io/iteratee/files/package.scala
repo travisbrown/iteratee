@@ -8,8 +8,8 @@ import scala.concurrent.{ ExecutionContext, Future }
 import scala.util.Try
 
 package object files {
-  def future(implicit ec0: ExecutionContext): FileModule[Future] = new FutureFileModule {
-    final protected val ec: ExecutionContext = ec0
+  def future(implicit ec0: ExecutionContext): FutureModule with FileModule[Future] = new FutureFileModule {
+    final protected def ec: ExecutionContext = ec0
   }
 }
 
