@@ -19,6 +19,8 @@ lazy val compilerOptions = Seq(
 lazy val catsVersion = "0.8.1"
 lazy val disciplineVersion = "0.7.2"
 lazy val monixVersion = "2.1.2"
+lazy val fs2Version = "0.9.2"
+lazy val fs2CatsVersion = "0.2.0"
 lazy val scalaCheckVersion = "1.13.4"
 lazy val scalaTestVersion = "3.0.1"
 
@@ -79,7 +81,7 @@ lazy val iteratee = project.in(file("."))
   .settings(allSettings)
   .settings(docSettings)
   .settings(noPublishSettings)
-  .aggregate(benchmark, core, coreJS, files, monix, monixJS, scalaz, tests, testsJS, twitter)
+  .aggregate(benchmark, core, coreJS, files, monix, monixJS, scalaz, fs2, tests, testsJS, twitter)
   .dependsOn(core, scalaz)
 
 lazy val coreBase = crossProject.crossType(CrossType.Pure).in(file("core"))
@@ -195,6 +197,20 @@ lazy val monixBase = crossProject.in(file("monix"))
 lazy val monix = monixBase.jvm
 lazy val monixJS = monixBase.js
 
+lazy val fs2 = project
+  .configs(IntegrationTest)
+  .settings(
+    moduleName := "iteratee-fs2",
+    mimaPreviousArtifacts := Set("io.iteratee" %% "iteratee-fs2" % previousIterateeVersion)
+  )
+  .settings(allSettings ++ Defaults.itSettings)
+  .settings(
+    libraryDependencies ++= Seq(
+      "co.fs2" %% "fs2-core" % fs2Version,
+      "co.fs2" %% "fs2-cats" % fs2CatsVersion
+    )
+  ).dependsOn(core, files, tests % "test,it")
+
 lazy val benchmark = project
   .configs(IntegrationTest)
   .settings(
@@ -205,15 +221,15 @@ lazy val benchmark = project
   .settings(noPublishSettings)
   .settings(
     libraryDependencies ++= Seq(
-      "co.fs2" %% "fs2-core" % "0.9.2",
       "org.scalatest" %% "scalatest" % scalaTestVersion % "test",
       "org.scalaz" %% "scalaz-iteratee" % "7.2.7",
       "org.scalaz.stream" %% "scalaz-stream" % "0.8.6a",
-      "org.typelevel" %% "cats-free" % catsVersion
+      "org.typelevel" %% "cats-free" % catsVersion,
+      "io.monix" %% "monix-cats" % monixVersion
     )
   )
   .enablePlugins(JmhPlugin)
-  .dependsOn(core, monix, scalaz, tests, twitter)
+  .dependsOn(core, monix, scalaz, fs2, tests, twitter)
 
 lazy val publishSettings = Seq(
   releaseCrossBuild := true,
@@ -273,6 +289,7 @@ val jvmProjects = Seq(
   "files",
   "monix",
   "scalaz",
+  "fs2",
   "twitter",
   "tests"
 )
@@ -284,7 +301,7 @@ val jsProjects = Seq(
 )
 
 addCommandAlias("testJVM", jvmProjects.map(";" + _ + "/test").mkString)
-addCommandAlias("validateJVM", ";testJVM;tests/it:test;benchmark/it:test;monix/it:test;scalaz/it:test;twitter/it:test;scalastyle;unidoc")
+addCommandAlias("validateJVM", ";testJVM;tests/it:test;benchmark/it:test;monix/it:test;scalaz/it:test;fs2/it:test;twitter/it:test;scalastyle;unidoc")
 addCommandAlias("testJS", jsProjects.map(";" + _ + "/test").mkString)
 addCommandAlias("validateJS", ";testJS;scalastyle;unidoc")
 addCommandAlias("validate", ";validateJVM;validateJS")
