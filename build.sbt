@@ -16,11 +16,12 @@ lazy val compilerOptions = Seq(
   "-Xfuture"
 )
 
-lazy val catsVersion = "0.8.1"
-lazy val disciplineVersion = "0.7.2"
+lazy val catsVersion = "0.9.0"
+lazy val disciplineVersion = "0.7.3"
 lazy val monixVersion = "2.1.2"
 lazy val fs2Version = "0.9.2"
 lazy val fs2CatsVersion = "0.2.0"
+
 lazy val scalaCheckVersion = "1.13.4"
 lazy val scalaTestVersion = "3.0.1"
 
@@ -162,7 +163,7 @@ lazy val twitter = project
   )
   .settings(allSettings ++ Defaults.itSettings)
   .settings(
-    libraryDependencies += "io.catbird" %% "catbird-util" % "0.10.0"
+    libraryDependencies += "io.catbird" %% "catbird-util" % "0.11.0"
   ).dependsOn(core, files, tests % "test,it")
 
 lazy val scalaz = project
