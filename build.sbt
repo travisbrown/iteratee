@@ -20,7 +20,7 @@ lazy val catsVersion = "0.9.0"
 lazy val disciplineVersion = "0.7.3"
 lazy val monixVersion = "2.1.2"
 lazy val fs2Version = "0.9.2"
-lazy val fs2CatsVersion = "0.2.0"
+lazy val fs2CatsVersion = "0.3.0"
 
 lazy val scalaCheckVersion = "1.13.4"
 lazy val scalaTestVersion = "3.0.1"
