@@ -201,6 +201,7 @@ lazy val monixJS = monixBase.js
 lazy val fs2 = project
   .configs(IntegrationTest)
   .settings(
+    crossScalaVersions ~= (_.tail),
     moduleName := "iteratee-fs2",
     mimaPreviousArtifacts := Set("io.iteratee" %% "iteratee-fs2" % previousIterateeVersion)
   )
