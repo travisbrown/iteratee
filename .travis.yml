@@ -34,7 +34,7 @@ script:
     fi;
   - if [[ "$TRAVIS_SCALA_VERSION" == 2.12.* ]];
     then
-      sbt ++$TRAVIS_SCALA_VERSION twitter/test twitter/it:test benchmark/test;
+      sbt ++$TRAVIS_SCALA_VERSION twitter/test twitter/it:test fs2/test fs2/it:test benchmark/test;
     fi;
 
   # See http://www.scala-sbt.org/0.13/docs/Travis-CI-with-sbt.html

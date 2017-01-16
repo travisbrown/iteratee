@@ -9,6 +9,6 @@ package io.iteratee
  * not have a monix-cats dependency, you can use the `io.iteratee.monix.task`
  * module directly.
  */
-package object monix {
+package monix {
   final object task extends DefaultTaskModule
 }

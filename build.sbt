@@ -74,7 +74,7 @@ lazy val docSettings = ghpages.settings ++ unidocSettings ++ Seq(
   ),
   git.remoteRepo := "git@github.com:travisbrown/iteratee.git",
   unidocProjectFilter in (ScalaUnidoc, unidoc) :=
-    inAnyProject -- inProjects(coreJS, benchmark, monixJS, tests, testsJS, twitter)
+    inAnyProject -- inProjects(coreJS, benchmark, monixJS, fs2JS, tests, testsJS, twitter)
 )
 
 lazy val iteratee = project.in(file("."))
@@ -198,19 +198,27 @@ lazy val monixBase = crossProject.in(file("monix"))
 lazy val monix = monixBase.jvm
 lazy val monixJS = monixBase.js
 
-lazy val fs2 = project
+lazy val fs2Base = crossProject.in(file("fs2"))
   .configs(IntegrationTest)
   .settings(
-    moduleName := "iteratee-fs2",
-    mimaPreviousArtifacts := Set("io.iteratee" %% "iteratee-fs2" % previousIterateeVersion)
+    crossScalaVersions ~= (_.tail),
+    moduleName := "iteratee-fs2"
   )
-  .settings(allSettings ++ Defaults.itSettings)
+  .settings(allSettings: _*)
+  .settings(Defaults.itSettings: _*)
   .settings(
     libraryDependencies ++= Seq(
-      "co.fs2" %% "fs2-core" % fs2Version,
-      "co.fs2" %% "fs2-cats" % fs2CatsVersion
+      "co.fs2" %%% "fs2-core" % fs2Version,
+      "co.fs2" %%% "fs2-cats" % fs2CatsVersion
     )
-  ).dependsOn(core, files, tests % "test,it")
+  )
+  .jsSettings(commonJsSettings: _*)
+  .jvmConfigure(_.copy(id = "fs2").dependsOn(files))
+  .jsConfigure(_.copy(id = "fs2JS"))
+  .dependsOn(coreBase, testsBase % "test,it")
+
+lazy val fs2 = fs2Base.jvm
+lazy val fs2JS = fs2Base.js
 
 lazy val benchmark = project
   .configs(IntegrationTest)
