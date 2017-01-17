@@ -3,6 +3,8 @@ import ReleaseTransformations._
 
 organization in ThisBuild := "io.iteratee"
 
+lazy val scalaVersions = Seq("2.10.6", "2.11.8", "2.12.1")
+
 lazy val compilerOptions = Seq(
   "-deprecation",
   "-encoding", "UTF-8",
@@ -30,6 +32,7 @@ lazy val previousIterateeVersion = "0.8.0"
 val docMappingsApiDir = settingKey[String]("Subdirectory in site target directory for API docs")
 
 lazy val baseSettings = Seq(
+  scalaVersion := "2.11.8",
   scalacOptions ++= (compilerOptions :+ "-Yno-predef") ++ (
     CrossVersion.partialVersion(scalaVersion.value) match {
       case Some((2, p)) if p >= 11 => Seq("-Ywarn-unused-import")
@@ -86,9 +89,11 @@ lazy val iteratee = project.in(file("."))
   .dependsOn(core, scalaz)
 
 lazy val coreBase = crossProject.crossType(CrossType.Pure).in(file("core"))
+  .enablePlugins(CrossPerProjectPlugin)
   .settings(
     moduleName := "iteratee-core",
-    name := "core"
+    name := "core",
+    crossScalaVersions := scalaVersions
   )
   .settings(allSettings: _*)
   .settings(
@@ -105,10 +110,12 @@ lazy val core = coreBase.jvm
 lazy val coreJS = coreBase.js
 
 lazy val testsBase = crossProject.in(file("tests"))
+  .enablePlugins(CrossPerProjectPlugin)
   .configs(IntegrationTest)
   .settings(
     moduleName := "iteratee-tests",
-    name := "tests"
+    name := "tests",
+    crossScalaVersions := scalaVersions
   )
   .settings(allSettings: _*)
   .settings(noPublishSettings: _*)
@@ -147,17 +154,20 @@ lazy val tests = testsBase.jvm
 lazy val testsJS = testsBase.js
 
 lazy val files = project
+  .enablePlugins(CrossPerProjectPlugin)
   .settings(
     moduleName := "iteratee-files",
+    crossScalaVersions := scalaVersions,
     mimaPreviousArtifacts := Set("io.iteratee" %% "iteratee-files" % previousIterateeVersion)
   )
   .settings(allSettings)
   .dependsOn(core)
 
 lazy val twitter = project
+  .enablePlugins(CrossPerProjectPlugin)
   .configs(IntegrationTest)
   .settings(
-    crossScalaVersions ~= (_.tail),
+    crossScalaVersions := scalaVersions.tail,
     moduleName := "iteratee-twitter",
     mimaPreviousArtifacts := Set("io.iteratee" %% "iteratee-twitter" % previousIterateeVersion)
   )
@@ -167,9 +177,11 @@ lazy val twitter = project
   ).dependsOn(core, files, tests % "test,it")
 
 lazy val scalaz = project
+  .enablePlugins(CrossPerProjectPlugin)
   .configs(IntegrationTest)
   .settings(
     moduleName := "iteratee-scalaz",
+    crossScalaVersions := scalaVersions,
     mimaPreviousArtifacts := Set("io.iteratee" %% "iteratee-scalaz" % previousIterateeVersion)
   )
   .settings(allSettings ++ Defaults.itSettings)
@@ -178,9 +190,11 @@ lazy val scalaz = project
   ).dependsOn(core, files, tests % "test,it")
 
 lazy val monixBase = crossProject.in(file("monix"))
+  .enablePlugins(CrossPerProjectPlugin)
   .configs(IntegrationTest)
   .settings(
-    moduleName := "iteratee-monix"
+    moduleName := "iteratee-monix",
+    crossScalaVersions := scalaVersions
   )
   .settings(allSettings: _*)
   .settings(Defaults.itSettings: _*)
@@ -199,9 +213,10 @@ lazy val monix = monixBase.jvm
 lazy val monixJS = monixBase.js
 
 lazy val fs2Base = crossProject.in(file("fs2"))
+  .enablePlugins(CrossPerProjectPlugin)
   .configs(IntegrationTest)
   .settings(
-    crossScalaVersions ~= (_.tail),
+    crossScalaVersions := scalaVersions.tail,
     moduleName := "iteratee-fs2"
   )
   .settings(allSettings: _*)
@@ -221,9 +236,10 @@ lazy val fs2 = fs2Base.jvm
 lazy val fs2JS = fs2Base.js
 
 lazy val benchmark = project
+  .enablePlugins(CrossPerProjectPlugin)
   .configs(IntegrationTest)
   .settings(
-    crossScalaVersions ~= (_.tail),
+    crossScalaVersions := scalaVersions.tail,
     moduleName := "iteratee-benchmark"
   )
   .settings(allSettings ++ Defaults.itSettings)
