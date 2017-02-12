@@ -236,7 +236,7 @@ final object Step { self =>
   }
 
   /**
-   * Create a new completed [[Step]] with the given result and leftover input.
+   * Create a new completed [[Step]] with the given result.
    *
    * @group Constructors
    */
