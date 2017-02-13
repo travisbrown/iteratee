@@ -6,6 +6,11 @@ import io.iteratee.internal.Step
 import scala.Predef.=:=
 import scala.util.{ Left, Right }
 
+/**
+ *
+ * @tparam F The effect type constructor
+ * @tparam E The type of the enumerated data
+ */
 abstract class Enumerator[F[_], E] extends Serializable { self =>
   def apply[A](s: Step[F, E, A]): F[Step[F, E, A]]
 
