@@ -1,4 +1,3 @@
-import sbtunidoc.Plugin.UnidocKeys._
 import ReleaseTransformations._
 
 organization in ThisBuild := "io.iteratee"
@@ -66,7 +65,7 @@ lazy val commonJsSettings = Seq(
   scalaJSStage in Global := FastOptStage
 )
 
-lazy val docSettings = ghpages.settings ++ unidocSettings ++ Seq(
+lazy val docSettings = Seq(
   docMappingsApiDir := "api",
   addMappingsToSiteDir(mappings in (ScalaUnidoc, packageDoc), docMappingsApiDir),
   scalacOptions in (ScalaUnidoc, unidoc) ++= Seq(
@@ -81,7 +80,7 @@ lazy val docSettings = ghpages.settings ++ unidocSettings ++ Seq(
 )
 
 lazy val iteratee = project.in(file("."))
-  .enablePlugins(CrossPerProjectPlugin)
+  .enablePlugins(CrossPerProjectPlugin, GhpagesPlugin, ScalaUnidocPlugin)
   .settings(allSettings)
   .settings(docSettings)
   .settings(noPublishSettings)
