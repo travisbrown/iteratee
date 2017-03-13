@@ -108,8 +108,7 @@ final object Step { self =>
         case Done(otherValue, otherRemaining) => F.pure(Done(otherValue, otherRemaining ++ remaining))
         case step =>
           val c = remaining.lengthCompare(1)
-
-          if (c < 0) f(value) else if (c == 0) step.feedEl(remaining.head) else step.feedNonEmpty(remaining)
+          if (c < 0) F.pure(step) else if (c == 0) step.feedEl(remaining.head) else step.feedNonEmpty(remaining)
       }
 
     final def zip[B](other: Step[F, E, B]): Step[F, E, (A, B)] = other match {

@@ -237,6 +237,17 @@ abstract class BaseIterateeSuite[F[_]: Monad] extends ModuleSuite[F] {
     assert(eav.resultWithLeftovers(iteratee) === F.pure(((), Vector.empty)) && total === eav.values.sum)
   }
 
+  "foreach" should "perform an operation on all values in a grouped stream" in {
+    forAll { (eav: EnumeratorAndValues[Int]) =>
+      val eavg = EnumeratorAndValues(eav.enumerator.grouped(3), eav.values.grouped(3).toVector)
+
+      var total = 0
+      val iteratee = foreach[Vector[Int]](is => total += is.sum)
+
+      assert(eavg.resultWithLeftovers(iteratee) === F.pure(((), Vector.empty)) && total === eavg.values.flatten.sum)
+    }
+  }
+
   "foreachM" should "perform an effectful operation on all values in a stream" in {
     forAll { (eav: EnumeratorAndValues[Int]) =>
       var total = 0
