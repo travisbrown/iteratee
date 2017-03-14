@@ -320,13 +320,39 @@ final object Iteratee extends IterateeInstances {
   final def foldMap[F[_]: Applicative, E, A: Monoid](f: E => A): Iteratee[F, E, A] = Iteratee.fromStep(Step.foldMap(f))
 
   /**
+   * An [[Iteratee]] that combines values using an effectful function to a type
+   * with a [[cats.Monoid]] instance.
+   *
+   * @group Collection
+   */
+  final def foldMapM[F[_]: Applicative, E, A: Monoid](f: E => F[A]): Iteratee[F, E, A] =
+    Iteratee.fromStep(Step.foldMapM(f))
+
+  /**
    * An [[Iteratee]] that combines values using a function to a type with a
    * [[cats.Semigroup]] instance.
    *
    * @group Collection
    */
-  final def foldMapOption[F[_]: Applicative, E, A: Semigroup](f: E => A): Iteratee[F, E, Option[A]] =
-     Iteratee.fromStep(Step.foldMapOption(f))
+  final def foldMapOption[F[_], E, A](f: E => A)(implicit
+    F: Applicative[F],
+    A: Semigroup[A]
+  ): Iteratee[F, E, Option[A]] =
+    foldMap[F, E, Option[A]](e => Some(f(e)))(F, cats.kernel.instances.option.catsKernelStdMonoidForOption(A))
+
+  /**
+   * An [[Iteratee]] that combines values using an effectful function to a type
+   * with a [[cats.Semigroup]] instance.
+   *
+   * @group Collection
+   */
+  final def foldMapMOption[F[_], E, A](f: E => F[A])(implicit
+    F: Applicative[F],
+    A: Semigroup[A]
+  ): Iteratee[F, E, Option[A]] =
+    foldMapM[F, E, Option[A]](e =>
+      F.map(f(e))(Some(_)))(F, cats.kernel.instances.option.catsKernelStdMonoidForOption(A)
+    )
 
   /**
    * An [[Iteratee]] that checks if the stream is at its end.
