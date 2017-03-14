@@ -43,12 +43,19 @@ trait IterateeModule[F[_]] { self: Module[F] =>
    */
   final def liftToIteratee[E]: LiftToIterateePartiallyApplied[E] = new LiftToIterateePartiallyApplied[E]
 
+  /**
+   * An iteratee that reads nothing from a stream.
+   *
+   * @group Iteratees
+   */
+  final def identityIteratee[E]: Iteratee[F, E, Unit] = Iteratee.identity(F)
 
   /**
    * An iteratee that reads nothing from a stream.
    *
    * @group Iteratees
    */
+  @deprecated("Use identityIteratee", "0.10.0")
   final def identity[E]: Iteratee[F, E, Unit] = Iteratee.identity(F)
 
   /**

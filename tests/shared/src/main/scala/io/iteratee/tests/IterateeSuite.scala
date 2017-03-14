@@ -138,16 +138,16 @@ abstract class BaseIterateeSuite[F[_]: Monad] extends ModuleSuite[F] {
     assert(liftToIteratee(F.pure(i)).run === F.pure(i))
   }
 
-  "identity" should "consume no input" in forAll { (eav: EnumeratorAndValues[Int], it: Iteratee[F, Int, Int]) =>
-    assert(eav.resultWithLeftovers(identity) === F.pure(((), eav.values)))
-    assert(eav.resultWithLeftovers(identity.flatMap(_ => it)) === eav.resultWithLeftovers(it))
+  "identityIteratee" should "consume no input" in forAll { (eav: EnumeratorAndValues[Int], it: Iteratee[F, Int, Int]) =>
+    assert(eav.resultWithLeftovers(identityIteratee) === F.pure(((), eav.values)))
+    assert(eav.resultWithLeftovers(identityIteratee.flatMap(_ => it)) === eav.resultWithLeftovers(it))
   }
 
   "consume" should "consume the entire stream" in forAll { (eav: EnumeratorAndValues[Int]) =>
     val result = eav.resultWithLeftovers(consume)
 
     assert(result === F.pure((eav.values, Vector.empty)))
-    assert(result === eav.resultWithLeftovers(identity.flatMap(_ => consume)))
+    assert(result === eav.resultWithLeftovers(identityIteratee.flatMap(_ => consume)))
   }
 
   "consumeIn" should "consume the entire stream" in forAll { (eav: EnumeratorAndValues[Int]) =>
