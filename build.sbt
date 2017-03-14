@@ -19,11 +19,11 @@ lazy val compilerOptions = Seq(
 
 lazy val catsVersion = "0.9.0"
 lazy val disciplineVersion = "0.7.3"
-lazy val monixVersion = "2.2.2"
+lazy val monixVersion = "2.2.3"
 lazy val fs2Version = "0.9.4"
 lazy val fs2CatsVersion = "0.3.0"
 
-lazy val scalaCheckVersion = "1.13.4"
+lazy val scalaCheckVersion = "1.13.5"
 lazy val scalaTestVersion = "3.0.1"
 
 lazy val previousIterateeVersion = "0.8.0"
@@ -172,7 +172,7 @@ lazy val twitter = project
   )
   .settings(allSettings ++ Defaults.itSettings)
   .settings(
-    libraryDependencies += "io.catbird" %% "catbird-util" % "0.11.0"
+    libraryDependencies += "io.catbird" %% "catbird-util" % "0.13.0"
   ).dependsOn(core, files, tests % "test,it")
 
 lazy val scalaz = project
@@ -185,7 +185,7 @@ lazy val scalaz = project
   )
   .settings(allSettings ++ Defaults.itSettings)
   .settings(
-    libraryDependencies += "org.scalaz" %% "scalaz-concurrent" % "7.2.8"
+    libraryDependencies += "org.scalaz" %% "scalaz-concurrent" % "7.2.9"
   ).dependsOn(core, files, tests % "test,it")
 
 lazy val monixBase = crossProject.in(file("monix"))
@@ -246,7 +246,7 @@ lazy val benchmark = project
   .settings(
     libraryDependencies ++= Seq(
       "org.scalatest" %% "scalatest" % scalaTestVersion % "test",
-      "org.scalaz" %% "scalaz-iteratee" % "7.2.7",
+      "org.scalaz" %% "scalaz-iteratee" % "7.2.9",
       "org.scalaz.stream" %% "scalaz-stream" % "0.8.6a",
       "org.typelevel" %% "cats-free" % catsVersion,
       "io.monix" %% "monix-cats" % monixVersion
