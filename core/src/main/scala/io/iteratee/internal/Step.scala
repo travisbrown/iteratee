@@ -405,11 +405,24 @@ final object Step { self =>
       new FoldMapCont(M.combine(acc, chunk.map(f).reduce(M.combine)))(f)
   }
 
-  final def foldMapOption[F[_], E, A](f: E => A)
-    (implicit F: Applicative[F], S: Semigroup[A]): Step[F, E, Option[A]] = {
-      import cats.kernel.instances.option._
-      foldMap[F, E, Option[A]](e => Some(f(e)))
-    }
+  /**
+   * A [[Step]] that transforms and sums values in a stream.
+   *
+   * @group Collection
+   */
+  final def foldMapM[F[_], E, A](f: E => F[A])(implicit F: Applicative[F], M: Monoid[A]): Step[F, E, A] =
+    new FoldMapMCont(M.empty)(f)
+
+  private[this] final class FoldMapMCont[F[_], E, A](acc: A)(f: E => F[A])(implicit F: Applicative[F], M: Semigroup[A])
+      extends Cont.WithValue[F, E, A](acc) {
+    final def feedEl(e: E): F[Step[F, E, A]] = F.map(f(e))(a => new FoldMapMCont(M.combine(acc, a))(f))
+    final protected def feedNonEmpty(chunk: Seq[E]): F[Step[F, E, A]] = F.map(
+      chunk.foldLeft(F.pure(acc)) {
+        case (acc, e) => F.map2(acc, f(e))(M.combine)
+      }
+    )(new FoldMapMCont(_)(f))
+  }
+
   /**
    * A [[Step]] that returns a given number of the first values in a stream.
    *

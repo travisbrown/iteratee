@@ -342,13 +342,19 @@ abstract class BaseIterateeSuite[F[_]: Monad] extends ModuleSuite[F] {
     assert(enumerator.into(iteratee2) === F.pure(result))
   }
 
-  "foldMap" should "fold a stream while transforming it" in forAll { (eav: EnumeratorAndValues[Int]) =>
+  "foldMap" should "sum a stream while transforming it" in forAll { (eav: EnumeratorAndValues[Int]) =>
     val result = F.pure((eav.values.sum + eav.values.size, Vector.empty[Int]))
 
     assert(eav.resultWithLeftovers(foldMap(_ + 1)) === result)
   }
 
-  "foldMapOption" should "fold a stream while transforming it" in
+  "foldMapM" should "sum a stream while transforming it" in forAll { (eav: EnumeratorAndValues[Int]) =>
+    val result = F.pure((eav.values.sum + eav.values.size, Vector.empty[Int]))
+
+    assert(eav.resultWithLeftovers(foldMapM(e => F.pure(e + 1))) === result)
+  }
+
+  "foldMapOption" should "sum a stream while transforming it" in
     forAll { (eav: EnumeratorAndValues[Int]) =>
       val result = F.pure((
         if (eav.values.isEmpty) None else Some(eav.values.sum + eav.values.size),
@@ -356,6 +362,16 @@ abstract class BaseIterateeSuite[F[_]: Monad] extends ModuleSuite[F] {
       ))
 
       assert(eav.resultWithLeftovers(foldMapOption(_ + 1)) === result)
+   }
+
+  "foldMapMOption" should "sum a stream while transforming it" in
+    forAll { (eav: EnumeratorAndValues[Int]) =>
+      val result = F.pure((
+        if (eav.values.isEmpty) None else Some(eav.values.sum + eav.values.size),
+        Vector.empty[Int]
+      ))
+
+      assert(eav.resultWithLeftovers(foldMapMOption(e => F.pure(e + 1))) === result)
    }
 
   "intoIteratee" should "be available on values in a context" in forAll { (i: Int) =>

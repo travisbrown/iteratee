@@ -166,6 +166,14 @@ trait IterateeModule[F[_]] { self: Module[F] =>
   final def foldMap[E, A](f: E => A)(implicit A: Monoid[A]): Iteratee[F, E, A] = Iteratee.foldMap(f)(F, A)
 
   /**
+   * An [[Iteratee]] that combines values using an effectful function to a type
+   * with a [[cats.Monoid]] instance.
+   *
+   * @group Iteratees
+   */
+  final def foldMapM[E, A](f: E => F[A])(implicit A: Monoid[A]): Iteratee[F, E, A] = Iteratee.foldMapM(f)(F, A)
+
+  /**
    * An [[Iteratee]] that combines values using a function to a type with a
    * [[cats.Semigroup]] instance.
    *
@@ -173,6 +181,15 @@ trait IterateeModule[F[_]] { self: Module[F] =>
    */
   final def foldMapOption[E, A](f: E => A)(implicit A: Semigroup[A]): Iteratee[F, E, Option[A]] =
     Iteratee.foldMapOption(f)(F, A)
+
+  /**
+   * An [[Iteratee]] that combines values using an effectful function to a type
+   * with a [[cats.Semigroup]] instance.
+   *
+   * @group Iteratees
+   */
+  final def foldMapMOption[E, A](f: E => F[A])(implicit A: Semigroup[A]): Iteratee[F, E, Option[A]] =
+    Iteratee.foldMapMOption(f)(F, A)
 
   /**
    * An [[Iteratee]] that checks if the stream is at its end.
