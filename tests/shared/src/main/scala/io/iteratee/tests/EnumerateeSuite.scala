@@ -272,4 +272,20 @@ abstract class EnumerateeSuite[F[_]: Monad] extends ModuleSuite[F] {
       assert(eav.resultWithLeftovers(consume[Int].through(intersperse(delim))) === F.pure((expected, Vector.empty)))
     }
   }
+
+  "injectValue" should "add a value at the head of the stream" in {
+    forAll { (eav: EnumeratorAndValues[Int], e: Int) =>
+      val expected = e +: eav.values
+
+      assert(eav.resultWithLeftovers(consume[Int].through(injectValue(e))) === F.pure((expected, Vector.empty)))
+    }
+  }
+
+  "injectValues" should "add values at the head of the stream" in {
+    forAll { (eav: EnumeratorAndValues[Int], es: Seq[Int]) =>
+      val expected = es.toVector ++ eav.values
+
+      assert(eav.resultWithLeftovers(consume[Int].through(injectValues(es))) === F.pure((expected, Vector.empty)))
+    }
+  }
 }
