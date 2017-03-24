@@ -506,15 +506,10 @@ final object Step { self =>
     final protected def feedNonEmptyPure(chunk: Seq[E]): Step[F, E, Boolean] = Done(false, chunk)
   }
 
-  private[this] class TailRecMCont[F[_], E, A, B](f: A => F[Step[F, E, Either[A, B]]])(
-    s: Step[F, E, Either[A, B]]
-  )(implicit F: Monad[F]) extends Step.Cont[F, E, B] {
-    final def run: F[B] = F.tailRecM(s)(s =>
-      F.flatMap(s.run) {
-        case Right(b) => F.pure(Right(b))
-        case Left(a) => F.map(f(a))(Left(_))
-      }
-    )
+  private[this] class TailRecMCont[F[_], E, A, B](a: A)(f: A => F[Step[F, E, Either[A, B]]])(implicit
+    F: Monad[F]
+  ) extends Step.Cont[F, E, B] {
+    final def run: F[B] = F.tailRecM[A, B](a)(a => F.flatMap(f(a))(_.run))
 
     private[this] def loop(s: Step[F, E, Either[A, B]]): F[Either[Step[F, E, Either[A, B]], Step[F, E, B]]] =
       s match {
@@ -522,20 +517,26 @@ final object Step { self =>
         case Step.Done(Left(a), remaining) =>
           val c = remaining.lengthCompare(1)
 
-          if (c < 0) F.map(f(a))(s => Right(new TailRecMCont(f)(s))) else if (c == 0) {
+          if (c < 0) {
+            F.pure(Right(new TailRecMCont(a)(f)))
+          } else if (c == 0) {
             F.flatMap(f(a))(s => F.map(s.feedEl(remaining.head))(Left(_)))
           } else {
             F.flatMap(f(a))(s => F.map(s.feedNonEmpty(remaining))(Left(_)))
           }
-        case cont => F.pure(Right(new TailRecMCont(f)(cont)))
+        case cont => F.map(cont.run) {
+          case Right(b) => Right(Step.done(b))
+          case Left(a) => Right(new TailRecMCont(a)(f))
+        }
       }
 
-    final def feedEl(e: E): F[Step[F, E, B]] = F.flatMap(s.feedEl(e))(F.tailRecM(_)(loop))
+    final def feedEl(e: E): F[Step[F, E, B]] =
+      F.flatMap(f(a))(s => F.flatMap(s.feedEl(e))(F.tailRecM(_)(loop)))
+
     final protected def feedNonEmpty(chunk: Seq[E]): F[Step[F, E, B]] =
-      F.flatMap(s.feedNonEmpty(chunk))(F.tailRecM(_)(loop))
+      F.flatMap(f(a))(s => F.flatMap(s.feedNonEmpty(chunk))(F.tailRecM(_)(loop)))
   }
 
-  final def tailRecM[F[_]: Monad, E, A, B](f: A => F[Step[F, E, Either[A, B]]])(
-    s: Step[F, E, Either[A, B]]
-  ): Step[F, E, B] = new TailRecMCont(f)(s)
+  final def tailRecM[F[_]: Monad, E, A, B](a: A)(f: A => F[Step[F, E, Either[A, B]]]): Step[F, E, B] =
+    new TailRecMCont(a)(f)
 }
