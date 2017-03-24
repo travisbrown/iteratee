@@ -524,10 +524,12 @@ final object Step { self =>
           } else {
             F.flatMap(f(a))(s => F.map(s.feedNonEmpty(remaining))(Left(_)))
           }
-        case cont => F.map(cont.run) {
-          case Right(b) => Right(Step.done(b))
-          case Left(a) => Right(new TailRecMCont(a)(f))
-        }
+        case cont => F.map(
+          cont.bind[B] {
+            case Right(b) => F.pure(Step.done(b))
+            case Left(a) => F.pure(new TailRecMCont(a)(f))
+          }
+        )(Right(_))
       }
 
     final def feedEl(e: E): F[Step[F, E, B]] =
