@@ -149,4 +149,14 @@ trait EnumerateeModule[F[_]] { this: Module[F] =>
    * @group Enumeratees
    */
   final def intersperse[E](delim: E): Enumeratee[F, E, E] = Enumeratee.intersperse(delim)(F)
+
+  /**
+   * Inject a value into a stream.
+   */
+  final def injectValue[E](e: E): Enumeratee[F, E, E] = Enumeratee.injectValue(e)(F)
+
+  /**
+   * Inject zero or more values into a stream.
+   */
+  final def injectValues[E](es: Seq[E]): Enumeratee[F, E, E] = Enumeratee.injectValues(es)(F)
 }

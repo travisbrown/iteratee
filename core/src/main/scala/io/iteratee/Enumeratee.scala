@@ -453,6 +453,20 @@ final object Enumeratee extends EnumerateeInstances {
     final def apply[A](step: Step[F, E, A]): F[Step[F, E, Step[F, E, A]]] = F.pure(doneOrLoop(true)(step))
   }
 
+  /**
+   * Inject a value into a stream.
+   */
+  def injectValue[F[_], E](e: E)(implicit F: Monad[F]): Enumeratee[F, E, E] = new Enumeratee[F, E, E] {
+    def apply[A](step: Step[F, E, A]): F[Step[F, E, Step[F, E, A]]] = F.flatMap(step.feedEl(e))(identity[F, E].apply)
+  }
+
+  /**
+   * Inject zero or more values into a stream.
+   */
+  def injectValues[F[_], E](es: Seq[E])(implicit F: Monad[F]): Enumeratee[F, E, E] = new Enumeratee[F, E, E] {
+    def apply[A](step: Step[F, E, A]): F[Step[F, E, Step[F, E, A]]] = F.flatMap(step.feed(es))(identity[F, E].apply)
+  }
+
   abstract class PureLoop[F[_], O, I](implicit F: Applicative[F]) extends Enumeratee[F, O, I] {
     protected def loop[A](step: Step[F, I, A]): Step[F, O, Step[F, I, A]]
 
