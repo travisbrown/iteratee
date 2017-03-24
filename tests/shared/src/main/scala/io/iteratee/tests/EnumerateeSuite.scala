@@ -186,6 +186,14 @@ abstract class EnumerateeSuite[F[_]: Monad] extends ModuleSuite[F] {
     }
   }
 
+  it should "be stack safe even for large chunks" in {
+    val groupedSize = 3
+    val xs = (0 until 10000).toVector
+    val expected = xs.grouped(groupedSize).size.toLong
+
+    assert(enumVector(xs).sequenceI(takeI(groupedSize)).into(length) === F.pure(expected))
+  }
+
   "uniq" should "drop duplicate values" in forAll { (xs: Vector[Int]) =>
     val sorted = xs.sorted
 

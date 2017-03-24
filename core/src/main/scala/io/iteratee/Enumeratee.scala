@@ -317,13 +317,20 @@ final object Enumeratee extends EnumerateeInstances {
    * Apply the given [[Iteratee]] repeatedly.
    */
   final def sequenceI[F[_], O, I](iteratee: Iteratee[F, O, I])(implicit F: Monad[F]): Enumeratee[F, O, I] =
-    new EffectfulLoop[F, O, I] {
-      protected final def loop[A](step: Step[F, I, A]): F[Step[F, O, Step[F, I, A]]] =
-        Step.isEnd[F, O].bind { isEnd =>
-          if (isEnd) F.pure(Step.done(step)) else F.flatMap(iteratee.state)(
-            _.bind(a => F.flatMap(step.feedEl(a))(doneOrLoop))
-          )
+    new Enumeratee[F, O, I] {
+      final def apply[A](step: Step[F, I, A]): F[Step[F, O, Step[F, I, A]]] = F.pure(
+        Step.tailRecM[F, O, Step[F, I, A], Step[F, I, A]](step) { s =>
+          if (s.isDone) F.pure(Step.done(Right(s))) else {
+            Step.isEnd[F, O].bind { isEnd =>
+              if (isEnd) F.pure(Step.done(Right(s))) else {
+                F.flatMap(iteratee.state)(
+                  _.bind(i => F.map(s.feedEl(i))(nextStep => Step.done(Left(nextStep))))
+                )
+              }
+            }
+          }
         }
+      )
     }
 
   /**

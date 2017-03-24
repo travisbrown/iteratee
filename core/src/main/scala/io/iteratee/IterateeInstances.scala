@@ -23,8 +23,8 @@ private class IterateeMonad[F[_], E](implicit F: Monad[F]) extends Monad[Iterate
   override final def map[A, B](fa: Iteratee[F, E, A])(f: A => B): Iteratee[F, E, B] = fa.map(f)
   final def flatMap[A, B](fa: Iteratee[F, E, A])(f: A => Iteratee[F, E, B]): Iteratee[F, E, B] = fa.flatMap(f)
 
-  final def tailRecM[A, B](a: A)(f: A => Iteratee[F, E, Either[A, B]]): Iteratee[F, E, B] = Iteratee.iteratee(
-    F.map(f(a).state)(Step.tailRecM(a => f(a).state))
+  final def tailRecM[A, B](a: A)(f: A => Iteratee[F, E, Either[A, B]]): Iteratee[F, E, B] = Iteratee.fromStep(
+    Step.tailRecM[F, E, A, B](a)(f(_).state)
   )
 }
 
