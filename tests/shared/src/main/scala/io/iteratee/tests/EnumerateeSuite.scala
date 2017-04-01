@@ -2,7 +2,7 @@ package io.iteratee.tests
 
 import cats.Monad
 import cats.laws.discipline.{ CategoryTests, ProfunctorTests }
-import io.iteratee.{ Enumeratee, EnumerateeModule, EnumeratorModule, IterateeModule, Module }
+import io.iteratee.{ Enumeratee, EnumerateeModule, EnumeratorModule, Iteratee, IterateeModule, Module }
 import org.scalacheck.{ Arbitrary, Gen }
 
 abstract class EnumerateeSuite[F[_]: Monad] extends ModuleSuite[F] {
@@ -12,6 +12,11 @@ abstract class EnumerateeSuite[F[_]: Monad] extends ModuleSuite[F] {
 
   checkLaws(s"Enumeratee[$monadName, Int, Int]", ProfunctorTests[EnumerateeF].profunctor[Int, Int, Int, Int, Int, Int])
   checkLaws(s"Enumeratee[$monadName, Int, Int]", CategoryTests[EnumerateeF].category[Int, Int, Int, Int])
+
+  "into" should "transform the inputs to an iteratee" in forAll {
+    (eav: EnumeratorAndValues[Int], iteratee: Iteratee[F, Int, Int], enumeratee: Enumeratee[F, Int, Int]) =>
+      eav.enumerator.into(enumeratee.into(iteratee)) === eav.enumerator.into(iteratee.through(enumeratee))
+  }
 
   "map" should "transform the stream" in forAll { (eav: EnumeratorAndValues[Int]) =>
     assert(eav.enumerator.through(map(_ + 1)).toVector === F.pure(eav.values.map(_ + 1)))

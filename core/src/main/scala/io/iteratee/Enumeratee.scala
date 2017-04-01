@@ -11,6 +11,8 @@ abstract class Enumeratee[F[_], O, I] extends Serializable { self =>
     final def apply[A](s: Step[F, I, A]): F[Step[F, I, A]] = F.flatMap(self(s))(enum.intoStep)
   }
 
+  final def into[A](iteratee: Iteratee[F, I, A])(implicit F: Monad[F]): Iteratee[F, O, A] = iteratee.through(this)
+
   final def andThen[J](other: Enumeratee[F, I, J])(implicit F: Monad[F]): Enumeratee[F, O, J] = other.compose(self)
 
   final def compose[J](other: Enumeratee[F, J, O])(implicit F: Monad[F]): Enumeratee[F, J, I] =
