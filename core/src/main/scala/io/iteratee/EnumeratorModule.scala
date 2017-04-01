@@ -10,6 +10,8 @@ import cats.MonadError
  * @groupprio Helpers 4
  */
 trait EnumeratorModule[F[_]] { this: Module[F] =>
+  private[this] final def defaultChunkSize: Int = 1024
+
   /**
    * Lift an effectful value into an enumerator.
    *
@@ -53,11 +55,20 @@ trait EnumeratorModule[F[_]] { this: Module[F] =>
   final def enumOne[E](e: E): Enumerator[F, E] = Enumerator.enumOne(e)(F)
 
   /**
+   * An enumerator that produces values from an iterable collection.
+   *
+   * @group Enumerators
+   */
+  final def enumIterable[E](es: Iterable[E], chunkSize: Int = defaultChunkSize): Enumerator[F, E] =
+    Enumerator.enumIterable(es, chunkSize)(F)
+
+  /**
    * An enumerator that produces values from a stream.
    *
    * @group Enumerators
    */
-  final def enumStream[E](es: Stream[E]): Enumerator[F, E] = Enumerator.enumStream(es)(F)
+  final def enumStream[E](es: Stream[E], chunkSize: Int = defaultChunkSize): Enumerator[F, E] =
+    Enumerator.enumStream(es, chunkSize)(F)
 
   /**
    * An enumerator that produces values from a list.

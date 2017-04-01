@@ -32,8 +32,12 @@ abstract class EnumeratorSuite[F[_]: Monad] extends ModuleSuite[F] {
     assert(enumOne(i).toVector === F.pure(Vector(i)))
   }
 
-  "enumStream" should "enumerate values from a stream" in forAll { (xs: Stream[Int]) =>
-    assert(enumStream(xs).toVector === F.pure(xs.toVector))
+  "enumIterable" should "enumerate values from an iterable" in forAll { (xs: Iterable[Int], chunkSize: Int) =>
+    assert(enumIterable(xs, chunkSize).toVector === F.pure(xs.toVector))
+  }
+
+  "enumStream" should "enumerate values from a stream" in forAll { (xs: Stream[Int], chunkSize: Int) =>
+    assert(enumStream(xs, chunkSize).toVector === F.pure(xs.toVector))
   }
 
   "enumList" should "enumerate values from a list" in forAll { (xs: List[Int]) =>

@@ -162,7 +162,7 @@ final object Enumerator extends EnumeratorInstances {
     }
 
   private[this] abstract class ChunkedIteratorEnumerator[F[_], E](implicit F: Monad[F]) extends Enumerator[F, E] {
-    def chunks: Iterator[Vector[E]]
+    protected[this] def chunks: Iterator[Seq[E]]
 
     final def apply[A](s: Step[F, E, A]): F[Step[F, E, A]] = F.tailRecM((s, chunks)) {
       case (step, it) => if (it.isEmpty || step.isDone) F.pure(Right(step)) else {
@@ -172,11 +172,19 @@ final object Enumerator extends EnumeratorInstances {
   }
 
   /**
+   * An enumerator that produces values from an iterable collection.
+   */
+  final def enumIterable[F[_]: Monad, E](xs: Iterable[E], chunkSize: Int = defaultChunkSize): Enumerator[F, E] =
+    new ChunkedIteratorEnumerator[F, E] {
+      final protected[this] def chunks: Iterator[Seq[E]] = xs.grouped(math.max(chunkSize, 1)).map(_.toSeq)
+    }
+
+  /**
    * An enumerator that produces values from a stream.
    */
   final def enumStream[F[_]: Monad, E](xs: Stream[E], chunkSize: Int = defaultChunkSize): Enumerator[F, E] =
     new ChunkedIteratorEnumerator[F, E] {
-      final def chunks: Iterator[Vector[E]] = xs.grouped(chunkSize).map(_.toVector)
+      final protected[this] def chunks: Iterator[Seq[E]] = xs.grouped(math.max(chunkSize, 1))
     }
 
   /**
