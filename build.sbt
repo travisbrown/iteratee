@@ -19,7 +19,7 @@ lazy val compilerOptions = Seq(
 
 lazy val catsVersion = "0.9.0"
 lazy val disciplineVersion = "0.7.3"
-lazy val monixVersion = "2.2.3"
+lazy val monixVersion = "2.2.4"
 lazy val fs2Version = "0.9.4"
 lazy val fs2CatsVersion = "0.3.0"
 
@@ -185,7 +185,7 @@ lazy val scalaz = project
   )
   .settings(allSettings ++ Defaults.itSettings)
   .settings(
-    libraryDependencies += "org.scalaz" %% "scalaz-concurrent" % "7.2.9"
+    libraryDependencies += "org.scalaz" %% "scalaz-concurrent" % "7.2.10"
   ).dependsOn(core, files, tests % "test,it")
 
 lazy val monixBase = crossProject.in(file("monix"))
@@ -246,7 +246,7 @@ lazy val benchmark = project
   .settings(
     libraryDependencies ++= Seq(
       "org.scalatest" %% "scalatest" % scalaTestVersion % "test",
-      "org.scalaz" %% "scalaz-iteratee" % "7.2.9",
+      "org.scalaz" %% "scalaz-iteratee" % "7.2.10",
       "org.scalaz.stream" %% "scalaz-stream" % "0.8.6a",
       "org.typelevel" %% "cats-free" % catsVersion,
       "io.monix" %% "monix-cats" % monixVersion
