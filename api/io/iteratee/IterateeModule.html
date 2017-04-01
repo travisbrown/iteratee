@@ -1,295 +1,42 @@
 <!DOCTYPE html >
 <html>
         <head>
-          <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-          <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-          <title></title>
-          <meta name="description" content="" />
-          <meta name="keywords" content="" />
+          <title>IterateeModule - io.iteratee.IterateeModule</title>
+          <meta name="description" content="IterateeModule - io.iteratee.IterateeModule" />
+          <meta name="keywords" content="IterateeModule io.iteratee.IterateeModule" />
           <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
           
-      <link href="../../lib/index.css" media="screen" type="text/css" rel="stylesheet" />
       <link href="../../lib/template.css" media="screen" type="text/css" rel="stylesheet" />
       <link href="../../lib/diagrams.css" media="screen" type="text/css" rel="stylesheet" id="diagrams-css" />
-      <script type="text/javascript" src="../../lib/jquery.js"></script>
-      <script type="text/javascript" src="../../lib/jquery.panzoom.min.js"></script>
-      <script type="text/javascript" src="../../lib/jquery.mousewheel.min.js"></script>
-      <script type="text/javascript" src="../../lib/index.js"></script>
-      <script type="text/javascript" src="../../index.js"></script>
-      <script type="text/javascript" src="../../lib/scheduler.js"></script>
+      <script type="text/javascript" src="../../lib/jquery.js" id="jquery-js"></script>
+      <script type="text/javascript" src="../../lib/jquery-ui.js"></script>
       <script type="text/javascript" src="../../lib/template.js"></script>
       <script type="text/javascript" src="../../lib/tools.tooltip.js"></script>
       
       <script type="text/javascript">
-        /* this variable can be used by the JS to determine the path to the root document */
-        var toRoot = '../../';
-      </script>
+         if(top === self) {
+            var url = '../../index.html';
+            var hash = 'io.iteratee.IterateeModule';
+            var anchor = window.location.hash;
+            var anchor_opt = '';
+            if (anchor.length >= 1)
+              anchor_opt = '@' + anchor.substring(1);
+            window.location.href = url + '#' + hash + anchor_opt;
+         }
+   	  </script>
     
         </head>
-        <body>
-      <div id="search">
-        <span id="doc-title"><span id="doc-version"></span></span>
-        <span class="close-results"><span class="left">&lt;</span> Back</span>
-        <div id="textfilter">
-          <span class="input">
-            <input autocapitalize="none" placeholder="Search" id="index-input" type="text" accesskey="/" />
-            <i class="clear material-icons"></i>
-            <i id="search-icon" class="material-icons"></i>
-          </span>
-        </div>
-    </div>
-      <div id="search-results">
-        <div id="search-progress">
-          <div id="progress-fill"></div>
-        </div>
-        <div id="results-content">
-          <div id="entity-results"></div>
-          <div id="member-results"></div>
-        </div>
-      </div>
-      <div id="content-scroll-container" style="-webkit-overflow-scrolling: touch;">
-        <div id="content-container" style="-webkit-overflow-scrolling: touch;">
-          <div id="subpackage-spacer">
-            <div id="packages">
-              <h1>Packages</h1>
-              <ul>
-                <li name="_root_.root" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="_root_"></a><a id="root:_root_"></a>
-      <span class="permalink">
-      <a href="index.html#_root_" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">package</span>
-      </span>
-      <span class="symbol">
-        <a title="" href="../../index.html">
-              <span class="name">root</span>
-            </a>
-      </span>
-      
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../../index.html" class="extype" name="_root_">root</a></dd></dl></div>
-    </li><li name="_root_.io" visbl="pub" class="indented1 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="io"></a><a id="io:io"></a>
-      <span class="permalink">
-      <a href="index.html#io" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">package</span>
-      </span>
-      <span class="symbol">
-        <a title="" href="../index.html">
-              <span class="name">io</span>
-            </a>
-      </span>
-      
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../../index.html" class="extype" name="_root_">root</a></dd></dl></div>
-    </li><li name="io.iteratee" visbl="pub" class="indented2 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="iteratee"></a><a id="iteratee:iteratee"></a>
-      <span class="permalink">
-      <a href="../io/index.html#iteratee" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">package</span>
-      </span>
-      <span class="symbol">
-        <a title="" href="index.html">
-              <span class="name">iteratee</span>
-            </a>
-      </span>
-      
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../index.html" class="extype" name="io">io</a></dd></dl></div>
-    </li><li name="io.iteratee.files" visbl="pub" class="indented3 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="files"></a><a id="files:files"></a>
-      <span class="permalink">
-      <a href="../../io/iteratee/index.html#files" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">package</span>
-      </span>
-      <span class="symbol">
-        <a title="" href="files/index.html">
-              <span class="name">files</span>
-            </a>
-      </span>
-      
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="index.html" class="extype" name="io.iteratee">iteratee</a></dd></dl></div>
-    </li><li name="io.iteratee.fs2" visbl="pub" class="indented3 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="fs2"></a><a id="fs2:fs2"></a>
-      <span class="permalink">
-      <a href="../../io/iteratee/index.html#fs2" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">package</span>
-      </span>
-      <span class="symbol">
-        <a title="" href="fs2/index.html">
-              <span class="name">fs2</span>
-            </a>
-      </span>
-      
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="index.html" class="extype" name="io.iteratee">iteratee</a></dd></dl></div>
-    </li><li name="io.iteratee.internal" visbl="pub" class="indented3 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="internal"></a><a id="internal:internal"></a>
-      <span class="permalink">
-      <a href="../../io/iteratee/index.html#internal" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">package</span>
-      </span>
-      <span class="symbol">
-        <a title="Internal types and utilities." href="internal/index.html">
-              <span class="name">internal</span>
-            </a>
-      </span>
-      
-      <p class="shortcomment cmt">Internal types and utilities.</p><div class="fullcomment"><div class="comment cmt"><p>Internal types and utilities.</p><p>While some of these types and utilities are part of the public API and are
-used in the implementation of <a href="index.html" class="extype" name="io.iteratee">io.iteratee</a>, they are not designed for
-clarity or ease-of-use, and should never be needed for idiomatic use of the
-library.
-</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="index.html" class="extype" name="io.iteratee">iteratee</a></dd></dl></div>
-    </li><li name="io.iteratee.modules" visbl="pub" class="indented3 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="modules"></a><a id="modules:modules"></a>
-      <span class="permalink">
-      <a href="../../io/iteratee/index.html#modules" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">package</span>
-      </span>
-      <span class="symbol">
-        <a title="" href="modules/index.html">
-              <span class="name">modules</span>
-            </a>
-      </span>
-      
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="index.html" class="extype" name="io.iteratee">iteratee</a></dd></dl></div>
-    </li><li name="io.iteratee.monix" visbl="pub" class="indented3 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="monix"></a><a id="monix:monix"></a>
-      <span class="permalink">
-      <a href="../../io/iteratee/index.html#monix" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">package</span>
-      </span>
-      <span class="symbol">
-        <a title="" href="monix/index.html">
-              <span class="name">monix</span>
-            </a>
-      </span>
-      
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="index.html" class="extype" name="io.iteratee">iteratee</a></dd></dl></div>
-    </li><li name="io.iteratee.scalaz" visbl="pub" class="indented3 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="scalaz"></a><a id="scalaz:scalaz"></a>
-      <span class="permalink">
-      <a href="../../io/iteratee/index.html#scalaz" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">package</span>
-      </span>
-      <span class="symbol">
-        <a title="" href="scalaz/index.html">
-              <span class="name">scalaz</span>
-            </a>
-      </span>
-      
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="index.html" class="extype" name="io.iteratee">iteratee</a></dd></dl></div>
-    </li><li class="current-entities indented2">
-                        <a class="object" href="Enumeratee$.html" title=""></a>
-                        <a class="class" href="Enumeratee.html" title=""></a>
-                        <a href="Enumeratee.html" title="">
-                          Enumeratee
-                        </a>
-                      </li><li class="current-entities indented2">
-                        <span class="separator"></span>
-                        <a class="trait" href="EnumerateeModule.html" title=""></a>
-                        <a href="EnumerateeModule.html" title="">
-                          EnumerateeModule
-                        </a>
-                      </li><li class="current-entities indented2">
-                        <a class="object" href="Enumerator$.html" title=""></a>
-                        <a class="class" href="Enumerator.html" title=""></a>
-                        <a href="Enumerator.html" title="">
-                          Enumerator
-                        </a>
-                      </li><li class="current-entities indented2">
-                        <span class="separator"></span>
-                        <a class="trait" href="EnumeratorErrorModule.html" title=""></a>
-                        <a href="EnumeratorErrorModule.html" title="">
-                          EnumeratorErrorModule
-                        </a>
-                      </li><li class="current-entities indented2">
-                        <span class="separator"></span>
-                        <a class="trait" href="EnumeratorModule.html" title=""></a>
-                        <a href="EnumeratorModule.html" title="">
-                          EnumeratorModule
-                        </a>
-                      </li><li class="current-entities indented2">
-                        <a class="object" href="Iteratee$.html" title=""></a>
-                        <a class="class" href="Iteratee.html" title="An iteratee processes a stream of elements of type E and returns a value of
-type F[A]."></a>
-                        <a href="Iteratee.html" title="An iteratee processes a stream of elements of type E and returns a value of
-type F[A].">
-                          Iteratee
-                        </a>
-                      </li><li class="current-entities indented2">
-                        <span class="separator"></span>
-                        <a class="trait" href="IterateeErrorModule.html" title=""></a>
-                        <a href="IterateeErrorModule.html" title="">
-                          IterateeErrorModule
-                        </a>
-                      </li><li class="current-entities indented2">
-                        <span class="separator"></span>
-                        <a class="trait" href="" title=""></a>
-                        <a href="" title="">
-                          IterateeModule
-                        </a>
-                      </li><li class="current-entities indented2">
-                        <a class="object" href="Module$.html" title=""></a>
-                        <a class="trait" href="Module.html" title=""></a>
-                        <a href="Module.html" title="">
-                          Module
-                        </a>
-                      </li>
-              </ul>
-            </div>
-          </div>
-          <div id="content">
-            <body class="trait type">
+        <body class="type">
       <div id="definition">
-        <div class="big-circle trait">t</div>
-        <p id="owner"><a href="../index.html" class="extype" name="io">io</a>.<a href="index.html" class="extype" name="io.iteratee">iteratee</a></p>
-        <h1>IterateeModule<span class="permalink">
-      <a href="../../io/iteratee/IterateeModule.html" title="Permalink">
-        <i class="material-icons"></i>
+        <img alt="Trait" src="../../lib/trait_big.png" />
+        <p id="owner"><a href="../package.html" class="extype" name="io">io</a>.<a href="package.html" class="extype" name="io.iteratee">iteratee</a></p>
+        <h1>IterateeModule</h1><h3><span class="morelinks"><div>Related Doc:
+            <a href="package.html" class="extype" name="io.iteratee">package iteratee</a>
+          </div></span></h3><span class="permalink">
+      <a href="../../index.html#io.iteratee.IterateeModule" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
       </a>
-    </span></h1>
-        <h3><span class="morelinks"></span></h3>
+    </span>
       </div>
 
       <h4 id="signature" class="signature">
@@ -298,60 +45,46 @@ type F[A].">
         <span class="kind">trait</span>
       </span>
       <span class="symbol">
-        <span class="name">IterateeModule</span><span class="tparams">[<span name="F">F<span class="tparams">[<span name="_">_</span>]</span></span>]</span><span class="result"> extends <a href="http://www.scala-lang.org/api/2.12.1/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a></span>
+        <span class="name">IterateeModule</span><span class="tparams">[<span name="F">F<span class="tparams">[<span name="_">_</span>]</span></span>]</span><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a></span>
       </span>
       </h4>
-
       
           <div id="comment" class="fullcommenttop"><div class="comment cmt"></div><dl class="attributes block"> <dt>Self Type</dt><dd><a href="" class="extype" name="io.iteratee.IterateeModule">IterateeModule</a>[<span class="extype" name="io.iteratee.IterateeModule.F">F</span>] with <a href="Module.html" class="extype" name="io.iteratee.Module">Module</a>[<span class="extype" name="io.iteratee.IterateeModule.F">F</span>]</dd><dt>Source</dt><dd><a href="https://github.com/travisbrown/iteratee/tree/master/core/src/main/scala/io/iteratee/IterateeModule.scala" target="_blank">IterateeModule.scala</a></dd></dl><div class="toggleContainer block">
-          <span class="toggle">
-            Linear Supertypes
-          </span>
-          <div class="superTypes hiddenContent"><a href="http://www.scala-lang.org/api/2.12.1/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a>, <a href="http://www.scala-lang.org/api/2.12.1/index.html#scala.Any" class="extype" target="_top">Any</a></div>
+          <span class="toggle">Linear Supertypes</span>
+          <div class="superTypes hiddenContent"><a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a>, <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Any" class="extype" target="_top">Any</a></div>
         </div><div class="toggleContainer block">
-            <span class="toggle">
-              Known Subclasses
-            </span>
-            <div class="subClasses hiddenContent"><a href="IterateeErrorModule.html" class="extype" name="io.iteratee.IterateeErrorModule">IterateeErrorModule</a>, <a href="files/EitherFileModule.html" class="extype" name="io.iteratee.files.EitherFileModule">EitherFileModule</a>, <a href="files/EitherTFileModule.html" class="extype" name="io.iteratee.files.EitherTFileModule">EitherTFileModule</a>, <a href="files/FutureFileModule.html" class="extype" name="io.iteratee.files.FutureFileModule">FutureFileModule</a>, <a href="files/TryFileModule.html" class="extype" name="io.iteratee.files.TryFileModule">TryFileModule</a>, <a href="files/either$.html" class="extype" name="io.iteratee.files.either">either</a>, <a href="files/eitherT$.html" class="extype" name="io.iteratee.files.eitherT">eitherT</a>, <a href="files/try_$.html" class="extype" name="io.iteratee.files.try_">try_</a>, <a href="fs2/TaskModule.html" class="extype" name="io.iteratee.fs2.TaskModule">TaskModule</a>, <a href="fs2/task$.html" class="extype" name="io.iteratee.fs2.task">task</a>, <a href="modules/EitherModule.html" class="extype" name="io.iteratee.modules.EitherModule">EitherModule</a>, <a href="modules/EitherTModule.html" class="extype" name="io.iteratee.modules.EitherTModule">EitherTModule</a>, <a href="modules/EvalModule.html" class="extype" name="io.iteratee.modules.EvalModule">EvalModule</a>, <a href="modules/FutureModule.html" class="extype" name="io.iteratee.modules.FutureModule">FutureModule</a>, <a href="modules/IdModule.html" class="extype" name="io.iteratee.modules.IdModule">IdModule</a>, <a href="modules/OptionModule.html" class="extype" name="io.iteratee.modules.OptionModule">OptionModule</a>, <a href="modules/TryModule.html" class="extype" name="io.iteratee.modules.TryModule">TryModule</a>, <a href="modules/either$.html" class="extype" name="io.iteratee.modules.either">either</a>, <a href="modules/eitherT$.html" class="extype" name="io.iteratee.modules.eitherT">eitherT</a>, <a href="modules/eval$.html" class="extype" name="io.iteratee.modules.eval">eval</a>, <a href="modules/id$.html" class="extype" name="io.iteratee.modules.id">id</a>, <a href="modules/option$.html" class="extype" name="io.iteratee.modules.option">option</a>, <a href="modules/try_$.html" class="extype" name="io.iteratee.modules.try_">try_</a>, <a href="monix/DefaultTaskModule.html" class="extype" name="io.iteratee.monix.DefaultTaskModule">DefaultTaskModule</a>, <a href="monix/TaskModule.html" class="extype" name="io.iteratee.monix.TaskModule">TaskModule</a>, <a href="monix/task$.html" class="extype" name="io.iteratee.monix.task">task</a>, <a href="scalaz/TaskModule.html" class="extype" name="io.iteratee.scalaz.TaskModule">TaskModule</a>, <a href="scalaz/task$.html" class="extype" name="io.iteratee.scalaz.task">task</a></div>
+            <span class="toggle">Known Subclasses</span>
+            <div class="subClasses hiddenContent"><a href="monix/DefaultTaskModule.html" class="extype" name="io.iteratee.monix.DefaultTaskModule">DefaultTaskModule</a>, <a href="files/EitherFileModule.html" class="extype" name="io.iteratee.files.EitherFileModule">EitherFileModule</a>, <a href="modules/EitherModule.html" class="extype" name="io.iteratee.modules.EitherModule">EitherModule</a>, <a href="files/EitherTFileModule.html" class="extype" name="io.iteratee.files.EitherTFileModule">EitherTFileModule</a>, <a href="modules/EitherTModule.html" class="extype" name="io.iteratee.modules.EitherTModule">EitherTModule</a>, <a href="modules/EvalModule.html" class="extype" name="io.iteratee.modules.EvalModule">EvalModule</a>, <a href="files/FutureFileModule.html" class="extype" name="io.iteratee.files.FutureFileModule">FutureFileModule</a>, <a href="modules/FutureModule.html" class="extype" name="io.iteratee.modules.FutureModule">FutureModule</a>, <a href="modules/IdModule.html" class="extype" name="io.iteratee.modules.IdModule">IdModule</a>, <a href="IterateeErrorModule.html" class="extype" name="io.iteratee.IterateeErrorModule">IterateeErrorModule</a>, <a href="modules/OptionModule.html" class="extype" name="io.iteratee.modules.OptionModule">OptionModule</a>, <a href="scalaz/TaskModule.html" class="extype" name="io.iteratee.scalaz.TaskModule">TaskModule</a>, <a href="fs2/TaskModule.html" class="extype" name="io.iteratee.fs2.TaskModule">TaskModule</a>, <a href="monix/TaskModule.html" class="extype" name="io.iteratee.monix.TaskModule">TaskModule</a>, <a href="files/TryFileModule.html" class="extype" name="io.iteratee.files.TryFileModule">TryFileModule</a>, <a href="modules/TryModule.html" class="extype" name="io.iteratee.modules.TryModule">TryModule</a>, <a href="modules/either$.html" class="extype" name="io.iteratee.modules.either">either</a>, <a href="files/either$.html" class="extype" name="io.iteratee.files.either">either</a>, <a href="files/eitherT$.html" class="extype" name="io.iteratee.files.eitherT">eitherT</a>, <a href="modules/eitherT$.html" class="extype" name="io.iteratee.modules.eitherT">eitherT</a>, <a href="modules/eval$.html" class="extype" name="io.iteratee.modules.eval">eval</a>, <a href="modules/id$.html" class="extype" name="io.iteratee.modules.id">id</a>, <a href="modules/option$.html" class="extype" name="io.iteratee.modules.option">option</a>, <a href="scalaz/task$.html" class="extype" name="io.iteratee.scalaz.task">task</a>, <a href="monix/task$.html" class="extype" name="io.iteratee.monix.task">task</a>, <a href="fs2/task$.html" class="extype" name="io.iteratee.fs2.task">task</a>, <a href="modules/try_$.html" class="extype" name="io.iteratee.modules.try_">try_</a>, <a href="files/try_$.html" class="extype" name="io.iteratee.files.try_">try_</a></div>
           </div></div>
         
 
       <div id="mbrsel">
-        <div class="toggle"></div>
-        <div id="memberfilter">
-          <i class="material-icons arrow"></i>
-          <span class="input">
-            <input id="mbrsel-input" placeholder="Filter all members" type="text" accesskey="/" />
-          </span>
-          <i class="clear material-icons"></i>
-        </div>
-        <div id="filterby">
-          <div id="order">
-            <span class="filtertype">Ordering</span>
-            <ol>
-              <li class="group out"><span>Grouped</span></li>
-              <li class="alpha in"><span>Alphabetic</span></li>
-              <li class="inherit out"><span>By Inheritance</span></li>
-            </ol>
-          </div>
-          <div class="ancestors">
-                  <span class="filtertype">Inherited<br />
-                  </span>
-                  <ol id="linearization">
-                    <li class="in" name="io.iteratee.IterateeModule"><span>IterateeModule</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
-                  </ol>
-                </div><div class="ancestors">
-              <span class="filtertype"></span>
+        <div id="textfilter"><span class="pre"></span><span class="input"><input id="mbrsel-input" type="text" accesskey="/" /></span><span class="post"></span></div>
+        <div id="order">
+              <span class="filtertype">Ordering</span>
               <ol>
-                <li class="hideall out"><span>Hide All</span></li>
-                <li class="showall in"><span>Show All</span></li>
+                <li class="group out"><span>Grouped</span></li>
+                <li class="alpha in"><span>Alphabetic</span></li>
+                <li class="inherit out"><span>By Inheritance</span></li>
               </ol>
             </div>
-          <div id="visbl">
-              <span class="filtertype">Visibility</span>
-              <ol><li class="public in"><span>Public</span></li><li class="all out"><span>All</span></li></ol>
-            </div>
-        </div>
+        <div id="ancestors">
+                <span class="filtertype">Inherited<br />
+                </span>
+                <ol id="linearization">
+                  <li class="in" name="io.iteratee.IterateeModule"><span>IterateeModule</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
+                </ol>
+              </div><div id="ancestors">
+            <span class="filtertype"></span>
+            <ol>
+              <li class="hideall out"><span>Hide All</span></li>
+              <li class="showall in"><span>Show All</span></li>
+            </ol>
+          </div>
+        <div id="visbl">
+            <span class="filtertype">Visibility</span>
+            <ol><li class="public in"><span>Public</span></li><li class="all out"><span>All</span></li></ol>
+          </div>
       </div>
 
       <div id="template">
@@ -360,55 +93,51 @@ type F[A].">
 
         <div id="types" class="types members">
               <h3>Type Members</h3>
-              <ol><li name="io.iteratee.IterateeModule.LiftToIterateePartiallyApplied" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Helpers">
-      <a id="LiftToIterateePartiallyApplied[E]extendsAnyRef"></a><a id="LiftToIterateePartiallyApplied[E]:(IterateeModule.this)#LiftToIterateePartiallyApplied[E]"></a>
-      <span class="permalink">
-      <a href="../../io/iteratee/IterateeModule.html#LiftToIterateePartiallyApplied[E]extendsAnyRef" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
+              <ol><li name="io.iteratee.IterateeModule.LiftToIterateePartiallyApplied" visbl="pub" data-isabs="false" fullComment="no" group="Helpers">
+      <a id="LiftToIterateePartiallyApplied[E]extendsAnyRef"></a>
+      <a id="LiftToIterateePartiallyApplied[E]:(IterateeModule.this)#LiftToIterateePartiallyApplied[E]"></a>
+      <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier">sealed </span>
         <span class="kind">class</span>
       </span>
       <span class="symbol">
-        <a title="" href="IterateeModule$LiftToIterateePartiallyApplied.html">
-              <span class="name">LiftToIterateePartiallyApplied</span>
-            </a><span class="tparams">[<span name="E">E</span>]</span><span class="result"> extends <a href="http://www.scala-lang.org/api/2.12.1/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a></span>
+        <a href="IterateeModule$LiftToIterateePartiallyApplied.html"><span class="name">LiftToIterateePartiallyApplied</span></a><span class="tparams">[<span name="E">E</span>]</span><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a></span>
       </span>
-      
+      </h4><span class="permalink">
+      <a href="../../index.html#io.iteratee.IterateeModule@LiftToIterateePartiallyApplied[E]extendsAnyRef" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
       <p class="shortcomment cmt"></p>
     </li></ol>
             </div>
 
         
 
-        <div class="values members">
+        <div id="values" class="values members">
               <h3>Value Members</h3>
-              <ol>
-                <li name="scala.AnyRef#!=" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="!=(x$1:Any):Boolean"></a><a id="!=(Any):Boolean"></a>
-      <span class="permalink">
-      <a href="../../io/iteratee/IterateeModule.html#!=(x$1:Any):Boolean" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
+              <ol><li name="scala.AnyRef#!=" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="!=(x$1:Any):Boolean"></a>
+      <a id="!=(Any):Boolean"></a>
+      <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier">final </span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span title="gt4s: $bang$eq" class="name">!=</span><span class="params">(<span name="arg0">arg0: <a href="http://www.scala-lang.org/api/2.12.1/index.html#scala.Any" class="extype" target="_top">Any</a></span>)</span><span class="result">: <a href="http://www.scala-lang.org/api/2.12.1/index.html#scala.Boolean" class="extype" target="_top">Boolean</a></span>
+        <span title="gt4s: $bang$eq" class="name">!=</span><span class="params">(<span name="arg0">arg0: <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Any" class="extype" target="_top">Any</a></span>)</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Boolean" class="extype" target="_top">Boolean</a></span>
       </span>
-      
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
-    </li><li name="scala.AnyRef###" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="##():Int"></a>
-      <span class="permalink">
-      <a href="../../io/iteratee/IterateeModule.html###():Int" title="Permalink">
-        <i class="material-icons"></i>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.iteratee.IterateeModule@!=(x$1:Any):Boolean" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+    </li><li name="scala.AnyRef###" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="##():Int"></a>
+      <a id="##():Int"></a>
+      <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier">final </span>
         <span class="kind">def</span>
@@ -416,31 +145,33 @@ type F[A].">
       <span class="symbol">
         <span title="gt4s: $hash$hash" class="name">##</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Int">Int</span></span>
       </span>
-      
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
-    </li><li name="scala.AnyRef#==" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="==(x$1:Any):Boolean"></a><a id="==(Any):Boolean"></a>
-      <span class="permalink">
-      <a href="../../io/iteratee/IterateeModule.html#==(x$1:Any):Boolean" title="Permalink">
-        <i class="material-icons"></i>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.iteratee.IterateeModule@##():Int" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+    </li><li name="scala.AnyRef#==" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="==(x$1:Any):Boolean"></a>
+      <a id="==(Any):Boolean"></a>
+      <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier">final </span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span title="gt4s: $eq$eq" class="name">==</span><span class="params">(<span name="arg0">arg0: <a href="http://www.scala-lang.org/api/2.12.1/index.html#scala.Any" class="extype" target="_top">Any</a></span>)</span><span class="result">: <a href="http://www.scala-lang.org/api/2.12.1/index.html#scala.Boolean" class="extype" target="_top">Boolean</a></span>
+        <span title="gt4s: $eq$eq" class="name">==</span><span class="params">(<span name="arg0">arg0: <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Any" class="extype" target="_top">Any</a></span>)</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Boolean" class="extype" target="_top">Boolean</a></span>
       </span>
-      
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
-    </li><li name="scala.Any#asInstanceOf" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="asInstanceOf[T0]:T0"></a>
-      <span class="permalink">
-      <a href="../../io/iteratee/IterateeModule.html#asInstanceOf[T0]:T0" title="Permalink">
-        <i class="material-icons"></i>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.iteratee.IterateeModule@==(x$1:Any):Boolean" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+    </li><li name="scala.Any#asInstanceOf" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="asInstanceOf[T0]:T0"></a>
+      <a id="asInstanceOf[T0]:T0"></a>
+      <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier">final </span>
         <span class="kind">def</span>
@@ -448,23 +179,28 @@ type F[A].">
       <span class="symbol">
         <span class="name">asInstanceOf</span><span class="tparams">[<span name="T0">T0</span>]</span><span class="result">: <span class="extype" name="scala.Any.asInstanceOf.T0">T0</span></span>
       </span>
-      
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
-    </li><li name="scala.AnyRef#clone" visbl="prt" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="clone():Object"></a><a id="clone():AnyRef"></a>
-      <span class="permalink">
-      <a href="../../io/iteratee/IterateeModule.html#clone():Object" title="Permalink">
-        <i class="material-icons"></i>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.iteratee.IterateeModule@asInstanceOf[T0]:T0" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
+    </li><li name="scala.AnyRef#clone" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="clone():Object"></a>
+      <a id="clone():AnyRef"></a>
+      <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">clone</span><span class="params">()</span><span class="result">: <a href="http://www.scala-lang.org/api/2.12.1/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a></span>
+        <span class="name">clone</span><span class="params">()</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a></span>
       </span>
-      
+      </h4><span class="permalink">
+      <a href="../../index.html#io.iteratee.IterateeModule@clone():Object" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<a href="../../java$lang.html" class="extype" name="java.lang">java.lang</a>] </dd><dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
                 <span class="name">@throws</span><span class="args">(<span>
       
@@ -472,13 +208,10 @@ type F[A].">
     </span>)</span>
               
         </dd></dl></div>
-    </li><li name="io.iteratee.IterateeModule#consume" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Iteratees">
-      <a id="consume[E]:io.iteratee.Iteratee[F,E,Vector[E]]"></a><a id="consume[E]:Iteratee[F,E,Vector[E]]"></a>
-      <span class="permalink">
-      <a href="../../io/iteratee/IterateeModule.html#consume[E]:io.iteratee.Iteratee[F,E,Vector[E]]" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
+    </li><li name="io.iteratee.IterateeModule#consume" visbl="pub" data-isabs="false" fullComment="no" group="Iteratees">
+      <a id="consume[E]:io.iteratee.Iteratee[F,E,Vector[E]]"></a>
+      <a id="consume[E]:Iteratee[F,E,Vector[E]]"></a>
+      <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier">final </span>
         <span class="kind">def</span>
@@ -486,15 +219,16 @@ type F[A].">
       <span class="symbol">
         <span class="name">consume</span><span class="tparams">[<span name="E">E</span>]</span><span class="result">: <a href="Iteratee.html" class="extype" name="io.iteratee.Iteratee">Iteratee</a>[<span class="extype" name="io.iteratee.IterateeModule.F">F</span>, <span class="extype" name="io.iteratee.IterateeModule.consume.E">E</span>, <span class="extype" name="scala.Vector">Vector</span>[<span class="extype" name="io.iteratee.IterateeModule.consume.E">E</span>]]</span>
       </span>
-      
-      <p class="shortcomment cmt">An <a href="Iteratee.html" class="extype" name="io.iteratee.Iteratee">Iteratee</a> that collects all the elements in a stream in a vector.</p>
-    </li><li name="io.iteratee.IterateeModule#consumeIn" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Iteratees">
-      <a id="consumeIn[E,C[_]](implicitC:cats.Applicative[C],implicitM:cats.MonoidK[C]):io.iteratee.Iteratee[F,E,C[E]]"></a><a id="consumeIn[E,C[_]](Applicative[C],MonoidK[C]):Iteratee[F,E,C[E]]"></a>
-      <span class="permalink">
-      <a href="../../io/iteratee/IterateeModule.html#consumeIn[E,C[_]](implicitC:cats.Applicative[C],implicitM:cats.MonoidK[C]):io.iteratee.Iteratee[F,E,C[E]]" title="Permalink">
-        <i class="material-icons"></i>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.iteratee.IterateeModule@consume[E]:io.iteratee.Iteratee[F,E,Vector[E]]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
+      <p class="shortcomment cmt">An <a href="Iteratee.html" class="extype" name="io.iteratee.Iteratee">Iteratee</a> that collects all the elements in a stream in a vector.</p>
+    </li><li name="io.iteratee.IterateeModule#consumeIn" visbl="pub" data-isabs="false" fullComment="no" group="Iteratees">
+      <a id="consumeIn[E,C[_]](implicitC:cats.Applicative[C],implicitM:cats.MonoidK[C]):io.iteratee.Iteratee[F,E,C[E]]"></a>
+      <a id="consumeIn[E,C[_]](Applicative[C],MonoidK[C]):Iteratee[F,E,C[E]]"></a>
+      <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier">final </span>
         <span class="kind">def</span>
@@ -502,16 +236,17 @@ type F[A].">
       <span class="symbol">
         <span class="name">consumeIn</span><span class="tparams">[<span name="E">E</span>, <span name="C">C<span class="tparams">[<span name="_">_</span>]</span></span>]</span><span class="params">(<span class="implicit">implicit </span><span name="C">C: <a href="http://typelevel.org/cats/api/index.html#cats.Applicative" class="extype" target="_top">Applicative</a>[<span class="extype" name="io.iteratee.IterateeModule.consumeIn.C">C</span>]</span>, <span name="M">M: <a href="http://typelevel.org/cats/api/index.html#cats.MonoidK" class="extype" target="_top">MonoidK</a>[<span class="extype" name="io.iteratee.IterateeModule.consumeIn.C">C</span>]</span>)</span><span class="result">: <a href="Iteratee.html" class="extype" name="io.iteratee.Iteratee">Iteratee</a>[<span class="extype" name="io.iteratee.IterateeModule.F">F</span>, <span class="extype" name="io.iteratee.IterateeModule.consumeIn.E">E</span>, <span class="extype" name="io.iteratee.IterateeModule.consumeIn.C">C</span>[<span class="extype" name="io.iteratee.IterateeModule.consumeIn.E">E</span>]]</span>
       </span>
-      
-      <p class="shortcomment cmt">An <a href="Iteratee.html" class="extype" name="io.iteratee.Iteratee">Iteratee</a> that collects all the elements in a stream in a given
-collection type.</p>
-    </li><li name="io.iteratee.IterateeModule#cont" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Constructors">
-      <a id="cont[E,A](ifInput:cats.data.NonEmptyList[E]=&gt;io.iteratee.Iteratee[F,E,A],ifEnd:F[A]):io.iteratee.Iteratee[F,E,A]"></a><a id="cont[E,A]((NonEmptyList[E])⇒Iteratee[F,E,A],F[A]):Iteratee[F,E,A]"></a>
-      <span class="permalink">
-      <a href="../../io/iteratee/IterateeModule.html#cont[E,A](ifInput:cats.data.NonEmptyList[E]=&gt;io.iteratee.Iteratee[F,E,A],ifEnd:F[A]):io.iteratee.Iteratee[F,E,A]" title="Permalink">
-        <i class="material-icons"></i>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.iteratee.IterateeModule@consumeIn[E,C[_]](implicitC:cats.Applicative[C],implicitM:cats.MonoidK[C]):io.iteratee.Iteratee[F,E,C[E]]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
+      <p class="shortcomment cmt">An <a href="Iteratee.html" class="extype" name="io.iteratee.Iteratee">Iteratee</a> that collects all the elements in a stream in a given
+collection type.</p>
+    </li><li name="io.iteratee.IterateeModule#cont" visbl="pub" data-isabs="false" fullComment="no" group="Constructors">
+      <a id="cont[E,A](ifInput:cats.data.NonEmptyList[E]=&gt;io.iteratee.Iteratee[F,E,A],ifEnd:F[A]):io.iteratee.Iteratee[F,E,A]"></a>
+      <a id="cont[E,A]((NonEmptyList[E])⇒Iteratee[F,E,A],F[A]):Iteratee[F,E,A]"></a>
+      <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier">final </span>
         <span class="kind">def</span>
@@ -519,16 +254,17 @@ collection type.</p>
       <span class="symbol">
         <span class="name">cont</span><span class="tparams">[<span name="E">E</span>, <span name="A">A</span>]</span><span class="params">(<span name="ifInput">ifInput: (<a href="http://typelevel.org/cats/api/index.html#cats.data.NonEmptyList" class="extype" target="_top">NonEmptyList</a>[<span class="extype" name="io.iteratee.IterateeModule.cont.E">E</span>]) ⇒ <a href="Iteratee.html" class="extype" name="io.iteratee.Iteratee">Iteratee</a>[<span class="extype" name="io.iteratee.IterateeModule.F">F</span>, <span class="extype" name="io.iteratee.IterateeModule.cont.E">E</span>, <span class="extype" name="io.iteratee.IterateeModule.cont.A">A</span>]</span>, <span name="ifEnd">ifEnd: <span class="extype" name="io.iteratee.IterateeModule.F">F</span>[<span class="extype" name="io.iteratee.IterateeModule.cont.A">A</span>]</span>)</span><span class="result">: <a href="Iteratee.html" class="extype" name="io.iteratee.Iteratee">Iteratee</a>[<span class="extype" name="io.iteratee.IterateeModule.F">F</span>, <span class="extype" name="io.iteratee.IterateeModule.cont.E">E</span>, <span class="extype" name="io.iteratee.IterateeModule.cont.A">A</span>]</span>
       </span>
-      
-      <p class="shortcomment cmt">Create an incomplete <a href="Iteratee.html" class="extype" name="io.iteratee.Iteratee">Iteratee</a> that will use the given function to
-process the next input.</p>
-    </li><li name="io.iteratee.IterateeModule#done" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Constructors">
-      <a id="done[E,A](value:A,remaining:List[E]):io.iteratee.Iteratee[F,E,A]"></a><a id="done[E,A](A,List[E]):Iteratee[F,E,A]"></a>
-      <span class="permalink">
-      <a href="../../io/iteratee/IterateeModule.html#done[E,A](value:A,remaining:List[E]):io.iteratee.Iteratee[F,E,A]" title="Permalink">
-        <i class="material-icons"></i>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.iteratee.IterateeModule@cont[E,A](ifInput:cats.data.NonEmptyList[E]=&gt;io.iteratee.Iteratee[F,E,A],ifEnd:F[A]):io.iteratee.Iteratee[F,E,A]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
+      <p class="shortcomment cmt">Create an incomplete <a href="Iteratee.html" class="extype" name="io.iteratee.Iteratee">Iteratee</a> that will use the given function to
+process the next input.</p>
+    </li><li name="io.iteratee.IterateeModule#done" visbl="pub" data-isabs="false" fullComment="no" group="Constructors">
+      <a id="done[E,A](value:A,remaining:List[E]):io.iteratee.Iteratee[F,E,A]"></a>
+      <a id="done[E,A](A,List[E]):Iteratee[F,E,A]"></a>
+      <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier">final </span>
         <span class="kind">def</span>
@@ -536,89 +272,98 @@ process the next input.</p>
       <span class="symbol">
         <span class="name">done</span><span class="tparams">[<span name="E">E</span>, <span name="A">A</span>]</span><span class="params">(<span name="value">value: <span class="extype" name="io.iteratee.IterateeModule.done.A">A</span></span>, <span name="remaining">remaining: <span class="extype" name="scala.List">List</span>[<span class="extype" name="io.iteratee.IterateeModule.done.E">E</span>] = <span class="symbol">Nil</span></span>)</span><span class="result">: <a href="Iteratee.html" class="extype" name="io.iteratee.Iteratee">Iteratee</a>[<span class="extype" name="io.iteratee.IterateeModule.F">F</span>, <span class="extype" name="io.iteratee.IterateeModule.done.E">E</span>, <span class="extype" name="io.iteratee.IterateeModule.done.A">A</span>]</span>
       </span>
-      
+      </h4><span class="permalink">
+      <a href="../../index.html#io.iteratee.IterateeModule@done[E,A](value:A,remaining:List[E]):io.iteratee.Iteratee[F,E,A]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
       <p class="shortcomment cmt">Create a new completed <a href="Iteratee.html" class="extype" name="io.iteratee.Iteratee">Iteratee</a> with the given result and leftover
 input.</p>
-    </li><li name="io.iteratee.IterateeModule#dropI" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Iteratees">
-      <a id="dropI[E](n:Int):io.iteratee.Iteratee[F,E,Unit]"></a><a id="dropI[E](Int):Iteratee[F,E,Unit]"></a>
-      <span class="permalink">
-      <a href="../../io/iteratee/IterateeModule.html#dropI[E](n:Int):io.iteratee.Iteratee[F,E,Unit]" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
+    </li><li name="io.iteratee.IterateeModule#dropI" visbl="pub" data-isabs="false" fullComment="no" group="Iteratees">
+      <a id="dropI[E](n:Int):io.iteratee.Iteratee[F,E,Unit]"></a>
+      <a id="dropI[E](Int):Iteratee[F,E,Unit]"></a>
+      <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier">final </span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">dropI</span><span class="tparams">[<span name="E">E</span>]</span><span class="params">(<span name="n">n: <span class="extype" name="scala.Int">Int</span></span>)</span><span class="result">: <a href="Iteratee.html" class="extype" name="io.iteratee.Iteratee">Iteratee</a>[<span class="extype" name="io.iteratee.IterateeModule.F">F</span>, <span class="extype" name="io.iteratee.IterateeModule.dropI.E">E</span>, <a href="http://www.scala-lang.org/api/2.12.1/index.html#scala.Unit" class="extype" target="_top">Unit</a>]</span>
+        <span class="name">dropI</span><span class="tparams">[<span name="E">E</span>]</span><span class="params">(<span name="n">n: <span class="extype" name="scala.Int">Int</span></span>)</span><span class="result">: <a href="Iteratee.html" class="extype" name="io.iteratee.Iteratee">Iteratee</a>[<span class="extype" name="io.iteratee.IterateeModule.F">F</span>, <span class="extype" name="io.iteratee.IterateeModule.dropI.E">E</span>, <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Unit" class="extype" target="_top">Unit</a>]</span>
       </span>
-      
+      </h4><span class="permalink">
+      <a href="../../index.html#io.iteratee.IterateeModule@dropI[E](n:Int):io.iteratee.Iteratee[F,E,Unit]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
       <p class="shortcomment cmt">An <a href="Iteratee.html" class="extype" name="io.iteratee.Iteratee">Iteratee</a> that drops a given number of the values from a stream.</p>
-    </li><li name="io.iteratee.IterateeModule#dropWhileI" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Iteratees">
-      <a id="dropWhileI[E](p:E=&gt;Boolean):io.iteratee.Iteratee[F,E,Unit]"></a><a id="dropWhileI[E]((E)⇒Boolean):Iteratee[F,E,Unit]"></a>
-      <span class="permalink">
-      <a href="../../io/iteratee/IterateeModule.html#dropWhileI[E](p:E=&gt;Boolean):io.iteratee.Iteratee[F,E,Unit]" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
+    </li><li name="io.iteratee.IterateeModule#dropWhileI" visbl="pub" data-isabs="false" fullComment="no" group="Iteratees">
+      <a id="dropWhileI[E](p:E=&gt;Boolean):io.iteratee.Iteratee[F,E,Unit]"></a>
+      <a id="dropWhileI[E]((E)⇒Boolean):Iteratee[F,E,Unit]"></a>
+      <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier">final </span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">dropWhileI</span><span class="tparams">[<span name="E">E</span>]</span><span class="params">(<span name="p">p: (<span class="extype" name="io.iteratee.IterateeModule.dropWhileI.E">E</span>) ⇒ <a href="http://www.scala-lang.org/api/2.12.1/index.html#scala.Boolean" class="extype" target="_top">Boolean</a></span>)</span><span class="result">: <a href="Iteratee.html" class="extype" name="io.iteratee.Iteratee">Iteratee</a>[<span class="extype" name="io.iteratee.IterateeModule.F">F</span>, <span class="extype" name="io.iteratee.IterateeModule.dropWhileI.E">E</span>, <a href="http://www.scala-lang.org/api/2.12.1/index.html#scala.Unit" class="extype" target="_top">Unit</a>]</span>
+        <span class="name">dropWhileI</span><span class="tparams">[<span name="E">E</span>]</span><span class="params">(<span name="p">p: (<span class="extype" name="io.iteratee.IterateeModule.dropWhileI.E">E</span>) ⇒ <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Boolean" class="extype" target="_top">Boolean</a></span>)</span><span class="result">: <a href="Iteratee.html" class="extype" name="io.iteratee.Iteratee">Iteratee</a>[<span class="extype" name="io.iteratee.IterateeModule.F">F</span>, <span class="extype" name="io.iteratee.IterateeModule.dropWhileI.E">E</span>, <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Unit" class="extype" target="_top">Unit</a>]</span>
       </span>
-      
+      </h4><span class="permalink">
+      <a href="../../index.html#io.iteratee.IterateeModule@dropWhileI[E](p:E=&gt;Boolean):io.iteratee.Iteratee[F,E,Unit]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
       <p class="shortcomment cmt">An <a href="Iteratee.html" class="extype" name="io.iteratee.Iteratee">Iteratee</a> that drops values from a stream as long as they satisfy the
 given predicate.</p>
-    </li><li name="scala.AnyRef#eq" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="eq(x$1:AnyRef):Boolean"></a><a id="eq(AnyRef):Boolean"></a>
-      <span class="permalink">
-      <a href="../../io/iteratee/IterateeModule.html#eq(x$1:AnyRef):Boolean" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
+    </li><li name="scala.AnyRef#eq" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="eq(x$1:AnyRef):Boolean"></a>
+      <a id="eq(AnyRef):Boolean"></a>
+      <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier">final </span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">eq</span><span class="params">(<span name="arg0">arg0: <a href="http://www.scala-lang.org/api/2.12.1/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a></span>)</span><span class="result">: <a href="http://www.scala-lang.org/api/2.12.1/index.html#scala.Boolean" class="extype" target="_top">Boolean</a></span>
+        <span class="name">eq</span><span class="params">(<span name="arg0">arg0: <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a></span>)</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Boolean" class="extype" target="_top">Boolean</a></span>
       </span>
-      
+      </h4><span class="permalink">
+      <a href="../../index.html#io.iteratee.IterateeModule@eq(x$1:AnyRef):Boolean" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
-    </li><li name="scala.AnyRef#equals" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="equals(x$1:Any):Boolean"></a><a id="equals(Any):Boolean"></a>
-      <span class="permalink">
-      <a href="../../io/iteratee/IterateeModule.html#equals(x$1:Any):Boolean" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
+    </li><li name="scala.AnyRef#equals" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="equals(x$1:Any):Boolean"></a>
+      <a id="equals(Any):Boolean"></a>
+      <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">equals</span><span class="params">(<span name="arg0">arg0: <a href="http://www.scala-lang.org/api/2.12.1/index.html#scala.Any" class="extype" target="_top">Any</a></span>)</span><span class="result">: <a href="http://www.scala-lang.org/api/2.12.1/index.html#scala.Boolean" class="extype" target="_top">Boolean</a></span>
+        <span class="name">equals</span><span class="params">(<span name="arg0">arg0: <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Any" class="extype" target="_top">Any</a></span>)</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Boolean" class="extype" target="_top">Boolean</a></span>
       </span>
-      
+      </h4><span class="permalink">
+      <a href="../../index.html#io.iteratee.IterateeModule@equals(x$1:Any):Boolean" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
-    </li><li name="scala.AnyRef#finalize" visbl="prt" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+    </li><li name="scala.AnyRef#finalize" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="finalize():Unit"></a>
-      <span class="permalink">
-      <a href="../../io/iteratee/IterateeModule.html#finalize():Unit" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
+      <a id="finalize():Unit"></a>
+      <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">finalize</span><span class="params">()</span><span class="result">: <a href="http://www.scala-lang.org/api/2.12.1/index.html#scala.Unit" class="extype" target="_top">Unit</a></span>
+        <span class="name">finalize</span><span class="params">()</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Unit" class="extype" target="_top">Unit</a></span>
       </span>
-      
+      </h4><span class="permalink">
+      <a href="../../index.html#io.iteratee.IterateeModule@finalize():Unit" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<a href="../../java$lang.html" class="extype" name="java.lang">java.lang</a>] </dd><dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
                 <span class="name">@throws</span><span class="args">(<span>
       
@@ -626,13 +371,10 @@ given predicate.</p>
     </span>)</span>
               
         </dd></dl></div>
-    </li><li name="io.iteratee.IterateeModule#fold" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Iteratees">
-      <a id="fold[E,A](init:A)(f:(A,E)=&gt;A):io.iteratee.Iteratee[F,E,A]"></a><a id="fold[E,A](A)((A,E)⇒A):Iteratee[F,E,A]"></a>
-      <span class="permalink">
-      <a href="../../io/iteratee/IterateeModule.html#fold[E,A](init:A)(f:(A,E)=&gt;A):io.iteratee.Iteratee[F,E,A]" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
+    </li><li name="io.iteratee.IterateeModule#fold" visbl="pub" data-isabs="false" fullComment="no" group="Iteratees">
+      <a id="fold[E,A](init:A)(f:(A,E)=&gt;A):io.iteratee.Iteratee[F,E,A]"></a>
+      <a id="fold[E,A](A)((A,E)⇒A):Iteratee[F,E,A]"></a>
+      <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier">final </span>
         <span class="kind">def</span>
@@ -640,16 +382,17 @@ given predicate.</p>
       <span class="symbol">
         <span class="name">fold</span><span class="tparams">[<span name="E">E</span>, <span name="A">A</span>]</span><span class="params">(<span name="init">init: <span class="extype" name="io.iteratee.IterateeModule.fold.A">A</span></span>)</span><span class="params">(<span name="f">f: (<span class="extype" name="io.iteratee.IterateeModule.fold.A">A</span>, <span class="extype" name="io.iteratee.IterateeModule.fold.E">E</span>) ⇒ <span class="extype" name="io.iteratee.IterateeModule.fold.A">A</span></span>)</span><span class="result">: <a href="Iteratee.html" class="extype" name="io.iteratee.Iteratee">Iteratee</a>[<span class="extype" name="io.iteratee.IterateeModule.F">F</span>, <span class="extype" name="io.iteratee.IterateeModule.fold.E">E</span>, <span class="extype" name="io.iteratee.IterateeModule.fold.A">A</span>]</span>
       </span>
-      
-      <p class="shortcomment cmt">An <a href="Iteratee.html" class="extype" name="io.iteratee.Iteratee">Iteratee</a> that folds a stream using an initial value and an
-accumulation function.</p>
-    </li><li name="io.iteratee.IterateeModule#foldM" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Iteratees">
-      <a id="foldM[E,A](init:A)(f:(A,E)=&gt;F[A]):io.iteratee.Iteratee[F,E,A]"></a><a id="foldM[E,A](A)((A,E)⇒F[A]):Iteratee[F,E,A]"></a>
-      <span class="permalink">
-      <a href="../../io/iteratee/IterateeModule.html#foldM[E,A](init:A)(f:(A,E)=&gt;F[A]):io.iteratee.Iteratee[F,E,A]" title="Permalink">
-        <i class="material-icons"></i>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.iteratee.IterateeModule@fold[E,A](init:A)(f:(A,E)=&gt;A):io.iteratee.Iteratee[F,E,A]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
+      <p class="shortcomment cmt">An <a href="Iteratee.html" class="extype" name="io.iteratee.Iteratee">Iteratee</a> that folds a stream using an initial value and an
+accumulation function.</p>
+    </li><li name="io.iteratee.IterateeModule#foldM" visbl="pub" data-isabs="false" fullComment="no" group="Iteratees">
+      <a id="foldM[E,A](init:A)(f:(A,E)=&gt;F[A]):io.iteratee.Iteratee[F,E,A]"></a>
+      <a id="foldM[E,A](A)((A,E)⇒F[A]):Iteratee[F,E,A]"></a>
+      <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier">final </span>
         <span class="kind">def</span>
@@ -657,16 +400,17 @@ accumulation function.</p>
       <span class="symbol">
         <span class="name">foldM</span><span class="tparams">[<span name="E">E</span>, <span name="A">A</span>]</span><span class="params">(<span name="init">init: <span class="extype" name="io.iteratee.IterateeModule.foldM.A">A</span></span>)</span><span class="params">(<span name="f">f: (<span class="extype" name="io.iteratee.IterateeModule.foldM.A">A</span>, <span class="extype" name="io.iteratee.IterateeModule.foldM.E">E</span>) ⇒ <span class="extype" name="io.iteratee.IterateeModule.F">F</span>[<span class="extype" name="io.iteratee.IterateeModule.foldM.A">A</span>]</span>)</span><span class="result">: <a href="Iteratee.html" class="extype" name="io.iteratee.Iteratee">Iteratee</a>[<span class="extype" name="io.iteratee.IterateeModule.F">F</span>, <span class="extype" name="io.iteratee.IterateeModule.foldM.E">E</span>, <span class="extype" name="io.iteratee.IterateeModule.foldM.A">A</span>]</span>
       </span>
-      
-      <p class="shortcomment cmt">An <a href="Iteratee.html" class="extype" name="io.iteratee.Iteratee">Iteratee</a> that folds a stream using an initial value and a monadic
-accumulation function.</p>
-    </li><li name="io.iteratee.IterateeModule#foldMap" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Iteratees">
-      <a id="foldMap[E,A](f:E=&gt;A)(implicitA:cats.Monoid[A]):io.iteratee.Iteratee[F,E,A]"></a><a id="foldMap[E,A]((E)⇒A)(Monoid[A]):Iteratee[F,E,A]"></a>
-      <span class="permalink">
-      <a href="../../io/iteratee/IterateeModule.html#foldMap[E,A](f:E=&gt;A)(implicitA:cats.Monoid[A]):io.iteratee.Iteratee[F,E,A]" title="Permalink">
-        <i class="material-icons"></i>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.iteratee.IterateeModule@foldM[E,A](init:A)(f:(A,E)=&gt;F[A]):io.iteratee.Iteratee[F,E,A]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
+      <p class="shortcomment cmt">An <a href="Iteratee.html" class="extype" name="io.iteratee.Iteratee">Iteratee</a> that folds a stream using an initial value and a monadic
+accumulation function.</p>
+    </li><li name="io.iteratee.IterateeModule#foldMap" visbl="pub" data-isabs="false" fullComment="no" group="Iteratees">
+      <a id="foldMap[E,A](f:E=&gt;A)(implicitA:cats.Monoid[A]):io.iteratee.Iteratee[F,E,A]"></a>
+      <a id="foldMap[E,A]((E)⇒A)(Monoid[A]):Iteratee[F,E,A]"></a>
+      <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier">final </span>
         <span class="kind">def</span>
@@ -674,65 +418,105 @@ accumulation function.</p>
       <span class="symbol">
         <span class="name">foldMap</span><span class="tparams">[<span name="E">E</span>, <span name="A">A</span>]</span><span class="params">(<span name="f">f: (<span class="extype" name="io.iteratee.IterateeModule.foldMap.E">E</span>) ⇒ <span class="extype" name="io.iteratee.IterateeModule.foldMap.A">A</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="A">A: <span class="extype" name="cats.Monoid">Monoid</span>[<span class="extype" name="io.iteratee.IterateeModule.foldMap.A">A</span>]</span>)</span><span class="result">: <a href="Iteratee.html" class="extype" name="io.iteratee.Iteratee">Iteratee</a>[<span class="extype" name="io.iteratee.IterateeModule.F">F</span>, <span class="extype" name="io.iteratee.IterateeModule.foldMap.E">E</span>, <span class="extype" name="io.iteratee.IterateeModule.foldMap.A">A</span>]</span>
       </span>
-      
+      </h4><span class="permalink">
+      <a href="../../index.html#io.iteratee.IterateeModule@foldMap[E,A](f:E=&gt;A)(implicitA:cats.Monoid[A]):io.iteratee.Iteratee[F,E,A]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
       <p class="shortcomment cmt">An <a href="Iteratee.html" class="extype" name="io.iteratee.Iteratee">Iteratee</a> that combines values using a function to a type with a
 <a href="http://typelevel.org/cats/api/index.html#cats.package@Monoid[A]=cats.kernel.Monoid[A]" class="extype" target="_top">cats.Monoid</a> instance.</p>
-    </li><li name="io.iteratee.IterateeModule#foldMapOption" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Iteratees">
-      <a id="foldMapOption[E,A](f:E=&gt;A)(implicitA:cats.Semigroup[A]):io.iteratee.Iteratee[F,E,Option[A]]"></a><a id="foldMapOption[E,A]((E)⇒A)(Semigroup[A]):Iteratee[F,E,Option[A]]"></a>
-      <span class="permalink">
-      <a href="../../io/iteratee/IterateeModule.html#foldMapOption[E,A](f:E=&gt;A)(implicitA:cats.Semigroup[A]):io.iteratee.Iteratee[F,E,Option[A]]" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
+    </li><li name="io.iteratee.IterateeModule#foldMapM" visbl="pub" data-isabs="false" fullComment="no" group="Iteratees">
+      <a id="foldMapM[E,A](f:E=&gt;F[A])(implicitA:cats.Monoid[A]):io.iteratee.Iteratee[F,E,A]"></a>
+      <a id="foldMapM[E,A]((E)⇒F[A])(Monoid[A]):Iteratee[F,E,A]"></a>
+      <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier">final </span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">foldMapOption</span><span class="tparams">[<span name="E">E</span>, <span name="A">A</span>]</span><span class="params">(<span name="f">f: (<span class="extype" name="io.iteratee.IterateeModule.foldMapOption.E">E</span>) ⇒ <span class="extype" name="io.iteratee.IterateeModule.foldMapOption.A">A</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="A">A: <span class="extype" name="cats.Semigroup">Semigroup</span>[<span class="extype" name="io.iteratee.IterateeModule.foldMapOption.A">A</span>]</span>)</span><span class="result">: <a href="Iteratee.html" class="extype" name="io.iteratee.Iteratee">Iteratee</a>[<span class="extype" name="io.iteratee.IterateeModule.F">F</span>, <span class="extype" name="io.iteratee.IterateeModule.foldMapOption.E">E</span>, <a href="http://www.scala-lang.org/api/2.12.1/index.html#scala.Option" class="extype" target="_top">Option</a>[<span class="extype" name="io.iteratee.IterateeModule.foldMapOption.A">A</span>]]</span>
+        <span class="name">foldMapM</span><span class="tparams">[<span name="E">E</span>, <span name="A">A</span>]</span><span class="params">(<span name="f">f: (<span class="extype" name="io.iteratee.IterateeModule.foldMapM.E">E</span>) ⇒ <span class="extype" name="io.iteratee.IterateeModule.F">F</span>[<span class="extype" name="io.iteratee.IterateeModule.foldMapM.A">A</span>]</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="A">A: <span class="extype" name="cats.Monoid">Monoid</span>[<span class="extype" name="io.iteratee.IterateeModule.foldMapM.A">A</span>]</span>)</span><span class="result">: <a href="Iteratee.html" class="extype" name="io.iteratee.Iteratee">Iteratee</a>[<span class="extype" name="io.iteratee.IterateeModule.F">F</span>, <span class="extype" name="io.iteratee.IterateeModule.foldMapM.E">E</span>, <span class="extype" name="io.iteratee.IterateeModule.foldMapM.A">A</span>]</span>
       </span>
-      
+      </h4><span class="permalink">
+      <a href="../../index.html#io.iteratee.IterateeModule@foldMapM[E,A](f:E=&gt;F[A])(implicitA:cats.Monoid[A]):io.iteratee.Iteratee[F,E,A]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">An <a href="Iteratee.html" class="extype" name="io.iteratee.Iteratee">Iteratee</a> that combines values using an effectful function to a type
+with a <a href="http://typelevel.org/cats/api/index.html#cats.package@Monoid[A]=cats.kernel.Monoid[A]" class="extype" target="_top">cats.Monoid</a> instance.</p>
+    </li><li name="io.iteratee.IterateeModule#foldMapMOption" visbl="pub" data-isabs="false" fullComment="no" group="Iteratees">
+      <a id="foldMapMOption[E,A](f:E=&gt;F[A])(implicitA:cats.Semigroup[A]):io.iteratee.Iteratee[F,E,Option[A]]"></a>
+      <a id="foldMapMOption[E,A]((E)⇒F[A])(Semigroup[A]):Iteratee[F,E,Option[A]]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">foldMapMOption</span><span class="tparams">[<span name="E">E</span>, <span name="A">A</span>]</span><span class="params">(<span name="f">f: (<span class="extype" name="io.iteratee.IterateeModule.foldMapMOption.E">E</span>) ⇒ <span class="extype" name="io.iteratee.IterateeModule.F">F</span>[<span class="extype" name="io.iteratee.IterateeModule.foldMapMOption.A">A</span>]</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="A">A: <span class="extype" name="cats.Semigroup">Semigroup</span>[<span class="extype" name="io.iteratee.IterateeModule.foldMapMOption.A">A</span>]</span>)</span><span class="result">: <a href="Iteratee.html" class="extype" name="io.iteratee.Iteratee">Iteratee</a>[<span class="extype" name="io.iteratee.IterateeModule.F">F</span>, <span class="extype" name="io.iteratee.IterateeModule.foldMapMOption.E">E</span>, <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Option" class="extype" target="_top">Option</a>[<span class="extype" name="io.iteratee.IterateeModule.foldMapMOption.A">A</span>]]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.iteratee.IterateeModule@foldMapMOption[E,A](f:E=&gt;F[A])(implicitA:cats.Semigroup[A]):io.iteratee.Iteratee[F,E,Option[A]]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">An <a href="Iteratee.html" class="extype" name="io.iteratee.Iteratee">Iteratee</a> that combines values using an effectful function to a type
+with a <a href="http://typelevel.org/cats/api/index.html#cats.package@Semigroup[A]=cats.kernel.Semigroup[A]" class="extype" target="_top">cats.Semigroup</a> instance.</p>
+    </li><li name="io.iteratee.IterateeModule#foldMapOption" visbl="pub" data-isabs="false" fullComment="no" group="Iteratees">
+      <a id="foldMapOption[E,A](f:E=&gt;A)(implicitA:cats.Semigroup[A]):io.iteratee.Iteratee[F,E,Option[A]]"></a>
+      <a id="foldMapOption[E,A]((E)⇒A)(Semigroup[A]):Iteratee[F,E,Option[A]]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">foldMapOption</span><span class="tparams">[<span name="E">E</span>, <span name="A">A</span>]</span><span class="params">(<span name="f">f: (<span class="extype" name="io.iteratee.IterateeModule.foldMapOption.E">E</span>) ⇒ <span class="extype" name="io.iteratee.IterateeModule.foldMapOption.A">A</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="A">A: <span class="extype" name="cats.Semigroup">Semigroup</span>[<span class="extype" name="io.iteratee.IterateeModule.foldMapOption.A">A</span>]</span>)</span><span class="result">: <a href="Iteratee.html" class="extype" name="io.iteratee.Iteratee">Iteratee</a>[<span class="extype" name="io.iteratee.IterateeModule.F">F</span>, <span class="extype" name="io.iteratee.IterateeModule.foldMapOption.E">E</span>, <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Option" class="extype" target="_top">Option</a>[<span class="extype" name="io.iteratee.IterateeModule.foldMapOption.A">A</span>]]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.iteratee.IterateeModule@foldMapOption[E,A](f:E=&gt;A)(implicitA:cats.Semigroup[A]):io.iteratee.Iteratee[F,E,Option[A]]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
       <p class="shortcomment cmt">An <a href="Iteratee.html" class="extype" name="io.iteratee.Iteratee">Iteratee</a> that combines values using a function to a type with a
 <a href="http://typelevel.org/cats/api/index.html#cats.package@Semigroup[A]=cats.kernel.Semigroup[A]" class="extype" target="_top">cats.Semigroup</a> instance.</p>
-    </li><li name="io.iteratee.IterateeModule#foreach" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Iteratees">
-      <a id="foreach[E](f:E=&gt;Unit):io.iteratee.Iteratee[F,E,Unit]"></a><a id="foreach[E]((E)⇒Unit):Iteratee[F,E,Unit]"></a>
-      <span class="permalink">
-      <a href="../../io/iteratee/IterateeModule.html#foreach[E](f:E=&gt;Unit):io.iteratee.Iteratee[F,E,Unit]" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
+    </li><li name="io.iteratee.IterateeModule#foreach" visbl="pub" data-isabs="false" fullComment="no" group="Iteratees">
+      <a id="foreach[E](f:E=&gt;Unit):io.iteratee.Iteratee[F,E,Unit]"></a>
+      <a id="foreach[E]((E)⇒Unit):Iteratee[F,E,Unit]"></a>
+      <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier">final </span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">foreach</span><span class="tparams">[<span name="E">E</span>]</span><span class="params">(<span name="f">f: (<span class="extype" name="io.iteratee.IterateeModule.foreach.E">E</span>) ⇒ <a href="http://www.scala-lang.org/api/2.12.1/index.html#scala.Unit" class="extype" target="_top">Unit</a></span>)</span><span class="result">: <a href="Iteratee.html" class="extype" name="io.iteratee.Iteratee">Iteratee</a>[<span class="extype" name="io.iteratee.IterateeModule.F">F</span>, <span class="extype" name="io.iteratee.IterateeModule.foreach.E">E</span>, <a href="http://www.scala-lang.org/api/2.12.1/index.html#scala.Unit" class="extype" target="_top">Unit</a>]</span>
+        <span class="name">foreach</span><span class="tparams">[<span name="E">E</span>]</span><span class="params">(<span name="f">f: (<span class="extype" name="io.iteratee.IterateeModule.foreach.E">E</span>) ⇒ <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Unit" class="extype" target="_top">Unit</a></span>)</span><span class="result">: <a href="Iteratee.html" class="extype" name="io.iteratee.Iteratee">Iteratee</a>[<span class="extype" name="io.iteratee.IterateeModule.F">F</span>, <span class="extype" name="io.iteratee.IterateeModule.foreach.E">E</span>, <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Unit" class="extype" target="_top">Unit</a>]</span>
       </span>
-      
+      </h4><span class="permalink">
+      <a href="../../index.html#io.iteratee.IterateeModule@foreach[E](f:E=&gt;Unit):io.iteratee.Iteratee[F,E,Unit]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
       <p class="shortcomment cmt">An <a href="Iteratee.html" class="extype" name="io.iteratee.Iteratee">Iteratee</a> that runs a function for its side effects.</p>
-    </li><li name="io.iteratee.IterateeModule#foreachM" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Iteratees">
-      <a id="foreachM[A](f:A=&gt;F[Unit]):io.iteratee.Iteratee[F,A,Unit]"></a><a id="foreachM[A]((A)⇒F[Unit]):Iteratee[F,A,Unit]"></a>
-      <span class="permalink">
-      <a href="../../io/iteratee/IterateeModule.html#foreachM[A](f:A=&gt;F[Unit]):io.iteratee.Iteratee[F,A,Unit]" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
+    </li><li name="io.iteratee.IterateeModule#foreachM" visbl="pub" data-isabs="false" fullComment="no" group="Iteratees">
+      <a id="foreachM[A](f:A=&gt;F[Unit]):io.iteratee.Iteratee[F,A,Unit]"></a>
+      <a id="foreachM[A]((A)⇒F[Unit]):Iteratee[F,A,Unit]"></a>
+      <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier">final </span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">foreachM</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span name="f">f: (<span class="extype" name="io.iteratee.IterateeModule.foreachM.A">A</span>) ⇒ <span class="extype" name="io.iteratee.IterateeModule.F">F</span>[<a href="http://www.scala-lang.org/api/2.12.1/index.html#scala.Unit" class="extype" target="_top">Unit</a>]</span>)</span><span class="result">: <a href="Iteratee.html" class="extype" name="io.iteratee.Iteratee">Iteratee</a>[<span class="extype" name="io.iteratee.IterateeModule.F">F</span>, <span class="extype" name="io.iteratee.IterateeModule.foreachM.A">A</span>, <a href="http://www.scala-lang.org/api/2.12.1/index.html#scala.Unit" class="extype" target="_top">Unit</a>]</span>
+        <span class="name">foreachM</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span name="f">f: (<span class="extype" name="io.iteratee.IterateeModule.foreachM.A">A</span>) ⇒ <span class="extype" name="io.iteratee.IterateeModule.F">F</span>[<a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Unit" class="extype" target="_top">Unit</a>]</span>)</span><span class="result">: <a href="Iteratee.html" class="extype" name="io.iteratee.Iteratee">Iteratee</a>[<span class="extype" name="io.iteratee.IterateeModule.F">F</span>, <span class="extype" name="io.iteratee.IterateeModule.foreachM.A">A</span>, <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Unit" class="extype" target="_top">Unit</a>]</span>
       </span>
-      
-      <p class="shortcomment cmt">An <a href="Iteratee.html" class="extype" name="io.iteratee.Iteratee">Iteratee</a> that runs an effectful function for its side effects.</p>
-    </li><li name="scala.AnyRef#getClass" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="getClass():Class[_]"></a>
-      <span class="permalink">
-      <a href="../../io/iteratee/IterateeModule.html#getClass():Class[_]" title="Permalink">
-        <i class="material-icons"></i>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.iteratee.IterateeModule@foreachM[A](f:A=&gt;F[Unit]):io.iteratee.Iteratee[F,A,Unit]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
+      <p class="shortcomment cmt">An <a href="Iteratee.html" class="extype" name="io.iteratee.Iteratee">Iteratee</a> that runs an effectful function for its side effects.</p>
+    </li><li name="scala.AnyRef#getClass" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="getClass():Class[_]"></a>
+      <a id="getClass():Class[_]"></a>
+      <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier">final </span>
         <span class="kind">def</span>
@@ -740,15 +524,16 @@ accumulation function.</p>
       <span class="symbol">
         <span class="name">getClass</span><span class="params">()</span><span class="result">: <span class="extype" name="java.lang.Class">Class</span>[_]</span>
       </span>
-      
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
-    </li><li name="scala.AnyRef#hashCode" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="hashCode():Int"></a>
-      <span class="permalink">
-      <a href="../../io/iteratee/IterateeModule.html#hashCode():Int" title="Permalink">
-        <i class="material-icons"></i>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.iteratee.IterateeModule@getClass():Class[_]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+    </li><li name="scala.AnyRef#hashCode" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="hashCode():Int"></a>
+      <a id="hashCode():Int"></a>
+      <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
@@ -756,95 +541,101 @@ accumulation function.</p>
       <span class="symbol">
         <span class="name">hashCode</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Int">Int</span></span>
       </span>
-      
+      </h4><span class="permalink">
+      <a href="../../index.html#io.iteratee.IterateeModule@hashCode():Int" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
-    </li><li name="io.iteratee.IterateeModule#head" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Iteratees">
-      <a id="head[E]:io.iteratee.Iteratee[F,E,Option[E]]"></a><a id="head[E]:Iteratee[F,E,Option[E]]"></a>
-      <span class="permalink">
-      <a href="../../io/iteratee/IterateeModule.html#head[E]:io.iteratee.Iteratee[F,E,Option[E]]" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
+    </li><li name="io.iteratee.IterateeModule#head" visbl="pub" data-isabs="false" fullComment="no" group="Iteratees">
+      <a id="head[E]:io.iteratee.Iteratee[F,E,Option[E]]"></a>
+      <a id="head[E]:Iteratee[F,E,Option[E]]"></a>
+      <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier">final </span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">head</span><span class="tparams">[<span name="E">E</span>]</span><span class="result">: <a href="Iteratee.html" class="extype" name="io.iteratee.Iteratee">Iteratee</a>[<span class="extype" name="io.iteratee.IterateeModule.F">F</span>, <span class="extype" name="io.iteratee.IterateeModule.head.E">E</span>, <a href="http://www.scala-lang.org/api/2.12.1/index.html#scala.Option" class="extype" target="_top">Option</a>[<span class="extype" name="io.iteratee.IterateeModule.head.E">E</span>]]</span>
+        <span class="name">head</span><span class="tparams">[<span name="E">E</span>]</span><span class="result">: <a href="Iteratee.html" class="extype" name="io.iteratee.Iteratee">Iteratee</a>[<span class="extype" name="io.iteratee.IterateeModule.F">F</span>, <span class="extype" name="io.iteratee.IterateeModule.head.E">E</span>, <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Option" class="extype" target="_top">Option</a>[<span class="extype" name="io.iteratee.IterateeModule.head.E">E</span>]]</span>
       </span>
-      
+      </h4><span class="permalink">
+      <a href="../../index.html#io.iteratee.IterateeModule@head[E]:io.iteratee.Iteratee[F,E,Option[E]]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
       <p class="shortcomment cmt">An <a href="Iteratee.html" class="extype" name="io.iteratee.Iteratee">Iteratee</a> that returns the first value in a stream.</p>
-    </li><li name="io.iteratee.IterateeModule#identity" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Iteratees">
-      <a id="identity[E]:io.iteratee.Iteratee[F,E,Unit]"></a><a id="identity[E]:Iteratee[F,E,Unit]"></a>
-      <span class="permalink">
-      <a href="../../io/iteratee/IterateeModule.html#identity[E]:io.iteratee.Iteratee[F,E,Unit]" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
+    </li><li name="io.iteratee.IterateeModule#identityIteratee" visbl="pub" data-isabs="false" fullComment="no" group="Iteratees">
+      <a id="identityIteratee[E]:io.iteratee.Iteratee[F,E,Unit]"></a>
+      <a id="identityIteratee[E]:Iteratee[F,E,Unit]"></a>
+      <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier">final </span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">identity</span><span class="tparams">[<span name="E">E</span>]</span><span class="result">: <a href="Iteratee.html" class="extype" name="io.iteratee.Iteratee">Iteratee</a>[<span class="extype" name="io.iteratee.IterateeModule.F">F</span>, <span class="extype" name="io.iteratee.IterateeModule.identity.E">E</span>, <a href="http://www.scala-lang.org/api/2.12.1/index.html#scala.Unit" class="extype" target="_top">Unit</a>]</span>
+        <span class="name">identityIteratee</span><span class="tparams">[<span name="E">E</span>]</span><span class="result">: <a href="Iteratee.html" class="extype" name="io.iteratee.Iteratee">Iteratee</a>[<span class="extype" name="io.iteratee.IterateeModule.F">F</span>, <span class="extype" name="io.iteratee.IterateeModule.identityIteratee.E">E</span>, <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Unit" class="extype" target="_top">Unit</a>]</span>
       </span>
-      
+      </h4><span class="permalink">
+      <a href="../../index.html#io.iteratee.IterateeModule@identityIteratee[E]:io.iteratee.Iteratee[F,E,Unit]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
       <p class="shortcomment cmt">An iteratee that reads nothing from a stream.</p>
-    </li><li name="io.iteratee.IterateeModule#isEnd" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Iteratees">
-      <a id="isEnd[E]:io.iteratee.Iteratee[F,E,Boolean]"></a><a id="isEnd[E]:Iteratee[F,E,Boolean]"></a>
-      <span class="permalink">
-      <a href="../../io/iteratee/IterateeModule.html#isEnd[E]:io.iteratee.Iteratee[F,E,Boolean]" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
+    </li><li name="io.iteratee.IterateeModule#isEnd" visbl="pub" data-isabs="false" fullComment="no" group="Iteratees">
+      <a id="isEnd[E]:io.iteratee.Iteratee[F,E,Boolean]"></a>
+      <a id="isEnd[E]:Iteratee[F,E,Boolean]"></a>
+      <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier">final </span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">isEnd</span><span class="tparams">[<span name="E">E</span>]</span><span class="result">: <a href="Iteratee.html" class="extype" name="io.iteratee.Iteratee">Iteratee</a>[<span class="extype" name="io.iteratee.IterateeModule.F">F</span>, <span class="extype" name="io.iteratee.IterateeModule.isEnd.E">E</span>, <a href="http://www.scala-lang.org/api/2.12.1/index.html#scala.Boolean" class="extype" target="_top">Boolean</a>]</span>
+        <span class="name">isEnd</span><span class="tparams">[<span name="E">E</span>]</span><span class="result">: <a href="Iteratee.html" class="extype" name="io.iteratee.Iteratee">Iteratee</a>[<span class="extype" name="io.iteratee.IterateeModule.F">F</span>, <span class="extype" name="io.iteratee.IterateeModule.isEnd.E">E</span>, <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Boolean" class="extype" target="_top">Boolean</a>]</span>
       </span>
-      
+      </h4><span class="permalink">
+      <a href="../../index.html#io.iteratee.IterateeModule@isEnd[E]:io.iteratee.Iteratee[F,E,Boolean]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
       <p class="shortcomment cmt">An <a href="Iteratee.html" class="extype" name="io.iteratee.Iteratee">Iteratee</a> that checks if the stream is at its end.</p>
-    </li><li name="scala.Any#isInstanceOf" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+    </li><li name="scala.Any#isInstanceOf" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="isInstanceOf[T0]:Boolean"></a>
-      <span class="permalink">
-      <a href="../../io/iteratee/IterateeModule.html#isInstanceOf[T0]:Boolean" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
+      <a id="isInstanceOf[T0]:Boolean"></a>
+      <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier">final </span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">isInstanceOf</span><span class="tparams">[<span name="T0">T0</span>]</span><span class="result">: <a href="http://www.scala-lang.org/api/2.12.1/index.html#scala.Boolean" class="extype" target="_top">Boolean</a></span>
+        <span class="name">isInstanceOf</span><span class="tparams">[<span name="T0">T0</span>]</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Boolean" class="extype" target="_top">Boolean</a></span>
       </span>
-      
+      </h4><span class="permalink">
+      <a href="../../index.html#io.iteratee.IterateeModule@isInstanceOf[T0]:Boolean" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
-    </li><li name="io.iteratee.IterateeModule#length" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Iteratees">
-      <a id="length[E]:io.iteratee.Iteratee[F,E,Long]"></a><a id="length[E]:Iteratee[F,E,Long]"></a>
-      <span class="permalink">
-      <a href="../../io/iteratee/IterateeModule.html#length[E]:io.iteratee.Iteratee[F,E,Long]" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
+    </li><li name="io.iteratee.IterateeModule#length" visbl="pub" data-isabs="false" fullComment="no" group="Iteratees">
+      <a id="length[E]:io.iteratee.Iteratee[F,E,Long]"></a>
+      <a id="length[E]:Iteratee[F,E,Long]"></a>
+      <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier">final </span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">length</span><span class="tparams">[<span name="E">E</span>]</span><span class="result">: <a href="Iteratee.html" class="extype" name="io.iteratee.Iteratee">Iteratee</a>[<span class="extype" name="io.iteratee.IterateeModule.F">F</span>, <span class="extype" name="io.iteratee.IterateeModule.length.E">E</span>, <a href="http://www.scala-lang.org/api/2.12.1/index.html#scala.Long" class="extype" target="_top">Long</a>]</span>
+        <span class="name">length</span><span class="tparams">[<span name="E">E</span>]</span><span class="result">: <a href="Iteratee.html" class="extype" name="io.iteratee.Iteratee">Iteratee</a>[<span class="extype" name="io.iteratee.IterateeModule.F">F</span>, <span class="extype" name="io.iteratee.IterateeModule.length.E">E</span>, <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Long" class="extype" target="_top">Long</a>]</span>
       </span>
-      
-      <p class="shortcomment cmt">An <a href="Iteratee.html" class="extype" name="io.iteratee.Iteratee">Iteratee</a> that counts the number of values in a stream.</p>
-    </li><li name="io.iteratee.IterateeModule#liftToIteratee" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Iteratees">
-      <a id="liftToIteratee[E]:IterateeModule.this.LiftToIterateePartiallyApplied[E]"></a><a id="liftToIteratee[E]:(IterateeModule.this)#LiftToIterateePartiallyApplied[E]"></a>
-      <span class="permalink">
-      <a href="../../io/iteratee/IterateeModule.html#liftToIteratee[E]:IterateeModule.this.LiftToIterateePartiallyApplied[E]" title="Permalink">
-        <i class="material-icons"></i>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.iteratee.IterateeModule@length[E]:io.iteratee.Iteratee[F,E,Long]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
+      <p class="shortcomment cmt">An <a href="Iteratee.html" class="extype" name="io.iteratee.Iteratee">Iteratee</a> that counts the number of values in a stream.</p>
+    </li><li name="io.iteratee.IterateeModule#liftToIteratee" visbl="pub" data-isabs="false" fullComment="no" group="Iteratees">
+      <a id="liftToIteratee[E]:IterateeModule.this.LiftToIterateePartiallyApplied[E]"></a>
+      <a id="liftToIteratee[E]:(IterateeModule.this)#LiftToIterateePartiallyApplied[E]"></a>
+      <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier">final </span>
         <span class="kind">def</span>
@@ -852,80 +643,85 @@ accumulation function.</p>
       <span class="symbol">
         <span class="name">liftToIteratee</span><span class="tparams">[<span name="E">E</span>]</span><span class="result">: (<a href="" class="extype" name="io.iteratee.IterateeModule">IterateeModule</a>.this)#<span class="extype" name="io.iteratee.IterateeModule.LiftToIterateePartiallyApplied">LiftToIterateePartiallyApplied</span>[<span class="extype" name="io.iteratee.IterateeModule.liftToIteratee.E">E</span>]</span>
       </span>
-      
+      </h4><span class="permalink">
+      <a href="../../index.html#io.iteratee.IterateeModule@liftToIteratee[E]:IterateeModule.this.LiftToIterateePartiallyApplied[E]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
       <p class="shortcomment cmt">Lift an effectful value into an iteratee.</p>
-    </li><li name="scala.AnyRef#ne" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="ne(x$1:AnyRef):Boolean"></a><a id="ne(AnyRef):Boolean"></a>
-      <span class="permalink">
-      <a href="../../io/iteratee/IterateeModule.html#ne(x$1:AnyRef):Boolean" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
+    </li><li name="scala.AnyRef#ne" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="ne(x$1:AnyRef):Boolean"></a>
+      <a id="ne(AnyRef):Boolean"></a>
+      <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier">final </span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">ne</span><span class="params">(<span name="arg0">arg0: <a href="http://www.scala-lang.org/api/2.12.1/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a></span>)</span><span class="result">: <a href="http://www.scala-lang.org/api/2.12.1/index.html#scala.Boolean" class="extype" target="_top">Boolean</a></span>
+        <span class="name">ne</span><span class="params">(<span name="arg0">arg0: <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a></span>)</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Boolean" class="extype" target="_top">Boolean</a></span>
       </span>
-      
+      </h4><span class="permalink">
+      <a href="../../index.html#io.iteratee.IterateeModule@ne(x$1:AnyRef):Boolean" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
-    </li><li name="scala.AnyRef#notify" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+    </li><li name="scala.AnyRef#notify" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="notify():Unit"></a>
-      <span class="permalink">
-      <a href="../../io/iteratee/IterateeModule.html#notify():Unit" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
+      <a id="notify():Unit"></a>
+      <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier">final </span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">notify</span><span class="params">()</span><span class="result">: <a href="http://www.scala-lang.org/api/2.12.1/index.html#scala.Unit" class="extype" target="_top">Unit</a></span>
+        <span class="name">notify</span><span class="params">()</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Unit" class="extype" target="_top">Unit</a></span>
       </span>
-      
+      </h4><span class="permalink">
+      <a href="../../index.html#io.iteratee.IterateeModule@notify():Unit" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
-    </li><li name="scala.AnyRef#notifyAll" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+    </li><li name="scala.AnyRef#notifyAll" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="notifyAll():Unit"></a>
-      <span class="permalink">
-      <a href="../../io/iteratee/IterateeModule.html#notifyAll():Unit" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
+      <a id="notifyAll():Unit"></a>
+      <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier">final </span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">notifyAll</span><span class="params">()</span><span class="result">: <a href="http://www.scala-lang.org/api/2.12.1/index.html#scala.Unit" class="extype" target="_top">Unit</a></span>
+        <span class="name">notifyAll</span><span class="params">()</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Unit" class="extype" target="_top">Unit</a></span>
       </span>
-      
+      </h4><span class="permalink">
+      <a href="../../index.html#io.iteratee.IterateeModule@notifyAll():Unit" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
-    </li><li name="io.iteratee.IterateeModule#peek" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Iteratees">
-      <a id="peek[E]:io.iteratee.Iteratee[F,E,Option[E]]"></a><a id="peek[E]:Iteratee[F,E,Option[E]]"></a>
-      <span class="permalink">
-      <a href="../../io/iteratee/IterateeModule.html#peek[E]:io.iteratee.Iteratee[F,E,Option[E]]" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
+    </li><li name="io.iteratee.IterateeModule#peek" visbl="pub" data-isabs="false" fullComment="no" group="Iteratees">
+      <a id="peek[E]:io.iteratee.Iteratee[F,E,Option[E]]"></a>
+      <a id="peek[E]:Iteratee[F,E,Option[E]]"></a>
+      <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier">final </span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">peek</span><span class="tparams">[<span name="E">E</span>]</span><span class="result">: <a href="Iteratee.html" class="extype" name="io.iteratee.Iteratee">Iteratee</a>[<span class="extype" name="io.iteratee.IterateeModule.F">F</span>, <span class="extype" name="io.iteratee.IterateeModule.peek.E">E</span>, <a href="http://www.scala-lang.org/api/2.12.1/index.html#scala.Option" class="extype" target="_top">Option</a>[<span class="extype" name="io.iteratee.IterateeModule.peek.E">E</span>]]</span>
+        <span class="name">peek</span><span class="tparams">[<span name="E">E</span>]</span><span class="result">: <a href="Iteratee.html" class="extype" name="io.iteratee.Iteratee">Iteratee</a>[<span class="extype" name="io.iteratee.IterateeModule.F">F</span>, <span class="extype" name="io.iteratee.IterateeModule.peek.E">E</span>, <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Option" class="extype" target="_top">Option</a>[<span class="extype" name="io.iteratee.IterateeModule.peek.E">E</span>]]</span>
       </span>
-      
+      </h4><span class="permalink">
+      <a href="../../index.html#io.iteratee.IterateeModule@peek[E]:io.iteratee.Iteratee[F,E,Option[E]]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
       <p class="shortcomment cmt">An <a href="Iteratee.html" class="extype" name="io.iteratee.Iteratee">Iteratee</a> that returns the first value in a stream without consuming
 it.</p>
-    </li><li name="io.iteratee.IterateeModule#reversed" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Iteratees">
-      <a id="reversed[E]:io.iteratee.Iteratee[F,E,List[E]]"></a><a id="reversed[E]:Iteratee[F,E,List[E]]"></a>
-      <span class="permalink">
-      <a href="../../io/iteratee/IterateeModule.html#reversed[E]:io.iteratee.Iteratee[F,E,List[E]]" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
+    </li><li name="io.iteratee.IterateeModule#reversed" visbl="pub" data-isabs="false" fullComment="no" group="Iteratees">
+      <a id="reversed[E]:io.iteratee.Iteratee[F,E,List[E]]"></a>
+      <a id="reversed[E]:Iteratee[F,E,List[E]]"></a>
+      <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier">final </span>
         <span class="kind">def</span>
@@ -933,15 +729,16 @@ it.</p>
       <span class="symbol">
         <span class="name">reversed</span><span class="tparams">[<span name="E">E</span>]</span><span class="result">: <a href="Iteratee.html" class="extype" name="io.iteratee.Iteratee">Iteratee</a>[<span class="extype" name="io.iteratee.IterateeModule.F">F</span>, <span class="extype" name="io.iteratee.IterateeModule.reversed.E">E</span>, <span class="extype" name="scala.List">List</span>[<span class="extype" name="io.iteratee.IterateeModule.reversed.E">E</span>]]</span>
       </span>
-      
-      <p class="shortcomment cmt">An <a href="Iteratee.html" class="extype" name="io.iteratee.Iteratee">Iteratee</a> that collects all inputs in reverse order.</p>
-    </li><li name="io.iteratee.IterateeModule#sum" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Iteratees">
-      <a id="sum[E](implicitE:cats.Monoid[E]):io.iteratee.Iteratee[F,E,E]"></a><a id="sum[E](Monoid[E]):Iteratee[F,E,E]"></a>
-      <span class="permalink">
-      <a href="../../io/iteratee/IterateeModule.html#sum[E](implicitE:cats.Monoid[E]):io.iteratee.Iteratee[F,E,E]" title="Permalink">
-        <i class="material-icons"></i>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.iteratee.IterateeModule@reversed[E]:io.iteratee.Iteratee[F,E,List[E]]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
+      <p class="shortcomment cmt">An <a href="Iteratee.html" class="extype" name="io.iteratee.Iteratee">Iteratee</a> that collects all inputs in reverse order.</p>
+    </li><li name="io.iteratee.IterateeModule#sum" visbl="pub" data-isabs="false" fullComment="no" group="Iteratees">
+      <a id="sum[E](implicitE:cats.Monoid[E]):io.iteratee.Iteratee[F,E,E]"></a>
+      <a id="sum[E](Monoid[E]):Iteratee[F,E,E]"></a>
+      <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier">final </span>
         <span class="kind">def</span>
@@ -949,15 +746,16 @@ it.</p>
       <span class="symbol">
         <span class="name">sum</span><span class="tparams">[<span name="E">E</span>]</span><span class="params">(<span class="implicit">implicit </span><span name="E">E: <span class="extype" name="cats.Monoid">Monoid</span>[<span class="extype" name="io.iteratee.IterateeModule.sum.E">E</span>]</span>)</span><span class="result">: <a href="Iteratee.html" class="extype" name="io.iteratee.Iteratee">Iteratee</a>[<span class="extype" name="io.iteratee.IterateeModule.F">F</span>, <span class="extype" name="io.iteratee.IterateeModule.sum.E">E</span>, <span class="extype" name="io.iteratee.IterateeModule.sum.E">E</span>]</span>
       </span>
-      
-      <p class="shortcomment cmt">An <a href="Iteratee.html" class="extype" name="io.iteratee.Iteratee">Iteratee</a> that combines values using an <a href="http://typelevel.org/cats/api/index.html#cats.package@Monoid[A]=cats.kernel.Monoid[A]" class="extype" target="_top">cats.Monoid</a> instance.</p>
-    </li><li name="scala.AnyRef#synchronized" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="synchronized[T0](x$1:=&gt;T0):T0"></a><a id="synchronized[T0](⇒T0):T0"></a>
-      <span class="permalink">
-      <a href="../../io/iteratee/IterateeModule.html#synchronized[T0](x$1:=&gt;T0):T0" title="Permalink">
-        <i class="material-icons"></i>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.iteratee.IterateeModule@sum[E](implicitE:cats.Monoid[E]):io.iteratee.Iteratee[F,E,E]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
+      <p class="shortcomment cmt">An <a href="Iteratee.html" class="extype" name="io.iteratee.Iteratee">Iteratee</a> that combines values using an <a href="http://typelevel.org/cats/api/index.html#cats.package@Monoid[A]=cats.kernel.Monoid[A]" class="extype" target="_top">cats.Monoid</a> instance.</p>
+    </li><li name="scala.AnyRef#synchronized" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="synchronized[T0](x$1:=&gt;T0):T0"></a>
+      <a id="synchronized[T0](⇒T0):T0"></a>
+      <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier">final </span>
         <span class="kind">def</span>
@@ -965,15 +763,16 @@ it.</p>
       <span class="symbol">
         <span class="name">synchronized</span><span class="tparams">[<span name="T0">T0</span>]</span><span class="params">(<span name="arg0">arg0: ⇒ <span class="extype" name="java.lang.AnyRef.synchronized.T0">T0</span></span>)</span><span class="result">: <span class="extype" name="java.lang.AnyRef.synchronized.T0">T0</span></span>
       </span>
-      
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
-    </li><li name="io.iteratee.IterateeModule#takeI" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Iteratees">
-      <a id="takeI[E](n:Int):io.iteratee.Iteratee[F,E,Vector[E]]"></a><a id="takeI[E](Int):Iteratee[F,E,Vector[E]]"></a>
-      <span class="permalink">
-      <a href="../../io/iteratee/IterateeModule.html#takeI[E](n:Int):io.iteratee.Iteratee[F,E,Vector[E]]" title="Permalink">
-        <i class="material-icons"></i>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.iteratee.IterateeModule@synchronized[T0](x$1:=&gt;T0):T0" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li name="io.iteratee.IterateeModule#takeI" visbl="pub" data-isabs="false" fullComment="no" group="Iteratees">
+      <a id="takeI[E](n:Int):io.iteratee.Iteratee[F,E,Vector[E]]"></a>
+      <a id="takeI[E](Int):Iteratee[F,E,Vector[E]]"></a>
+      <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier">final </span>
         <span class="kind">def</span>
@@ -981,33 +780,35 @@ it.</p>
       <span class="symbol">
         <span class="name">takeI</span><span class="tparams">[<span name="E">E</span>]</span><span class="params">(<span name="n">n: <span class="extype" name="scala.Int">Int</span></span>)</span><span class="result">: <a href="Iteratee.html" class="extype" name="io.iteratee.Iteratee">Iteratee</a>[<span class="extype" name="io.iteratee.IterateeModule.F">F</span>, <span class="extype" name="io.iteratee.IterateeModule.takeI.E">E</span>, <span class="extype" name="scala.Vector">Vector</span>[<span class="extype" name="io.iteratee.IterateeModule.takeI.E">E</span>]]</span>
       </span>
-      
-      <p class="shortcomment cmt">An <a href="Iteratee.html" class="extype" name="io.iteratee.Iteratee">Iteratee</a> that returns a given number of the first values in a
-stream.</p>
-    </li><li name="io.iteratee.IterateeModule#takeWhileI" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Iteratees">
-      <a id="takeWhileI[E](p:E=&gt;Boolean):io.iteratee.Iteratee[F,E,Vector[E]]"></a><a id="takeWhileI[E]((E)⇒Boolean):Iteratee[F,E,Vector[E]]"></a>
-      <span class="permalink">
-      <a href="../../io/iteratee/IterateeModule.html#takeWhileI[E](p:E=&gt;Boolean):io.iteratee.Iteratee[F,E,Vector[E]]" title="Permalink">
-        <i class="material-icons"></i>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.iteratee.IterateeModule@takeI[E](n:Int):io.iteratee.Iteratee[F,E,Vector[E]]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
+      <p class="shortcomment cmt">An <a href="Iteratee.html" class="extype" name="io.iteratee.Iteratee">Iteratee</a> that returns a given number of the first values in a
+stream.</p>
+    </li><li name="io.iteratee.IterateeModule#takeWhileI" visbl="pub" data-isabs="false" fullComment="no" group="Iteratees">
+      <a id="takeWhileI[E](p:E=&gt;Boolean):io.iteratee.Iteratee[F,E,Vector[E]]"></a>
+      <a id="takeWhileI[E]((E)⇒Boolean):Iteratee[F,E,Vector[E]]"></a>
+      <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier">final </span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">takeWhileI</span><span class="tparams">[<span name="E">E</span>]</span><span class="params">(<span name="p">p: (<span class="extype" name="io.iteratee.IterateeModule.takeWhileI.E">E</span>) ⇒ <a href="http://www.scala-lang.org/api/2.12.1/index.html#scala.Boolean" class="extype" target="_top">Boolean</a></span>)</span><span class="result">: <a href="Iteratee.html" class="extype" name="io.iteratee.Iteratee">Iteratee</a>[<span class="extype" name="io.iteratee.IterateeModule.F">F</span>, <span class="extype" name="io.iteratee.IterateeModule.takeWhileI.E">E</span>, <span class="extype" name="scala.Vector">Vector</span>[<span class="extype" name="io.iteratee.IterateeModule.takeWhileI.E">E</span>]]</span>
+        <span class="name">takeWhileI</span><span class="tparams">[<span name="E">E</span>]</span><span class="params">(<span name="p">p: (<span class="extype" name="io.iteratee.IterateeModule.takeWhileI.E">E</span>) ⇒ <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Boolean" class="extype" target="_top">Boolean</a></span>)</span><span class="result">: <a href="Iteratee.html" class="extype" name="io.iteratee.Iteratee">Iteratee</a>[<span class="extype" name="io.iteratee.IterateeModule.F">F</span>, <span class="extype" name="io.iteratee.IterateeModule.takeWhileI.E">E</span>, <span class="extype" name="scala.Vector">Vector</span>[<span class="extype" name="io.iteratee.IterateeModule.takeWhileI.E">E</span>]]</span>
       </span>
-      
-      <p class="shortcomment cmt">An <a href="Iteratee.html" class="extype" name="io.iteratee.Iteratee">Iteratee</a> that returns values from a stream as long as they satisfy
-the given predicate.</p>
-    </li><li name="scala.AnyRef#toString" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="toString():String"></a>
-      <span class="permalink">
-      <a href="../../io/iteratee/IterateeModule.html#toString():String" title="Permalink">
-        <i class="material-icons"></i>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.iteratee.IterateeModule@takeWhileI[E](p:E=&gt;Boolean):io.iteratee.Iteratee[F,E,Vector[E]]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
+      <p class="shortcomment cmt">An <a href="Iteratee.html" class="extype" name="io.iteratee.Iteratee">Iteratee</a> that returns values from a stream as long as they satisfy
+the given predicate.</p>
+    </li><li name="scala.AnyRef#toString" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="toString():String"></a>
+      <a id="toString():String"></a>
+      <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
@@ -1015,23 +816,28 @@ the given predicate.</p>
       <span class="symbol">
         <span class="name">toString</span><span class="params">()</span><span class="result">: <span class="extype" name="java.lang.String">String</span></span>
       </span>
-      
+      </h4><span class="permalink">
+      <a href="../../index.html#io.iteratee.IterateeModule@toString():String" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
-    </li><li name="scala.AnyRef#wait" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+    </li><li name="scala.AnyRef#wait" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="wait():Unit"></a>
-      <span class="permalink">
-      <a href="../../io/iteratee/IterateeModule.html#wait():Unit" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
+      <a id="wait():Unit"></a>
+      <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier">final </span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">wait</span><span class="params">()</span><span class="result">: <a href="http://www.scala-lang.org/api/2.12.1/index.html#scala.Unit" class="extype" target="_top">Unit</a></span>
+        <span class="name">wait</span><span class="params">()</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Unit" class="extype" target="_top">Unit</a></span>
       </span>
-      
+      </h4><span class="permalink">
+      <a href="../../index.html#io.iteratee.IterateeModule@wait():Unit" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
                 <span class="name">@throws</span><span class="args">(<span>
       
@@ -1039,21 +845,22 @@ the given predicate.</p>
     </span>)</span>
               
         </dd></dl></div>
-    </li><li name="scala.AnyRef#wait" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="wait(x$1:Long,x$2:Int):Unit"></a><a id="wait(Long,Int):Unit"></a>
-      <span class="permalink">
-      <a href="../../io/iteratee/IterateeModule.html#wait(x$1:Long,x$2:Int):Unit" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
+    </li><li name="scala.AnyRef#wait" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="wait(x$1:Long,x$2:Int):Unit"></a>
+      <a id="wait(Long,Int):Unit"></a>
+      <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier">final </span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">wait</span><span class="params">(<span name="arg0">arg0: <a href="http://www.scala-lang.org/api/2.12.1/index.html#scala.Long" class="extype" target="_top">Long</a></span>, <span name="arg1">arg1: <span class="extype" name="scala.Int">Int</span></span>)</span><span class="result">: <a href="http://www.scala-lang.org/api/2.12.1/index.html#scala.Unit" class="extype" target="_top">Unit</a></span>
+        <span class="name">wait</span><span class="params">(<span name="arg0">arg0: <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Long" class="extype" target="_top">Long</a></span>, <span name="arg1">arg1: <span class="extype" name="scala.Int">Int</span></span>)</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Unit" class="extype" target="_top">Unit</a></span>
       </span>
-      
+      </h4><span class="permalink">
+      <a href="../../index.html#io.iteratee.IterateeModule@wait(x$1:Long,x$2:Int):Unit" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
                 <span class="name">@throws</span><span class="args">(<span>
       
@@ -1061,21 +868,22 @@ the given predicate.</p>
     </span>)</span>
               
         </dd></dl></div>
-    </li><li name="scala.AnyRef#wait" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="wait(x$1:Long):Unit"></a><a id="wait(Long):Unit"></a>
-      <span class="permalink">
-      <a href="../../io/iteratee/IterateeModule.html#wait(x$1:Long):Unit" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
+    </li><li name="scala.AnyRef#wait" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="wait(x$1:Long):Unit"></a>
+      <a id="wait(Long):Unit"></a>
+      <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier">final </span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">wait</span><span class="params">(<span name="arg0">arg0: <a href="http://www.scala-lang.org/api/2.12.1/index.html#scala.Long" class="extype" target="_top">Long</a></span>)</span><span class="result">: <a href="http://www.scala-lang.org/api/2.12.1/index.html#scala.Unit" class="extype" target="_top">Unit</a></span>
+        <span class="name">wait</span><span class="params">(<span name="arg0">arg0: <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Long" class="extype" target="_top">Long</a></span>)</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Unit" class="extype" target="_top">Unit</a></span>
       </span>
-      
+      </h4><span class="permalink">
+      <a href="../../index.html#io.iteratee.IterateeModule@wait(x$1:Long):Unit" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
                 <span class="name">@throws</span><span class="args">(<span>
       
@@ -1083,20 +891,43 @@ the given predicate.</p>
     </span>)</span>
               
         </dd></dl></div>
-    </li>
-              </ol>
+    </li></ol>
             </div>
 
         
 
-        
+        <div id="values" class="values members">
+              <h3>Deprecated Value Members</h3>
+              <ol><li name="io.iteratee.IterateeModule#identity" visbl="pub" data-isabs="false" fullComment="yes" group="Iteratees">
+      <a id="identity[E]:io.iteratee.Iteratee[F,E,Unit]"></a>
+      <a id="identity[E]:Iteratee[F,E,Unit]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name deprecated" title="Deprecated: (Since version 0.10.0) Use identityIteratee">identity</span><span class="tparams">[<span name="E">E</span>]</span><span class="result">: <a href="Iteratee.html" class="extype" name="io.iteratee.Iteratee">Iteratee</a>[<span class="extype" name="io.iteratee.IterateeModule.F">F</span>, <span class="extype" name="io.iteratee.IterateeModule.identity.E">E</span>, <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Unit" class="extype" target="_top">Unit</a>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.iteratee.IterateeModule@identity[E]:io.iteratee.Iteratee[F,E,Unit]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">An iteratee that reads nothing from a stream.</p><div class="fullcomment"><div class="comment cmt"><p>An iteratee that reads nothing from a stream.
+</p></div><dl class="attributes block"> <dt>Annotations</dt><dd>
+                <span class="name">@deprecated</span>
+              
+        </dd><dt>Deprecated</dt><dd class="cmt"><p><i>(Since version 0.10.0)</i> Use identityIteratee</p></dd></dl></div>
+    </li></ol>
+            </div>
         </div>
 
         <div id="inheritedMembers">
         <div class="parent" name="scala.AnyRef">
-              <h3>Inherited from <a href="http://www.scala-lang.org/api/2.12.1/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a></h3>
+              <h3>Inherited from <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a></h3>
             </div><div class="parent" name="scala.Any">
-              <h3>Inherited from <a href="http://www.scala-lang.org/api/2.12.1/index.html#scala.Any" class="extype" target="_top">Any</a></h3>
+              <h3>Inherited from <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Any" class="extype" target="_top">Any</a></h3>
             </div>
         
         </div>
@@ -1122,9 +953,7 @@ the given predicate.</p>
       <div id="tooltip"></div>
 
       <div id="footer">  </div>
-    </body>
-          </div>
-        </div>
-      </div>
+
+
     </body>
       </html>
