@@ -51,14 +51,6 @@ trait IterateeModule[F[_]] { self: Module[F] =>
   final def identityIteratee[E]: Iteratee[F, E, Unit] = Iteratee.identity(F)
 
   /**
-   * An iteratee that reads nothing from a stream.
-   *
-   * @group Iteratees
-   */
-  @deprecated("Use identityIteratee", "0.10.0")
-  final def identity[E]: Iteratee[F, E, Unit] = Iteratee.identity(F)
-
-  /**
    * An [[Iteratee]] that folds a stream using an initial value and an
    * accumulation function.
    *
