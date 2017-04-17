@@ -27,17 +27,6 @@ abstract class Enumeratee[F[_], O, I] extends Serializable { self =>
 }
 
 final object Enumeratee extends EnumerateeInstances {
-  private[this] class IdentityCont[F[_], E, A](step: Step[F, E, A])(implicit
-    F: Applicative[F]
-  ) extends StepCont[F, E, E, A](step) {
-    private[this] def advance(next: Step[F, E, A]): Step[F, E, Step[F, E, A]] =
-      if (next.isDone) Step.done(next) else new IdentityCont(next)
-
-    final def feedEl(e: E): F[Step[F, E, Step[F, E, A]]] = F.map(step.feedEl(e))(advance)
-    final protected def feedNonEmpty(chunk: Seq[E]): F[Step[F, E, Step[F, E, A]]] =
-      F.map(step.feed(chunk))(advance)
-  }
-
   /**
    * An identity stream transformer.
    */
@@ -458,6 +447,17 @@ final object Enumeratee extends EnumerateeInstances {
     F: Applicative[F]
   ) extends Step.Cont[F, O, Step[F, I, A]] {
     final def run: F[Step[F, I, A]] = F.pure(step)
+  }
+
+  private[this] final class IdentityCont[F[_], E, A](step: Step[F, E, A])(implicit
+    F: Applicative[F]
+  ) extends StepCont[F, E, E, A](step) {
+    private[this] def advance(next: Step[F, E, A]): Step[F, E, Step[F, E, A]] =
+      if (next.isDone) Step.done(next) else new IdentityCont(next)
+
+    final def feedEl(e: E): F[Step[F, E, Step[F, E, A]]] = F.map(step.feedEl(e))(advance)
+    final protected def feedNonEmpty(chunk: Seq[E]): F[Step[F, E, Step[F, E, A]]] =
+      F.map(step.feed(chunk))(advance)
   }
 
   private[this] abstract class PureLoop[F[_], O, I](implicit F: Applicative[F]) extends Enumeratee[F, O, I] {
