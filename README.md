@@ -1,5 +1,7 @@
 # iteratee.io
 
+[![Join the chat at https://gitter.im/travisbrown/iteratee](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/travisbrown/iteratee?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 [![Build status](https://img.shields.io/travis/travisbrown/iteratee/master.svg)](https://travis-ci.org/travisbrown/iteratee)
 [![Coverage status](https://img.shields.io/codecov/c/github/travisbrown/iteratee/master.svg)](https://codecov.io/github/travisbrown/iteratee)
 [![Gitter](https://img.shields.io/badge/gitter-join%20chat-green.svg)](https://gitter.im/travisbrown/iteratee)
