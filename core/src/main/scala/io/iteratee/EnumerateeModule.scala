@@ -107,6 +107,15 @@ trait EnumerateeModule[F[_]] { this: Module[F] =>
   final def sequenceI[O, I](iteratee: Iteratee[F, O, I]): Enumeratee[F, O, I] = Enumeratee.sequenceI(iteratee)(F)
 
   /**
+   * Run an iteratee and then use the provided function to combine the result
+   * with the remaining elements.
+   *
+   * @group Enumeratees
+   */
+  final def remainderWithResult[O, R, I](iteratee: Iteratee[F, O, R])(f: (R, O) => I): Enumeratee[F, O, I] =
+    Enumeratee.remainderWithResult(iteratee)(f)(F)
+
+  /**
    * Collapse consecutive duplicates.
    *
    * @note Assumes that the stream is sorted.

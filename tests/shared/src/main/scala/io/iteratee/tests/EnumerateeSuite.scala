@@ -199,6 +199,25 @@ abstract class EnumerateeSuite[F[_]: Monad] extends ModuleSuite[F] {
     assert(enumVector(xs).sequenceI(takeI(groupedSize)).into(length) === F.pure(expected))
   }
 
+  "remainderWithResult" should "return an empty result for iteratees that consume all input" in {
+    forAll { (eav: EnumeratorAndValues[Int]) =>
+      val enumeratee = remainderWithResult(consume[Int])((r, i) => r)
+
+      assert(eav.enumerator.through(enumeratee).toVector === F.pure(Vector.empty))
+    }
+  }
+
+  it should "add the first n values to subsequent values" in {
+    forAll { (eav: EnumeratorAndValues[Int], n: Byte) =>
+      val enumeratee = remainderWithResult(takeI[Int](n.toInt))((r, i) => i + r.sum)
+
+      val (firstN, rest) = eav.values.splitAt(n.toInt)
+      val expected = rest.map(_ + firstN.sum)
+
+      assert(eav.enumerator.through(enumeratee).toVector === F.pure(expected))
+    }
+  }
+
   "uniq" should "drop duplicate values" in forAll { (xs: Vector[Int]) =>
     val sorted = xs.sorted
 
