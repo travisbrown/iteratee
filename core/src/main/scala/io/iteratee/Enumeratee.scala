@@ -312,6 +312,23 @@ final object Enumeratee extends EnumerateeInstances {
       )
     }
 
+  def remainderWithResult[F[_], O, R, I](iteratee: Iteratee[F, O, R])(f: (R, O) => I)(implicit
+    F: Monad[F]
+  ): Enumeratee[F, O, I] =
+    new Enumeratee[F, O, I] {
+      private[this] class TransformingCont[A](r: R)(step: Step[F, I, A]) extends StepCont[F, O, I, A](step) {
+        private[this] def advance(next: Step[F, I, A]): Step[F, O, Step[F, I, A]] =
+          if (next.isDone) Step.done(next) else new TransformingCont(r)(next)
+
+        final def feedEl(e: O): F[Step[F, O, Step[F, I, A]]] = F.map(step.feedEl(f(r, e)))(advance)
+        final protected def feedNonEmpty(chunk: Seq[O]): F[Step[F, O, Step[F, I, A]]] =
+          F.map(step.feed(chunk.map(f(r, _))))(advance)
+      }
+
+      final def apply[A](step: Step[F, I, A]): F[Step[F, O, Step[F, I, A]]] =
+        F.flatMap(iteratee.state)(_.bind(r => F.pure(new TransformingCont(r)(step))))
+    }
+
   /**
    * Collapse consecutive duplicates.
    *
