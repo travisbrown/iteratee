@@ -45,10 +45,6 @@ lazy val baseSettings = Seq(
       case _ => Nil
     }
   ),
-  resolvers ++= Seq(
-    Resolver.sonatypeRepo("releases"),
-    Resolver.sonatypeRepo("snapshots")
-  ),
   coverageHighlighting := (
     CrossVersion.partialVersion(scalaVersion.value) match {
       case Some((2, 10)) => false
