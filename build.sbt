@@ -24,7 +24,7 @@ lazy val fs2Version = "0.9.5"
 lazy val fs2CatsVersion = "0.3.0"
 
 lazy val scalaCheckVersion = "1.13.5"
-lazy val scalaTestVersion = "3.0.1"
+lazy val scalaTestVersion = "3.0.3"
 
 lazy val previousIterateeVersion = "0.8.0"
 
