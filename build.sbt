@@ -24,14 +24,14 @@ lazy val fs2Version = "0.9.5"
 lazy val fs2CatsVersion = "0.3.0"
 
 lazy val scalaCheckVersion = "1.13.5"
-lazy val scalaTestVersion = "3.0.1"
+lazy val scalaTestVersion = "3.0.3"
 
 lazy val previousIterateeVersion = "0.8.0"
 
 val docMappingsApiDir = settingKey[String]("Subdirectory in site target directory for API docs")
 
 lazy val baseSettings = Seq(
-  scalaVersion := "2.11.8",
+  scalaVersion := "2.11.11",
   scalacOptions ++= (compilerOptions :+ "-Yno-predef") ++ (
     CrossVersion.partialVersion(scalaVersion.value) match {
       case Some((2, p)) if p >= 11 => Seq("-Ywarn-unused-import")
@@ -44,10 +44,6 @@ lazy val baseSettings = Seq(
       case Some((2, 11)) => Seq("-Ywarn-unused-import")
       case _ => Nil
     }
-  ),
-  resolvers ++= Seq(
-    Resolver.sonatypeRepo("releases"),
-    Resolver.sonatypeRepo("snapshots")
   ),
   coverageHighlighting := (
     CrossVersion.partialVersion(scalaVersion.value) match {
@@ -172,7 +168,7 @@ lazy val twitter = project
   )
   .settings(allSettings ++ Defaults.itSettings)
   .settings(
-    libraryDependencies += "io.catbird" %% "catbird-util" % "0.13.0"
+    libraryDependencies += "io.catbird" %% "catbird-util" % "0.14.0"
   ).dependsOn(core, files, tests % "test,it")
 
 lazy val scalaz = project
