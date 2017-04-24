@@ -21,13 +21,11 @@ trait IterateeModule[F[_]] { self: Module[F] =>
     Iteratee.cont(ifInput, ifEnd)(F)
 
   /**
-   * Create a new completed [[Iteratee]] with the given result and leftover
-   * input.
+   * Create a new completed [[Iteratee]] with the given result.
    *
    * @group Constructors
    */
-  final def done[E, A](value: A, remaining: List[E] = Nil): Iteratee[F, E, A] =
-    Iteratee.doneWithLeftovers(value, remaining)(F)
+  final def done[E, A](value: A): Iteratee[F, E, A] = Iteratee.done(value)(F)
 
   /**
    * @group Helpers

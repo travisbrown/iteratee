@@ -105,10 +105,11 @@ final object Step { self =>
 
     final def bind[B](f: A => F[Step[F, E, B]])(implicit M: Monad[F]): F[Step[F, E, B]] =
       M.flatMap(f(value)) {
-        case Done(otherValue, otherRemaining) => F.pure(Done(otherValue, otherRemaining ++ remaining))
+        case Done(otherValue, _) => F.pure(Done(otherValue, remaining))
         case step =>
           val c = remaining.lengthCompare(1)
-          if (c < 0) F.pure(step) else if (c == 0) step.feedEl(remaining.head) else step.feedNonEmpty(remaining)
+
+          if (c < 0) F.pure(step) else if (c == 0) step.feedEl(remaining(0)) else step.feedNonEmpty(remaining)
       }
 
     final def zip[B](other: Step[F, E, B]): Step[F, E, (A, B)] = other match {
@@ -131,7 +132,7 @@ final object Step { self =>
     final def feed(chunk: Seq[E]): F[Step[F, E, A]] = {
       val c = chunk.lengthCompare(1)
 
-      if (c > 0) feedNonEmpty(chunk) else if (c == 0) feedEl(chunk(0)) else F.pure(this)
+      if (c < 0) F.pure(this) else if (c == 0) feedEl(chunk(0)) else feedNonEmpty(chunk)
     }
 
     final def mapI[G[_]: Applicative](f: FunctionK[F, G]): Step[G, E, A] = new Cont[G, E, A] {
