@@ -79,7 +79,7 @@ final object Enumeratee extends EnumerateeInstances {
       if (step.isDone) Step.done(step) else new StepCont[F, E, E, A](step) {
         final def feedEl(e: E): F[Step[F, E, Step[F, E, A]]] =
           if (remaining <= 0L) {
-            F.pure(Step.Done(step, List(e)))
+            F.pure(Step.doneWithLeftovers(step, List(e)))
           } else {
             F.map(step.feedEl(e))(loop(remaining - 1L))
           }
@@ -90,11 +90,11 @@ final object Enumeratee extends EnumerateeInstances {
             val (taken, left) = chunk.splitAt(remaining.toInt)
 
             if (taken.isEmpty) {
-              F.pure(Step.Done(step, left))
+              F.pure(Step.doneWithLeftovers(step, left))
             } else if (left.isEmpty) {
               F.map(step.feed(taken))(loop(remaining - taken.size.toLong))
             } else {
-              F.map(step.feed(taken))(Step.Done(_, left))
+              F.map(step.feed(taken))(Step.doneWithLeftovers(_, left))
             }
           }
       }
@@ -111,7 +111,7 @@ final object Enumeratee extends EnumerateeInstances {
       protected final def loop[A](step: Step[F, E, A]): Step[F, E, Step[F, E, A]] = new StepCont[F, E, E, A](step) {
         final def feedEl(e: E): F[Step[F, E, Step[F, E, A]]] =
           if (!p(e)) {
-            F.pure(Step.Done(step, List(e)))
+            F.pure(Step.doneWithLeftovers(step, List(e)))
           } else {
             F.map(step.feedEl(e))(doneOrLoop)
           }
@@ -119,11 +119,11 @@ final object Enumeratee extends EnumerateeInstances {
           val (taken, left) = chunk.span(p)
 
           if (taken.isEmpty) {
-            F.pure(Step.Done(step, left))
+            F.pure(Step.doneWithLeftovers(step, left))
           } else if (left.isEmpty) {
             F.map(step.feed(taken))(doneOrLoop)
           } else {
-            F.map(step.feed(taken))(Step.Done(_, left))
+            F.map(step.feed(taken))(Step.doneWithLeftovers(_, left))
           }
         }
       }
@@ -144,18 +144,18 @@ final object Enumeratee extends EnumerateeInstances {
       protected final def loop[A](step: Step[F, E, A]): Step[F, E, Step[F, E, A]] = new StepCont[F, E, E, A](step) {
         final def feedEl(e: E): F[Step[F, E, Step[F, E, A]]] = {
           F.ifM(p(e))(
-            ifFalse = F.pure(Step.Done(step, List(e))),
+            ifFalse = F.pure(Step.doneWithLeftovers(step, List(e))),
             ifTrue  = F.map(step.feedEl(e))(doneOrLoop))
         }
         final protected def feedNonEmpty(chunk: Seq[E]): F[Step[F, E, Step[F, E, A]]] = {
           F.flatMap(vectorSpanM(p, chunk.toVector)) {
             case (taken, left) =>
               if (taken.isEmpty) {
-                F.pure(Step.Done(step, left))
+                F.pure(Step.doneWithLeftovers(step, left))
               } else if (left.isEmpty) {
                 F.map(step.feed(taken))(doneOrLoop)
               } else {
-                F.map(step.feed(taken))(Step.Done(_, left))
+                F.map(step.feed(taken))(Step.doneWithLeftovers(_, left))
               }
           }
         }

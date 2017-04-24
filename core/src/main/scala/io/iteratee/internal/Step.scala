@@ -86,10 +86,9 @@ sealed abstract class Step[F[_], E, A] extends Serializable {
  * @groupprio Collection 2
  */
 final object Step { self =>
-  case class Done[F[_], E, A](
-    value: A,
-    remaining: Seq[E]
-  )(implicit F: Applicative[F]) extends Step[F, E, A] {
+  case class Done[F[_], E, A](value: A)(private[internal] val remaining: Seq[E])(implicit
+    F: Applicative[F]
+  ) extends Step[F, E, A] {
     final def fold[Z](ifCont: (NonEmptyList[E] => F[Step[F, E, A]]) => Z, ifDone: (A, List[E]) => Z): Z =
       ifDone(value, remaining.toList)
 
@@ -99,13 +98,13 @@ final object Step { self =>
     final def feedEl(e: E): F[Step[F, E, A]] = F.pure(this)
     final protected def feedNonEmpty(chunk: Seq[E]): F[Step[F, E, A]] = F.pure(this)
 
-    final def map[B](f: A => B): Step[F, E, B] = Done(f(value), remaining)
-    final def contramap[E2](f: E2 => E): Step[F, E2, A] = Done(value, Nil)
-    final def mapI[G[_]: Applicative](f: FunctionK[F, G]): Step[G, E, A] = Done(value, remaining)
+    final def map[B](f: A => B): Step[F, E, B] = doneWithLeftovers(f(value), remaining)
+    final def contramap[E2](f: E2 => E): Step[F, E2, A] = done(value)
+    final def mapI[G[_]: Applicative](f: FunctionK[F, G]): Step[G, E, A] = doneWithLeftovers(value, remaining)
 
     final def bind[B](f: A => F[Step[F, E, B]])(implicit M: Monad[F]): F[Step[F, E, B]] =
       M.flatMap(f(value)) {
-        case Done(otherValue, _) => F.pure(Done(otherValue, remaining))
+        case Done(otherValue) => F.pure(doneWithLeftovers(otherValue, remaining))
         case step =>
           val c = remaining.lengthCompare(1)
 
@@ -113,9 +112,9 @@ final object Step { self =>
       }
 
     final def zip[B](other: Step[F, E, B]): Step[F, E, (A, B)] = other match {
-      case Done(otherValue, otherRemaining) => Done(
+      case otherDone @ Done(otherValue) => doneWithLeftovers(
         (value, otherValue),
-        if (remaining.size <= otherRemaining.size) remaining else otherRemaining
+        if (remaining.size <= otherDone.remaining.size) remaining else otherDone.remaining
       )
       case step => step.map((value, _))
     }
@@ -143,7 +142,7 @@ final object Step { self =>
     }
 
     final def zip[B](other: Step[F, E, B]): Step[F, E, (A, B)] = other match {
-      case Done(otherValue, _) => map((_, otherValue))
+      case Done(otherValue) => map((_, otherValue))
       case step => new Cont[F, E, (A, B)] {
         final def run: F[(A, B)] = F.product(self.run, step.run)
         final def feedEl(e: E): F[Step[F, E, (A, B)]] = F.map2(self.feedEl(e), step.feedEl(e))(_.zip(_))
@@ -240,15 +239,15 @@ final object Step { self =>
    *
    * @group Constructors
    */
-  final def done[F[_]: Applicative, E, A](value: A): Step[F, E, A] = Done(value, Nil)
+  final def done[F[_]: Applicative, E, A](value: A): Step[F, E, A] = Done(value)(Nil)
 
   /**
    * Create a new completed [[Step]] with the given result and leftover input.
    *
    * @group Constructors
    */
-  final def doneWithLeftovers[F[_]: Applicative, E, A](value: A, remaining: List[E]): Step[F, E, A] =
-    Done(value, remaining)
+  final def doneWithLeftovers[F[_]: Applicative, E, A](value: A, remaining: Seq[E]): Step[F, E, A] =
+    Done(value)(remaining)
 
   /**
    * Lift an effectful value into a [[Step]].
@@ -265,8 +264,8 @@ final object Step { self =>
   final def liftMEval[F[_], E, A](fa: Eval[F[A]])(implicit F: Monad[F]): F[Step[F, E, A]] = F.pure(
     new Cont[F, E, A] {
       final def run: F[A] = fa.value
-      final def feedEl(e: E): F[Step[F, E, A]] = F.map(fa.value)(Done(_, List(e)))
-      final protected def feedNonEmpty(chunk: Seq[E]): F[Step[F, E, A]] = F.map(fa.value)(Done(_, chunk))
+      final def feedEl(e: E): F[Step[F, E, A]] = F.map(fa.value)(doneWithLeftovers(_, List(e)))
+      final protected def feedNonEmpty(chunk: Seq[E]): F[Step[F, E, A]] = F.map(fa.value)(doneWithLeftovers(_, chunk))
     }
   )
 
@@ -277,7 +276,7 @@ final object Step { self =>
    */
   final def joinI[F[_], A, B, C](step: Step[F, A, Step[F, B, C]])(implicit F: Monad[F]): F[Step[F, A, C]] =
     step.bind {
-      case Done(value, _) => F.pure(done(value))
+      case Done(value) => F.pure(done(value))
       case next => F.map(next.run)(done(_))
     }
 
@@ -350,7 +349,8 @@ final object Step { self =>
   final def head[F[_], E](implicit F: Applicative[F]): Step[F, E, Option[E]] = new PureCont[F, E, Option[E]] {
     final def runPure: Option[E] = None
     final def feedElPure(e: E): Step[F, E, Option[E]] = done(Some(e))
-    final protected def feedNonEmptyPure(chunk: Seq[E]): Step[F, E, Option[E]] = Done(Some(chunk.head), chunk.tail)
+    final protected def feedNonEmptyPure(chunk: Seq[E]): Step[F, E, Option[E]] =
+      doneWithLeftovers(Some(chunk.head), chunk.tail)
   }
 
   /**
@@ -360,8 +360,9 @@ final object Step { self =>
    */
   final def peek[F[_], E](implicit F: Applicative[F]): Step[F, E, Option[E]] = new PureCont[F, E, Option[E]] {
     final def runPure: Option[E] = None
-    final def feedElPure(e: E): Step[F, E, Option[E]] = Done(Some(e), List(e))
-    final protected def feedNonEmptyPure(chunk: Seq[E]): Step[F, E, Option[E]] = Done(Some(chunk.head), chunk)
+    final def feedElPure(e: E): Step[F, E, Option[E]] = doneWithLeftovers(Some(e), List(e))
+    final protected def feedNonEmptyPure(chunk: Seq[E]): Step[F, E, Option[E]] =
+      doneWithLeftovers(Some(chunk.head), chunk)
   }
 
   /**
@@ -441,7 +442,7 @@ final object Step { self =>
       if (diff > 0) new TakeCont(acc ++ chunk, diff) else if (diff == 0) done(acc ++ chunk) else {
         val (taken, left) = chunk.splitAt(n)
 
-        Done(acc ++ taken, left)
+        doneWithLeftovers(acc ++ taken, left)
       }
     }
   }
@@ -457,11 +458,12 @@ final object Step { self =>
 
   private[this] final class TakeWhileCont[F[_], E](acc: Vector[E], p: E => Boolean)(implicit F: Applicative[F])
       extends PureCont.WithValue[F, E, Vector[E]](acc) {
-    final def feedElPure(e: E): Step[F, E, Vector[E]] = if (p(e)) new TakeWhileCont(acc :+ e, p) else Done(acc, List(e))
+    final def feedElPure(e: E): Step[F, E, Vector[E]] =
+      if (p(e)) new TakeWhileCont(acc :+ e, p) else doneWithLeftovers(acc, List(e))
     final protected def feedNonEmptyPure(chunk: Seq[E]): Step[F, E, Vector[E]] = {
       val (before, after) = chunk.span(p)
 
-      if (after.isEmpty) new TakeWhileCont(acc ++ before, p) else Done(acc ++ before, after)
+      if (after.isEmpty) new TakeWhileCont(acc ++ before, p) else doneWithLeftovers(acc ++ before, after)
     }
   }
 
@@ -477,7 +479,7 @@ final object Step { self =>
       final protected def feedNonEmptyPure(chunk: Seq[E]): Step[F, E, Unit] = {
         val len = chunk.size
 
-        if (len <= n) drop(n - len) else Done((), chunk.drop(n))
+        if (len <= n) drop(n - len) else doneWithLeftovers((), chunk.drop(n))
       }
     }
 
@@ -493,18 +495,18 @@ final object Step { self =>
   private[this] final class DropWhileCont[F[_], E](p: E => Boolean)(implicit F: Applicative[F])
       extends PureCont[F, E, Unit] {
     final def runPure: Unit = ()
-    final def feedElPure(e: E): Step[F, E, Unit] = if (p(e)) dropWhile(p) else Done((), List(e))
+    final def feedElPure(e: E): Step[F, E, Unit] = if (p(e)) dropWhile(p) else doneWithLeftovers((), List(e))
     final protected def feedNonEmptyPure(chunk: Seq[E]): Step[F, E, Unit] = {
       val after = chunk.dropWhile(p)
 
-      if (after.isEmpty) dropWhile(p) else Done((), after)
+      if (after.isEmpty) dropWhile(p) else doneWithLeftovers((), after)
     }
   }
 
   final def isEnd[F[_], E](implicit F: Applicative[F]): Step[F, E, Boolean] = new PureCont[F, E, Boolean] {
     final def runPure: Boolean = true
-    final def feedElPure(e: E): Step[F, E, Boolean] = Done(false, List(e))
-    final protected def feedNonEmptyPure(chunk: Seq[E]): Step[F, E, Boolean] = Done(false, chunk)
+    final def feedElPure(e: E): Step[F, E, Boolean] = doneWithLeftovers(false, List(e))
+    final protected def feedNonEmptyPure(chunk: Seq[E]): Step[F, E, Boolean] = doneWithLeftovers(false, chunk)
   }
 
   private[this] class TailRecMCont[F[_], E, A, B](a: A)(f: A => F[Step[F, E, Either[A, B]]])(implicit
@@ -514,20 +516,20 @@ final object Step { self =>
 
     private[this] def loop(s: Step[F, E, Either[A, B]]): F[Either[Step[F, E, Either[A, B]], Step[F, E, B]]] =
       s match {
-        case Step.Done(Right(b), remaining) => F.pure(Right(Step.Done(b, remaining)))
-        case Step.Done(Left(a), remaining) =>
-          val c = remaining.lengthCompare(1)
+        case d @ Done(Right(b)) => F.pure(Right(doneWithLeftovers(b, d.remaining)))
+        case d @ Done(Left(a)) =>
+          val c = d.remaining.lengthCompare(1)
 
           if (c < 0) {
             F.pure(Right(new TailRecMCont(a)(f)))
           } else if (c == 0) {
-            F.flatMap(f(a))(s => F.map(s.feedEl(remaining.head))(Left(_)))
+            F.flatMap(f(a))(s => F.map(s.feedEl(d.remaining.head))(Left(_)))
           } else {
-            F.flatMap(f(a))(s => F.map(s.feedNonEmpty(remaining))(Left(_)))
+            F.flatMap(f(a))(s => F.map(s.feedNonEmpty(d.remaining))(Left(_)))
           }
         case cont => F.map(
           cont.bind[B] {
-            case Right(b) => F.pure(Step.done(b))
+            case Right(b) => F.pure(done(b))
             case Left(a) => F.pure(new TailRecMCont(a)(f))
           }
         )(Right(_))
