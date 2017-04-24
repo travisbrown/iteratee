@@ -11,6 +11,7 @@ import io.iteratee.{
   IterateeModule,
   Module
 }
+import io.iteratee.internal.Step
 import org.scalacheck.{ Arbitrary, Cogen }
 
 abstract class IterateeSuite[F[_]: Monad] extends BaseIterateeSuite[F] {
@@ -112,26 +113,34 @@ abstract class BaseIterateeSuite[F[_]: Monad] extends ModuleSuite[F] {
     assert(F.flatten(folded) === F.pure(es ++ Vector(0, 1, 2, 3)))
   }
 
-  "done" should "work correctly with no leftovers" in forAll { (eav: EnumeratorAndValues[Int], s: String) =>
+  "done" should "work correctly" in forAll { (eav: EnumeratorAndValues[Int], s: String) =>
     assert(eav.resultWithLeftovers(done(s)) === F.pure((s, eav.values)))
-  }
-
-  it should "work correctly with exactly one leftover" in {
-    forAll { (eav: EnumeratorAndValues[Int], s: String, e: Int) =>
-      assert(eav.resultWithLeftovers(done(s, List(e))) === F.pure((s, e +: eav.values)))
-    }
-  }
-
-  it should "work correctly with leftovers" in forAll { (eav: EnumeratorAndValues[Int], s: String, es: List[Int]) =>
-    assert(eav.resultWithLeftovers(done(s, es)) === F.pure((s, es.toVector ++ eav.values)))
   }
 
   it should "work with fold with no leftovers" in forAll { (s: String) =>
     assert(done[Int, String](s).fold(_ => None, (v, r) => Some((v, r))) === F.pure(Some((s, Nil))))
   }
 
-  it should "work with fold with leftovers" in forAll { (s: String, es: List[Int]) =>
-    assert(done[Int, String](s, es).fold(_ => None, (v, r) => Some((v, r))) === F.pure(Some((s, es))))
+  "Step.doneWithLeftovers" should "do something vaguely reasonable with exactly one leftover" in {
+    forAll { (eav: EnumeratorAndValues[Int], s: String, e: Int) =>
+      val iteratee = Iteratee.fromStep(Step.doneWithLeftovers(s, List(e)))
+
+      assert(eav.resultWithLeftovers(iteratee) === F.pure((s, e +: eav.values)))
+    }
+  }
+
+  it should "do something vaguely reasonable with leftovers" in {
+    forAll { (eav: EnumeratorAndValues[Int], s: String, es: List[Int]) =>
+      val iteratee = Iteratee.fromStep(Step.doneWithLeftovers(s, es))
+
+      assert(eav.resultWithLeftovers(iteratee) === F.pure((s, es.toVector ++ eav.values)))
+    }
+  }
+
+  it should "do something vaguely reasonable with fold with leftovers" in forAll { (s: String, es: List[Int]) =>
+    val iteratee = Iteratee.fromStep(Step.doneWithLeftovers[F, Int, String](s, es))
+
+    assert(iteratee.fold(_ => None, (v, r) => Some((v, r))) === F.pure(Some((s, es))))
   }
 
   "liftToIteratee" should "lift a value in a context into an iteratee" in forAll { (i: Int) =>
@@ -378,37 +387,5 @@ abstract class BaseIterateeSuite[F[_]: Monad] extends ModuleSuite[F] {
     import syntax._
 
     assert(F.pure(i).intoIteratee.run === F.pure(i))
-  }
-
-  /**
-   * Well-behaved iteratees don't inject values into the stream, but if we do
-   * end up in this situation, we try to make sure something fairly reasonable
-   * happens (and specifically that `flatMap` stays associative in as many cases
-   * as possible).
-   */
-  "iteratees that inject values" should "not break the associativity of flatMap" in {
-    forAll { (l1: List[Int], l2: List[Int]) =>
-      val allL1I = done((), l1)
-      val allL2I = done((), l2)
-      val oneL1I = done((), l1.take(1))
-      val oneL2I = done((), l2.take(1))
-
-      val iteratee1: Iteratee[F, Int, Vector[Int]] = allL1I.flatMap(_ => allL2I).flatMap(_ => consume)
-      val iteratee2: Iteratee[F, Int, Vector[Int]] = allL1I.flatMap(_ => allL2I.flatMap(_ => consume))
-
-      val iteratee3: Iteratee[F, Int, Vector[Int]] = allL1I.flatMap(_ => oneL2I).flatMap(_ => consume)
-      val iteratee4: Iteratee[F, Int, Vector[Int]] = allL1I.flatMap(_ => oneL2I.flatMap(_ => consume))
-
-      val iteratee5: Iteratee[F, Int, Vector[Int]] = oneL1I.flatMap(_ => allL2I).flatMap(_ => consume)
-      val iteratee6: Iteratee[F, Int, Vector[Int]] = oneL1I.flatMap(_ => allL2I.flatMap(_ => consume))
-
-      val iteratee7: Iteratee[F, Int, Vector[Int]] = oneL1I.flatMap(_ => oneL2I).flatMap(_ => consume)
-      val iteratee8: Iteratee[F, Int, Vector[Int]] = oneL1I.flatMap(_ => oneL2I.flatMap(_ => consume))
-
-      assert(iteratee1 === iteratee2)
-      assert(iteratee3 === iteratee4)
-      assert(iteratee5 === iteratee6)
-      assert(iteratee7 === iteratee8)
-    }
   }
 }
