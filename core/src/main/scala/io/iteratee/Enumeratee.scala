@@ -3,6 +3,7 @@ package io.iteratee
 import cats.{ Applicative, Eq, FlatMap, Monad }
 import cats.instances.list.catsStdInstancesForList
 import io.iteratee.internal.Step
+import scala.collection.mutable.Builder
 
 abstract class Enumeratee[F[_], O, I] extends Serializable { self =>
   def apply[A](step: Step[F, I, A]): F[Step[F, O, Step[F, I, A]]]
@@ -312,7 +313,11 @@ final object Enumeratee extends EnumerateeInstances {
       )
     }
 
-  def remainderWithResult[F[_], O, R, I](iteratee: Iteratee[F, O, R])(f: (R, O) => I)(implicit
+  /**
+   * Run an iteratee and then use the provided function to combine the result
+   * with remaining elements.
+   */
+  final def remainderWithResult[F[_], O, R, I](iteratee: Iteratee[F, O, R])(f: (R, O) => I)(implicit
     F: Monad[F]
   ): Enumeratee[F, O, I] =
     new Enumeratee[F, O, I] {
@@ -328,6 +333,55 @@ final object Enumeratee extends EnumerateeInstances {
       final def apply[A](step: Step[F, I, A]): F[Step[F, O, Step[F, I, A]]] =
         F.flatMap(iteratee.state)(_.bind(r => F.pure(new TransformingCont(r)(step))))
     }
+
+  private[this] final class Rechunk1[F[_], E](implicit F: Monad[F]) extends PureLoop[F, E, E] {
+    protected def loop[A](step: Step[F, E, A]): Step[F, E, Step[F, E, A]] = new StepCont[F, E, E, A](step) {
+      final def feedEl(e: E): F[Step[F, E, Step[F, E, A]]] = F.flatMap(step.feedEl(e))(doneOrLoop)
+      final protected def feedNonEmpty(chunk: Seq[E]): F[Step[F, E, Step[F, E, A]]] = F.flatMap(
+        chunk.tail.foldLeft(step.feedEl(chunk.head)) {
+          case (next, e) => next.feedEl(e)
+        }
+      )(doneOrLoop)
+    }
+  }
+
+  private[this] final class RechunkN[F[_], E](size: Int)(implicit F: Monad[F]) extends Enumeratee[F, E, E] {
+    private[this] def freshBuilder(): Builder[E, Vector[E]] = {
+      val builder = Vector.newBuilder[E]
+      builder.sizeHint(size)
+      builder
+    }
+
+    private[this] def loop[A](current: Int, acc: Builder[E, Vector[E]])(
+      step: Step[F, E, A]
+    ): Step[F, E, Step[F, E, A]] = new StepCont[F, E, E, A](step) {
+      final def feedEl(e: E): F[Step[F, E, Step[F, E, A]]] = if (current + 1 == size) {
+        F.flatMap(step.feedNonEmpty((acc += e).result()))(doneOrLoop(0, freshBuilder()))
+      } else F.pure(loop(step, current + 1, acc += e))
+
+      final protected def feedNonEmpty(chunk: Seq[E]): F[Step[F, E, Step[F, E, A]]] = {
+        val c = chunk.lengthCompare(size - current)
+
+        if (c < 0) F.pure(loop(step, current + chunk.size, acc ++= chunk)) else if (c == 0) {
+          F.flatMap(step.feedNonEmpty((acc ++= chunk).result())
+        } else {
+
+        }
+      }
+    }
+
+    private[this] final def doneOrLoop[A](current: Int, acc: Builder[E, Vector[E]])(
+      step: Step[F, E, A]
+    ): Step[F, E, Step[F, E, A]] = if (step.isDone) Step.done(step) else loop(current, acc)(step)
+
+    final def apply[A](step: Step[F, E, A]): F[Step[F, E, Step[F, E, A]]] = F.pure(doneOrLoop(0, freshBuilder()))(step))
+  }
+
+  /**
+   * Rechunk elements in the stream into chunks of the provided size.
+   */
+  final def rechunk[F[_], E](size: Int)(implicit F: Monad[F]): Enumeratee[F, E, E] =
+    if (size <= 1) new Rechunk1[F, E] else RechunkN[F, E](size)
 
   /**
    * Collapse consecutive duplicates.
