@@ -3,6 +3,7 @@ package io.iteratee
 import cats.{ Applicative, Eq, FlatMap, Monad }
 import cats.instances.list.catsStdInstancesForList
 import io.iteratee.internal.Step
+import scala.collection.mutable.Builder
 
 abstract class Enumeratee[F[_], O, I] extends Serializable { self =>
   def apply[A](step: Step[F, I, A]): F[Step[F, O, Step[F, I, A]]]
@@ -488,6 +489,85 @@ final object Enumeratee extends EnumerateeInstances {
     def apply[A](step: Step[F, E, A]): F[Step[F, E, Step[F, E, A]]] = F.flatMap(step.feed(es))(identity[F, E].apply)
   }
 
+  /**
+   * Observe the chunks in a stream.
+   *
+   * @note Typically you should never rely on the underlying chunking of a
+   * stream, but in some cases it can be useful.
+   */
+  final def chunks[F[_], E](implicit F: Applicative[F]): Enumeratee[F, E, Vector[E]] =
+    new PureLoop[F, E, Vector[E]] {
+      protected def loop[A](step: Step[F, Vector[E], A]): Step[F, E, Step[F, Vector[E], A]] =
+        new StepCont[F, E, Vector[E], A](step) {
+          final def feedEl(e: E): F[Step[F, E, Step[F, Vector[E], A]]] =
+            F.map(step.feedEl(Vector(e)))(doneOrLoop)
+          final protected def feedNonEmpty(chunk: Seq[E]): F[Step[F, E, Step[F, Vector[E], A]]] =
+            F.map(step.feedEl(chunk.toVector))(doneOrLoop)
+        }
+    }
+
+  private[this] final class Rechunk1[F[_], E](implicit F: Monad[F]) extends PureLoop[F, E, E] {
+    protected def loop[A](step: Step[F, E, A]): Step[F, E, Step[F, E, A]] = new StepCont[F, E, E, A](step) {
+      final def feedEl(e: E): F[Step[F, E, Step[F, E, A]]] = F.map(step.feedEl(e))(doneOrLoop)
+      final protected def feedNonEmpty(chunk: Seq[E]): F[Step[F, E, Step[F, E, A]]] = F.map(
+        chunk.tail.foldLeft(step.feedEl(chunk.head)) {
+          case (next, e) => F.flatMap(next)(_.feedEl(e))
+        }
+      )(doneOrLoop)
+    }
+  }
+
+  private[this] final class RechunkN[F[_], E](size: Int)(implicit F: Monad[F]) extends Enumeratee[F, E, E] {
+    private[this] def freshBuilder(): Builder[E, Vector[E]] = {
+      val builder = Vector.newBuilder[E]
+      builder.sizeHint(size)
+      builder
+    }
+
+    private[this] def loop[A](current: Int, acc: Builder[E, Vector[E]])(
+      step: Step[F, E, A]
+    ): Step[F, E, Step[F, E, A]] = new Step.Cont[F, E, Step[F, E, A]] {
+      final def run: F[Step[F, E, A]] = step.feed(acc.result())
+
+      final def feedEl(e: E): F[Step[F, E, Step[F, E, A]]] = if (current + 1 == size) {
+        F.flatMap(step.feed((acc += e).result()))(doneOrLoop(0, freshBuilder()))
+      } else F.pure(loop(current + 1, acc += e)(step))
+
+      final protected def feedNonEmpty(chunk: Seq[E]): F[Step[F, E, Step[F, E, A]]] = {
+        val c = chunk.lengthCompare(size - current)
+
+        if (c < 0) F.pure(loop(current + chunk.size, acc ++= chunk)(step)) else if (c == 0) {
+          F.flatMap(step.feed((acc ++= chunk).result()))(doneOrLoop(0, freshBuilder()))
+        } else {
+          val newChunks = (acc ++= chunk).result().grouped(size)
+
+          val (nextStep, lastChunk) = newChunks.foldLeft((F.pure(step), Vector.empty[E])) {
+            case ((ns, lc), es) =>
+              if (es.size == size) (F.flatMap(ns)(_.feed(es)), Vector.empty) else (ns, es)
+          }
+
+          F.flatMap(nextStep)(doneOrLoop(lastChunk.size, freshBuilder() ++= lastChunk))
+        }
+      }
+    }
+
+    private[this] final def doneOrLoop[A](current: Int, acc: Builder[E, Vector[E]])(
+      step: Step[F, E, A]
+    ): F[Step[F, E, Step[F, E, A]]] = if (step.isDone) {
+      if (current == 0) F.pure(Step.done(step)) else {
+        F.map(step.feed(acc.result()))(Step.done[F, E, Step[F, E, A]](_))
+      }
+    } else F.pure(loop(current, acc)(step))
+
+    final def apply[A](step: Step[F, E, A]): F[Step[F, E, Step[F, E, A]]] = doneOrLoop(0, freshBuilder())(step)
+  }
+
+  /**
+   * Rechunk elements in the stream into chunks of the provided size.
+   */
+  final def rechunk[F[_], E](size: Int)(implicit F: Monad[F]): Enumeratee[F, E, E] =
+    if (size <= 1) new Rechunk1[F, E] else new RechunkN[F, E](size)
+
   private[this] abstract class StepCont[F[_], O, I, A](step: Step[F, I, A])(implicit
     F: Applicative[F]
   ) extends Step.Cont[F, O, Step[F, I, A]] {
@@ -512,14 +592,5 @@ final object Enumeratee extends EnumerateeInstances {
       if (step.isDone) Step.done(step) else loop(step)
 
     final def apply[A](step: Step[F, I, A]): F[Step[F, O, Step[F, I, A]]] = F.pure(doneOrLoop(step))
-  }
-
-  private[this] abstract class EffectfulLoop[F[_], O, I](implicit F: Applicative[F]) extends Enumeratee[F, O, I] {
-    protected def loop[A](step: Step[F, I, A]): F[Step[F, O, Step[F, I, A]]]
-
-    protected final def doneOrLoop[A](step: Step[F, I, A]): F[Step[F, O, Step[F, I, A]]] =
-      if (step.isDone) F.pure(Step.done(step)) else loop(step)
-
-    final def apply[A](step: Step[F, I, A]): F[Step[F, O, Step[F, I, A]]] = doneOrLoop(step)
   }
 }

@@ -331,4 +331,32 @@ abstract class EnumerateeSuite[F[_]: Monad] extends ModuleSuite[F] {
       assert(eav.resultWithLeftovers(consume[Int].through(injectValues(es))) === F.pure((expected, Vector.empty)))
     }
   }
+
+  "chunks" should "observe chunks" in forAll { (vs: Vector[Vector[Int]]) =>
+    val cs = vs.filter(_.nonEmpty)
+
+    val enumerator = cs.foldLeft(empty[Int]) {
+      case (e, chunk) => e.append(enumVector(chunk))
+    }
+
+    assert(enumerator.through(Enumeratee.chunks[F, Int]).toVector === F.pure(cs))
+  }
+
+  "rechunk" should "work correctly" in forAll { (eav: EnumeratorAndValues[Int], n: Byte) =>
+    val expected = eav.values.grouped(if (n > 0) n.toInt else 1).toVector
+    val enumeratee = Enumeratee.rechunk[F, Int](n.toInt).andThen(Enumeratee.chunks)
+
+    assert(eav.enumerator.through(enumeratee).toVector === F.pure(expected))
+  }
+
+  it should "correctly handle some corner cases" in {
+    val enumerator1 = enumIndexedSeq(0 to 20).through(Enumeratee.rechunk(5))
+    val enumerator2 = iterate(0)(_ + 1).through(Enumeratee.rechunk(5))
+    val enumerator3 = enumVector((0 until 5).toVector)
+    val enumerator4 = enumerator3.append(enumerator3).through(Enumeratee.rechunk(5))
+
+    assert(enumerator1.into(takeI(6)) === F.pure((0 until 6).toVector))
+    assert(enumerator2.into(takeI(6)) === F.pure((0 until 6).toVector))
+    assert(enumerator4.toVector === F.pure(((0 until 5) ++ (0 until 5)).toVector))
+  }
 }
