@@ -348,4 +348,15 @@ abstract class EnumerateeSuite[F[_]: Monad] extends ModuleSuite[F] {
 
     assert(eav.enumerator.through(enumeratee).toVector === F.pure(expected))
   }
+
+  it should "correctly handle some corner cases" in {
+    val enumerator1 = enumIndexedSeq(0 to 20).through(Enumeratee.rechunk(5))
+    val enumerator2 = iterate(0)(_ + 1).through(Enumeratee.rechunk(5))
+    val enumerator3 = enumVector((0 until 5).toVector)
+    val enumerator4 = enumerator3.append(enumerator3).through(Enumeratee.rechunk(5))
+
+    assert(enumerator1.into(takeI(6)) === F.pure((0 until 6).toVector))
+    assert(enumerator2.into(takeI(6)) === F.pure((0 until 6).toVector))
+    assert(enumerator4.toVector === F.pure(((0 until 5) ++ (0 until 5)).toVector))
+  }
 }
