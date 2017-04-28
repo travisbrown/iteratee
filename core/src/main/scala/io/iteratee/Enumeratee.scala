@@ -334,6 +334,30 @@ final object Enumeratee extends EnumerateeInstances {
     }
 
   /**
+   * Run an iteratee and then use the provided effectful function to combine the
+   * result with the remaining elements.
+   */
+  final def remainderWithResultM[F[_], O, R, I](iteratee: Iteratee[F, O, R])(f: (R, O) => F[I])(implicit
+    F: Monad[F]
+  ): Enumeratee[F, O, I] =
+    new Enumeratee[F, O, I] {
+      private[this] class TransformingCont[A](r: R)(step: Step[F, I, A]) extends StepCont[F, O, I, A](step) {
+        private[this] def advance(next: Step[F, I, A]): Step[F, O, Step[F, I, A]] =
+          if (next.isDone) Step.done(next) else new TransformingCont(r)(next)
+
+        final def feedEl(e: O): F[Step[F, O, Step[F, I, A]]] = F.map(F.flatMap(f(r, e))(step.feedEl))(advance)
+        final protected def feedNonEmpty(chunk: Seq[O]): F[Step[F, O, Step[F, I, A]]] = F.map(
+          chunk.tail.foldLeft(F.flatMap(f(r, chunk.head))(step.feedEl)) {
+            case (next, e) => F.flatMap(next)(s => F.flatMap(f(r, e))(s.feedEl))
+          }
+        )(advance)
+      }
+
+      final def apply[A](step: Step[F, I, A]): F[Step[F, O, Step[F, I, A]]] =
+        F.flatMap(iteratee.state)(_.bind(r => F.pure(new TransformingCont(r)(step))))
+    }
+
+  /**
    * Collapse consecutive duplicates.
    *
    * @note Assumes that the stream is sorted.
