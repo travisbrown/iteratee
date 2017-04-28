@@ -147,6 +147,34 @@ abstract class BaseIterateeSuite[F[_]: Monad] extends ModuleSuite[F] {
     assert(liftToIteratee(F.pure(i)).run === F.pure(i))
   }
 
+  it should "lift a value in a context when run on an enumerator" in forAll { (eav: EnumeratorAndValues[Int], i: Int) =>
+    assert(eav.enumerator.into(liftToIteratee(F.pure(i))) === F.pure(i))
+  }
+
+  "liftMEval" should "lift a value in a context into an iteratee" in forAll { (i: Int) =>
+    var counter = 0
+    val eval = Eval.later {
+      counter += i
+      F.pure(i)
+    }
+
+    assert(counter === 0)
+    assert(Iteratee.liftMEval(eval).run === F.pure(i))
+    assert(counter === i)
+  }
+
+  it should "lift a value in a context when run on an enumerator" in forAll { (eav: EnumeratorAndValues[Int], i: Int) =>
+    var counter = 0
+    val eval = Eval.later {
+      counter += i
+      F.pure(i)
+    }
+
+    assert(counter === 0)
+    assert(eav.enumerator.into(Iteratee.liftMEval(eval)) === F.pure(i))
+    assert(counter === i)
+  }
+
   "identityIteratee" should "consume no input" in forAll { (eav: EnumeratorAndValues[Int], it: Iteratee[F, Int, Int]) =>
     assert(eav.resultWithLeftovers(identityIteratee) === F.pure(((), eav.values)))
     assert(eav.resultWithLeftovers(identityIteratee.flatMap(_ => it)) === eav.resultWithLeftovers(it))
