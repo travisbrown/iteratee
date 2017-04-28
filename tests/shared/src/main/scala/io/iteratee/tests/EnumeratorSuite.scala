@@ -1,6 +1,6 @@
 package io.iteratee.tests
 
-import cats.{ Eq, Monad }
+import cats.{ Eq, Eval, Monad }
 import cats.kernel.laws.GroupLaws
 import cats.laws.discipline.{ CartesianTests, MonadTests }
 import io.iteratee.{ EnumerateeModule, Enumerator, EnumeratorModule, IterateeModule, Module }
@@ -18,6 +18,20 @@ abstract class EnumeratorSuite[F[_]: Monad] extends ModuleSuite[F] {
 
   "liftToEnumerator" should "lift a value in a context into an enumerator" in forAll { (i: Int) =>
     assert(liftToEnumerator(F.pure(i)).toVector === F.pure(Vector(i)))
+  }
+
+  "liftMEval" should "lift a value in a context into an enumerator" in forAll { (i: Int) =>
+    var counter = 0
+    val eval = Eval.later {
+      counter += i
+      F.pure(i)
+    }
+
+    val enumerator = Enumerator.liftMEval(eval)
+
+    assert(counter === 0)
+    assert(enumerator.toVector === F.pure(Vector(i)))
+    assert(counter === i)
   }
 
   "enumerate" should "enumerate varargs values" in forAll { (xs: List[Int]) =>
