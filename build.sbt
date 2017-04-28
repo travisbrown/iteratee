@@ -242,7 +242,7 @@ lazy val benchmark = project
   .settings(
     libraryDependencies ++= Seq(
       "org.scalatest" %% "scalatest" % scalaTestVersion % "test",
-      "org.scalaz" %% "scalaz-iteratee" % "7.2.10",
+      "org.scalaz" %% "scalaz-iteratee" % "7.2.11",
       "org.scalaz.stream" %% "scalaz-stream" % "0.8.6a",
       "org.typelevel" %% "cats-free" % catsVersion,
       "io.monix" %% "monix-cats" % monixVersion
