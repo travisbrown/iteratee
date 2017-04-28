@@ -1,160 +1,72 @@
 <!DOCTYPE html >
 <html>
         <head>
-          <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-          <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
           <title></title>
           <meta name="description" content="" />
           <meta name="keywords" content="" />
           <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
           
       <link href="lib/index.css" media="screen" type="text/css" rel="stylesheet" />
-      <link href="lib/template.css" media="screen" type="text/css" rel="stylesheet" />
-      <link href="lib/diagrams.css" media="screen" type="text/css" rel="stylesheet" id="diagrams-css" />
       <script type="text/javascript" src="lib/jquery.js"></script>
-      <script type="text/javascript" src="lib/jquery.panzoom.min.js"></script>
-      <script type="text/javascript" src="lib/jquery.mousewheel.min.js"></script>
+      <script type="text/javascript" src="lib/jquery-ui.js"></script>
+      <script type="text/javascript" src="lib/jquery.layout.js"></script>
       <script type="text/javascript" src="lib/index.js"></script>
-      <script type="text/javascript" src="index.js"></script>
       <script type="text/javascript" src="lib/scheduler.js"></script>
-      <script type="text/javascript" src="lib/template.js"></script>
-      <script type="text/javascript" src="lib/tools.tooltip.js"></script>
-      
-      <script type="text/javascript">
-        /* this variable can be used by the JS to determine the path to the root document */
-        var toRoot = '';
-      </script>
     
         </head>
         <body>
-      <div id="search">
-        <span id="doc-title"><span id="doc-version"></span></span>
-        <span class="close-results"><span class="left">&lt;</span> Back</span>
-        <div id="textfilter">
-          <span class="input">
-            <input autocapitalize="none" placeholder="Search" id="index-input" type="text" accesskey="/" />
-            <i class="clear material-icons"></i>
-            <i id="search-icon" class="material-icons"></i>
-          </span>
-        </div>
+      <div id="library">
+        <img class="class icon" alt="class icon" src="lib/class.png" />
+        <img class="trait icon" alt="trait icon" src="lib/trait.png" />
+        <img class="object icon" alt="trait icon" src="lib/object.png" />
+        <img class="package icon" alt="trait icon" src="lib/package.png" />
+      </div>
+      <div id="browser" class="ui-layout-west">
+      <div class="ui-west-center">
+      <div id="filter">
+          <div id="textfilter"></div>
+          <div id="letters"><span>#</span><a target="template" href="index/index-a.html">A</a><a target="template" href="index/index-b.html">B</a><a target="template" href="index/index-c.html">C</a><a target="template" href="index/index-d.html">D</a><a target="template" href="index/index-e.html">E</a><a target="template" href="index/index-f.html">F</a><a target="template" href="index/index-g.html">G</a><a target="template" href="index/index-h.html">H</a><a target="template" href="index/index-i.html">I</a><a target="template" href="index/index-j.html">J</a><span>K</span><a target="template" href="index/index-l.html">L</a><a target="template" href="index/index-m.html">M</a><a target="template" href="index/index-n.html">N</a><a target="template" href="index/index-o.html">O</a><a target="template" href="index/index-p.html">P</a><span>Q</span><a target="template" href="index/index-r.html">R</a><a target="template" href="index/index-s.html">S</a><a target="template" href="index/index-t.html">T</a><a target="template" href="index/index-u.html">U</a><a target="template" href="index/index-v.html">V</a><a target="template" href="index/index-w.html">W</a><span>X</span><span>Y</span><a target="template" href="index/index-z.html">Z</a> – <span>deprecated</span></div>
+      </div>
+      <div class="pack" id="tpl">
+            
+            <ol class="templates"></ol>
+            <ol class="packages"> <li class="pack" title="io">
+            <a class="tplshow" href="io/package.html" target="template">io</a>
+            <ol class="templates"></ol>
+            <ol class="packages"> <li class="pack" title="io.iteratee">
+            <a class="tplshow" href="io/iteratee/package.html" target="template">io.iteratee</a>
+            <ol class="templates"><li title="io.iteratee.Enumeratee"><a class="tplshow" href="io/iteratee/Enumeratee$.html" target="template"><span class="object">(object)</span></a><a class="tplshow" href="io/iteratee/Enumeratee.html" target="template"><span class="class">(class)</span><span class="tplLink">Enumeratee</span></a></li><li title="io.iteratee.EnumerateeModule"><div class="placeholder"></div><a class="tplshow" href="io/iteratee/EnumerateeModule.html" target="template"><span class="trait">(trait)</span><span class="tplLink">EnumerateeModule</span></a></li><li title="io.iteratee.Enumerator"><a class="tplshow" href="io/iteratee/Enumerator$.html" target="template"><span class="object">(object)</span></a><a class="tplshow" href="io/iteratee/Enumerator.html" target="template"><span class="class">(class)</span><span class="tplLink">Enumerator</span></a></li><li title="io.iteratee.EnumeratorErrorModule"><div class="placeholder"></div><a class="tplshow" href="io/iteratee/EnumeratorErrorModule.html" target="template"><span class="trait">(trait)</span><span class="tplLink">EnumeratorErrorModule</span></a></li><li title="io.iteratee.EnumeratorModule"><div class="placeholder"></div><a class="tplshow" href="io/iteratee/EnumeratorModule.html" target="template"><span class="trait">(trait)</span><span class="tplLink">EnumeratorModule</span></a></li><li title="io.iteratee.Iteratee"><a class="tplshow" href="io/iteratee/Iteratee$.html" target="template"><span class="object">(object)</span></a><a class="tplshow" href="io/iteratee/Iteratee.html" target="template"><span class="class">(class)</span><span class="tplLink">Iteratee</span></a></li><li title="io.iteratee.IterateeErrorModule"><div class="placeholder"></div><a class="tplshow" href="io/iteratee/IterateeErrorModule.html" target="template"><span class="trait">(trait)</span><span class="tplLink">IterateeErrorModule</span></a></li><li title="io.iteratee.IterateeModule"><div class="placeholder"></div><a class="tplshow" href="io/iteratee/IterateeModule.html" target="template"><span class="trait">(trait)</span><span class="tplLink">IterateeModule</span></a></li><li title="io.iteratee.Module"><a class="tplshow" href="io/iteratee/Module$.html" target="template"><span class="object">(object)</span></a><a class="tplshow" href="io/iteratee/Module.html" target="template"><span class="trait">(trait)</span><span class="tplLink">Module</span></a></li></ol>
+            <ol class="packages"> <li class="pack" title="io.iteratee.files">
+            <a class="tplshow" href="io/iteratee/files/package.html" target="template">io.iteratee.files</a>
+            <ol class="templates"><li title="io.iteratee.files.either"><a class="tplshow" href="io/iteratee/files/either$.html" target="template"><span class="object">(object)</span><div class="placeholder"></div><span class="tplLink">either</span></a></li><li title="io.iteratee.files.EitherFileModule"><div class="placeholder"></div><a class="tplshow" href="io/iteratee/files/EitherFileModule.html" target="template"><span class="trait">(trait)</span><span class="tplLink">EitherFileModule</span></a></li><li title="io.iteratee.files.eitherT"><a class="tplshow" href="io/iteratee/files/eitherT$.html" target="template"><span class="object">(object)</span><div class="placeholder"></div><span class="tplLink">eitherT</span></a></li><li title="io.iteratee.files.EitherTFileModule"><div class="placeholder"></div><a class="tplshow" href="io/iteratee/files/EitherTFileModule.html" target="template"><span class="trait">(trait)</span><span class="tplLink">EitherTFileModule</span></a></li><li title="io.iteratee.files.FileModule"><div class="placeholder"></div><a class="tplshow" href="io/iteratee/files/FileModule.html" target="template"><span class="trait">(trait)</span><span class="tplLink">FileModule</span></a></li><li title="io.iteratee.files.FutureFileModule"><div class="placeholder"></div><a class="tplshow" href="io/iteratee/files/FutureFileModule.html" target="template"><span class="trait">(trait)</span><span class="tplLink">FutureFileModule</span></a></li><li title="io.iteratee.files.NonSuspendableFileModule"><a class="tplshow" href="io/iteratee/files/NonSuspendableFileModule$.html" target="template"><span class="object">(object)</span></a><a class="tplshow" href="io/iteratee/files/NonSuspendableFileModule.html" target="template"><span class="trait">(trait)</span><span class="tplLink">NonSuspendableFileModule</span></a></li><li title="io.iteratee.files.SuspendableFileModule"><div class="placeholder"></div><a class="tplshow" href="io/iteratee/files/SuspendableFileModule.html" target="template"><span class="trait">(trait)</span><span class="tplLink">SuspendableFileModule</span></a></li><li title="io.iteratee.files.try_"><a class="tplshow" href="io/iteratee/files/try_$.html" target="template"><span class="object">(object)</span><div class="placeholder"></div><span class="tplLink">try_</span></a></li><li title="io.iteratee.files.TryFileModule"><div class="placeholder"></div><a class="tplshow" href="io/iteratee/files/TryFileModule.html" target="template"><span class="trait">(trait)</span><span class="tplLink">TryFileModule</span></a></li></ol>
+            <ol class="packages"> </ol>
+          </li><li class="pack" title="io.iteratee.fs2">
+            <a class="tplshow" href="io/iteratee/fs2/package.html" target="template">io.iteratee.fs2</a>
+            <ol class="templates"><li title="io.iteratee.fs2.task"><a class="tplshow" href="io/iteratee/fs2/task$.html" target="template"><span class="object">(object)</span><div class="placeholder"></div><span class="tplLink">task</span></a></li><li title="io.iteratee.fs2.TaskModule"><div class="placeholder"></div><a class="tplshow" href="io/iteratee/fs2/TaskModule.html" target="template"><span class="trait">(trait)</span><span class="tplLink">TaskModule</span></a></li></ol>
+            <ol class="packages"> </ol>
+          </li><li class="pack" title="io.iteratee.internal">
+            <a class="tplshow" href="io/iteratee/internal/package.html" target="template">io.iteratee.internal</a>
+            <ol class="templates"><li title="io.iteratee.internal.Step"><a class="tplshow" href="io/iteratee/internal/Step$.html" target="template"><span class="object">(object)</span></a><a class="tplshow" href="io/iteratee/internal/Step.html" target="template"><span class="class">(class)</span><span class="tplLink">Step</span></a></li></ol>
+            <ol class="packages"> </ol>
+          </li><li class="pack" title="io.iteratee.modules">
+            <a class="tplshow" href="io/iteratee/modules/package.html" target="template">io.iteratee.modules</a>
+            <ol class="templates"><li title="io.iteratee.modules.either"><a class="tplshow" href="io/iteratee/modules/either$.html" target="template"><span class="object">(object)</span><div class="placeholder"></div><span class="tplLink">either</span></a></li><li title="io.iteratee.modules.EitherModule"><div class="placeholder"></div><a class="tplshow" href="io/iteratee/modules/EitherModule.html" target="template"><span class="trait">(trait)</span><span class="tplLink">EitherModule</span></a></li><li title="io.iteratee.modules.eitherT"><a class="tplshow" href="io/iteratee/modules/eitherT$.html" target="template"><span class="object">(object)</span><div class="placeholder"></div><span class="tplLink">eitherT</span></a></li><li title="io.iteratee.modules.EitherTModule"><div class="placeholder"></div><a class="tplshow" href="io/iteratee/modules/EitherTModule.html" target="template"><span class="trait">(trait)</span><span class="tplLink">EitherTModule</span></a></li><li title="io.iteratee.modules.eval"><a class="tplshow" href="io/iteratee/modules/eval$.html" target="template"><span class="object">(object)</span><div class="placeholder"></div><span class="tplLink">eval</span></a></li><li title="io.iteratee.modules.EvalModule"><div class="placeholder"></div><a class="tplshow" href="io/iteratee/modules/EvalModule.html" target="template"><span class="trait">(trait)</span><span class="tplLink">EvalModule</span></a></li><li title="io.iteratee.modules.FutureModule"><div class="placeholder"></div><a class="tplshow" href="io/iteratee/modules/FutureModule.html" target="template"><span class="trait">(trait)</span><span class="tplLink">FutureModule</span></a></li><li title="io.iteratee.modules.id"><a class="tplshow" href="io/iteratee/modules/id$.html" target="template"><span class="object">(object)</span><div class="placeholder"></div><span class="tplLink">id</span></a></li><li title="io.iteratee.modules.IdModule"><div class="placeholder"></div><a class="tplshow" href="io/iteratee/modules/IdModule.html" target="template"><span class="trait">(trait)</span><span class="tplLink">IdModule</span></a></li><li title="io.iteratee.modules.option"><a class="tplshow" href="io/iteratee/modules/option$.html" target="template"><span class="object">(object)</span><div class="placeholder"></div><span class="tplLink">option</span></a></li><li title="io.iteratee.modules.OptionModule"><div class="placeholder"></div><a class="tplshow" href="io/iteratee/modules/OptionModule.html" target="template"><span class="trait">(trait)</span><span class="tplLink">OptionModule</span></a></li><li title="io.iteratee.modules.try_"><a class="tplshow" href="io/iteratee/modules/try_$.html" target="template"><span class="object">(object)</span><div class="placeholder"></div><span class="tplLink">try_</span></a></li><li title="io.iteratee.modules.TryModule"><div class="placeholder"></div><a class="tplshow" href="io/iteratee/modules/TryModule.html" target="template"><span class="trait">(trait)</span><span class="tplLink">TryModule</span></a></li></ol>
+            <ol class="packages"> </ol>
+          </li><li class="pack" title="io.iteratee.monix">
+            <a class="tplshow" href="io/iteratee/monix/package.html" target="template">io.iteratee.monix</a>
+            <ol class="templates"><li title="io.iteratee.monix.DefaultTaskModule"><div class="placeholder"></div><a class="tplshow" href="io/iteratee/monix/DefaultTaskModule.html" target="template"><span class="trait">(trait)</span><span class="tplLink">DefaultTaskModule</span></a></li><li title="io.iteratee.monix.MonixInstances"><div class="placeholder"></div><a class="tplshow" href="io/iteratee/monix/MonixInstances.html" target="template"><span class="trait">(trait)</span><span class="tplLink">MonixInstances</span></a></li><li title="io.iteratee.monix.task"><a class="tplshow" href="io/iteratee/monix/task$.html" target="template"><span class="object">(object)</span><div class="placeholder"></div><span class="tplLink">task</span></a></li><li title="io.iteratee.monix.TaskModule"><a class="tplshow" href="io/iteratee/monix/TaskModule$.html" target="template"><span class="object">(object)</span></a><a class="tplshow" href="io/iteratee/monix/TaskModule.html" target="template"><span class="trait">(trait)</span><span class="tplLink">TaskModule</span></a></li></ol>
+            <ol class="packages"> </ol>
+          </li><li class="pack" title="io.iteratee.scalaz">
+            <a class="tplshow" href="io/iteratee/scalaz/package.html" target="template">io.iteratee.scalaz</a>
+            <ol class="templates"><li title="io.iteratee.scalaz.ScalazInstances"><div class="placeholder"></div><a class="tplshow" href="io/iteratee/scalaz/ScalazInstances.html" target="template"><span class="trait">(trait)</span><span class="tplLink">ScalazInstances</span></a></li><li title="io.iteratee.scalaz.task"><a class="tplshow" href="io/iteratee/scalaz/task$.html" target="template"><span class="object">(object)</span><div class="placeholder"></div><span class="tplLink">task</span></a></li><li title="io.iteratee.scalaz.TaskModule"><div class="placeholder"></div><a class="tplshow" href="io/iteratee/scalaz/TaskModule.html" target="template"><span class="trait">(trait)</span><span class="tplLink">TaskModule</span></a></li></ol>
+            <ol class="packages"> </ol>
+          </li></ol>
+          </li></ol>
+          </li></ol>
+          </div></div><script src="index.js"></script>
     </div>
-      <div id="search-results">
-        <div id="search-progress">
-          <div id="progress-fill"></div>
-        </div>
-        <div id="results-content">
-          <div id="entity-results"></div>
-          <div id="member-results"></div>
-        </div>
-      </div>
-      <div id="content-scroll-container" style="-webkit-overflow-scrolling: touch;">
-        <div id="content-container" style="-webkit-overflow-scrolling: touch;">
-          <div id="subpackage-spacer">
-            <div id="packages">
-              <h1>Packages</h1>
-              <ul>
-                <li name="_root_.root" visbl="pub" class="indented0 current" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="_root_"></a><a id="root:_root_"></a>
-      <span class="permalink">
-      <a href="index.html#_root_" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">package</span>
-      </span>
-      <span class="symbol">
-        <span class="name">root</span>
-      </span>
-      
-      
-    </li><li name="_root_.io" visbl="pub" class="indented1 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="io"></a><a id="io:io"></a>
-      <span class="permalink">
-      <a href="index.html#io" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">package</span>
-      </span>
-      <span class="symbol">
-        <a title="" href="io/index.html">
-              <span class="name">io</span>
-            </a>
-      </span>
-      
-      
-    </li>
-              </ul>
-            </div>
-          </div>
-          <div id="content">
-            <body class="package value">
-      <div id="definition">
-        <div class="big-circle package">p</div>
-        
-        <h1>root package<span class="permalink">
-      <a href="index.html" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span></h1>
-        
-      </div>
-
-      <h4 id="signature" class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">package</span>
-      </span>
-      <span class="symbol">
-        <span class="name">root</span>
-      </span>
-      </h4>
-
-      
-          <div id="comment" class="fullcommenttop"></div>
-        
-
-      
-
-      <div id="template">
-        <div id="allMembers">
-        
-
-        
-
-        
-
-        
-
-        
-
-        
-        </div>
-
-        <div id="inheritedMembers">
-        
-        
-        </div>
-
-        <div id="groupedMembers">
-        <div class="group" name="Ungrouped">
-              <h3>Ungrouped</h3>
-              
-            </div>
-        </div>
-
-      </div>
-
-      <div id="tooltip"></div>
-
-      <div id="footer">  </div>
-    </body>
-          </div>
-        </div>
+      <div id="content" class="ui-layout-center">
+        <iframe id="template" name="template" src="package.html"></iframe>
       </div>
     </body>
       </html>
