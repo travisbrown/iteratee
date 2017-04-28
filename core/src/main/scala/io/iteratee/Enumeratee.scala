@@ -593,13 +593,4 @@ final object Enumeratee extends EnumerateeInstances {
 
     final def apply[A](step: Step[F, I, A]): F[Step[F, O, Step[F, I, A]]] = F.pure(doneOrLoop(step))
   }
-
-  private[this] abstract class EffectfulLoop[F[_], O, I](implicit F: Applicative[F]) extends Enumeratee[F, O, I] {
-    protected def loop[A](step: Step[F, I, A]): F[Step[F, O, Step[F, I, A]]]
-
-    protected final def doneOrLoop[A](step: Step[F, I, A]): F[Step[F, O, Step[F, I, A]]] =
-      if (step.isDone) F.pure(Step.done(step)) else loop(step)
-
-    final def apply[A](step: Step[F, I, A]): F[Step[F, O, Step[F, I, A]]] = doneOrLoop(step)
-  }
 }
