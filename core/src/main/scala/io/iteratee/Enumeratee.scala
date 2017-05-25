@@ -314,6 +314,69 @@ final object Enumeratee extends EnumerateeInstances {
     }
 
   /**
+   * An [[Enumeratee]] that folds a stream and emits intermediate results.
+   *
+   * @group Collection
+   */
+  final def scan[F[_], O, I](init: I)(f: (I, O) => I)(implicit F: Monad[F]): Enumeratee[F, O, I] =
+    new Enumeratee[F, O, I] {
+      protected def loop[A](current: I, step: Step[F, I, A]): Step[F, O, Step[F, I, A]] =
+        new StepCont[F, O, I, A](step) {
+          final def feedEl(e: O): F[Step[F, O, Step[F, I, A]]] = {
+            val next = f(current, e)
+
+            F.map(step.feedEl(next))(doneOrLoop(next))
+          }
+          final protected def feedNonEmpty(chunk: Seq[O]): F[Step[F, O, Step[F, I, A]]] = {
+            val (last, s) = chunk.foldLeft((current, F.pure(step))) {
+              case ((c, s), e) =>
+                val next = f(c, e)
+
+                (next, F.flatMap(s)(_.feedEl(next)))
+            }
+
+            F.map(s)(doneOrLoop(last))
+          }
+        }
+
+      protected final def doneOrLoop[A](current: I)(step: Step[F, I, A]): Step[F, O, Step[F, I, A]] =
+        if (step.isDone) Step.done(step) else loop(current, step)
+
+      final def apply[A](step: Step[F, I, A]): F[Step[F, O, Step[F, I, A]]] = F.map(step.feedEl(init))(doneOrLoop(init))
+    }
+
+  /**
+   * An [[Enumeratee]] that folds a stream using an effectful function while
+   * emitting intermediate results.
+   *
+   * @group Collection
+   */
+  final def scanM[F[_], O, I](init: I)(f: (I, O) => F[I])(implicit F: Monad[F]): Enumeratee[F, O, I] =
+    new Enumeratee[F, O, I] {
+      protected def loop[A](current: I, step: Step[F, I, A]): Step[F, O, Step[F, I, A]] =
+      new StepCont[F, O, I, A](step) {
+        final def feedEl(e: O): F[Step[F, O, Step[F, I, A]]] =
+          F.flatMap(f(current, e))(next => F.map(step.feedEl(next))(doneOrLoop(next)))
+
+        final protected def feedNonEmpty(chunk: Seq[O]): F[Step[F, O, Step[F, I, A]]] = {
+          val pair = chunk.foldLeft((F.pure((current, step)))) {
+            case (pair, e) =>
+              F.flatMap(pair) {
+                case (c, s) => F.flatMap(f(c, e))(next => F.map(s.feedEl(next))((next, _)))
+              }
+          }
+
+          F.map(pair)(p => doneOrLoop(p._1)(p._2))
+        }
+      }
+
+      protected final def doneOrLoop[A](current: I)(step: Step[F, I, A]): Step[F, O, Step[F, I, A]] =
+        if (step.isDone) Step.done(step) else loop(current, step)
+
+      final def apply[A](step: Step[F, I, A]): F[Step[F, O, Step[F, I, A]]] = F.map(step.feedEl(init))(doneOrLoop(init))
+    }
+
+  /**
    * Run an iteratee and then use the provided function to combine the result
    * with the remaining elements.
    */

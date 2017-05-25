@@ -107,6 +107,21 @@ trait EnumerateeModule[F[_]] { this: Module[F] =>
   final def sequenceI[O, I](iteratee: Iteratee[F, O, I]): Enumeratee[F, O, I] = Enumeratee.sequenceI(iteratee)(F)
 
   /**
+   * An [[Enumeratee]] that folds a stream and emits intermediate results.
+   *
+   * @group Enumeratees
+   */
+  final def scan[O, I](init: I)(f: (I, O) => I): Enumeratee[F, O, I] = Enumeratee.scan(init)(f)(F)
+
+  /**
+   * An [[Enumeratee]] that folds a stream using an effectful function while
+   * emitting intermediate results.
+   *
+   * @group Enumeratees
+   */
+  final def scanM[O, I](init: I)(f: (I, O) => F[I]): Enumeratee[F, O, I] = Enumeratee.scanM(init)(f)(F)
+
+  /**
    * Run an iteratee and then use the provided function to combine the result
    * with the remaining elements.
    *

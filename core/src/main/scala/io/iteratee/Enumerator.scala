@@ -34,6 +34,10 @@ abstract class Enumerator[F[_], E] extends Serializable { self =>
   final def drop(n: Long)(implicit F: Monad[F]): Enumerator[F, E] = through(Enumeratee.drop[F, E](n))
   final def dropWhile(p: E => Boolean)(implicit F: Monad[F]): Enumerator[F, E] = through(Enumeratee.dropWhile[F, E](p))
   final def dropWhileM(p: E => F[Boolean])(implicit F: Monad[F]): Enumerator[F, E] = through(Enumeratee.dropWhileM(p))
+  final def scan[A](init: A)(f: (A, E) => A)(implicit F: Monad[F]): Enumerator[F, A] =
+    through(Enumeratee.scan[F, E, A](init)(f))
+  final def scanM[A](init: A)(f: (A, E) => F[A])(implicit F: Monad[F]): Enumerator[F, A] =
+    through(Enumeratee.scanM[F, E, A](init)(f))
   final def collect[B](pf: PartialFunction[E, B])(implicit F: Monad[F]): Enumerator[F, B] =
     through(Enumeratee.collect[F, E, B](pf))
   final def filter(p: E => Boolean)(implicit F: Monad[F]): Enumerator[F, E] = through(Enumeratee.filter[F, E](p))
