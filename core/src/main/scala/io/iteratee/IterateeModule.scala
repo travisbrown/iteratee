@@ -96,6 +96,13 @@ trait IterateeModule[F[_]] { self: Module[F] =>
   final def peek[E]: Iteratee[F, E, Option[E]] = Iteratee.peek(F)
 
   /**
+   * An [[Iteratee]] that returns the last value in a stream.
+   *
+   * @group Iteratees
+   */
+  final def last[E]: Iteratee[F, E, Option[E]] = Iteratee.last(F)
+
+  /**
    * An [[Iteratee]] that returns a given number of the first values in a
    * stream.
    *

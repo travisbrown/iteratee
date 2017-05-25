@@ -248,6 +248,13 @@ final object Iteratee extends IterateeInstances {
   final def peek[F[_]: Applicative, E]: Iteratee[F, E, Option[E]] = fromStep(Step.peek[F, E])
 
   /**
+   * An [[Iteratee]] that returns the last value in a stream.
+   *
+   * @group Collection
+   */
+  final def last[F[_]: Applicative, E]: Iteratee[F, E, Option[E]] = fromStep(Step.last[F, E])
+
+  /**
    * An [[Iteratee]] that returns a given number of the first values in a
    * stream.
    *
