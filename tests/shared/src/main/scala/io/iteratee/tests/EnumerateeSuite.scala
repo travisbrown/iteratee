@@ -199,6 +199,20 @@ abstract class EnumerateeSuite[F[_]: Monad] extends ModuleSuite[F] {
     assert(enumVector(xs).sequenceI(takeI(groupedSize)).into(length) === F.pure(expected))
   }
 
+  "scan" should "match the standard library's scanLeft" in {
+    forAll { (eav: EnumeratorAndValues[Int], init: String, f: (String, Int) => String) =>
+      assert(eav.enumerator.through(scan(init)(f)).toVector === F.pure(eav.values.scanLeft(init)(f)))
+    }
+  }
+
+  "scanM" should "match the standard library's scanLeft with pure" in {
+    forAll { (eav: EnumeratorAndValues[Int], init: String, f: (String, Int) => String) =>
+      val ff: (String, Int) => F[String] = (s, i) => F.pure(f(s, i))
+
+      assert(eav.enumerator.scanM(init)(ff).toVector === F.pure(eav.values.scanLeft(init)(f)))
+    }
+  }
+
   "remainderWithResult" should "return an empty result for iteratees that consume all input" in {
     forAll { (eav: EnumeratorAndValues[Int]) =>
       val enumeratee = remainderWithResult(consume[Int])((r, i) => r)

@@ -211,6 +211,20 @@ abstract class EnumeratorSuite[F[_]: Monad] extends ModuleSuite[F] {
     }
   }
 
+  "scan" should "match using an Enumeratee directly" in {
+    forAll { (eav: EnumeratorAndValues[Int], init: String, f: (String, Int) => String) =>
+      assert(eav.enumerator.scan(init)(f) === eav.enumerator.through(scan(init)(f)))
+    }
+  }
+
+  "scanM" should "match using an Enumeratee directly" in {
+    forAll { (eav: EnumeratorAndValues[Int], init: String, f: (String, Int) => String) =>
+      val ff: (String, Int) => F[String] = (s, i) => F.pure(f(s, i))
+
+      assert(eav.enumerator.scanM(init)(ff) === eav.enumerator.through(scanM(init)(ff)))
+    }
+  }
+
   "collect" should "match using an Enumeratee directly" in {
     forAll { (eav: EnumeratorAndValues[Int], f: Int => Option[String]) =>
       val pf: PartialFunction[Int, String] = {

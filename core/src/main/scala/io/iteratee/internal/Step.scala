@@ -366,6 +366,19 @@ final object Step { self =>
   }
 
   /**
+   * A [[Step]] that returns the first value in a stream.
+   *
+   * @group Collection
+   */
+  final def last[F[_], E](implicit F: Applicative[F]): Step[F, E, Option[E]] = new LastCont(None)
+
+  private[this] final class LastCont[F[_], E](acc: Option[E])(implicit F: Applicative[F])
+      extends PureCont.WithValue[F, E, Option[E]](acc) {
+    final def feedElPure(e: E): Step[F, E, Option[E]] = new LastCont(Some(e))
+    final protected def feedNonEmptyPure(chunk: Seq[E]): Step[F, E, Option[E]] = new LastCont(Some(chunk.last))
+  }
+
+  /**
    * A [[Step]] that counts the number of values in a stream.
    *
    * @group Collection

@@ -207,6 +207,12 @@ abstract class BaseIterateeSuite[F[_]: Monad] extends ModuleSuite[F] {
     assert(eav.resultWithLeftovers(peek[Int]) === F.pure(result))
   }
 
+  "last" should "return the last value" in forAll { (eav: EnumeratorAndValues[Int]) =>
+    val result = (eav.values.lastOption, Vector.empty[Int])
+
+    assert(eav.resultWithLeftovers(last[Int]) === F.pure(result))
+  }
+
   "takeI" should "consume the specified number of values" in forAll { (eav: EnumeratorAndValues[Int], n: Int) =>
     /**
       * This isn't a comprehensive way to avoid SI-9581, but it seems to keep clear of the cases
