@@ -349,23 +349,23 @@ final object Enumeratee extends EnumerateeInstances {
   final def scanM[F[_], O, I](init: I)(f: (I, O) => F[I])(implicit F: Monad[F]): Enumeratee[F, O, I] =
     new Enumeratee[F, O, I] {
       protected def loop[A](current: I, step: Step[F, I, A]): Step[F, O, Step[F, I, A]] =
-      new StepCont[F, O, I, A](step) {
-        final def feedEl(e: O): F[Step[F, O, Step[F, I, A]]] =
-          F.flatMap(f(current, e))(next => F.map(step.feedEl(next))(doneOrLoop(next)))
+        new StepCont[F, O, I, A](step) {
+          final def feedEl(e: O): F[Step[F, O, Step[F, I, A]]] =
+            F.flatMap(f(current, e))(next => F.map(step.feedEl(next))(doneOrLoop(next)))
 
-        final protected def feedNonEmpty(chunk: Seq[O]): F[Step[F, O, Step[F, I, A]]] = {
-          val pair = chunk.tail.foldLeft(
-            F.flatMap(f(current, chunk.head))(next => F.map(step.feedEl(next))((next, _)))
-          ) {
-            case (pair, e) =>
-              F.flatMap(pair) {
-                case (c, s) => F.flatMap(f(c, e))(next => F.map(s.feedEl(next))((next, _)))
-              }
+          final protected def feedNonEmpty(chunk: Seq[O]): F[Step[F, O, Step[F, I, A]]] = {
+            val pair = chunk.tail.foldLeft(
+              F.flatMap(f(current, chunk.head))(next => F.map(step.feedEl(next))((next, _)))
+            ) {
+              case (pair, e) =>
+                F.flatMap(pair) {
+                  case (c, s) => F.flatMap(f(c, e))(next => F.map(s.feedEl(next))((next, _)))
+                }
+            }
+
+            F.map(pair)(p => doneOrLoop(p._1)(p._2))
           }
-
-          F.map(pair)(p => doneOrLoop(p._1)(p._2))
         }
-      }
 
       protected final def doneOrLoop[A](current: I)(step: Step[F, I, A]): Step[F, O, Step[F, I, A]] =
         if (step.isDone) Step.done(step) else loop(current, step)
