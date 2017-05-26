@@ -318,7 +318,7 @@ final object Enumeratee extends EnumerateeInstances {
    *
    * @group Collection
    */
-  final def scan[F[_], O, I](init: I)(f: (I, O) => I)(implicit F: Monad[F]): Enumeratee[F, O, I] =
+  final def scan[F[_], O, I](init: I)(f: (I, O) => I)(implicit F: Applicative[F]): Enumeratee[F, O, I] =
     new Enumeratee[F, O, I] {
       protected def loop[A](current: I, step: Step[F, I, A]): Step[F, O, Step[F, I, A]] =
         new StepCont[F, O, I, A](step) {
@@ -328,14 +328,9 @@ final object Enumeratee extends EnumerateeInstances {
             F.map(step.feedEl(next))(doneOrLoop(next))
           }
           final protected def feedNonEmpty(chunk: Seq[O]): F[Step[F, O, Step[F, I, A]]] = {
-            val (last, s) = chunk.foldLeft((current, F.pure(step))) {
-              case ((c, s), e) =>
-                val next = f(c, e)
+            val results = chunk.tail.scanLeft(f(current, chunk.head))(f)
 
-                (next, F.flatMap(s)(_.feedEl(next)))
-            }
-
-            F.map(s)(doneOrLoop(last))
+            F.map(step.feed(results))(doneOrLoop(results.last))
           }
         }
 
@@ -359,7 +354,9 @@ final object Enumeratee extends EnumerateeInstances {
           F.flatMap(f(current, e))(next => F.map(step.feedEl(next))(doneOrLoop(next)))
 
         final protected def feedNonEmpty(chunk: Seq[O]): F[Step[F, O, Step[F, I, A]]] = {
-          val pair = chunk.foldLeft((F.pure((current, step)))) {
+          val pair = chunk.tail.foldLeft(
+            F.flatMap(f(current, chunk.head))(next => F.map(step.feedEl(next))((next, _)))
+          ) {
             case (pair, e) =>
               F.flatMap(pair) {
                 case (c, s) => F.flatMap(f(c, e))(next => F.map(s.feedEl(next))((next, _)))
