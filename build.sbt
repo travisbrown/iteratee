@@ -20,7 +20,7 @@ lazy val compilerOptions = Seq(
 lazy val catsVersion = "0.9.0"
 lazy val disciplineVersion = "0.7.3"
 lazy val monixVersion = "2.3.0"
-lazy val fs2Version = "0.9.6"
+lazy val fs2Version = "0.9.7"
 lazy val fs2CatsVersion = "0.3.0"
 
 lazy val scalaCheckVersion = "1.13.5"
@@ -52,7 +52,7 @@ lazy val baseSettings = Seq(
     }
   ),
   (scalastyleSources in Compile) ++= (sourceDirectories in Compile).value,
-  addCompilerPlugin("org.spire-math" % "kind-projector" % "0.9.3" cross CrossVersion.binary)
+  addCompilerPlugin("org.spire-math" % "kind-projector" % "0.9.4" cross CrossVersion.binary)
 )
 
 lazy val allSettings = baseSettings ++ publishSettings
@@ -181,7 +181,7 @@ lazy val scalaz = project
   )
   .settings(allSettings ++ Defaults.itSettings)
   .settings(
-    libraryDependencies += "org.scalaz" %% "scalaz-concurrent" % "7.2.11"
+    libraryDependencies += "org.scalaz" %% "scalaz-concurrent" % "7.2.13"
   ).dependsOn(core, files, tests % "test,it")
 
 lazy val monixBase = crossProject.in(file("monix"))
@@ -242,7 +242,7 @@ lazy val benchmark = project
   .settings(
     libraryDependencies ++= Seq(
       "org.scalatest" %% "scalatest" % scalaTestVersion % "test",
-      "org.scalaz" %% "scalaz-iteratee" % "7.2.11",
+      "org.scalaz" %% "scalaz-iteratee" % "7.2.13",
       "org.scalaz.stream" %% "scalaz-stream" % "0.8.6a",
       "org.typelevel" %% "cats-free" % catsVersion,
       "io.monix" %% "monix-cats" % monixVersion
