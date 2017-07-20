@@ -18,7 +18,7 @@ lazy val compilerOptions = Seq(
 )
 
 lazy val catsVersion = "0.9.0"
-lazy val disciplineVersion = "0.7.3"
+lazy val disciplineVersion = "0.8"
 lazy val monixVersion = "2.3.0"
 lazy val fs2Version = "0.9.7"
 lazy val fs2CatsVersion = "0.3.0"
@@ -26,7 +26,7 @@ lazy val fs2CatsVersion = "0.3.0"
 lazy val scalaCheckVersion = "1.13.5"
 lazy val scalaTestVersion = "3.0.3"
 
-lazy val previousIterateeVersion = "0.11.0"
+lazy val previousIterateeVersion = "0.12.0"
 
 val docMappingsApiDir = settingKey[String]("Subdirectory in site target directory for API docs")
 
@@ -168,7 +168,7 @@ lazy val twitter = project
   )
   .settings(allSettings ++ Defaults.itSettings)
   .settings(
-    libraryDependencies += "io.catbird" %% "catbird-util" % "0.14.0"
+    libraryDependencies += "io.catbird" %% "catbird-util" % "0.15.0"
   ).dependsOn(core, files, tests % "test,it")
 
 lazy val scalaz = project
@@ -181,7 +181,7 @@ lazy val scalaz = project
   )
   .settings(allSettings ++ Defaults.itSettings)
   .settings(
-    libraryDependencies += "org.scalaz" %% "scalaz-concurrent" % "7.2.13"
+    libraryDependencies += "org.scalaz" %% "scalaz-concurrent" % "7.2.14"
   ).dependsOn(core, files, tests % "test,it")
 
 lazy val monixBase = crossProject.in(file("monix"))
@@ -242,7 +242,7 @@ lazy val benchmark = project
   .settings(
     libraryDependencies ++= Seq(
       "org.scalatest" %% "scalatest" % scalaTestVersion % "test",
-      "org.scalaz" %% "scalaz-iteratee" % "7.2.13",
+      "org.scalaz" %% "scalaz-iteratee" % "7.2.14",
       "org.scalaz.stream" %% "scalaz-stream" % "0.8.6a",
       "org.typelevel" %% "cats-free" % catsVersion,
       "io.monix" %% "monix-cats" % monixVersion
