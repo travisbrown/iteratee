@@ -264,7 +264,7 @@ final object Step { self =>
   final def liftMEval[F[_], E, A](fa: Eval[F[A]])(implicit F: Monad[F]): F[Step[F, E, A]] = F.pure(
     new Cont[F, E, A] {
       final def run: F[A] = fa.value
-      final def feedEl(e: E): F[Step[F, E, A]] = F.map(fa.value)(doneWithLeftovers(_, List(e)))
+      final def feedEl(e: E): F[Step[F, E, A]] = F.map(fa.value)(doneWithLeftovers(_, e :: Nil))
       final protected def feedNonEmpty(chunk: Seq[E]): F[Step[F, E, A]] = F.map(fa.value)(doneWithLeftovers(_, chunk))
     }
   )
@@ -360,7 +360,7 @@ final object Step { self =>
    */
   final def peek[F[_], E](implicit F: Applicative[F]): Step[F, E, Option[E]] = new PureCont[F, E, Option[E]] {
     final def runPure: Option[E] = None
-    final def feedElPure(e: E): Step[F, E, Option[E]] = doneWithLeftovers(Some(e), List(e))
+    final def feedElPure(e: E): Step[F, E, Option[E]] = doneWithLeftovers(Some(e), e :: Nil)
     final protected def feedNonEmptyPure(chunk: Seq[E]): Step[F, E, Option[E]] =
       doneWithLeftovers(Some(chunk.head), chunk)
   }
@@ -472,7 +472,7 @@ final object Step { self =>
   private[this] final class TakeWhileCont[F[_], E](acc: Vector[E], p: E => Boolean)(implicit F: Applicative[F])
       extends PureCont.WithValue[F, E, Vector[E]](acc) {
     final def feedElPure(e: E): Step[F, E, Vector[E]] =
-      if (p(e)) new TakeWhileCont(acc :+ e, p) else doneWithLeftovers(acc, List(e))
+      if (p(e)) new TakeWhileCont(acc :+ e, p) else doneWithLeftovers(acc, e :: Nil)
     final protected def feedNonEmptyPure(chunk: Seq[E]): Step[F, E, Vector[E]] = {
       val (before, after) = chunk.span(p)
 
@@ -508,7 +508,7 @@ final object Step { self =>
   private[this] final class DropWhileCont[F[_], E](p: E => Boolean)(implicit F: Applicative[F])
       extends PureCont[F, E, Unit] {
     final def runPure: Unit = ()
-    final def feedElPure(e: E): Step[F, E, Unit] = if (p(e)) dropWhile(p) else doneWithLeftovers((), List(e))
+    final def feedElPure(e: E): Step[F, E, Unit] = if (p(e)) dropWhile(p) else doneWithLeftovers((), e :: Nil)
     final protected def feedNonEmptyPure(chunk: Seq[E]): Step[F, E, Unit] = {
       val after = chunk.dropWhile(p)
 
@@ -518,7 +518,7 @@ final object Step { self =>
 
   final def isEnd[F[_], E](implicit F: Applicative[F]): Step[F, E, Boolean] = new PureCont[F, E, Boolean] {
     final def runPure: Boolean = true
-    final def feedElPure(e: E): Step[F, E, Boolean] = doneWithLeftovers(false, List(e))
+    final def feedElPure(e: E): Step[F, E, Boolean] = doneWithLeftovers(false, e :: Nil)
     final protected def feedNonEmptyPure(chunk: Seq[E]): Step[F, E, Boolean] = doneWithLeftovers(false, chunk)
   }
 
