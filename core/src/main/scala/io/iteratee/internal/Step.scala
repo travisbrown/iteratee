@@ -54,6 +54,11 @@ sealed abstract class Step[F[_], E, A] extends Serializable {
   def map[B](f: A => B): Step[F, E, B]
 
   /**
+   * Replace the value of this [[Step]].
+   */
+  def as[B](b: B): Step[F, E, B]
+
+  /**
    * Map a function over the inputs of this [[Step]].
    */
   def contramap[E2](f: E2 => E): Step[F, E2, A]
@@ -99,6 +104,7 @@ final object Step { self =>
     final protected def feedNonEmpty(chunk: Seq[E]): F[Step[F, E, A]] = F.pure(this)
 
     final def map[B](f: A => B): Step[F, E, B] = doneWithLeftovers(f(value), remaining)
+    final def as[B](b: B): Step[F, E, B] = doneWithLeftovers(b, remaining)
     final def contramap[E2](f: E2 => E): Step[F, E2, A] = done(value)
     final def mapI[G[_]: Applicative](f: FunctionK[F, G]): Step[G, E, A] = doneWithLeftovers(value, remaining)
 
@@ -133,6 +139,8 @@ final object Step { self =>
 
       if (c < 0) F.pure(this) else if (c == 0) feedEl(chunk(0)) else feedNonEmpty(chunk)
     }
+
+    final def as[B](b: B): Step[F, E, B] = map(_ => b)
 
     final def mapI[G[_]: Applicative](f: FunctionK[F, G]): Step[G, E, A] = new Cont[G, E, A] {
       final def run: G[A] = f(self.run)

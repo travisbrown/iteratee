@@ -334,6 +334,12 @@ abstract class BaseIterateeSuite[F[_]: Monad] extends ModuleSuite[F] {
     assert(eav.resultWithLeftovers(sum[Int].through(map(_ + 1))) === F.pure(result))
   }
 
+  "as" should "replace the result" in {
+    forAll { (eav: EnumeratorAndValues[Int], iteratee: Iteratee[F, Int, Int], value: Int) =>
+      assert(eav.enumerator.into(iteratee.as(value)) === F.pure(value))
+    }
+  }
+
   "zip" should "zip two iteratees" in forAll { (eav: EnumeratorAndValues[Int]) =>
     val result = ((eav.values.sum, eav.values.size.toLong), Vector.empty)
 
