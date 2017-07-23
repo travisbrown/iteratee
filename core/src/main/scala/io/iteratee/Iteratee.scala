@@ -37,8 +37,12 @@ sealed class Iteratee[F[_], E, A] private[iteratee] (final val state: F[Step[F, 
   /**
    * Map a function over the result of this [[Iteratee]].
    */
-  final def map[B](f: A => B)(implicit F: Functor[F]): Iteratee[F, E, B] =
-    Iteratee.iteratee(F.map(state)(_.map(f)))
+  final def map[B](f: A => B)(implicit F: Functor[F]): Iteratee[F, E, B] = Iteratee.iteratee(F.map(state)(_.map(f)))
+
+  /**
+   * Replace the result of this [[Iteratee]].
+   */
+  final def as[B](b: B)(implicit F: Functor[F]): Iteratee[F, E, B] = Iteratee.iteratee(F.map(state)(_.as(b)))
 
   /**
    * Map a monadic function over the result of this [[Iteratee]].
@@ -96,7 +100,7 @@ sealed class Iteratee[F[_], E, A] private[iteratee] (final val state: F[Step[F, 
   /**
    * Create a new [[Iteratee]] that throws away the value this one returns.
    */
-  final def discard(implicit F: Functor[F]): Iteratee[F, E, Unit] = map(_ => ())
+  final def discard(implicit F: Functor[F]): Iteratee[F, E, Unit] = as(())
 
   /**
    * Ensure that an action will be performed when this iteratee is done, whether
