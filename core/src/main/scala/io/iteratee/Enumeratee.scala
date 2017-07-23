@@ -80,7 +80,7 @@ final object Enumeratee extends EnumerateeInstances {
       if (step.isDone) Step.done(step) else new StepCont[F, E, E, A](step) {
         final def feedEl(e: E): F[Step[F, E, Step[F, E, A]]] =
           if (remaining <= 0L) {
-            F.pure(Step.doneWithLeftovers(step, List(e)))
+            F.pure(Step.doneWithLeftovers(step, e :: Nil))
           } else {
             F.map(step.feedEl(e))(loop(remaining - 1L))
           }
@@ -112,7 +112,7 @@ final object Enumeratee extends EnumerateeInstances {
       protected final def loop[A](step: Step[F, E, A]): Step[F, E, Step[F, E, A]] = new StepCont[F, E, E, A](step) {
         final def feedEl(e: E): F[Step[F, E, Step[F, E, A]]] =
           if (!p(e)) {
-            F.pure(Step.doneWithLeftovers(step, List(e)))
+            F.pure(Step.doneWithLeftovers(step, e :: Nil))
           } else {
             F.map(step.feedEl(e))(doneOrLoop)
           }
@@ -145,7 +145,7 @@ final object Enumeratee extends EnumerateeInstances {
       protected final def loop[A](step: Step[F, E, A]): Step[F, E, Step[F, E, A]] = new StepCont[F, E, E, A](step) {
         final def feedEl(e: E): F[Step[F, E, Step[F, E, A]]] = {
           F.ifM(p(e))(
-            ifFalse = F.pure(Step.doneWithLeftovers(step, List(e))),
+            ifFalse = F.pure(Step.doneWithLeftovers(step, e :: Nil)),
             ifTrue  = F.map(step.feedEl(e))(doneOrLoop))
         }
         final protected def feedNonEmpty(chunk: Seq[E]): F[Step[F, E, Step[F, E, A]]] = {
