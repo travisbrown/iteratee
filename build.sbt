@@ -2,7 +2,7 @@ import ReleaseTransformations._
 
 organization in ThisBuild := "io.iteratee"
 
-lazy val scalaVersions = Seq("2.10.6", "2.11.11", "2.12.2")
+lazy val scalaVersions = Seq("2.10.6", "2.11.11", "2.12.3")
 
 lazy val compilerOptions = Seq(
   "-deprecation",
