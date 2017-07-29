@@ -17,7 +17,7 @@ lazy val compilerOptions = Seq(
   "-Xfuture"
 )
 
-lazy val catsVersion = "0.9.0"
+lazy val catsVersion = "1.0.0-MF"
 lazy val disciplineVersion = "0.8"
 lazy val monixVersion = "2.3.0"
 lazy val fs2Version = "0.9.7"
@@ -244,8 +244,7 @@ lazy val benchmark = project
       "org.scalatest" %% "scalatest" % scalaTestVersion % "test",
       "org.scalaz" %% "scalaz-iteratee" % "7.2.14",
       "org.scalaz.stream" %% "scalaz-stream" % "0.8.6a",
-      "org.typelevel" %% "cats-free" % catsVersion,
-      "io.monix" %% "monix-cats" % monixVersion
+      "org.typelevel" %% "cats-free" % catsVersion
     )
   )
   .enablePlugins(JmhPlugin)

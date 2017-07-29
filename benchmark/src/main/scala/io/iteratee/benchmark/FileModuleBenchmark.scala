@@ -15,7 +15,6 @@ import io.iteratee.{ scalaz => s }
 import io.iteratee.scalaz.ScalazInstances
 import java.io.File
 import java.util.concurrent.TimeUnit
-import monix.cats._
 import monix.eval.{ Task => TaskM }
 import org.openjdk.jmh.annotations._
 import scala.Predef.refArrayOps
@@ -64,10 +63,14 @@ class FileModuleBenchmark extends ScalazInstances {
   def avgWordLengthS: Double = linesS.flatMap(words[Task]).into(avgLen).unsafePerformSync
 
   @Benchmark
-  def avgWordLengthF: Double = Await.result(
-    linesM.flatMap(words[TaskM]).into(avgLen).runAsync(monix.execution.Scheduler.Implicits.global),
-    Duration.Inf
-  )
+  def avgWordLengthF: Double = {
+    import m.task._
+
+    Await.result(
+      linesM.flatMap(words[TaskM]).into(avgLen).runAsync(monix.execution.Scheduler.Implicits.global),
+      Duration.Inf
+    )
+  }
 
   @Benchmark
   def avgWordLengthM: Double = Await.result(

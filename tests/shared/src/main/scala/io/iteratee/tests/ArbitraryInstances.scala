@@ -74,6 +74,12 @@ trait ArbitraryInstances {
     )
   }
 
+  implicit def arbitraryVectorUnitIteratee[F[_]: Monad, A](implicit
+    A: Arbitrary[A]
+  ): Arbitrary[Iteratee[F, Vector[A], Unit]] = Arbitrary(
+    arbitraryVectorIteratee[F, A].arbitrary.map(_.discard)
+  )
+
   implicit def arbitraryFunctionIteratee[F[_]: Monad, A]: Arbitrary[Iteratee[F, A, Vector[Int] => Vector[Int]]] = {
     val M: Monad[({ type L[x] = Iteratee[F, A, x] })#L] = implicitly
 

@@ -16,7 +16,7 @@ class EitherTEnumeratorTests extends StackSafeEnumeratorSuite[({ type L[x] = Eit
 
   "ensure" should "perform an action after the enumerator is done" in forAll { (eav: EnumeratorAndValues[Int]) =>
     var counter = 0
-    val action = EitherT.right[Eval, Throwable, Unit](Eval.always(counter += 1))
+    val action = EitherT.right[Throwable](Eval.always(counter += 1))
     val enumerator = eav.enumerator.ensure(action)
 
     assert(counter === 0)
@@ -27,7 +27,7 @@ class EitherTEnumeratorTests extends StackSafeEnumeratorSuite[({ type L[x] = Eit
   it should "perform its action in the case of failure" in forAll { (eav: EnumeratorAndValues[Int], message: String) =>
     val error: Throwable = new Exception(message)
     var counter = 0
-    val action = EitherT.right[Eval, Throwable, Unit](Eval.always(counter += 1))
+    val action = EitherT.right[Throwable](Eval.always(counter += 1))
     val enumerator = failEnumerator(error).append(eav.enumerator).ensure(action)
 
     assert(counter == 0)
@@ -37,7 +37,7 @@ class EitherTEnumeratorTests extends StackSafeEnumeratorSuite[({ type L[x] = Eit
 
   it should "work without necessarily consuming all elements" in forAll { (eav: EnumeratorAndValues[Int]) =>
     var counter = 0
-    val action = EitherT.right[Eval, Throwable, Unit](Eval.always(counter += 1))
+    val action = EitherT.right[Throwable](Eval.always(counter += 1))
     val enumerator = eav.enumerator.ensure(action)
     val n = math.max(0, eav.values.size - 2)
 
