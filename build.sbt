@@ -26,7 +26,7 @@ lazy val fs2CatsVersion = "0.4.0"
 lazy val scalaCheckVersion = "1.13.5"
 lazy val scalaTestVersion = "3.0.3"
 
-lazy val previousIterateeVersion = "0.12.0"
+lazy val previousIterateeVersion = "0.13.0"
 
 val docMappingsApiDir = settingKey[String]("Subdirectory in site target directory for API docs")
 
