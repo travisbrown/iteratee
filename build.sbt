@@ -21,7 +21,7 @@ lazy val catsVersion = "1.0.0-MF"
 lazy val disciplineVersion = "0.8"
 lazy val monixVersion = "2.3.0"
 lazy val fs2Version = "0.9.7"
-lazy val fs2CatsVersion = "0.3.0"
+lazy val fs2CatsVersion = "0.4.0"
 
 lazy val scalaCheckVersion = "1.13.5"
 lazy val scalaTestVersion = "3.0.3"
@@ -168,7 +168,7 @@ lazy val twitter = project
   )
   .settings(allSettings ++ Defaults.itSettings)
   .settings(
-    libraryDependencies += "io.catbird" %% "catbird-util" % "0.16.0"
+    libraryDependencies += "io.catbird" %% "catbird-util" % "0.17.0"
   ).dependsOn(core, files, tests % "test,it")
 
 lazy val scalaz = project
