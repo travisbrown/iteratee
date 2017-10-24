@@ -2,7 +2,7 @@ import ReleaseTransformations._
 
 organization in ThisBuild := "io.iteratee"
 
-lazy val scalaVersions = Seq("2.10.6", "2.11.11", "2.12.2")
+lazy val scalaVersions = Seq("2.10.6", "2.11.11", "2.12.4")
 
 lazy val compilerOptions = Seq(
   "-deprecation",
@@ -181,7 +181,7 @@ lazy val scalaz = project
   )
   .settings(allSettings ++ Defaults.itSettings)
   .settings(
-    libraryDependencies += "org.scalaz" %% "scalaz-concurrent" % "7.2.14"
+    libraryDependencies += "org.scalaz" %% "scalaz-concurrent" % "7.2.16"
   ).dependsOn(core, files, tests % "test,it")
 
 lazy val monixBase = crossProject.in(file("monix"))
@@ -242,7 +242,7 @@ lazy val benchmark = project
   .settings(
     libraryDependencies ++= Seq(
       "org.scalatest" %% "scalatest" % scalaTestVersion % "test",
-      "org.scalaz" %% "scalaz-iteratee" % "7.2.14",
+      "org.scalaz" %% "scalaz-iteratee" % "7.2.16",
       "org.scalaz.stream" %% "scalaz-stream" % "0.8.6a",
       "org.typelevel" %% "cats-free" % catsVersion
     )
