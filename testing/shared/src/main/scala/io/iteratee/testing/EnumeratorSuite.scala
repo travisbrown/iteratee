@@ -1,9 +1,10 @@
-package io.iteratee.tests
+package io.iteratee.testing
 
 import cats.{ Eq, Eval, Monad }
 import cats.kernel.laws.GroupLaws
 import cats.laws.discipline.{ CartesianTests, MonadTests }
 import io.iteratee.{ EnumerateeModule, Enumerator, EnumeratorModule, IterateeModule, Module }
+import scala.Predef._
 
 abstract class EnumeratorSuite[F[_]: Monad] extends ModuleSuite[F] {
     this: Module[F] with EnumerateeModule[F] with EnumeratorModule[F] with IterateeModule[F] =>

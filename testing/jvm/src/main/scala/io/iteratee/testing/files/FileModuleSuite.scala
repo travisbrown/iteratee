@@ -1,11 +1,12 @@
-package io.iteratee.tests.files
+package io.iteratee.testing.files
 
 import cats.Monad
 import io.iteratee.{ EnumeratorModule, IterateeModule, Module }
 import io.iteratee.files.FileModule
-import io.iteratee.tests.ModuleSuite
+import io.iteratee.testing.ModuleSuite
 import java.io.{ File, FileInputStream, FileOutputStream }
 import org.scalacheck.Gen
+import scala.Predef._
 
 abstract class FileModuleSuite[F[_]: Monad] extends ModuleSuite[F] {
   this: Module[F] with EnumeratorModule[F] with IterateeModule[F] with FileModule[F] =>

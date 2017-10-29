@@ -1,7 +1,7 @@
 package io.iteratee.files
 
 import io.iteratee.{ Iteratee, Enumerator }
-import io.iteratee.tests.BaseSuite
+import io.iteratee.testing.BaseSuite
 import scala.util.{ Success, Try }
 import java.io.File
 

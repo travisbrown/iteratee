@@ -3,7 +3,8 @@ package io.iteratee.monix
 import cats.Eq
 import cats.laws.discipline.arbitrary.catsLawsCogenForThrowable
 import io.iteratee.monix.task._
-import io.iteratee.tests.{ EnumerateeSuite, EnumeratorSuite, IterateeErrorSuite, ModuleSuite, eqThrowable }
+import io.iteratee.testing.{ EnumerateeSuite, EnumeratorSuite, IterateeErrorSuite, ModuleSuite }
+import io.iteratee.testing.EqInstances.eqThrowable
 import monix.eval.Task
 import monix.execution.Scheduler.Implicits.global
 import scala.concurrent.Await

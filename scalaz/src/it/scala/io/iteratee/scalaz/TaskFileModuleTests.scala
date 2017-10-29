@@ -1,7 +1,7 @@
 package io.iteratee.scalaz
 
 import cats.Eq
-import io.iteratee.tests.files.FileModuleSuite
+import io.iteratee.testing.files.FileModuleSuite
 import scalaz.concurrent.Task
 
 class TaskFileModuleTests extends FileModuleSuite[Task] with TaskModule {

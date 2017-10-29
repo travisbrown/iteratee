@@ -4,7 +4,8 @@ import cats.Eq
 import cats.laws.discipline.arbitrary.catsLawsCogenForThrowable
 import fs2.Task
 import fs2.interop.cats._
-import io.iteratee.tests.{ EnumerateeSuite, EnumeratorSuite, IterateeErrorSuite, ModuleSuite, eqThrowable }
+import io.iteratee.testing.{ EnumerateeSuite, EnumeratorSuite, IterateeErrorSuite, ModuleSuite }
+import io.iteratee.testing.EqInstances.eqThrowable
 
 trait TaskSuite extends ModuleSuite[Task] with TaskModule {
   def monadName: String = "Task"

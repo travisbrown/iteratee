@@ -1,7 +1,8 @@
 package io.iteratee
 
 import cats.Eval
-import io.iteratee.tests.{ EvalSuite, EnumerateeSuite, StackSafeEnumeratorSuite, IterateeSuite }
+import io.iteratee.testing.{ EnumerateeSuite, IterateeSuite, StackSafeEnumeratorSuite }
+import io.iteratee.tests.EvalSuite
 
 class EvalEnumerateeTests extends EnumerateeSuite[Eval] with EvalSuite
 
