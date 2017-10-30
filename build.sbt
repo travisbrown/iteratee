@@ -1,4 +1,6 @@
 import ReleaseTransformations._
+import scala.xml.{ Elem, Node => XmlNode, NodeSeq => XmlNodeSeq }
+import scala.xml.transform.{ RewriteRule, RuleTransformer }
 
 organization in ThisBuild := "io.iteratee"
 
@@ -298,7 +300,20 @@ lazy val publishSettings = Seq(
         <url>https://twitter.com/travisbrown</url>
       </developer>
     </developers>
-  )
+  ),
+  pomPostProcess := { (node: XmlNode) =>
+    new RuleTransformer(
+      new RewriteRule {
+        private def isTestScope(elem: Elem): Boolean =
+          elem.label == "dependency" && elem.child.exists(child => child.label == "scope" && child.text == "test")
+
+        override def transform(node: XmlNode): XmlNodeSeq = node match {
+          case elem: Elem if isTestScope(elem) => Nil
+          case _ => node
+        }
+      }
+    ).transform(node).head
+  }
 )
 
 lazy val noPublishSettings = Seq(
