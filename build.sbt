@@ -2,7 +2,7 @@ import ReleaseTransformations._
 
 organization in ThisBuild := "io.iteratee"
 
-lazy val scalaVersions = Seq("2.10.6", "2.11.11", "2.12.2")
+lazy val scalaVersions = Seq("2.10.6", "2.11.11", "2.12.4")
 
 lazy val compilerOptions = Seq(
   "-deprecation",
@@ -168,7 +168,7 @@ lazy val twitter = project
   )
   .settings(allSettings ++ Defaults.itSettings)
   .settings(
-    libraryDependencies += "io.catbird" %% "catbird-util" % "0.17.0"
+    libraryDependencies += "io.catbird" %% "catbird-util" % "0.20.0"
   ).dependsOn(core, files, tests % "test,it")
 
 lazy val scalaz = project
