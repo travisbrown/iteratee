@@ -118,7 +118,8 @@ lazy val testingBase = crossProject.in(file("testing"))
       "org.scalatest" %%% "scalatest" % scalaTestVersion,
       "org.typelevel" %%% "cats-laws" % catsVersion,
       "org.typelevel" %%% "discipline" % disciplineVersion
-    )
+    ),
+    coverageExcludedPackages := "io\\.iteratee\\.testing\\..*"
   )
   .jsSettings(commonJsSettings: _*)
   .jvmConfigure(_.copy(id = "testing").dependsOn(files))
