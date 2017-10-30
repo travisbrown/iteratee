@@ -74,7 +74,7 @@ lazy val docSettings = Seq(
   ),
   git.remoteRepo := "git@github.com:travisbrown/iteratee.git",
   unidocProjectFilter in (ScalaUnidoc, unidoc) :=
-    inAnyProject -- inProjects(coreJS, benchmark, monixJS, fs2JS, testingJS, tests, testsJS, twitter)
+    inAnyProject -- inProjects(coreJS, monixJS, fs2JS, testingJS, tests, testsJS, twitter)
 )
 
 lazy val iteratee = project.in(file("."))
@@ -82,7 +82,7 @@ lazy val iteratee = project.in(file("."))
   .settings(allSettings)
   .settings(docSettings)
   .settings(noPublishSettings)
-  .aggregate(benchmark, core, coreJS, files, monix, monixJS, scalaz, fs2, testing, testingJS, tests, testsJS, twitter)
+  .aggregate(core, coreJS, files, monix, monixJS, scalaz, fs2, testing, testingJS, tests, testsJS, twitter)
   .dependsOn(core, scalaz)
 
 lazy val coreBase = crossProject.crossType(CrossType.Pure).in(file("core"))
@@ -249,26 +249,6 @@ lazy val fs2Base = crossProject.in(file("fs2"))
 lazy val fs2 = fs2Base.jvm
 lazy val fs2JS = fs2Base.js
 
-lazy val benchmark = project
-  .enablePlugins(CrossPerProjectPlugin)
-  .configs(IntegrationTest)
-  .settings(
-    crossScalaVersions := scalaVersions.tail,
-    moduleName := "iteratee-benchmark"
-  )
-  .settings(allSettings ++ Defaults.itSettings)
-  .settings(noPublishSettings)
-  .settings(
-    libraryDependencies ++= Seq(
-      "org.scalatest" %% "scalatest" % scalaTestVersion % "test",
-      "org.scalaz" %% "scalaz-iteratee" % "7.2.16",
-      "org.scalaz.stream" %% "scalaz-stream" % "0.8.6a",
-      "org.typelevel" %% "cats-free" % catsVersion
-    )
-  )
-  .enablePlugins(JmhPlugin)
-  .dependsOn(core, monix, scalaz, fs2, tests, twitter)
-
 lazy val publishSettings = Seq(
   releaseCrossBuild := true,
   releasePublishArtifactsAction := PgpKeys.publishSigned.value,
@@ -335,7 +315,6 @@ credentials ++= (
 ).toSeq
 
 val jvmProjects = Seq(
-  "benchmark",
   "core",
   "files",
   "monix",
@@ -354,7 +333,7 @@ val jsProjects = Seq(
 )
 
 addCommandAlias("testJVM", jvmProjects.map(";" + _ + "/test").mkString)
-addCommandAlias("validateJVM", ";testJVM;tests/it:test;benchmark/it:test;monix/it:test;scalaz/it:test;fs2/it:test;twitter/it:test;scalastyle;unidoc")
+addCommandAlias("validateJVM", ";testJVM;tests/it:test;monix/it:test;scalaz/it:test;fs2/it:test;twitter/it:test;scalastyle;unidoc")
 addCommandAlias("testJS", jsProjects.map(";" + _ + "/test").mkString)
 addCommandAlias("validateJS", ";testJS;scalastyle;unidoc")
 addCommandAlias("validate", ";validateJVM;validateJS")
