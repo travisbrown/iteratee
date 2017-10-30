@@ -1,9 +1,10 @@
-package io.iteratee.tests
+package io.iteratee.testing
 
 import cats.Monad
 import cats.instances.int._
 import io.iteratee.{ Iteratee, Enumeratee, Enumerator }
 import org.scalacheck.{ Arbitrary, Gen }
+import scala.Predef._
 
 trait ArbitraryInstances {
   implicit def arbitraryEnumerator[F[_]: Monad, A](implicit

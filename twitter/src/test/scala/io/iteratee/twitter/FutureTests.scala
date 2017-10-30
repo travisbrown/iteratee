@@ -5,7 +5,8 @@ import cats.laws.discipline.arbitrary.catsLawsCogenForThrowable
 import com.twitter.conversions.time._
 import com.twitter.util.Future
 import io.catbird.util.{ futureEqWithFailure, twitterFutureInstance }
-import io.iteratee.tests.{ EnumerateeSuite, IterateeErrorSuite, ModuleSuite, StackSafeEnumeratorSuite, eqThrowable }
+import io.iteratee.testing.{ EnumerateeSuite, IterateeErrorSuite, ModuleSuite, StackSafeEnumeratorSuite }
+import io.iteratee.testing.EqInstances.eqThrowable
 
 trait FutureSuite extends ModuleSuite[Future] with FutureModule {
   def monadName: String = "com.twitter.util.Future"

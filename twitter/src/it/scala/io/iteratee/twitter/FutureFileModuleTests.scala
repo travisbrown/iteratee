@@ -4,7 +4,7 @@ import cats.Eq
 import com.twitter.conversions.time._
 import com.twitter.util.Future
 import io.catbird.util.{ futureEqWithFailure, twitterFutureInstance }
-import io.iteratee.tests.files.FileModuleSuite
+import io.iteratee.testing.files.FileModuleSuite
 
 class FutureFileModuleTests extends FileModuleSuite[Future] with FutureModule {
   def monadName: String = "Future"

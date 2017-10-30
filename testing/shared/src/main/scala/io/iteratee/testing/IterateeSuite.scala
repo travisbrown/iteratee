@@ -1,4 +1,4 @@
-package io.iteratee.tests
+package io.iteratee.testing
 
 import cats.{ Eq, Eval, Monad, MonadError }
 import cats.data.{ EitherT, NonEmptyList }
@@ -13,6 +13,7 @@ import io.iteratee.{
 }
 import io.iteratee.internal.Step
 import org.scalacheck.{ Arbitrary, Cogen }
+import scala.Predef._
 
 abstract class IterateeSuite[F[_]: Monad] extends BaseIterateeSuite[F] {
   this: EnumerateeModule[F] with EnumeratorModule[F] with IterateeModule[F] with Module[F] =>

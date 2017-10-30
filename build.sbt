@@ -72,7 +72,7 @@ lazy val docSettings = Seq(
   ),
   git.remoteRepo := "git@github.com:travisbrown/iteratee.git",
   unidocProjectFilter in (ScalaUnidoc, unidoc) :=
-    inAnyProject -- inProjects(coreJS, benchmark, monixJS, fs2JS, tests, testsJS, twitter)
+    inAnyProject -- inProjects(coreJS, benchmark, monixJS, fs2JS, testingJS, tests, testsJS, twitter)
 )
 
 lazy val iteratee = project.in(file("."))
@@ -80,7 +80,7 @@ lazy val iteratee = project.in(file("."))
   .settings(allSettings)
   .settings(docSettings)
   .settings(noPublishSettings)
-  .aggregate(benchmark, core, coreJS, files, monix, monixJS, scalaz, fs2, tests, testsJS, twitter)
+  .aggregate(benchmark, core, coreJS, files, monix, monixJS, scalaz, fs2, testing, testingJS, tests, testsJS, twitter)
   .dependsOn(core, scalaz)
 
 lazy val coreBase = crossProject.crossType(CrossType.Pure).in(file("core"))
@@ -103,6 +103,31 @@ lazy val coreBase = crossProject.crossType(CrossType.Pure).in(file("core"))
 
 lazy val core = coreBase.jvm
 lazy val coreJS = coreBase.js
+
+lazy val testingBase = crossProject.in(file("testing"))
+  .enablePlugins(CrossPerProjectPlugin)
+  .settings(
+    moduleName := "iteratee-testing",
+    name := "testing",
+    crossScalaVersions := scalaVersions
+  )
+  .settings(allSettings: _*)
+  .settings(
+    libraryDependencies ++= Seq(
+      "org.scalacheck" %%% "scalacheck" % scalaCheckVersion,
+      "org.scalatest" %%% "scalatest" % scalaTestVersion,
+      "org.typelevel" %%% "cats-laws" % catsVersion,
+      "org.typelevel" %%% "discipline" % disciplineVersion
+    ),
+    coverageExcludedPackages := "io\\.iteratee\\.testing\\..*"
+  )
+  .jsSettings(commonJsSettings: _*)
+  .jvmConfigure(_.copy(id = "testing").dependsOn(files))
+  .jsConfigure(_.copy(id = "testingJS"))
+  .dependsOn(coreBase)
+
+lazy val testing = testingBase.jvm
+lazy val testingJS = testingBase.js
 
 lazy val testsBase = crossProject.in(file("tests"))
   .enablePlugins(CrossPerProjectPlugin)
@@ -128,22 +153,14 @@ lazy val testsBase = crossProject.in(file("tests"))
     parallelExecution in Test := true,
     testForkedParallel in Test := true,
     parallelExecution in IntegrationTest := true,
-    testForkedParallel in IntegrationTest := true
-  )
-  .settings(
-    coverageExcludedPackages := "io\\.iteratee\\.tests\\..*",
-    testOptions in Test ++= (
-      CrossVersion.partialVersion(scalaVersion.value) match {
-        case Some((2, 10)) => Seq(Tests.Argument("-l", "io.iteratee.tests.NoScala210Test"))
-        case _ => Nil
-      }
-    )
+    testForkedParallel in IntegrationTest := true,
+    coverageExcludedPackages := "io\\.iteratee\\.tests\\..*"
   )
   .jvmSettings(fork := false)
   .jsSettings(commonJsSettings: _*)
   .jvmConfigure(_.copy(id = "tests").dependsOn(files))
   .jsConfigure(_.copy(id = "testsJS"))
-  .dependsOn(coreBase)
+  .dependsOn(testingBase)
 
 lazy val tests = testsBase.jvm
 lazy val testsJS = testsBase.js
@@ -310,12 +327,14 @@ val jvmProjects = Seq(
   "scalaz",
   "fs2",
   "twitter",
+  "testing",
   "tests"
 )
 
 val jsProjects = Seq(
   "coreJS",
   "monixJS",
+  "testingJS",
   "testsJS"
 )
 

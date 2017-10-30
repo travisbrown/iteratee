@@ -1,9 +1,10 @@
-package io.iteratee.tests
+package io.iteratee.testing
 
 import cats.Monad
 import cats.laws.discipline.{ CategoryTests, ProfunctorTests }
 import io.iteratee.{ Enumeratee, EnumerateeModule, EnumeratorModule, Iteratee, IterateeModule, Module }
 import org.scalacheck.{ Arbitrary, Gen }
+import scala.Predef._
 
 abstract class EnumerateeSuite[F[_]: Monad] extends ModuleSuite[F] {
   this: Module[F] with EnumerateeModule[F] with EnumeratorModule[F] with IterateeModule[F] =>
@@ -150,11 +151,7 @@ abstract class EnumerateeSuite[F[_]: Monad] extends ModuleSuite[F] {
     assert(enumVector(v).through(dropWhileM(i => F.pure(i < n.toInt))).toVector === F.pure(v.lastOption.toVector))
   }
 
-  /**
-   * We skip this test on Scala 2.10 because of weird "Bad invokespecial instruction" exceptions
-   * that I wasn't able to reproduce in other contexts.
-   */
-  "collect" should "filter the stream using a partial function" taggedAs(NoScala210Test) in {
+  "collect" should "filter the stream using a partial function" in {
     forAll { (eav: EnumeratorAndValues[Int]) =>
       val pf: PartialFunction[Int, Int] = {
         case v if v % 2 == 0 => v + 1

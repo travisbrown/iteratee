@@ -2,7 +2,8 @@ package io.iteratee.scalaz
 
 import cats.Eq
 import cats.laws.discipline.arbitrary.catsLawsCogenForThrowable
-import io.iteratee.tests.{ EnumerateeSuite, EnumeratorSuite, IterateeErrorSuite, ModuleSuite, eqThrowable }
+import io.iteratee.testing.{ EnumerateeSuite, EnumeratorSuite, IterateeErrorSuite, ModuleSuite }
+import io.iteratee.testing.EqInstances.eqThrowable
 import scalaz.concurrent.Task
 
 trait TaskSuite extends ModuleSuite[Task] with TaskModule {

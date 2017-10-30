@@ -1,4 +1,4 @@
-package io.iteratee.tests
+package io.iteratee.testing
 
 import io.iteratee.{ Enumerator, EnumeratorModule, Iteratee, IterateeModule, Module }
 import org.scalacheck.{ Arbitrary, Gen }
