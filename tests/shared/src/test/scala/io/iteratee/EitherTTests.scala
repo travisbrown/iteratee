@@ -4,7 +4,9 @@ import cats.{ Eval, Id, MonadError }
 import cats.arrow.FunctionK
 import cats.data.EitherT
 import cats.laws.discipline.arbitrary.catsLawsCogenForThrowable
-import io.iteratee.tests.{ EnumerateeSuite, StackSafeEnumeratorSuite, IterateeErrorSuite, EitherTSuite, eqThrowable }
+import io.iteratee.testing.{ EnumerateeSuite, IterateeErrorSuite, StackSafeEnumeratorSuite }
+import io.iteratee.testing.EqInstances.eqThrowable
+import io.iteratee.tests.EitherTSuite
 import org.scalacheck.Arbitrary
 
 class EitherTEnumerateeTests extends EnumerateeSuite[({ type L[x] = EitherT[Eval, Throwable, x] })#L]

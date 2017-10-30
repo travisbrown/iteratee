@@ -2,7 +2,7 @@ package io.iteratee.monix
 
 import cats.Eq
 import io.iteratee.monix.task._
-import io.iteratee.tests.files.FileModuleSuite
+import io.iteratee.testing.files.FileModuleSuite
 import monix.eval.Task
 import monix.execution.Scheduler.Implicits.global
 import scala.concurrent.Await
