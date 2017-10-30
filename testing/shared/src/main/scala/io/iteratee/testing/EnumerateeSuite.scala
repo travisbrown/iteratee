@@ -151,11 +151,6 @@ abstract class EnumerateeSuite[F[_]: Monad] extends ModuleSuite[F] {
     assert(enumVector(v).through(dropWhileM(i => F.pure(i < n.toInt))).toVector === F.pure(v.lastOption.toVector))
   }
 
-  /**
-   * We skip this test on Scala 2.10 because of weird "Bad invokespecial instruction" exceptions
-   * that I wasn't able to reproduce in other contexts.
-   */
-  //"collect" should "filter the stream using a partial function" taggedAs(NoScala210Test) in {
   "collect" should "filter the stream using a partial function" in {
     forAll { (eav: EnumeratorAndValues[Int]) =>
       val pf: PartialFunction[Int, Int] = {

@@ -153,16 +153,8 @@ lazy val testsBase = crossProject.in(file("tests"))
     parallelExecution in Test := true,
     testForkedParallel in Test := true,
     parallelExecution in IntegrationTest := true,
-    testForkedParallel in IntegrationTest := true
-  )
-  .settings(
-    coverageExcludedPackages := "io\\.iteratee\\.tests\\..*",
-    testOptions in Test ++= (
-      CrossVersion.partialVersion(scalaVersion.value) match {
-        case Some((2, 10)) => Seq(Tests.Argument("-l", "io.iteratee.tests.NoScala210Test"))
-        case _ => Nil
-      }
-    )
+    testForkedParallel in IntegrationTest := true,
+    coverageExcludedPackages := "io\\.iteratee\\.tests\\..*"
   )
   .jvmSettings(fork := false)
   .jsSettings(commonJsSettings: _*)
