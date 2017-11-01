@@ -2,7 +2,7 @@ package io.iteratee.testing
 
 import cats.{ Eq, Eval, Monad, MonadError }
 import cats.data.{ EitherT, NonEmptyList }
-import cats.laws.discipline.{ CartesianTests, ContravariantTests, MonadTests, MonadErrorTests }
+import cats.laws.discipline.{ ContravariantTests, MonadTests, MonadErrorTests, SemigroupalTests }
 import io.iteratee.{
   EnumerateeModule,
   EnumeratorModule,
@@ -80,8 +80,8 @@ abstract class BaseIterateeSuite[F[_]: Monad] extends ModuleSuite[F] {
   type VectorIntProducingIteratee[E] = Iteratee[F, E, Vector[Int]]
   type VectorIntFoldingIteratee[A] = Iteratee[F, Vector[Int], A]
 
-  implicit val isomorphisms: CartesianTests.Isomorphisms[VectorIntFoldingIteratee] =
-    CartesianTests.Isomorphisms.invariant[VectorIntFoldingIteratee]
+  implicit val isomorphisms: SemigroupalTests.Isomorphisms[VectorIntFoldingIteratee] =
+    SemigroupalTests.Isomorphisms.invariant[VectorIntFoldingIteratee]
 
   def myDrain(acc: List[Int]): Iteratee[F, Int, List[Int]] = cont[Int, List[Int]](
     els => myDrain(acc ::: els.toList),

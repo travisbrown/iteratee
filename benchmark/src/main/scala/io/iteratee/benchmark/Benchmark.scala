@@ -1,10 +1,10 @@
 package io.iteratee.benchmark
 
 import cats.Id
+import cats.effect.IO
 import cats.instances.int._
 import com.twitter.util.{ Await => AwaitT, Duration => DurationT }
-import fs2.interop.cats.{ Instances => Fs2Instances }
-import fs2.{ Stream => StreamF, Task => TaskF }
+import fs2.{ Stream => StreamF }
 import io.catbird.util.Rerunnable
 import io.{ iteratee => i }
 import io.iteratee.monix.MonixInstances
@@ -21,7 +21,7 @@ import scalaz.std.anyVal.intInstance
 import scalaz.std.vector._
 import scalaz.stream.Process
 
-class IterateeBenchmark extends MonixInstances with ScalazInstances with Fs2Instances
+class IterateeBenchmark extends MonixInstances with ScalazInstances
 
 class InMemoryExampleData extends IterateeBenchmark {
   private[this] val count = 10000
@@ -29,24 +29,22 @@ class InMemoryExampleData extends IterateeBenchmark {
   val intsC: Vector[Int] = (0 until count).toVector
   val intsII: i.Enumerator[Id, Int] = i.Enumerator.enumVector[Id, Int](intsC)
   val intsIM: i.Enumerator[TaskM, Int] = i.Enumerator.enumVector[TaskM, Int](intsC)
-  val intsIF: i.Enumerator[TaskF, Int] = i.Enumerator.enumVector[TaskF, Int](intsC)
   val intsIT: i.Enumerator[Task, Int] = i.Enumerator.enumVector[Task, Int](intsC)
   val intsIR: i.Enumerator[Rerunnable, Int] = i.Enumerator.enumVector[Rerunnable, Int](intsC)
   val intsS: Process[Task, Int] = Process.emitAll(intsC)
   val intsZ: z.EnumeratorT[Int, Task] = z.EnumeratorT.enumIndexedSeq(intsC)
-  val intsF: fs2.Stream[fs2.Task, Int] = fs2.Stream.emits(intsC)
+  val intsF: StreamF[IO, Int] = StreamF.emits(intsC)
 }
 
 class StreamingExampleData extends IterateeBenchmark {
   val longStreamII: i.Enumerator[Id, Long] = i.Enumerator.iterate[Id, Long](0L)(_ + 1L)
   val longStreamIM: i.Enumerator[TaskM, Long] = i.Enumerator.StackUnsafe.iterate[TaskM, Long](0L)(_ + 1L)
-  val longStreamIF: i.Enumerator[TaskF, Long] = i.Enumerator.StackUnsafe.iterate[TaskF, Long](0L)(_ + 1L)
   val longStreamIT: i.Enumerator[Task, Long] = i.Enumerator.StackUnsafe.iterate[Task, Long](0L)(_ + 1L)
   val longStreamIR: i.Enumerator[Rerunnable, Long] = i.Enumerator.StackUnsafe.iterate[Rerunnable, Long](0L)(_ + 1L)
   val longStreamS: Process[Task, Long] = Process.iterate(0L)(_ + 1L)
   // scalaz-iteratee's iterate is broken.
   val longStreamZ: z.EnumeratorT[Long, Task] = z.EnumeratorT.repeat[Unit, Task](()).zipWithIndex.map(_._2)
-  val longStreamF: StreamF[TaskF, Long] = StreamF.iterate(0L)(_ + 1L)
+  val longStreamF: StreamF[IO, Long] = StreamF.iterate(0L)(_ + 1L)
   val longStreamC: Stream[Long] = Stream.iterate(0L)(_ + 1L)
 }
 
@@ -71,12 +69,6 @@ class InMemoryBenchmark extends InMemoryExampleData {
   )
 
   @Benchmark
-  def sumInts1IF: Int = Await.result(
-    intsIF.into(i.Iteratee.sum).unsafeRunAsyncFuture,
-    Duration.Inf
-  )
-
-  @Benchmark
   def sumInts2IT: Int = intsIT.into(i.Iteratee.sum).unsafePerformSync
 
   @Benchmark
@@ -89,7 +81,7 @@ class InMemoryBenchmark extends InMemoryExampleData {
   def sumInts5Z: Int = (z.IterateeT.sum[Int, Task] &= intsZ).run.unsafePerformSync
 
   @Benchmark
-  def sumInts6F: Int = intsF.sum.runLast.unsafeRun.get
+  def sumInts6F: Int = intsF.fold1(_ + _).runLast.unsafeRunSync.get
 
   @Benchmark
   def sumInts7C: Int = intsC.sum
@@ -118,12 +110,6 @@ class StreamingBenchmark extends StreamingExampleData {
   )
 
   @Benchmark
-  def takeLongs1IF: Vector[Long] = Await.result(
-    longStreamIF.into(i.Iteratee.take(count)).unsafeRunAsyncFuture,
-    Duration.Inf
-  )
-
-  @Benchmark
   def takeLongs2IT: Vector[Long] = longStreamIT.into(i.Iteratee.take(count)).unsafePerformSync
 
   @Benchmark
@@ -136,7 +122,7 @@ class StreamingBenchmark extends StreamingExampleData {
   def takeLongs5Z: Vector[Long] = (z.Iteratee.take[Long, Vector](count).up[Task] &= longStreamZ).run.unsafePerformSync
 
   @Benchmark
-  def takeLongs6F: Vector[Long] = longStreamF.take(count.toLong).runLog.unsafeRun
+  def takeLongs6F: Vector[Long] = longStreamF.take(count.toLong).runLog.unsafeRunSync
 
   @Benchmark
   def takeLongs7C: Vector[Long] = longStreamC.take(count).toVector

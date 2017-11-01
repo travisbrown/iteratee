@@ -1,8 +1,8 @@
 package io.iteratee.testing
 
 import cats.{ Eq, Eval, Monad }
-import cats.kernel.laws.GroupLaws
-import cats.laws.discipline.{ CartesianTests, MonadTests }
+import cats.kernel.laws.discipline.MonoidTests
+import cats.laws.discipline.{ MonadTests, SemigroupalTests }
 import io.iteratee.{ EnumerateeModule, Enumerator, EnumeratorModule, IterateeModule, Module }
 import scala.Predef._
 
@@ -11,10 +11,10 @@ abstract class EnumeratorSuite[F[_]: Monad] extends ModuleSuite[F] {
 
   type EnumeratorF[E] = Enumerator[F, E]
 
-  implicit val isomorphisms: CartesianTests.Isomorphisms[EnumeratorF] =
-    CartesianTests.Isomorphisms.invariant[EnumeratorF]
+  implicit val isomorphisms: SemigroupalTests.Isomorphisms[EnumeratorF] =
+    SemigroupalTests.Isomorphisms.invariant[EnumeratorF]
 
-  checkLaws(s"Enumerator[$monadName, Int]", GroupLaws[Enumerator[F, Int]].monoid)
+  checkLaws(s"Enumerator[$monadName, Int]", MonoidTests[Enumerator[F, Int]].monoid)
   checkLaws(s"Enumerator[$monadName, Int]", MonadTests[EnumeratorF].stackUnsafeMonad[Int, Int, Int])
 
   "liftToEnumerator" should "lift a value in a context into an enumerator" in forAll { (i: Int) =>
