@@ -1,7 +1,6 @@
 package io.iteratee
 
-import cats.{ Monad, MonadError }
-import cats.functor.Contravariant
+import cats.{ Contravariant, Monad, MonadError }
 import io.iteratee.internal.Step
 
 private[iteratee] trait IterateeInstances extends IterateeInstances0 {

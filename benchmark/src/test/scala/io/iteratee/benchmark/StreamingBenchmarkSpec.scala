@@ -15,10 +15,6 @@ class StreamingBenchmarkSpec extends FlatSpec {
     assert(benchmark.takeLongs1IM === taken)
   }
 
-  it should "correctly gather elements using io.iteratee.fs2" in {
-    assert(benchmark.takeLongs1IF === taken)
-  }
-
   it should "correctly gather elements using io.iteratee.scalaz" in {
     assert(benchmark.takeLongs2IT === taken)
   }

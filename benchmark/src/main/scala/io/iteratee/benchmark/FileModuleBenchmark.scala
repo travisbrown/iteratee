@@ -4,11 +4,8 @@ import cats.Monad
 import cats.free.Free
 import cats.instances.int._
 import com.twitter.util.{ Await => AwaitT, Duration => DurationT, Future => FutureT, Try => TryT }
-import fs2.interop.cats._
-import fs2.{ Task => TaskF }
 import io.catbird.util._
 import io.iteratee.{ Enumerator, Iteratee }
-import io.iteratee.{ fs2 => f }
 import io.iteratee.{ monix => m }
 import io.iteratee.{ twitter => t }
 import io.iteratee.{ scalaz => s }
@@ -40,7 +37,6 @@ class FileModuleBenchmark extends ScalazInstances {
   val linesTT: Enumerator[TryT, String] = t.try_.readLines(bartebly)
   val linesS: Enumerator[Task, String] = s.task.readLines(bartebly)
   val linesM: Enumerator[TaskM, String] = m.task.readLines(bartebly)
-  val linesF: Enumerator[TaskF, String] = f.task.readLines(bartebly)
   val linesTTF: Enumerator[Free[TryT, ?], String] = FreeTryModule.readLines(bartebly)
 
   def words[F[_]: Monad](line: String): Enumerator[F, String] = Enumerator.enumVector(line.split(" ").toVector)
@@ -63,7 +59,7 @@ class FileModuleBenchmark extends ScalazInstances {
   def avgWordLengthS: Double = linesS.flatMap(words[Task]).into(avgLen).unsafePerformSync
 
   @Benchmark
-  def avgWordLengthF: Double = {
+  def avgWordLengthM: Double = {
     import m.task._
 
     Await.result(
@@ -71,12 +67,6 @@ class FileModuleBenchmark extends ScalazInstances {
       Duration.Inf
     )
   }
-
-  @Benchmark
-  def avgWordLengthM: Double = Await.result(
-    linesF.flatMap(words[TaskF]).into(avgLen).unsafeRunAsyncFuture,
-    Duration.Inf
-  )
 
   @Benchmark
   def avgWordLengthTTF: Double = linesTTF.flatMap(words[Free[TryT, ?]]).into(avgLen[Free[TryT, ?]]).runTailRec.get

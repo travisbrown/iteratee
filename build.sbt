@@ -19,11 +19,10 @@ lazy val compilerOptions = Seq(
   "-Xfuture"
 )
 
-lazy val catsVersion = "1.0.0-MF"
+lazy val catsVersion = "1.0.0-RC1"
 lazy val disciplineVersion = "0.8"
 lazy val monixVersion = "2.3.0"
-lazy val fs2Version = "0.9.7"
-lazy val fs2CatsVersion = "0.4.0"
+lazy val fs2Version = "0.10.0-M8"
 
 lazy val scalaCheckVersion = "1.13.5"
 lazy val scalaTestVersion = "3.0.4"
@@ -74,7 +73,7 @@ lazy val docSettings = Seq(
   ),
   git.remoteRepo := "git@github.com:travisbrown/iteratee.git",
   unidocProjectFilter in (ScalaUnidoc, unidoc) :=
-    inAnyProject -- inProjects(coreJS, benchmark, monixJS, fs2JS, testingJS, tests, testsJS, twitter)
+    inAnyProject -- inProjects(coreJS, benchmark, monixJS, testingJS, tests, testsJS, twitter)
 )
 
 lazy val iteratee = project.in(file("."))
@@ -82,7 +81,7 @@ lazy val iteratee = project.in(file("."))
   .settings(allSettings)
   .settings(docSettings)
   .settings(noPublishSettings)
-  .aggregate(benchmark, core, coreJS, files, monix, monixJS, scalaz, fs2, testing, testingJS, tests, testsJS, twitter)
+  .aggregate(benchmark, core, coreJS, files, monix, monixJS, scalaz, testing, testingJS, tests, testsJS, twitter)
   .dependsOn(core, scalaz)
 
 lazy val coreBase = crossProject.crossType(CrossType.Pure).in(file("core"))
@@ -187,7 +186,7 @@ lazy val twitter = project
   )
   .settings(allSettings ++ Defaults.itSettings)
   .settings(
-    libraryDependencies += "io.catbird" %% "catbird-util" % "0.19.0"
+    libraryDependencies += "io.catbird" %% "catbird-util" % "0.20.0"
   ).dependsOn(core, files, tests % "test,it")
 
 lazy val scalaz = project
@@ -226,29 +225,6 @@ lazy val monixBase = crossProject.in(file("monix"))
 lazy val monix = monixBase.jvm
 lazy val monixJS = monixBase.js
 
-lazy val fs2Base = crossProject.in(file("fs2"))
-  .enablePlugins(CrossPerProjectPlugin)
-  .configs(IntegrationTest)
-  .settings(
-    crossScalaVersions := scalaVersions.tail,
-    moduleName := "iteratee-fs2"
-  )
-  .settings(allSettings: _*)
-  .settings(Defaults.itSettings: _*)
-  .settings(
-    libraryDependencies ++= Seq(
-      "co.fs2" %%% "fs2-core" % fs2Version,
-      "co.fs2" %%% "fs2-cats" % fs2CatsVersion
-    )
-  )
-  .jsSettings(commonJsSettings: _*)
-  .jvmConfigure(_.copy(id = "fs2").dependsOn(files))
-  .jsConfigure(_.copy(id = "fs2JS"))
-  .dependsOn(coreBase, testsBase % "test,it")
-
-lazy val fs2 = fs2Base.jvm
-lazy val fs2JS = fs2Base.js
-
 lazy val benchmark = project
   .enablePlugins(CrossPerProjectPlugin)
   .configs(IntegrationTest)
@@ -260,6 +236,7 @@ lazy val benchmark = project
   .settings(noPublishSettings)
   .settings(
     libraryDependencies ++= Seq(
+      "co.fs2" %% "fs2-core" % fs2Version,
       "org.scalatest" %% "scalatest" % scalaTestVersion % "test",
       "org.scalaz" %% "scalaz-iteratee" % "7.2.16",
       "org.scalaz.stream" %% "scalaz-stream" % "0.8.6a",
@@ -267,7 +244,7 @@ lazy val benchmark = project
     )
   )
   .enablePlugins(JmhPlugin)
-  .dependsOn(core, monix, scalaz, fs2, tests, twitter)
+  .dependsOn(core, monix, scalaz, tests, twitter)
 
 lazy val publishSettings = Seq(
   releaseCrossBuild := true,
@@ -340,7 +317,6 @@ val jvmProjects = Seq(
   "files",
   "monix",
   "scalaz",
-  "fs2",
   "twitter",
   "testing",
   "tests"
@@ -354,7 +330,7 @@ val jsProjects = Seq(
 )
 
 addCommandAlias("testJVM", jvmProjects.map(";" + _ + "/test").mkString)
-addCommandAlias("validateJVM", ";testJVM;tests/it:test;benchmark/it:test;monix/it:test;scalaz/it:test;fs2/it:test;twitter/it:test;scalastyle;unidoc")
+addCommandAlias("validateJVM", ";testJVM;tests/it:test;benchmark/it:test;monix/it:test;scalaz/it:test;twitter/it:test;scalastyle;unidoc")
 addCommandAlias("testJS", jsProjects.map(";" + _ + "/test").mkString)
 addCommandAlias("validateJS", ";testJS;scalastyle;unidoc")
 addCommandAlias("validate", ";validateJVM;validateJS")

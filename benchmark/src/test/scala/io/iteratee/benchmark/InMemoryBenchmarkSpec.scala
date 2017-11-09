@@ -14,10 +14,6 @@ class InMemoryBenchmarkSpec extends FlatSpec {
     assert(benchmark.sumInts1IM === sum)
   }
 
-  it should "correctly calculate the sum using io.iteratee.fs2" in {
-    assert(benchmark.sumInts1IF === sum)
-  }
-
   it should "correctly calculate the sum using io.iteratee.scalaz" in {
     assert(benchmark.sumInts2IT === sum)
   }

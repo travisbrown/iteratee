@@ -1,8 +1,7 @@
 package io.iteratee
 
 import cats.Monad
-import cats.arrow.Category
-import cats.functor.Profunctor
+import cats.arrow.{ Category, Profunctor }
 
 private[iteratee] trait EnumerateeInstances {
   implicit final def enumerateeInstance[F[_]](implicit F: Monad[F]):
