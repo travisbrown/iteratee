@@ -3,10 +3,16 @@ language: scala
 scala:
   - 2.10.6
   - 2.11.11
-  - 2.12.4
 
 jdk:
+  - openjdk7
+  - oraclejdk7
   - oraclejdk8
+
+matrix:
+  include:
+  - scala: 2.12.4
+    jdk: oraclejdk8
 
 cache:
   directories:
