@@ -27,9 +27,6 @@ sealed abstract class Step[F[_], E, A] extends Serializable {
 
   /**
    * Feed a chunk (possibly empty) to this [[Step]].
-   *
-   * If the chunk is empty, this method will return the [[Step]] itself in the
-   * context `F`.
    */
   def feed(chunk: Seq[E]): F[Step[F, E, A]]
 
@@ -99,9 +96,10 @@ final object Step { self =>
 
     final def isDone: Boolean = true
     final def run: F[A] = F.pure(value)
-    final def feed(chunk: Seq[E]): F[Step[F, E, A]] = F.pure(this)
-    final def feedEl(e: E): F[Step[F, E, A]] = F.pure(this)
-    final protected def feedNonEmpty(chunk: Seq[E]): F[Step[F, E, A]] = F.pure(this)
+    final def feed(chunk: Seq[E]): F[Step[F, E, A]] = F.pure(doneWithLeftovers(value, remaining ++ chunk))
+    final def feedEl(e: E): F[Step[F, E, A]] = F.pure(doneWithLeftovers(value, remaining :+ e))
+    final protected def feedNonEmpty(chunk: Seq[E]): F[Step[F, E, A]] =
+      F.pure(doneWithLeftovers(value, remaining ++ chunk))
 
     final def map[B](f: A => B): Step[F, E, B] = doneWithLeftovers(f(value), remaining)
     final def as[B](b: B): Step[F, E, B] = doneWithLeftovers(b, remaining)
