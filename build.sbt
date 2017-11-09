@@ -1,5 +1,4 @@
 import ReleaseTransformations._
-import org.scalajs.sbtplugin.cross.{ CrossProject, CrossType }
 import scala.xml.{ Elem, Node => XmlNode, NodeSeq => XmlNodeSeq }
 import scala.xml.transform.{ RewriteRule, RuleTransformer }
 
@@ -29,12 +28,6 @@ lazy val scalaCheckVersion = "1.13.5"
 lazy val scalaTestVersion = "3.0.4"
 
 lazy val previousIterateeVersion = "0.13.0"
-
-def crossModule(path: String, crossType: CrossType = CrossType.Full) = {
-  val id = path.split("-").reduce(_ + _.capitalize)
-
-  CrossProject(jvmId = id, jsId = id + "JS", file(path), crossType)
-}
 
 val docMappingsApiDir = settingKey[String]("Subdirectory in site target directory for API docs")
 
@@ -84,14 +77,15 @@ lazy val docSettings = Seq(
 )
 
 lazy val iteratee = project.in(file("."))
-  .enablePlugins(GhpagesPlugin, ScalaUnidocPlugin)
+  .enablePlugins(CrossPerProjectPlugin, GhpagesPlugin, ScalaUnidocPlugin)
   .settings(allSettings)
   .settings(docSettings)
   .settings(noPublishSettings)
   .aggregate(benchmark, core, coreJS, files, monix, monixJS, scalaz, testing, testingJS, tests, testsJS, twitter)
   .dependsOn(core, scalaz)
 
-lazy val coreBase = crossModule("core", CrossType.Pure)
+lazy val coreBase = crossProject.crossType(CrossType.Pure).in(file("core"))
+  .enablePlugins(CrossPerProjectPlugin)
   .settings(
     moduleName := "iteratee-core",
     name := "core",
@@ -105,11 +99,14 @@ lazy val coreBase = crossModule("core", CrossType.Pure)
     mimaPreviousArtifacts := Set("io.iteratee" %% "iteratee-core" % previousIterateeVersion)
   )
   .jsSettings(commonJsSettings: _*)
+  .jvmConfigure(_.copy(id = "core"))
+  .jsConfigure(_.copy(id = "coreJS"))
 
 lazy val core = coreBase.jvm
 lazy val coreJS = coreBase.js
 
-lazy val testingBase = crossModule("testing")
+lazy val testingBase = crossProject.in(file("testing"))
+  .enablePlugins(CrossPerProjectPlugin)
   .settings(
     moduleName := "iteratee-testing",
     name := "testing",
@@ -126,13 +123,15 @@ lazy val testingBase = crossModule("testing")
     coverageExcludedPackages := "io\\.iteratee\\.testing\\..*"
   )
   .jsSettings(commonJsSettings: _*)
-  .jvmConfigure(_.dependsOn(files))
+  .jvmConfigure(_.copy(id = "testing").dependsOn(files))
+  .jsConfigure(_.copy(id = "testingJS"))
   .dependsOn(coreBase)
 
 lazy val testing = testingBase.jvm
 lazy val testingJS = testingBase.js
 
-lazy val testsBase = crossModule("tests")
+lazy val testsBase = crossProject.in(file("tests"))
+  .enablePlugins(CrossPerProjectPlugin)
   .configs(IntegrationTest)
   .settings(
     moduleName := "iteratee-tests",
@@ -160,13 +159,15 @@ lazy val testsBase = crossModule("tests")
   )
   .jvmSettings(fork := false)
   .jsSettings(commonJsSettings: _*)
-  .jvmConfigure(_.dependsOn(files))
+  .jvmConfigure(_.copy(id = "tests").dependsOn(files))
+  .jsConfigure(_.copy(id = "testsJS"))
   .dependsOn(testingBase)
 
 lazy val tests = testsBase.jvm
 lazy val testsJS = testsBase.js
 
 lazy val files = project
+  .enablePlugins(CrossPerProjectPlugin)
   .settings(
     moduleName := "iteratee-files",
     crossScalaVersions := scalaVersions,
@@ -176,6 +177,7 @@ lazy val files = project
   .dependsOn(core)
 
 lazy val twitter = project
+  .enablePlugins(CrossPerProjectPlugin)
   .configs(IntegrationTest)
   .settings(
     crossScalaVersions := scalaVersions.tail,
@@ -188,6 +190,7 @@ lazy val twitter = project
   ).dependsOn(core, files, tests % "test,it")
 
 lazy val scalaz = project
+  .enablePlugins(CrossPerProjectPlugin)
   .configs(IntegrationTest)
   .settings(
     moduleName := "iteratee-scalaz",
@@ -199,7 +202,8 @@ lazy val scalaz = project
     libraryDependencies += "org.scalaz" %% "scalaz-concurrent" % "7.2.16"
   ).dependsOn(core, files, tests % "test,it")
 
-lazy val monixBase = crossModule("monix")
+lazy val monixBase = crossProject.in(file("monix"))
+  .enablePlugins(CrossPerProjectPlugin)
   .configs(IntegrationTest)
   .settings(
     moduleName := "iteratee-monix",
@@ -214,13 +218,15 @@ lazy val monixBase = crossModule("monix")
     mimaPreviousArtifacts := Set("io.iteratee" %% "iteratee-monix" % previousIterateeVersion)
   )
   .jsSettings(commonJsSettings: _*)
-  .jvmConfigure(_.dependsOn(files))
+  .jvmConfigure(_.copy(id = "monix").dependsOn(files))
+  .jsConfigure(_.copy(id = "monixJS"))
   .dependsOn(coreBase, testsBase % "test,it")
 
 lazy val monix = monixBase.jvm
 lazy val monixJS = monixBase.js
 
 lazy val benchmark = project
+  .enablePlugins(CrossPerProjectPlugin)
   .configs(IntegrationTest)
   .settings(
     crossScalaVersions := scalaVersions.tail,
@@ -288,8 +294,8 @@ lazy val publishSettings = Seq(
 )
 
 lazy val noPublishSettings = Seq(
-  publish := {},
-  publishLocal := {},
+  publish := (),
+  publishLocal := (),
   publishArtifact := false
 )
 
