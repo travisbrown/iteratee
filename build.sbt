@@ -94,8 +94,7 @@ lazy val iteratee = project.in(file("."))
 lazy val coreBase = crossModule("core", CrossType.Pure)
   .settings(
     moduleName := "iteratee-core",
-    name := "core",
-    crossScalaVersions := scalaVersions
+    name := "core"
   )
   .settings(allSettings: _*)
   .settings(
@@ -112,8 +111,7 @@ lazy val coreJS = coreBase.js
 lazy val testingBase = crossModule("testing")
   .settings(
     moduleName := "iteratee-testing",
-    name := "testing",
-    crossScalaVersions := scalaVersions
+    name := "testing"
   )
   .settings(allSettings: _*)
   .settings(
@@ -136,8 +134,7 @@ lazy val testsBase = crossModule("tests")
   .configs(IntegrationTest)
   .settings(
     moduleName := "iteratee-tests",
-    name := "tests",
-    crossScalaVersions := scalaVersions
+    name := "tests"
   )
   .settings(allSettings: _*)
   .settings(noPublishSettings: _*)
@@ -169,7 +166,6 @@ lazy val testsJS = testsBase.js
 lazy val files = project
   .settings(
     moduleName := "iteratee-files",
-    crossScalaVersions := scalaVersions,
     mimaPreviousArtifacts := Set("io.iteratee" %% "iteratee-files" % previousIterateeVersion)
   )
   .settings(allSettings)
@@ -191,7 +187,6 @@ lazy val scalaz = project
   .configs(IntegrationTest)
   .settings(
     moduleName := "iteratee-scalaz",
-    crossScalaVersions := scalaVersions,
     mimaPreviousArtifacts := Set("io.iteratee" %% "iteratee-scalaz" % previousIterateeVersion)
   )
   .settings(allSettings ++ Defaults.itSettings)
@@ -203,7 +198,6 @@ lazy val monixBase = crossModule("monix")
   .configs(IntegrationTest)
   .settings(
     moduleName := "iteratee-monix",
-    crossScalaVersions := scalaVersions
   )
   .settings(allSettings: _*)
   .settings(Defaults.itSettings: _*)
