@@ -2,10 +2,10 @@ package io.iteratee.benchmark
 
 import cats.{ Monad, MonadError }
 import cats.free.Free
-import com.twitter.util.Try
-import io.catbird.util.twitterTryInstance
+import cats.instances.try_._
 import io.iteratee.{ EnumerateeModule, EnumeratorErrorModule, IterateeErrorModule, Module }
 import io.iteratee.files.SuspendableFileModule
+import scala.util.Try
 
 object FreeTryModule extends Module[Free[Try, ?]]
     with EnumerateeModule[Free[Try, ?]]

@@ -3,9 +3,7 @@ package io.iteratee.benchmark
 import cats.Id
 import cats.effect.IO
 import cats.instances.int._
-import com.twitter.util.{ Await => AwaitT, Duration => DurationT }
 import fs2.{ Stream => StreamF }
-import io.catbird.util.Rerunnable
 import io.{ iteratee => i }
 import io.iteratee.monix.MonixInstances
 import io.iteratee.scalaz.ScalazInstances
@@ -30,7 +28,6 @@ class InMemoryExampleData extends IterateeBenchmark {
   val intsII: i.Enumerator[Id, Int] = i.Enumerator.enumVector[Id, Int](intsC)
   val intsIM: i.Enumerator[TaskM, Int] = i.Enumerator.enumVector[TaskM, Int](intsC)
   val intsIT: i.Enumerator[Task, Int] = i.Enumerator.enumVector[Task, Int](intsC)
-  val intsIR: i.Enumerator[Rerunnable, Int] = i.Enumerator.enumVector[Rerunnable, Int](intsC)
   val intsS: Process[Task, Int] = Process.emitAll(intsC)
   val intsZ: z.EnumeratorT[Int, Task] = z.EnumeratorT.enumIndexedSeq(intsC)
   val intsF: StreamF[IO, Int] = StreamF.emits(intsC)
@@ -40,7 +37,6 @@ class StreamingExampleData extends IterateeBenchmark {
   val longStreamII: i.Enumerator[Id, Long] = i.Enumerator.iterate[Id, Long](0L)(_ + 1L)
   val longStreamIM: i.Enumerator[TaskM, Long] = i.Enumerator.StackUnsafe.iterate[TaskM, Long](0L)(_ + 1L)
   val longStreamIT: i.Enumerator[Task, Long] = i.Enumerator.StackUnsafe.iterate[Task, Long](0L)(_ + 1L)
-  val longStreamIR: i.Enumerator[Rerunnable, Long] = i.Enumerator.StackUnsafe.iterate[Rerunnable, Long](0L)(_ + 1L)
   val longStreamS: Process[Task, Long] = Process.iterate(0L)(_ + 1L)
   // scalaz-iteratee's iterate is broken.
   val longStreamZ: z.EnumeratorT[Long, Task] = z.EnumeratorT.repeat[Unit, Task](()).zipWithIndex.map(_._2)
@@ -72,19 +68,16 @@ class InMemoryBenchmark extends InMemoryExampleData {
   def sumInts2IT: Int = intsIT.into(i.Iteratee.sum).unsafePerformSync
 
   @Benchmark
-  def sumInts3IR: Int = AwaitT.result(intsIR.into(i.Iteratee.sum).run, DurationT.Top)
+  def sumInts3S: Int = intsS.sum.runLastOr(sys.error("Impossible")).unsafePerformSync
 
   @Benchmark
-  def sumInts4S: Int = intsS.sum.runLastOr(sys.error("Impossible")).unsafePerformSync
+  def sumInts4Z: Int = (z.IterateeT.sum[Int, Task] &= intsZ).run.unsafePerformSync
 
   @Benchmark
-  def sumInts5Z: Int = (z.IterateeT.sum[Int, Task] &= intsZ).run.unsafePerformSync
+  def sumInts5F: Int = intsF.fold1(_ + _).runLast.unsafeRunSync.get
 
   @Benchmark
-  def sumInts6F: Int = intsF.fold1(_ + _).runLast.unsafeRunSync.get
-
-  @Benchmark
-  def sumInts7C: Int = intsC.sum
+  def sumInts6C: Int = intsC.sum
 }
 
 /**
@@ -113,17 +106,14 @@ class StreamingBenchmark extends StreamingExampleData {
   def takeLongs2IT: Vector[Long] = longStreamIT.into(i.Iteratee.take(count)).unsafePerformSync
 
   @Benchmark
-  def takeLongs3IR: Vector[Long] = AwaitT.result(longStreamIR.into(i.Iteratee.take(count)).run, DurationT.Top)
+  def takeLongs3S: Vector[Long] = longStreamS.take(count).runLog.unsafePerformSync
 
   @Benchmark
-  def takeLongs4S: Vector[Long] = longStreamS.take(count).runLog.unsafePerformSync
+  def takeLongs4Z: Vector[Long] = (z.Iteratee.take[Long, Vector](count).up[Task] &= longStreamZ).run.unsafePerformSync
 
   @Benchmark
-  def takeLongs5Z: Vector[Long] = (z.Iteratee.take[Long, Vector](count).up[Task] &= longStreamZ).run.unsafePerformSync
+  def takeLongs5F: Vector[Long] = longStreamF.take(count.toLong).runLog.unsafeRunSync
 
   @Benchmark
-  def takeLongs6F: Vector[Long] = longStreamF.take(count.toLong).runLog.unsafeRunSync
-
-  @Benchmark
-  def takeLongs7C: Vector[Long] = longStreamC.take(count).toVector
+  def takeLongs6C: Vector[Long] = longStreamC.take(count).toVector
 }
