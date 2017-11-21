@@ -5,8 +5,6 @@ import scala.xml.transform.{ RewriteRule, RuleTransformer }
 
 organization in ThisBuild := "io.iteratee"
 
-lazy val scalaVersions = Seq("2.10.6", "2.11.11", "2.12.4")
-
 lazy val compilerOptions = Seq(
   "-deprecation",
   "-encoding", "UTF-8",
@@ -28,7 +26,7 @@ lazy val fs2Version = "0.10.0-M8"
 lazy val scalaCheckVersion = "1.13.5"
 lazy val scalaTestVersion = "3.0.4"
 
-lazy val previousIterateeVersion = "0.13.0"
+lazy val previousIterateeVersion = "0.15.0"
 
 def crossModule(path: String, crossType: CrossType = CrossType.Full) = {
   val id = path.split("-").reduce(_ + _.capitalize)
@@ -39,7 +37,6 @@ def crossModule(path: String, crossType: CrossType = CrossType.Full) = {
 val docMappingsApiDir = settingKey[String]("Subdirectory in site target directory for API docs")
 
 lazy val baseSettings = Seq(
-  scalaVersion := "2.11.11",
   scalacOptions ++= (compilerOptions :+ "-Yno-predef") ++ (
     CrossVersion.partialVersion(scalaVersion.value) match {
       case Some((2, p)) if p >= 11 => Seq("-Ywarn-unused-import")
@@ -95,7 +92,6 @@ lazy val coreBase = crossModule("core", CrossType.Pure)
   .settings(
     moduleName := "iteratee-core",
     name := "core",
-    crossScalaVersions := scalaVersions
   )
   .settings(allSettings: _*)
   .settings(
@@ -112,8 +108,7 @@ lazy val coreJS = coreBase.js
 lazy val testingBase = crossModule("testing")
   .settings(
     moduleName := "iteratee-testing",
-    name := "testing",
-    crossScalaVersions := scalaVersions
+    name := "testing"
   )
   .settings(allSettings: _*)
   .settings(
@@ -137,7 +132,6 @@ lazy val testsBase = crossModule("tests")
   .settings(
     moduleName := "iteratee-tests",
     name := "tests",
-    crossScalaVersions := scalaVersions
   )
   .settings(allSettings: _*)
   .settings(noPublishSettings: _*)
@@ -169,7 +163,6 @@ lazy val testsJS = testsBase.js
 lazy val files = project
   .settings(
     moduleName := "iteratee-files",
-    crossScalaVersions := scalaVersions,
     mimaPreviousArtifacts := Set("io.iteratee" %% "iteratee-files" % previousIterateeVersion)
   )
   .settings(allSettings)
@@ -179,7 +172,6 @@ lazy val scalaz = project
   .configs(IntegrationTest)
   .settings(
     moduleName := "iteratee-scalaz",
-    crossScalaVersions := scalaVersions,
     mimaPreviousArtifacts := Set("io.iteratee" %% "iteratee-scalaz" % previousIterateeVersion)
   )
   .settings(allSettings ++ Defaults.itSettings)
@@ -190,8 +182,7 @@ lazy val scalaz = project
 lazy val monixBase = crossModule("monix")
   .configs(IntegrationTest)
   .settings(
-    moduleName := "iteratee-monix",
-    crossScalaVersions := scalaVersions
+    moduleName := "iteratee-monix"
   )
   .settings(allSettings: _*)
   .settings(Defaults.itSettings: _*)
@@ -211,7 +202,6 @@ lazy val monixJS = monixBase.js
 lazy val benchmark = project
   .configs(IntegrationTest)
   .settings(
-    crossScalaVersions := scalaVersions.tail,
     moduleName := "iteratee-benchmark"
   )
   .settings(allSettings ++ Defaults.itSettings)
