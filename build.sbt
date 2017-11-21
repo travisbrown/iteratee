@@ -80,7 +80,7 @@ lazy val docSettings = Seq(
   ),
   git.remoteRepo := "git@github.com:travisbrown/iteratee.git",
   unidocProjectFilter in (ScalaUnidoc, unidoc) :=
-    inAnyProject -- inProjects(coreJS, benchmark, monixJS, testingJS, tests, testsJS, twitter)
+    inAnyProject -- inProjects(coreJS, benchmark, monixJS, testingJS, tests, testsJS)
 )
 
 lazy val iteratee = project.in(file("."))
@@ -88,7 +88,7 @@ lazy val iteratee = project.in(file("."))
   .settings(allSettings)
   .settings(docSettings)
   .settings(noPublishSettings)
-  .aggregate(benchmark, core, coreJS, files, monix, monixJS, scalaz, testing, testingJS, tests, testsJS, twitter)
+  .aggregate(benchmark, core, coreJS, files, monix, monixJS, scalaz, testing, testingJS, tests, testsJS)
   .dependsOn(core, scalaz)
 
 lazy val coreBase = crossModule("core", CrossType.Pure)
@@ -175,18 +175,6 @@ lazy val files = project
   .settings(allSettings)
   .dependsOn(core)
 
-lazy val twitter = project
-  .configs(IntegrationTest)
-  .settings(
-    crossScalaVersions := scalaVersions.tail,
-    moduleName := "iteratee-twitter",
-    mimaPreviousArtifacts := Set("io.iteratee" %% "iteratee-twitter" % previousIterateeVersion)
-  )
-  .settings(allSettings ++ Defaults.itSettings)
-  .settings(
-    libraryDependencies += "io.catbird" %% "catbird-util" % "0.20.0"
-  ).dependsOn(core, files, tests % "test,it")
-
 lazy val scalaz = project
   .configs(IntegrationTest)
   .settings(
@@ -238,7 +226,7 @@ lazy val benchmark = project
     )
   )
   .enablePlugins(JmhPlugin)
-  .dependsOn(core, monix, scalaz, tests, twitter)
+  .dependsOn(core, monix, scalaz, tests)
 
 lazy val publishSettings = Seq(
   releaseCrossBuild := true,
@@ -311,7 +299,6 @@ val jvmProjects = Seq(
   "files",
   "monix",
   "scalaz",
-  "twitter",
   "testing",
   "tests"
 )
@@ -324,7 +311,7 @@ val jsProjects = Seq(
 )
 
 addCommandAlias("testJVM", jvmProjects.map(";" + _ + "/test").mkString)
-addCommandAlias("validateJVM", ";testJVM;tests/it:test;benchmark/it:test;monix/it:test;scalaz/it:test;twitter/it:test;scalastyle;unidoc")
+addCommandAlias("validateJVM", ";testJVM;tests/it:test;benchmark/it:test;monix/it:test;scalaz/it:test;scalastyle;unidoc")
 addCommandAlias("testJS", jsProjects.map(";" + _ + "/test").mkString)
 addCommandAlias("validateJS", ";testJS;scalastyle;unidoc")
 addCommandAlias("validate", ";validateJVM;validateJS")

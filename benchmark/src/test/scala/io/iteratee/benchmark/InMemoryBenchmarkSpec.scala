@@ -18,23 +18,19 @@ class InMemoryBenchmarkSpec extends FlatSpec {
     assert(benchmark.sumInts2IT === sum)
   }
 
-  it should "correctly calculate the sum using io.iteratee.twitter" in {
-    assert(benchmark.sumInts3IR === sum)
-  }
-
   it should "correctly calculate the sum using scalaz-stream" in {
-    assert(benchmark.sumInts4S === sum)
+    assert(benchmark.sumInts3S === sum)
   }
 
   it should "correctly calculate the sum using scalaz-iteratee" in {
-    assert(benchmark.sumInts5Z === sum)
+    assert(benchmark.sumInts4Z === sum)
   }
 
   it should "correctly calculate the sum using fs2" in {
-    assert(benchmark.sumInts6F === sum)
+    assert(benchmark.sumInts5F === sum)
   }
 
   it should "correctly calculate the sum using the collections library" in {
-    assert(benchmark.sumInts7C === sum)
+    assert(benchmark.sumInts6C === sum)
   }
 }
