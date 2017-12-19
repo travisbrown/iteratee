@@ -18,10 +18,10 @@ lazy val compilerOptions = Seq(
   "-Xfuture"
 )
 
-lazy val catsVersion = "1.0.0-RC1"
+lazy val catsVersion = "1.0.0-RC2"
 lazy val disciplineVersion = "0.8"
-lazy val monixVersion = "2.3.0"
-lazy val fs2Version = "0.10.0-M8"
+lazy val monixVersion = "2.3.2"
+lazy val fs2Version = "0.10.0-M9"
 
 lazy val scalaCheckVersion = "1.13.5"
 lazy val scalaTestVersion = "3.0.4"
@@ -57,7 +57,7 @@ lazy val baseSettings = Seq(
     }
   ),
   (scalastyleSources in Compile) ++= (sourceDirectories in Compile).value,
-  addCompilerPlugin("org.spire-math" % "kind-projector" % "0.9.4" cross CrossVersion.binary)
+  addCompilerPlugin("org.spire-math" % "kind-projector" % "0.9.5" cross CrossVersion.binary)
 )
 
 lazy val allSettings = baseSettings ++ publishSettings
