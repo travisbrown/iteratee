@@ -61,7 +61,7 @@ abstract class IterateeErrorSuite[F[_], T: Arbitrary: Eq: Cogen](implicit
   "ensureEval" should "be executed when the iteratee is done" in forAll { (eav: EnumeratorAndValues[Int]) =>
     var done = false
 
-    val iteratee = consume[Int].ensureEval(Eval.always(F.pure(done = true)))
+    val iteratee = consume[Int].ensureEval(Eval.always(F.pure { done = true }))
 
     assert(!done)
     assert(eav.resultWithLeftovers(iteratee) === F.pure((eav.values, Vector.empty)))
