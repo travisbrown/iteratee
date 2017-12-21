@@ -21,7 +21,7 @@ lazy val compilerOptions = Seq(
 lazy val catsVersion = "1.0.0-RC2"
 lazy val disciplineVersion = "0.8"
 lazy val monixVersion = "2.3.2"
-lazy val fs2Version = "0.10.0-M9"
+lazy val fs2Version = "0.10.0-M10"
 
 lazy val scalaCheckVersion = "1.13.5"
 lazy val scalaTestVersion = "3.0.4"
@@ -176,7 +176,7 @@ lazy val scalaz = project
   )
   .settings(allSettings ++ Defaults.itSettings)
   .settings(
-    libraryDependencies += "org.scalaz" %% "scalaz-concurrent" % "7.2.16"
+    libraryDependencies += "org.scalaz" %% "scalaz-concurrent" % "7.2.17"
   ).dependsOn(core, files, tests % "test,it")
 
 lazy val monixBase = crossModule("monix")
