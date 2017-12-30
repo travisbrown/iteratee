@@ -18,7 +18,7 @@ lazy val compilerOptions = Seq(
   "-Xfuture"
 )
 
-lazy val catsVersion = "1.0.0-RC2"
+lazy val catsVersion = "1.0.0"
 lazy val disciplineVersion = "0.8"
 lazy val monixVersion = "2.3.2"
 lazy val fs2Version = "0.10.0-M10"
