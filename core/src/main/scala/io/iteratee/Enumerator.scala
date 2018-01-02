@@ -17,7 +17,7 @@ abstract class Enumerator[F[_], E] extends Serializable { self =>
   final def through[I](enumeratee: Enumeratee[F, E, I])(implicit M: FlatMap[F]): Enumerator[F, I] =
     enumeratee.wrap(this)
 
-  final def intoStep[A](s: Step[F, E, A])(implicit F: FlatMap[F]): F[A] = F.flatMap(this(s))(_.run)
+  final def intoStep[A](s: Step[F, E, A])(implicit F: FlatMap[F]): F[A] = F.flatMap(self(s))(_.run)
 
   final def into[A](iteratee: Iteratee[F, E, A])(implicit F: FlatMap[F]): F[A] = F.flatMap(iteratee.state)(intoStep)
 

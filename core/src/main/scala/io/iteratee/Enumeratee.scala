@@ -251,7 +251,7 @@ final object Enumeratee extends EnumerateeInstances {
         } else {
           F.pure(loop(step))
         }
-        final protected def feedNonEmpty(chunk: Seq[O]):F[Step[F, O, Step[F, I, A]]] = {
+        final protected def feedNonEmpty(chunk: Seq[O]): F[Step[F, O, Step[F, I, A]]] = {
           val collected = chunk.collect(pf)
 
           if (collected.isEmpty) {
