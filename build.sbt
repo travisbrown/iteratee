@@ -20,13 +20,13 @@ lazy val compilerOptions = Seq(
 
 lazy val catsVersion = "1.0.1"
 lazy val disciplineVersion = "0.8"
-lazy val monixVersion = "2.3.2"
-lazy val fs2Version = "0.10.0-M10"
+lazy val monixVersion = "3.0.0-M3"
+lazy val fs2Version = "0.10.0-RC1"
 
 lazy val scalaCheckVersion = "1.13.5"
 lazy val scalaTestVersion = "3.0.4"
 
-lazy val previousIterateeVersion = "0.15.0"
+lazy val previousIterateeVersion = "0.17.0"
 
 def crossModule(path: String, crossType: CrossType = CrossType.Full) = {
   val id = path.split("-").reduce(_ + _.capitalize)
