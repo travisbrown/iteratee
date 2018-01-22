@@ -20,7 +20,7 @@ lazy val compilerOptions = Seq(
 
 lazy val catsVersion = "1.0.1"
 lazy val disciplineVersion = "0.8"
-lazy val monixVersion = "2.3.2"
+lazy val monixVersion = "2.3.3"
 lazy val scalazVersion = "7.2.18"
 lazy val scalazStreamVersion = "0.8.6a"
 lazy val fs2Version = "0.10.0-M10"
