@@ -5,7 +5,7 @@ import scala.xml.transform.{ RewriteRule, RuleTransformer }
 
 organization in ThisBuild := "io.iteratee"
 
-lazy val compilerOptions = Seq(
+val compilerOptions = Seq(
   "-deprecation",
   "-encoding", "UTF-8",
   "-feature",
@@ -18,17 +18,17 @@ lazy val compilerOptions = Seq(
   "-Xfuture"
 )
 
-lazy val catsVersion = "1.0.1"
-lazy val disciplineVersion = "0.8"
-lazy val monixVersion = "2.3.3"
-lazy val scalazVersion = "7.2.18"
-lazy val scalazStreamVersion = "0.8.6a"
-lazy val fs2Version = "0.10.0-M10"
+val catsVersion = "1.0.1"
+val disciplineVersion = "0.8"
+val monixVersion = "2.3.3"
+val scalazVersion = "7.2.19"
+val scalazStreamVersion = "0.8.6a"
+val fs2Version = "0.10.1"
 
-lazy val scalaCheckVersion = "1.13.5"
-lazy val scalaTestVersion = "3.0.4"
+val scalaCheckVersion = "1.13.5"
+val scalaTestVersion = "3.0.5"
 
-lazy val previousIterateeVersion = "0.15.0"
+lazy val previousIterateeVersion = "0.17.0"
 
 def crossModule(path: String, crossType: CrossType = CrossType.Full) = {
   val id = path.split("-").reduce(_ + _.capitalize)
@@ -59,7 +59,7 @@ lazy val baseSettings = Seq(
     }
   ),
   (scalastyleSources in Compile) ++= (sourceDirectories in Compile).value,
-  addCompilerPlugin("org.spire-math" % "kind-projector" % "0.9.5" cross CrossVersion.binary)
+  addCompilerPlugin("org.spire-math" % "kind-projector" % "0.9.6" cross CrossVersion.binary)
 )
 
 lazy val allSettings = baseSettings ++ publishSettings
