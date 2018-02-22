@@ -23,7 +23,7 @@ val disciplineVersion = "0.8"
 val monixVersion = "2.3.3"
 val scalazVersion = "7.2.19"
 val scalazStreamVersion = "0.8.6a"
-val fs2Version = "0.10.1"
+val fs2Version = "0.10.2"
 
 val scalaCheckVersion = "1.13.5"
 val scalaTestVersion = "3.0.5"
