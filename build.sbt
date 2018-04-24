@@ -18,12 +18,12 @@ val compilerOptions = Seq(
   "-Xfuture"
 )
 
-val catsVersion = "1.0.1"
+val catsVersion = "1.1.0"
 val disciplineVersion = "0.9.0"
 val monixVersion = "2.3.3"
-val scalazVersion = "7.2.20"
+val scalazVersion = "7.2.21"
 val scalazStreamVersion = "0.8.6a"
-val fs2Version = "0.10.2"
+val fs2Version = "0.10.3"
 
 val scalaCheckVersion = "1.13.5"
 val scalaTestVersion = "3.0.5"
