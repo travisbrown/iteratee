@@ -21,9 +21,9 @@ val compilerOptions = Seq(
 val catsVersion = "1.1.0"
 val disciplineVersion = "0.9.0"
 val monixVersion = "2.3.3"
-val scalazVersion = "7.2.21"
+val scalazVersion = "7.2.22"
 val scalazStreamVersion = "0.8.6a"
-val fs2Version = "0.10.3"
+val fs2Version = "0.10.4"
 
 val scalaCheckVersion = "1.13.5"
 val scalaTestVersion = "3.0.5"
