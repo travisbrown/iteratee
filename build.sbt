@@ -243,14 +243,13 @@ lazy val publishSettings = Seq(
       "scm:git:git@github.com:travisbrown/iteratee.git"
     )
   ),
-  pomExtra := (
-    <developers>
-      <developer>
-        <id>travisbrown</id>
-        <name>Travis Brown</name>
-        <url>https://twitter.com/travisbrown</url>
-      </developer>
-    </developers>
+  developers := List(
+    Developer(
+      "travisbrown",
+      "Travis Brown",
+      "travisrobertbrown@gmail.com",
+      url("https://twitter.com/travisbrown")
+    )
   ),
   pomPostProcess := { (node: XmlNode) =>
     new RuleTransformer(
