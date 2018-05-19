@@ -1,6 +1,6 @@
 package io.iteratee.testing
 
-import cats.{ Eq, Eval, Monad }
+import cats.{ Eval, Monad }
 import cats.kernel.laws.discipline.MonoidTests
 import cats.laws.discipline.{ MonadTests, SemigroupalTests }
 import io.iteratee.{ EnumerateeModule, Enumerator, EnumeratorModule, IterateeModule, Module }
@@ -136,14 +136,9 @@ abstract class EnumeratorSuite[F[_]: Monad] extends ModuleSuite[F] {
   }
 
   "bindM" should "bind through Option" in forAll { (eav: EnumeratorAndValues[Int]) =>
-    /**
-     * Workaround for divergence during resolution on 2.10.
-     */
-    val E: Eq[F[Option[F[Vector[String]]]]] = eqF(catsKernelStdEqForOption(eqF(Eq[Vector[String]])))
-
     val enumeratorF: F[Option[Enumerator[F, String]]] = eav.enumerator.bindM(v => Option(enumOne(v.toString)))
 
-    assert(E.eqv(enumeratorF.map(_.map(_.toVector)), F.pure(Option(F.pure(eav.values.map(_.toString))))))
+    assert(enumeratorF.map(_.map(_.toVector)) === F.pure(Option(F.pure(eav.values.map(_.toString)))))
   }
 
   "intoEnumerator" should "be available on values in a context" in forAll { (i: Int) =>
