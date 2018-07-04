@@ -19,11 +19,12 @@ val compilerOptions = Seq(
 )
 
 val catsVersion = "1.1.0"
+val catsEffectVersion = "1.0.0-RC2-93ac33d"
 val disciplineVersion = "0.9.0"
-val monixVersion = "2.3.3"
-val scalazVersion = "7.2.22"
+val monixVersion = "3.0.0-RC1"
+val scalazVersion = "7.2.25"
 val scalazStreamVersion = "0.8.6a"
-val fs2Version = "0.10.5"
+val fs2Version = "1.0.0-M1"
 
 val scalaCheckVersion = "1.13.5"
 val scalaTestVersion = "3.0.5"
@@ -168,7 +169,10 @@ lazy val testsJS = tests.js
 lazy val files = project
   .settings(
     moduleName := "iteratee-files",
-    mimaPreviousArtifacts := Set("io.iteratee" %% "iteratee-files" % previousIterateeVersion)
+    mimaPreviousArtifacts := Set("io.iteratee" %% "iteratee-files" % previousIterateeVersion),
+    libraryDependencies ++= Seq(
+      "org.typelevel" %%% "cats-effect" % catsEffectVersion
+    )
   )
   .settings(allSettings)
   .dependsOn(coreJVM)

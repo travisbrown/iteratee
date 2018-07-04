@@ -74,7 +74,7 @@ class InMemoryBenchmark extends InMemoryExampleData {
   def sumInts4Z: Int = (z.IterateeT.sum[Int, Task] &= intsZ).run.unsafePerformSync
 
   @Benchmark
-  def sumInts5F: Int = intsF.fold1(_ + _).runLast.unsafeRunSync.get
+  def sumInts5F: Int = intsF.fold1(_ + _).compile.last.unsafeRunSync.get
 
   @Benchmark
   def sumInts6C: Int = intsC.sum
@@ -112,7 +112,7 @@ class StreamingBenchmark extends StreamingExampleData {
   def takeLongs4Z: Vector[Long] = (z.Iteratee.take[Long, Vector](count).up[Task] &= longStreamZ).run.unsafePerformSync
 
   @Benchmark
-  def takeLongs5F: Vector[Long] = longStreamF.take(count.toLong).runLog.unsafeRunSync
+  def takeLongs5F: Vector[Long] = longStreamF.take(count.toLong).compile.toVector.unsafeRunSync
 
   @Benchmark
   def takeLongs6C: Vector[Long] = longStreamC.take(count).toVector
