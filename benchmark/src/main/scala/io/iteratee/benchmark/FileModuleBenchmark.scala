@@ -9,7 +9,7 @@ import io.iteratee.{ Enumerator, Iteratee }
 import io.iteratee.{ monix => m }
 import io.iteratee.{ scalaz => s }
 import io.iteratee.scalaz.ScalazInstances
-import java.io.File
+import java.io.{ File, InputStream }
 import java.util.concurrent.TimeUnit
 import monix.eval.{ Task => TaskM }
 import org.openjdk.jmh.annotations._
@@ -31,7 +31,7 @@ import scalaz.concurrent.Task
 @BenchmarkMode(Array(Mode.Throughput))
 @OutputTimeUnit(TimeUnit.SECONDS)
 class FileModuleBenchmark extends ScalazInstances {
-  def bartebly = getClass.getResourceAsStream("/io/iteratee/examples/pg/11231/11231.txt")
+  private def bartebly: InputStream = getClass.getResourceAsStream("/io/iteratee/examples/pg/11231/11231.txt")
 
   def linesIO: Enumerator[IO, String] = io.iteratee.files.modules.io.readLinesFromStream(bartebly)
   def linesS: Enumerator[Task, String] = s.task.readLinesFromStream(bartebly)
