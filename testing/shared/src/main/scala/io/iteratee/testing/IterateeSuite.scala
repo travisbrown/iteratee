@@ -3,15 +3,9 @@ package io.iteratee.testing
 import cats.{ Eq, Eval, Monad, MonadError }
 import cats.data.{ EitherT, NonEmptyList }
 import cats.laws.discipline.{ ContravariantTests, MonadTests, MonadErrorTests, SemigroupalTests }
-import io.iteratee.{
-  EnumerateeModule,
-  EnumeratorModule,
-  Iteratee,
-  IterateeErrorModule,
-  IterateeModule,
-  Module
-}
+import io.iteratee.Iteratee
 import io.iteratee.internal.Step
+import io.iteratee.modules.{ EnumerateeModule, EnumeratorModule, IterateeErrorModule, IterateeModule, Module }
 import org.scalacheck.{ Arbitrary, Cogen }
 import scala.Predef._
 

@@ -1,6 +1,7 @@
-package io.iteratee
+package io.iteratee.modules
 
 import cats.Monad
+import io.iteratee.{ Enumerator, Iteratee }
 
 /**
  * @groupname Syntax Extension methods

@@ -1,7 +1,7 @@
 package io.iteratee.testing.files
 
 import cats.Monad
-import io.iteratee.{ EnumeratorModule, IterateeModule, Module }
+import io.iteratee.modules.{ EnumeratorModule, IterateeModule, Module }
 import io.iteratee.files.modules.FileModule
 import io.iteratee.testing.ModuleSuite
 import java.io.{ File, FileInputStream, FileOutputStream }

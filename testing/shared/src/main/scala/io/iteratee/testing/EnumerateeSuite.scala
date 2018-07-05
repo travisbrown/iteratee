@@ -2,7 +2,8 @@ package io.iteratee.testing
 
 import cats.Monad
 import cats.laws.discipline.{ CategoryTests, ProfunctorTests }
-import io.iteratee.{ Enumeratee, EnumerateeModule, EnumeratorModule, Iteratee, IterateeModule, Module }
+import io.iteratee.{ Enumeratee, Iteratee }
+import io.iteratee.modules.{ EnumerateeModule, EnumeratorModule, IterateeModule, Module }
 import org.scalacheck.{ Arbitrary, Gen }
 import scala.Predef._
 

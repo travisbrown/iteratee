@@ -1,6 +1,7 @@
 package io.iteratee.testing
 
-import io.iteratee.{ Enumerator, EnumeratorModule, Iteratee, IterateeModule, Module }
+import io.iteratee.{ Enumerator, Iteratee }
+import io.iteratee.modules.{ EnumeratorModule, IterateeModule, Module }
 import org.scalacheck.{ Arbitrary, Gen }
 
 trait ArbitraryEnumerators[F[_]] {

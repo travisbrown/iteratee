@@ -3,7 +3,7 @@ package io.iteratee.testing
 import cats.instances.AllInstances
 import cats.kernel.Eq
 import cats.syntax.AllSyntax
-import io.iteratee.{ EnumeratorModule, IterateeModule, Module }
+import io.iteratee.modules.{ EnumeratorModule, IterateeModule, Module }
 import org.scalatest.FlatSpec
 import org.scalatest.prop.{ Checkers, GeneratorDrivenPropertyChecks }
 import org.typelevel.discipline.Laws

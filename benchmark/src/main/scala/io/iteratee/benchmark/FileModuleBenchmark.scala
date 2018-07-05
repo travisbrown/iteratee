@@ -9,7 +9,7 @@ import io.iteratee.{ Enumerator, Iteratee }
 import io.iteratee.{ monix => m }
 import io.iteratee.{ scalaz => s }
 import io.iteratee.scalaz.ScalazInstances
-import java.io.{ File, InputStream }
+import java.io.InputStream
 import java.util.concurrent.TimeUnit
 import monix.eval.{ Task => TaskM }
 import org.openjdk.jmh.annotations._

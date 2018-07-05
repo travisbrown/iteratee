@@ -1,7 +1,7 @@
 package io.iteratee.monix
 
 import cats.MonadError
-import io.iteratee.{ EnumerateeModule, EnumeratorErrorModule, IterateeErrorModule, Module }
+import io.iteratee.modules.{ EnumerateeModule, EnumeratorErrorModule, IterateeErrorModule, Module }
 import monix.eval.Task
 
 trait TaskModule extends Module[Task]
