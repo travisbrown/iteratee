@@ -176,7 +176,7 @@ lazy val files = project
     moduleName := "iteratee-files",
     mimaPreviousArtifacts := Set("io.iteratee" %% "iteratee-files" % previousIterateeVersion),
     libraryDependencies ++= Seq(
-      "org.typelevel" %%% "cats-effect" % catsEffectVersion
+      "org.typelevel" %% "cats-effect" % catsEffectVersion
     )
   )
   .settings(allSettings)
@@ -204,7 +204,10 @@ lazy val monix = crossProject(JSPlatform, JVMPlatform)
   .settings(allSettings: _*)
   .settings(Defaults.itSettings: _*)
   .settings(
-    libraryDependencies += "io.monix" %%% "monix-eval" % monixVersion
+    libraryDependencies ++= Seq(
+      "io.monix" %%% "monix-eval" % monixVersion,
+      "org.typelevel" %%% "cats-effect" % catsEffectVersion
+    )
   )
   .jvmSettings(
     mimaPreviousArtifacts := Set("io.iteratee" %% "iteratee-monix" % previousIterateeVersion)
