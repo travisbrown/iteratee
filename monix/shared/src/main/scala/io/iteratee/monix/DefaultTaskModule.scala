@@ -1,8 +1,8 @@
 package io.iteratee.monix
 
-import cats.MonadError
+import cats.effect.Sync
 import monix.eval.Task
 
 trait DefaultTaskModule extends TaskModule with MonixInstances {
-  final protected val F: MonadError[Task, Throwable] = monixTaskMonadError
+  final protected val F: Sync[Task] = monixTaskSync
 }

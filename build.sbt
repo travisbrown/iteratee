@@ -158,7 +158,12 @@ lazy val tests = crossProject(JSPlatform, JVMPlatform)
     testForkedParallel in IntegrationTest := true,
     coverageExcludedPackages := "io\\.iteratee\\.tests\\..*"
   )
-  .jvmSettings(fork := false)
+  .jvmSettings(
+    fork := false,
+    libraryDependencies ++= Seq(
+      "org.typelevel" %% "cats-effect-laws" % catsEffectVersion % "it"
+    )
+  )
   .jsSettings(commonJsSettings: _*)
   .jvmConfigure(_.dependsOn(files))
   .dependsOn(testing)

@@ -28,7 +28,7 @@ abstract class IterateeErrorSuite[F[_], T: Arbitrary: Eq: Cogen](implicit
   MEF: MonadError[F, T]
 ) extends BaseIterateeSuite[F] {
   this: EnumerateeModule[F] with EnumeratorModule[F] with IterateeErrorModule[F, T]
-    with Module[F] { type M[f[_]] = MonadError[f, T] } =>
+    with Module[F] { type M[f[_]] <: MonadError[f, T] } =>
 
   implicit val monadError: MonadError[VectorIntFoldingIteratee, T] = Iteratee.iterateeMonadError[F, T, Vector[Int]]
 

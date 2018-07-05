@@ -6,12 +6,8 @@ class FileModuleBenchmarkSpec extends FlatSpec {
   val benchmark: FileModuleBenchmark = new FileModuleBenchmark
   val length = 4.516696895337672
 
-  "The FileModule benchmark" should "correctly calculate the average word length using futures" in {
-    assert(benchmark.avgWordLengthF === length)
-  }
-
-  it should "correctly calculate the average word length using Try" in {
-    assert(benchmark.avgWordLengthT === length)
+  "The FileModule benchmark" should "correctly calculate the average word length using IO" in {
+    assert(benchmark.avgWordLengthIO === length)
   }
 
   it should "correctly calculate the average word length using Try in Free" in {

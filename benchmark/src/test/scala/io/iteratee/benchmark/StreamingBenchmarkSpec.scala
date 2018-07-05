@@ -19,19 +19,23 @@ class StreamingBenchmarkSpec extends FlatSpec {
     assert(benchmark.takeLongs2IT === taken)
   }
 
+  it should "correctly gather elements using cats.effect.IO" in {
+    assert(benchmark.takeLongs3IO === taken)
+  }
+
   it should "correctly gather elements using scalaz-stream" in {
-    assert(benchmark.takeLongs3S === taken)
+    assert(benchmark.takeLongs4S === taken)
   }
 
   it should "correctly gather elements using scalaz-iteratee" in {
-    assert(benchmark.takeLongs4Z === taken)
+    assert(benchmark.takeLongs5Z === taken)
   }
 
   it should "correctly gather elements using fs2" in {
-    assert(benchmark.takeLongs5F === taken)
+    assert(benchmark.takeLongs6F === taken)
   }
 
   it should "correctly gather elements using the collections library" in {
-    assert(benchmark.takeLongs6C === taken)
+    assert(benchmark.takeLongs7C === taken)
   }
 }
