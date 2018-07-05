@@ -1,6 +1,6 @@
 package io.iteratee.monix
 
-import cats.MonadError
+import cats.effect.{ ExitCase, Sync }
 import monix.eval.Task
 
 /**
@@ -10,7 +10,7 @@ import monix.eval.Task
  * This trait is provided for convenience when monix-cats is not available.
  */
 trait MonixInstances {
-  implicit final val monixTaskMonadError: MonadError[Task, Throwable] = new MonadError[Task, Throwable] {
+  implicit final val monixTaskSync: Sync[Task] = new Sync[Task] {
     final def pure[A](x: A): Task[A] = Task.now(x)
     final def flatMap[A, B](fa: Task[A])(f: A => Task[B]): Task[B] = fa.flatMap(f)
     override final def map[A, B](fa: Task[A])(f: A => B): Task[B] = fa.map(f)
@@ -20,5 +20,15 @@ trait MonixInstances {
       case Right(b) => pure(b)
       case Left(nextA) => tailRecM(nextA)(f)
     }
+
+    final def bracketCase[A, B](acquire: Task[A])(use: A => Task[B])(
+      release: (A, ExitCase[Throwable]) => Task[Unit]
+    ): Task[B] = acquire.bracketE(use) {
+      case (a, Right(_)) => release(a, ExitCase.complete)
+      case (a, Left(None)) => release(a, ExitCase.canceled)
+      case (a, Left(Some(e))) => release(a, ExitCase.error(e))
+    }
+
+    final def suspend[A](thunk: => Task[A]): Task[A] = Task.defer(thunk)
   }
 }

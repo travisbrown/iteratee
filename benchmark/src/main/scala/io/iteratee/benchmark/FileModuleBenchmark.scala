@@ -1,8 +1,8 @@
 package io.iteratee.benchmark
 
 import cats.Monad
+import cats.effect.IO
 import cats.free.Free
-import cats.instances.future._
 import cats.instances.int._
 import cats.instances.try_._
 import io.iteratee.{ Enumerator, Iteratee }
@@ -14,7 +14,7 @@ import java.util.concurrent.TimeUnit
 import monix.eval.{ Task => TaskM }
 import org.openjdk.jmh.annotations._
 import scala.Predef.refArrayOps
-import scala.concurrent.{ Await, Future }
+import scala.concurrent.Await
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration._
 import scala.util.Try
@@ -31,13 +31,12 @@ import scalaz.concurrent.Task
 @BenchmarkMode(Array(Mode.Throughput))
 @OutputTimeUnit(TimeUnit.SECONDS)
 class FileModuleBenchmark extends ScalazInstances {
-  val bartebly = new File(getClass.getResource("/io/iteratee/examples/pg/11231/11231.txt").toURI)
+  def bartebly = getClass.getResourceAsStream("/io/iteratee/examples/pg/11231/11231.txt")
 
-  val linesF: Enumerator[Future, String] = io.iteratee.files.future.readLines(bartebly)
-  val linesT: Enumerator[Try, String] = io.iteratee.files.try_.readLines(bartebly)
-  val linesS: Enumerator[Task, String] = s.task.readLines(bartebly)
-  val linesM: Enumerator[TaskM, String] = m.task.readLines(bartebly)
-  val linesTF: Enumerator[Free[Try, ?], String] = FreeTryModule.readLines(bartebly)
+  def linesIO: Enumerator[IO, String] = io.iteratee.files.modules.io.readLinesFromStream(bartebly)
+  def linesS: Enumerator[Task, String] = s.task.readLinesFromStream(bartebly)
+  def linesM: Enumerator[TaskM, String] = m.task.readLinesFromStream(bartebly)
+  def linesTF: Enumerator[Free[Try, ?], String] = FreeTryModule.readLinesFromStream(bartebly)
 
   def words[F[_]: Monad](line: String): Enumerator[F, String] = Enumerator.enumVector(line.split(" ").toVector)
   def avgLen[F[_]: Monad]: Iteratee[F, String, Double] = Iteratee.length[F, String].zip(
@@ -47,10 +46,7 @@ class FileModuleBenchmark extends ScalazInstances {
   }
 
   @Benchmark
-  def avgWordLengthF: Double = Await.result(linesF.flatMap(words[Future]).into(avgLen), Duration.Inf)
-
-  @Benchmark
-  def avgWordLengthT: Double = linesT.flatMap(words[Try]).into(avgLen).get
+  def avgWordLengthIO: Double = linesIO.flatMap(words[IO]).into(avgLen).unsafeRunSync
 
   @Benchmark
   def avgWordLengthS: Double = linesS.flatMap(words[Task]).into(avgLen).unsafePerformSync
