@@ -28,6 +28,6 @@ object Module {
     def F: Monad[F] = monad
   }
 
-  def apply[M[_]](implicit monad: Monad[M]): Module[M] =
+  def apply[F[_]](implicit monad: Monad[F]): Module[F] =
     new FromMonad(monad)
 }
