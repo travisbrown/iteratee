@@ -1,8 +1,8 @@
 package io.iteratee.monix
 
 import cats.effect.Sync
-import io.iteratee.{ EnumerateeModule, EnumeratorErrorModule, IterateeErrorModule, Module }
 import io.iteratee.files.modules.FileModule
+import io.iteratee.modules.{ EnumerateeModule, EnumeratorErrorModule, IterateeErrorModule, Module }
 import monix.eval.Task
 
 trait TaskModule extends Module[Task]

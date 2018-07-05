@@ -1,6 +1,7 @@
-package io.iteratee
+package io.iteratee.modules
 
 import cats.MonadError
+import io.iteratee.Enumerator
 
 /**
  * @groupname Enumerators Enumerators

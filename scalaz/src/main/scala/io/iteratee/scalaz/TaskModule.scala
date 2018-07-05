@@ -1,7 +1,7 @@
 package io.iteratee.scalaz
 
 import cats.effect.Sync
-import io.iteratee.{ EnumerateeModule, EnumeratorErrorModule, IterateeErrorModule, Module }
+import io.iteratee.modules.{ EnumerateeModule, EnumeratorErrorModule, IterateeErrorModule, Module }
 import io.iteratee.files.modules.FileModule
 import scalaz.concurrent.Task
 

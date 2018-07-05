@@ -4,8 +4,8 @@ import cats.{ Monad, MonadError }
 import cats.effect.{ ExitCase, Sync }
 import cats.free.Free
 import cats.instances.try_._
-import io.iteratee.{ EnumerateeModule, EnumeratorErrorModule, IterateeErrorModule, Module }
 import io.iteratee.files.modules.FileModule
+import io.iteratee.modules.{ EnumerateeModule, EnumeratorErrorModule, IterateeErrorModule, Module }
 import scala.util.{ Failure, Success, Try }
 
 object FreeTryModule extends Module[Free[Try, ?]]
@@ -14,8 +14,6 @@ object FreeTryModule extends Module[Free[Try, ?]]
     with IterateeErrorModule[Free[Try, ?], Throwable]
     with FileModule[Free[Try, ?]] {
   final type M[f[_]] = Sync[f]
-
-  def captureEffect[A](a: => A): Free[Try, A] = Free.defer(Free.liftF(MonadError[Try, Throwable].catchNonFatal(a)))
 
   final protected val F: Sync[Free[Try, ?]] = new Sync[Free[Try, ?]] {
     private[this] val FF = Monad[Free[Try, ?]]

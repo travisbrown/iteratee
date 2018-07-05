@@ -1,6 +1,7 @@
-package io.iteratee
+package io.iteratee.modules
 
-import cats.Eq
+import cats.kernel.Eq
+import io.iteratee.{ Enumeratee, Enumerator, Iteratee }
 
 /**
  * @groupname Enumeratees Enumeratees
