@@ -19,12 +19,12 @@ val compilerOptions = Seq(
 )
 
 val catsVersion = "1.2.0"
-val catsEffectVersion = "1.0.0-RC2-91b8ec8"
+val catsEffectVersion = "1.0.0-RC3"
 val disciplineVersion = "0.9.0"
 val monixVersion = "3.0.0-RC1"
 val scalazVersion = "7.2.26"
 val scalazStreamVersion = "0.8.6a"
-val fs2Version = "1.0.0-M3"
+val fs2Version = "1.0.0-M4"
 
 val scalaCheckVersion = "1.13.5"
 val scalaTestVersion = "3.0.5"
