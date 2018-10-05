@@ -24,12 +24,12 @@ val disciplineVersion = "0.9.0"
 val monixVersion = "3.0.0-RC2-d0feeba"
 val scalazVersion = "7.2.26"
 val scalazStreamVersion = "0.8.6a"
-val fs2Version = "1.0.0-M5"
+val fs2Version = "1.0.0"
 
 val scalaCheckVersion = "1.13.5"
 val scalaTestVersion = "3.0.5"
 
-lazy val previousIterateeVersion = "0.17.0"
+lazy val previousIterateeVersion = "0.18.0"
 
 val docMappingsApiDir = settingKey[String]("Subdirectory in site target directory for API docs")
 
