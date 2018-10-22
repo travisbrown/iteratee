@@ -54,7 +54,7 @@ lazy val baseSettings = Seq(
     }
   ),
   (scalastyleSources in Compile) ++= (sourceDirectories in Compile).value,
-  addCompilerPlugin("org.spire-math" % "kind-projector" % "0.9.7" cross CrossVersion.binary)
+  addCompilerPlugin("org.spire-math" % "kind-projector" % "0.9.8" cross CrossVersion.binary)
 )
 
 lazy val allSettings = baseSettings ++ publishSettings
