@@ -14,7 +14,7 @@ trait TaskSuite extends ModuleSuite[Task] with DefaultTaskModule {
   def monadName: String = "Task"
 
   implicit def eqF[A: Eq]: Eq[Task[A]] = Eq.by { task =>
-    Await.result(task.materialize.runAsync, 5.seconds)
+    Await.result(task.materialize.runToFuture, 5.seconds)
   }
 }
 
