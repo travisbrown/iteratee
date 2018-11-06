@@ -1,6 +1,6 @@
 import ReleaseTransformations._
 import org.scalafmt.sbt.ScalafmtPlugin.scalafmtConfigSettings
-import sbtcrossproject.{crossProject, CrossType}
+import sbtcrossproject.{ crossProject, CrossType }
 import scala.xml.{ Elem, Node => XmlNode, NodeSeq => XmlNodeSeq }
 import scala.xml.transform.{ RewriteRule, RuleTransformer }
 
@@ -8,7 +8,8 @@ organization in ThisBuild := "io.iteratee"
 
 val compilerOptions = Seq(
   "-deprecation",
-  "-encoding", "UTF-8",
+  "-encoding",
+  "UTF-8",
   "-feature",
   "-language:existentials",
   "-language:higherKinds",
@@ -38,20 +39,20 @@ lazy val baseSettings = Seq(
   scalacOptions ++= (compilerOptions :+ "-Yno-predef") ++ (
     CrossVersion.partialVersion(scalaVersion.value) match {
       case Some((2, p)) if p >= 11 => Seq("-Ywarn-unused-import")
-      case _ => Nil
+      case _                       => Nil
     }
   ),
   scalacOptions in (Compile, console) := compilerOptions,
   scalacOptions in (Compile, test) := compilerOptions ++ (
     CrossVersion.partialVersion(scalaVersion.value) match {
       case Some((2, 11)) => Seq("-Ywarn-unused-import")
-      case _ => Nil
+      case _             => Nil
     }
   ),
   coverageHighlighting := (
     CrossVersion.partialVersion(scalaVersion.value) match {
       case Some((2, 10)) => false
-      case _ => true
+      case _             => true
     }
   ),
   (scalastyleSources in Compile) ++= (sourceDirectories in Compile).value,
@@ -70,15 +71,18 @@ lazy val docSettings = Seq(
   scalacOptions in (ScalaUnidoc, unidoc) ++= Seq(
     "-groups",
     "-implicits",
-    "-doc-source-url", scmInfo.value.get.browseUrl + "/tree/master€{FILE_PATH}.scala",
-    "-sourcepath", baseDirectory.in(LocalRootProject).value.getAbsolutePath
+    "-doc-source-url",
+    scmInfo.value.get.browseUrl + "/tree/master€{FILE_PATH}.scala",
+    "-sourcepath",
+    baseDirectory.in(LocalRootProject).value.getAbsolutePath
   ),
   git.remoteRepo := "git@github.com:travisbrown/iteratee.git",
   unidocProjectFilter in (ScalaUnidoc, unidoc) :=
     inAnyProject -- inProjects(coreJS, benchmark, monixJS, testingJS, testsJVM, testsJS)
 )
 
-lazy val iteratee = project.in(file("."))
+lazy val iteratee = project
+  .in(file("."))
   .enablePlugins(GhpagesPlugin, ScalaUnidocPlugin)
   .settings(allSettings)
   .settings(docSettings)
@@ -92,7 +96,7 @@ lazy val core = crossProject(JSPlatform, JVMPlatform)
   .in(file("core"))
   .settings(
     moduleName := "iteratee-core",
-    name := "core",
+    name := "core"
   )
   .settings(allSettings: _*)
   .settings(
@@ -138,7 +142,7 @@ lazy val tests = crossProject(JSPlatform, JVMPlatform)
   .configs(IntegrationTest)
   .settings(
     moduleName := "iteratee-tests",
-    name := "tests",
+    name := "tests"
   )
   .settings(allSettings: _*)
   .settings(noPublishSettings: _*)
@@ -194,7 +198,8 @@ lazy val scalaz = project
   .settings(inConfig(IntegrationTest)(scalafmtConfigSettings))
   .settings(
     libraryDependencies += "org.scalaz" %% "scalaz-concurrent" % scalazVersion
-  ).dependsOn(coreJVM, files, testsJVM % "test,it")
+  )
+  .dependsOn(coreJVM, files, testsJVM % "test,it")
 
 lazy val monix = crossProject(JSPlatform, JVMPlatform)
   .withoutSuffixFor(JVMPlatform)
@@ -250,13 +255,15 @@ lazy val publishSettings = Seq(
   licenses := Seq("Apache 2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0")),
   publishMavenStyle := true,
   publishArtifact in Test := false,
-  pomIncludeRepository := { _ => false },
+  pomIncludeRepository := { _ =>
+    false
+  },
   publishTo := {
     val nexus = "https://oss.sonatype.org/"
     if (isSnapshot.value)
       Some("snapshots" at nexus + "content/repositories/snapshots")
     else
-      Some("releases"  at nexus + "service/local/staging/deploy/maven2")
+      Some("releases" at nexus + "service/local/staging/deploy/maven2")
   },
   autoAPIMappings := true,
   apiURL := Some(url("https://travisbrown.github.io/iteratee/api/")),
@@ -282,7 +289,7 @@ lazy val publishSettings = Seq(
 
         override def transform(node: XmlNode): XmlNodeSeq = node match {
           case elem: Elem if isTestScope(elem) => Nil
-          case _ => node
+          case _                               => node
         }
       }
     ).transform(node).head
@@ -299,12 +306,13 @@ credentials ++= (
   for {
     username <- Option(System.getenv().get("SONATYPE_USERNAME"))
     password <- Option(System.getenv().get("SONATYPE_PASSWORD"))
-  } yield Credentials(
-    "Sonatype Nexus Repository Manager",
-    "oss.sonatype.org",
-    username,
-    password
-  )
+  } yield
+    Credentials(
+      "Sonatype Nexus Repository Manager",
+      "oss.sonatype.org",
+      username,
+      password
+    )
 ).toSeq
 
 val jvmProjects = Seq(
@@ -330,5 +338,8 @@ addCommandAlias(
   ";testJVM;tests/it:test;benchmark/it:test;monix/it:test;scalaz/it:test;scalafmtCheck;scalafmtSbtCheck;test:scalafmtCheck;it:scalafmtCheck;scalastyle;unidoc"
 )
 addCommandAlias("testJS", jsProjects.map(";" + _ + "/test").mkString)
-addCommandAlias("validateJS", ";testJS;scalafmtCheck;scalafmtSbtCheck;test:scalafmtCheck;it:scalafmtCheck;scalastyle;unidoc")
+addCommandAlias(
+  "validateJS",
+  ";testJS;scalafmtCheck;scalafmtSbtCheck;test:scalafmtCheck;it:scalafmtCheck;scalastyle;unidoc"
+)
 addCommandAlias("validate", ";validateJVM;validateJS")
