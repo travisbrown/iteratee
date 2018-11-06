@@ -7,7 +7,8 @@ import org.scalacheck.{ Arbitrary, Gen }
 import scala.Predef._
 
 trait ArbitraryInstances {
-  implicit def arbitraryEnumerator[F[_]: Monad, A](implicit
+  implicit def arbitraryEnumerator[F[_]: Monad, A](
+    implicit
     A: Arbitrary[A]
   ): Arbitrary[Enumerator[F, A]] =
     Arbitrary(
@@ -45,7 +46,8 @@ trait ArbitraryInstances {
     )
   }
 
-  implicit def arbitraryVectorIteratee[F[_]: Monad, A](implicit
+  implicit def arbitraryVectorIteratee[F[_]: Monad, A](
+    implicit
     A: Arbitrary[A]
   ): Arbitrary[Iteratee[F, Vector[A], Vector[A]]] = {
     val M: Monad[({ type L[x] = Iteratee[F, Vector[A], x] })#L] = implicitly
@@ -64,9 +66,7 @@ trait ArbitraryInstances {
           Iteratee.drop[F, Vector[A]](n).flatMap(_ => M.pure(as)),
           Iteratee.head[F, Vector[A]].map(_.getOrElse(Vector.empty)),
           Iteratee.peek[F, Vector[A]].flatMap(_ => F),
-          Iteratee.peek[F, Vector[A]].flatMap(head =>
-            M.pure(as ++ head.fold(Vector.empty[A])(_.take(n)))
-          ),
+          Iteratee.peek[F, Vector[A]].flatMap(head => M.pure(as ++ head.fold(Vector.empty[A])(_.take(n)))),
           Iteratee.take[F, Vector[A]](n).flatMap(taken => M.pure(taken.flatMap(_.headOption))),
           Iteratee.identity[F, Vector[A]].flatMap(_ => F),
           Iteratee.identity[F, Vector[A]].flatMap(_ => M.pure(as))
@@ -75,7 +75,8 @@ trait ArbitraryInstances {
     )
   }
 
-  implicit def arbitraryVectorUnitIteratee[F[_]: Monad, A](implicit
+  implicit def arbitraryVectorUnitIteratee[F[_]: Monad, A](
+    implicit
     A: Arbitrary[A]
   ): Arbitrary[Iteratee[F, Vector[A], Unit]] = Arbitrary(
     arbitraryVectorIteratee[F, A].arbitrary.map(_.discard)
@@ -85,12 +86,14 @@ trait ArbitraryInstances {
     val M: Monad[({ type L[x] = Iteratee[F, A, x] })#L] = implicitly
 
     Arbitrary(
-      Gen.oneOf(
-        (as: Vector[Int]) => Vector(as.size),
-        (as: Vector[Int]) => as,
-        (as: Vector[Int]) => as.drop(2),
-        (as: Vector[Int]) => as.map(_ * 2)
-      ).map(M.pure(_))
+      Gen
+        .oneOf(
+          (as: Vector[Int]) => Vector(as.size),
+          (as: Vector[Int]) => as,
+          (as: Vector[Int]) => as.drop(2),
+          (as: Vector[Int]) => as.map(_ * 2)
+        )
+        .map(M.pure(_))
     )
   }
 

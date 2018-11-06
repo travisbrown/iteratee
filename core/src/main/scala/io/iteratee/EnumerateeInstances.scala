@@ -4,9 +4,9 @@ import cats.Monad
 import cats.arrow.{ Category, Profunctor }
 
 private[iteratee] trait EnumerateeInstances {
-  implicit final def enumerateeInstance[F[_]](implicit F: Monad[F]):
-    Category[Enumeratee[F, ?, ?]] with
-    Profunctor[Enumeratee[F, ?, ?]] =
+  implicit final def enumerateeInstance[F[_]](
+    implicit F: Monad[F]
+  ): Category[Enumeratee[F, ?, ?]] with Profunctor[Enumeratee[F, ?, ?]] =
     new Category[Enumeratee[F, ?, ?]] with Profunctor[Enumeratee[F, ?, ?]] {
       final def id[A]: Enumeratee[F, A, A] = Enumeratee.identity[F, A]
       final def compose[A, B, C](f: Enumeratee[F, B, C], g: Enumeratee[F, A, B]): Enumeratee[F, A, C] = g.andThen(f)

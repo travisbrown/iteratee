@@ -16,6 +16,7 @@ import io.iteratee.internal.Step
  * @tparam A The type of the calculated result
  */
 sealed class Iteratee[F[_], E, A] private[iteratee] (final val state: F[Step[F, E, A]]) extends Serializable { self =>
+
   /**
    * Advance this [[Iteratee]] with the given [[Enumerator]].
    */
@@ -25,8 +26,9 @@ sealed class Iteratee[F[_], E, A] private[iteratee] (final val state: F[Step[F, 
   /**
    * Reduce this [[Iteratee]] to an effectful value using the given functions.
    */
-  final def fold[Z](ifCont: (NonEmptyList[E] => Iteratee[F, E, A]) => Z, ifDone: (A, List[E]) => Z)
-    (implicit F: Functor[F]): F[Z] = F.map(state)(_.fold(f => ifCont(in => Iteratee.iteratee(f(in))), ifDone))
+  final def fold[Z](ifCont: (NonEmptyList[E] => Iteratee[F, E, A]) => Z, ifDone: (A, List[E]) => Z)(
+    implicit F: Functor[F]
+  ): F[Z] = F.map(state)(_.fold(f => ifCont(in => Iteratee.iteratee(f(in))), ifDone))
 
   /**
    * Run this iteratee and close the stream so that it must produce an effectful
@@ -114,9 +116,8 @@ sealed class Iteratee[F[_], E, A] private[iteratee] (final val state: F[Step[F, 
    * or not it succeeds.
    */
   final def ensureEval[T](action: Eval[F[Unit]])(implicit F: MonadError[F, T]): Iteratee[F, E, A] =
-    handleErrorWith[T](_ => Iteratee.iteratee(F.flatMap(action.value)(_ => state))).flatMapM(result =>
-      F.map(action.value)(_ => result)
-    )
+    handleErrorWith[T](_ => Iteratee.iteratee(F.flatMap(action.value)(_ => state)))
+      .flatMapM(result => F.map(action.value)(_ => result))
 }
 
 /**
@@ -130,6 +131,7 @@ sealed class Iteratee[F[_], E, A] private[iteratee] (final val state: F[Step[F, 
  * @groupprio Collection 2
  */
 final object Iteratee extends IterateeInstances {
+
   /**
    * Create an incomplete [[Iteratee]] that will use the given function to
    * process the next input.
@@ -336,7 +338,8 @@ final object Iteratee extends IterateeInstances {
    *
    * @group Collection
    */
-  final def foldMapOption[F[_], E, A](f: E => A)(implicit
+  final def foldMapOption[F[_], E, A](f: E => A)(
+    implicit
     F: Applicative[F],
     A: Semigroup[A]
   ): Iteratee[F, E, Option[A]] =
@@ -348,12 +351,14 @@ final object Iteratee extends IterateeInstances {
    *
    * @group Collection
    */
-  final def foldMapMOption[F[_], E, A](f: E => F[A])(implicit
+  final def foldMapMOption[F[_], E, A](f: E => F[A])(
+    implicit
     F: Applicative[F],
     A: Semigroup[A]
   ): Iteratee[F, E, Option[A]] =
-    foldMapM[F, E, Option[A]](e =>
-      F.map(f(e))(Some(_)))(F, cats.kernel.instances.option.catsKernelStdMonoidForOption(A)
+    foldMapM[F, E, Option[A]](e => F.map(f(e))(Some(_)))(
+      F,
+      cats.kernel.instances.option.catsKernelStdMonoidForOption(A)
     )
 
   /**

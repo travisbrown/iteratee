@@ -6,7 +6,8 @@ import io.iteratee.modules.{ EnumerateeModule, EnumeratorErrorModule, IterateeEr
 package modules {
   final object io extends IOModule
 
-  trait IOModule extends FileModule[IO]
+  trait IOModule
+      extends FileModule[IO]
       with Module[IO]
       with EnumerateeModule[IO]
       with EnumeratorErrorModule[IO, Throwable]

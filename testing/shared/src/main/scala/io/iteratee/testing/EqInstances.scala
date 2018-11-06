@@ -12,7 +12,8 @@ trait EqInstances {
   implicit def eqEnumerator[F[_]: Monad, A: Eq](implicit eqFVA: Eq[F[Vector[A]]]): Eq[Enumerator[F, A]] =
     Eq.by(_.toVector)
 
-  implicit def eqIteratee[F[_]: Monad, A: Eq: Arbitrary, B: Eq: Arbitrary](implicit
+  implicit def eqIteratee[F[_]: Monad, A: Eq: Arbitrary, B: Eq: Arbitrary](
+    implicit
     eqFB: Eq[F[B]]
   ): Eq[Iteratee[F, A, B]] = {
     val e0 = Enumerator.empty[F, A]
@@ -28,7 +29,8 @@ trait EqInstances {
     }
   }
 
-  implicit def eqEnumeratee[F[_]: Monad, A: Eq: Arbitrary, B: Eq: Arbitrary](implicit
+  implicit def eqEnumeratee[F[_]: Monad, A: Eq: Arbitrary, B: Eq: Arbitrary](
+    implicit
     eqFVB: Eq[F[Vector[B]]]
   ): Eq[Enumeratee[F, A, B]] = {
     val e0 = Enumerator.empty[F, A]

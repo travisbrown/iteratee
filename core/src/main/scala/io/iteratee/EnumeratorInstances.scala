@@ -27,7 +27,7 @@ private trait EnumeratorMonad[F[_]] extends Monad[Enumerator[F, ?]] with Enumera
    * Note that recursive monadic binding is not stack safe for enumerators.
    */
   final def tailRecM[A, B](a: A)(f: A => Enumerator[F, Either[A, B]]): Enumerator[F, B] = f(a).flatMap {
-    case Right(b) => pure(b)
+    case Right(b)    => pure(b)
     case Left(nextA) => tailRecM(nextA)(f)
   }
 }

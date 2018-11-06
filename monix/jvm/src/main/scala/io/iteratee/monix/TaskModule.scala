@@ -5,12 +5,14 @@ import io.iteratee.files.modules.FileModule
 import io.iteratee.modules.{ EnumerateeModule, EnumeratorErrorModule, IterateeErrorModule, Module }
 import monix.eval.Task
 
-trait TaskModule extends Module[Task]
+trait TaskModule
+    extends Module[Task]
     with EnumerateeModule[Task]
-    with EnumeratorErrorModule[Task, Throwable] with IterateeErrorModule[Task, Throwable]
+    with EnumeratorErrorModule[Task, Throwable]
+    with IterateeErrorModule[Task, Throwable]
     with FileModule[Task] {
-      type M[f[_]] = Sync[f]
-    }
+  type M[f[_]] = Sync[f]
+}
 
 final object TaskModule {
   def instance(implicit taskSync: Sync[Task]): TaskModule = new TaskModule {

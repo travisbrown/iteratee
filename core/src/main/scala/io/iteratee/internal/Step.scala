@@ -13,6 +13,7 @@ import cats.data.NonEmptyList
  * @tparam A The type of the result calculated by the [[io.iteratee.Iteratee]]
  */
 sealed abstract class Step[F[_], E, A] extends Serializable {
+
   /**
    * Reduce this [[Step]] to a value using the given functions.
    */
@@ -88,7 +89,8 @@ sealed abstract class Step[F[_], E, A] extends Serializable {
  * @groupprio Collection 2
  */
 final object Step { self =>
-  private[this] final class Done[F[_], E, A](val value: A)(private[internal] val remaining: Seq[E])(implicit
+  private[this] final class Done[F[_], E, A](val value: A)(private[internal] val remaining: Seq[E])(
+    implicit
     F: Applicative[F]
   ) extends Step[F, E, A] {
     final def fold[Z](ifCont: (NonEmptyList[E] => F[Step[F, E, A]]) => Z, ifDone: (A, List[E]) => Z): Z =
@@ -174,7 +176,7 @@ final object Step { self =>
       final def run: F[A] = self.run
       final def feedEl(e: E2): F[Step[F, E2, A]] = F.map(self.feedEl(f(e)))(_.contramap(f))
       final protected def feedNonEmpty(chunk: Seq[E2]): F[Step[F, E2, A]] =
-       F.map(self.feedNonEmpty(chunk.map(f)))(_.contramap(f))
+        F.map(self.feedNonEmpty(chunk.map(f)))(_.contramap(f))
     }
 
     final def bind[B](f: A => F[Step[F, E, B]])(implicit M: Monad[F]): F[Step[F, E, B]] = F.pure(
@@ -333,13 +335,15 @@ final object Step { self =>
    *
    * @group Collection
    */
-  final def consumeIn[F[_], E, C[_]](implicit
+  final def consumeIn[F[_], E, C[_]](
+    implicit
     F: Applicative[F],
     M: MonoidK[C],
     C: Applicative[C]
   ): Step[F, E, C[E]] = new ConsumeInCont(M.empty)
 
-  private[this] final class ConsumeInCont[F[_], E, C[_]](acc: C[E])(implicit
+  private[this] final class ConsumeInCont[F[_], E, C[_]](acc: C[E])(
+    implicit
     F: Applicative[F],
     M: MonoidK[C],
     C: Applicative[C]
@@ -461,7 +465,9 @@ final object Step { self =>
     final protected def feedNonEmptyPure(chunk: Seq[E]): Step[F, E, Vector[E]] = {
       val diff = n - chunk.size
 
-      if (diff > 0) new TakeCont(acc ++ chunk, diff) else if (diff == 0) done(acc ++ chunk) else {
+      if (diff > 0) new TakeCont(acc ++ chunk, diff)
+      else if (diff == 0) done(acc ++ chunk)
+      else {
         val (taken, left) = chunk.splitAt(n)
 
         doneWithLeftovers(acc ++ taken, left)
@@ -495,15 +501,17 @@ final object Step { self =>
    * @group Collection
    */
   final def drop[F[_], E](n: Int)(implicit F: Applicative[F]): Step[F, E, Unit] =
-    if (n <= 0) done(()) else new PureCont[F, E, Unit] {
-      final def runPure: Unit = ()
-      final def feedElPure(e: E): Step[F, E, Unit] = drop(n - 1)
-      final protected def feedNonEmptyPure(chunk: Seq[E]): Step[F, E, Unit] = {
-        val len = chunk.size
+    if (n <= 0) done(())
+    else
+      new PureCont[F, E, Unit] {
+        final def runPure: Unit = ()
+        final def feedElPure(e: E): Step[F, E, Unit] = drop(n - 1)
+        final protected def feedNonEmptyPure(chunk: Seq[E]): Step[F, E, Unit] = {
+          val len = chunk.size
 
-        if (len <= n) drop(n - len) else doneWithLeftovers((), chunk.drop(n))
+          if (len <= n) drop(n - len) else doneWithLeftovers((), chunk.drop(n))
+        }
       }
-    }
 
   /**
    * A [[Step]] that drops values from a stream as long as they satisfy the
@@ -531,7 +539,8 @@ final object Step { self =>
     final protected def feedNonEmptyPure(chunk: Seq[E]): Step[F, E, Boolean] = doneWithLeftovers(false, chunk)
   }
 
-  private[this] class TailRecMCont[F[_], E, A, B](a: A)(f: A => F[Step[F, E, Either[A, B]]])(implicit
+  private[this] class TailRecMCont[F[_], E, A, B](a: A)(f: A => F[Step[F, E, Either[A, B]]])(
+    implicit
     F: Monad[F]
   ) extends Step.Cont[F, E, B] {
     final def run: F[B] = F.tailRecM[A, B](a)(a => F.flatMap(f(a))(_.run))
@@ -557,7 +566,7 @@ final object Step { self =>
         F.map(
           s.bind[B] {
             case Right(b) => F.pure(done(b))
-            case Left(a) => F.pure(new TailRecMCont(a)(f))
+            case Left(a)  => F.pure(new TailRecMCont(a)(f))
           }
         )(Right(_))
       }

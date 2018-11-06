@@ -9,10 +9,10 @@ import io.iteratee.testing.EqInstances.eqThrowable
 import io.iteratee.tests.EitherTSuite
 import org.scalacheck.Arbitrary
 
-class EitherTEnumerateeTests extends EnumerateeSuite[({ type L[x] = EitherT[Eval, Throwable, x] })#L]
-    with EitherTSuite
+class EitherTEnumerateeTests extends EnumerateeSuite[({ type L[x] = EitherT[Eval, Throwable, x] })#L] with EitherTSuite
 
-class EitherTEnumeratorTests extends StackSafeEnumeratorSuite[({ type L[x] = EitherT[Eval, Throwable, x] })#L]
+class EitherTEnumeratorTests
+    extends StackSafeEnumeratorSuite[({ type L[x] = EitherT[Eval, Throwable, x] })#L]
     with EitherTSuite {
   type ETE[A] = EitherT[Eval, Throwable, A]
 
@@ -68,7 +68,8 @@ class EitherTEnumeratorTests extends StackSafeEnumeratorSuite[({ type L[x] = Eit
   }
 }
 
-class EitherTIterateeTests extends IterateeErrorSuite[({ type L[x] = EitherT[Eval, Throwable, x] })#L, Throwable]
+class EitherTIterateeTests
+    extends IterateeErrorSuite[({ type L[x] = EitherT[Eval, Throwable, x] })#L, Throwable]
     with EitherTSuite {
   type ETE[A] = EitherT[Eval, Throwable, A]
 

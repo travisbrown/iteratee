@@ -8,7 +8,6 @@ import io.iteratee.testing.{ EnumerateeSuite, IterateeErrorSuite, StackSafeEnume
 import io.iteratee.testing.EqInstances.eqThrowable
 import io.iteratee.testing.files.FileModuleSuite
 
-
 trait IOSuite extends IOModule {
   def monadName: String = "IO"
 

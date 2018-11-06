@@ -12,6 +12,7 @@ import io.iteratee.Iteratee
  * @groupprio Helpers 4
  */
 trait IterateeModule[F[_]] { self: Module[F] =>
+
   /**
    * Create an incomplete [[Iteratee]] that will use the given function to
    * process the next input.

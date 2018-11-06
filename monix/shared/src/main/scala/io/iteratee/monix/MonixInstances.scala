@@ -17,15 +17,15 @@ trait MonixInstances {
     final def raiseError[A](e: Throwable): Task[A] = Task.raiseError(e)
     final def handleErrorWith[A](fa: Task[A])(f: Throwable => Task[A]): Task[A] = fa.onErrorHandleWith(f)
     final def tailRecM[A, B](a: A)(f: A => Task[Either[A, B]]): Task[B] = f(a).flatMap {
-      case Right(b) => pure(b)
+      case Right(b)    => pure(b)
       case Left(nextA) => tailRecM(nextA)(f)
     }
 
     final def bracketCase[A, B](acquire: Task[A])(use: A => Task[B])(
       release: (A, ExitCase[Throwable]) => Task[Unit]
     ): Task[B] = acquire.bracketE(use) {
-      case (a, Right(_)) => release(a, ExitCase.complete)
-      case (a, Left(None)) => release(a, ExitCase.canceled)
+      case (a, Right(_))      => release(a, ExitCase.complete)
+      case (a, Left(None))    => release(a, ExitCase.canceled)
       case (a, Left(Some(e))) => release(a, ExitCase.error(e))
     }
 

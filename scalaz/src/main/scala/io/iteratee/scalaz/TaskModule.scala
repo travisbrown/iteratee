@@ -5,10 +5,13 @@ import io.iteratee.modules.{ EnumerateeModule, EnumeratorErrorModule, IterateeEr
 import io.iteratee.files.modules.FileModule
 import scalaz.concurrent.Task
 
-trait TaskModule extends ScalazInstances with Module[Task]
-  with EnumerateeModule[Task]
-  with EnumeratorErrorModule[Task, Throwable] with IterateeErrorModule[Task, Throwable]
-  with FileModule[Task] {
+trait TaskModule
+    extends ScalazInstances
+    with Module[Task]
+    with EnumerateeModule[Task]
+    with EnumeratorErrorModule[Task, Throwable]
+    with IterateeErrorModule[Task, Throwable]
+    with FileModule[Task] {
   final type M[f[_]] = Sync[f]
 
   final protected val F: Sync[Task] = scalazTaskSync
