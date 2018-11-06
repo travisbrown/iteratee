@@ -1,4 +1,5 @@
 import ReleaseTransformations._
+import org.scalafmt.sbt.ScalafmtPlugin.scalafmtConfigSettings
 import sbtcrossproject.{crossProject, CrossType}
 import scala.xml.{ Elem, Node => XmlNode, NodeSeq => XmlNodeSeq }
 import scala.xml.transform.{ RewriteRule, RuleTransformer }
@@ -142,6 +143,7 @@ lazy val tests = crossProject(JSPlatform, JVMPlatform)
   .settings(allSettings: _*)
   .settings(noPublishSettings: _*)
   .settings(Defaults.itSettings: _*)
+  .settings(inConfig(IntegrationTest)(scalafmtConfigSettings))
   .settings(
     libraryDependencies ++= Seq(
       "org.scalacheck" %%% "scalacheck" % scalaCheckVersion,
@@ -189,6 +191,7 @@ lazy val scalaz = project
     mimaPreviousArtifacts := Set("io.iteratee" %% "iteratee-scalaz" % previousIterateeVersion)
   )
   .settings(allSettings ++ Defaults.itSettings)
+  .settings(inConfig(IntegrationTest)(scalafmtConfigSettings))
   .settings(
     libraryDependencies += "org.scalaz" %% "scalaz-concurrent" % scalazVersion
   ).dependsOn(coreJVM, files, testsJVM % "test,it")
@@ -203,6 +206,7 @@ lazy val monix = crossProject(JSPlatform, JVMPlatform)
   )
   .settings(allSettings: _*)
   .settings(Defaults.itSettings: _*)
+  .settings(inConfig(IntegrationTest)(scalafmtConfigSettings))
   .settings(
     libraryDependencies ++= Seq(
       "io.monix" %%% "monix-eval" % monixVersion,
@@ -225,6 +229,7 @@ lazy val benchmark = project
     moduleName := "iteratee-benchmark"
   )
   .settings(allSettings ++ Defaults.itSettings)
+  .settings(inConfig(IntegrationTest)(scalafmtConfigSettings))
   .settings(noPublishSettings)
   .settings(
     libraryDependencies ++= Seq(
@@ -320,7 +325,10 @@ val jsProjects = Seq(
 )
 
 addCommandAlias("testJVM", jvmProjects.map(";" + _ + "/test").mkString)
-addCommandAlias("validateJVM", ";testJVM;tests/it:test;benchmark/it:test;monix/it:test;scalaz/it:test;scalastyle;unidoc")
+addCommandAlias(
+  "validateJVM",
+  ";testJVM;tests/it:test;benchmark/it:test;monix/it:test;scalaz/it:test;scalafmtCheck;scalafmtSbtCheck;test:scalafmtCheck;it:scalafmtCheck;scalastyle;unidoc"
+)
 addCommandAlias("testJS", jsProjects.map(";" + _ + "/test").mkString)
-addCommandAlias("validateJS", ";testJS;scalastyle;unidoc")
+addCommandAlias("validateJS", ";testJS;scalafmtCheck;scalafmtSbtCheck;test:scalafmtCheck;it:scalafmtCheck;scalastyle;unidoc")
 addCommandAlias("validate", ";validateJVM;validateJS")
