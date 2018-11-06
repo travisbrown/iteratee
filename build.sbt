@@ -22,7 +22,7 @@ val catsVersion = "1.4.0"
 val catsEffectVersion = "1.0.0"
 val disciplineVersion = "0.9.0"
 val monixVersion = "3.0.0-RC2-840c090"
-val scalazVersion = "7.2.26"
+val scalazVersion = "7.2.27"
 val scalazStreamVersion = "0.8.6a"
 val fs2Version = "1.0.0"
 
