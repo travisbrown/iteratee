@@ -41,93 +41,101 @@ package object files {
 
   def listFiles[F[_]](dir: File)(implicit F: Sync[F]): Enumerator[F, File] =
     Enumerator.liftM(F.delay(dir.listFiles)).flatMap {
-      case null => Enumerator.empty[F, File]
+      case null  => Enumerator.empty[F, File]
       case files => Enumerator.enumVector(files.toVector)
     }
 
   def listFilesRec[F[_]](dir: File)(implicit F: Sync[F]): Enumerator[F, File] = listFiles[F](dir).flatMap {
     case item if item.isDirectory => listFilesRec(item)
-    case item => Enumerator.enumOne(item)
+    case item                     => Enumerator.enumOne(item)
   }
 
   def writeLines[F[_]](file: File)(implicit F: Sync[F]): Iteratee[F, String, Unit] =
     Iteratee.liftM(F.delay(new BufferedWriter(new FileWriter(file)))).flatMap { writer =>
-      Iteratee.foldM[F, String, Unit](())((_, line) =>
-        F.delay {
-          writer.write(line)
-          writer.newLine()
-        }
-      ).ensure(F.delay(writer.close()))
+      Iteratee
+        .foldM[F, String, Unit](())(
+          (_, line) =>
+            F.delay {
+              writer.write(line)
+              writer.newLine()
+            }
+        )
+        .ensure(F.delay(writer.close()))
     }
 
   def writeLinesToStream[F[_]](stream: OutputStream)(implicit F: Sync[F]): Iteratee[F, String, Unit] =
     Iteratee.liftM(F.delay(new BufferedWriter(new OutputStreamWriter(stream)))).flatMap { writer =>
-      Iteratee.foldM[F, String, Unit](())((_, line) =>
-        F.delay {
-          writer.write(line)
-          writer.newLine()
-        }
-      ).ensure(F.delay(writer.close()))
+      Iteratee
+        .foldM[F, String, Unit](())(
+          (_, line) =>
+            F.delay {
+              writer.write(line)
+              writer.newLine()
+            }
+        )
+        .ensure(F.delay(writer.close()))
     }
 
   def writeBytes[F[_]](file: File)(implicit F: Sync[F]): Iteratee[F, Array[Byte], Unit] =
     Iteratee.liftM(F.delay(new BufferedOutputStream(new FileOutputStream(file)))).flatMap { stream =>
-      Iteratee.foldM[F, Array[Byte], Unit](())((_, bytes) =>
-        F.delay(stream.write(bytes))
-      ).ensure(F.delay(stream.close()))
+      Iteratee
+        .foldM[F, Array[Byte], Unit](())((_, bytes) => F.delay(stream.write(bytes)))
+        .ensure(F.delay(stream.close()))
     }
 
   def writeBytesToStream[F[_]](stream: OutputStream)(implicit F: Sync[F]): Iteratee[F, Array[Byte], Unit] =
     Iteratee.liftM(F.delay(new BufferedOutputStream(stream))).flatMap { stream =>
-      Iteratee.foldM[F, Array[Byte], Unit](())((_, bytes) =>
-        F.delay(stream.write(bytes))
-      ).ensure(F.delay(stream.close()))
+      Iteratee
+        .foldM[F, Array[Byte], Unit](())((_, bytes) => F.delay(stream.write(bytes)))
+        .ensure(F.delay(stream.close()))
     }
 
   private[this] def enumerateLines[F[_]](reader: => BufferedReader)(implicit F: Sync[F]): Enumerator[F, String] =
-    Enumerator.liftM(F.delay(reader)).flatMap(reader =>
-      new LineEnumerator(reader).ensure(F.delay(reader.close()))
-    )
+    Enumerator.liftM(F.delay(reader)).flatMap(reader => new LineEnumerator(reader).ensure(F.delay(reader.close())))
 
   private[this] def enumerateBytes[F[_]](stream: => InputStream)(implicit F: Sync[F]): Enumerator[F, Array[Byte]] =
-    Enumerator.liftM(F.delay(stream)).flatMap(reader =>
-      new ByteEnumerator(stream).ensure(F.delay(stream.close()))
-    )
+    Enumerator.liftM(F.delay(stream)).flatMap(reader => new ByteEnumerator(stream).ensure(F.delay(stream.close())))
 
   private[this] final class LineEnumerator[F[_]](reader: BufferedReader)(implicit F: Sync[F])
       extends Enumerator[F, String] {
     final def apply[A](s: Step[F, String, A]): F[Step[F, String, A]] =
-      if (s.isDone) F.pure(s) else F.flatMap(F.delay(reader.readLine())) {
-        case null => F.pure(s)
-        case line => F.flatMap(s.feedEl(line))(apply)
-      }
+      if (s.isDone) F.pure(s)
+      else
+        F.flatMap(F.delay(reader.readLine())) {
+          case null => F.pure(s)
+          case line => F.flatMap(s.feedEl(line))(apply)
+        }
   }
 
   private[this] final class ByteEnumerator[F[_]](stream: InputStream, bufferSize: Int = 8192)(implicit F: Sync[F])
       extends Enumerator[F, Array[Byte]] {
     final def apply[A](s: Step[F, Array[Byte], A]): F[Step[F, Array[Byte], A]] =
-      if (s.isDone) F.pure(s) else F.flatten(
-        F.delay {
-          val array = new Array[Byte](bufferSize)
-          val bytesRead = stream.read(array, 0, bufferSize)
-          val read = if (bytesRead == bufferSize) array else array.slice(0, bytesRead)
+      if (s.isDone) F.pure(s)
+      else
+        F.flatten(
+          F.delay {
+            val array = new Array[Byte](bufferSize)
+            val bytesRead = stream.read(array, 0, bufferSize)
+            val read = if (bytesRead == bufferSize) array else array.slice(0, bytesRead)
 
-          if (bytesRead == -1) F.pure(s) else F.flatMap(s.feedEl(read))(apply(_))
-        }
-      )
+            if (bytesRead == -1) F.pure(s) else F.flatMap(s.feedEl(read))(apply(_))
+          }
+        )
   }
 
   private[this] final class ZipFileEnumerator[F[_]](zipFile: ZipFile, iterator: Iterator[ZipEntry])(implicit F: Sync[F])
       extends Enumerator[F, (ZipEntry, InputStream)] {
     final def apply[A](s: Step[F, (ZipEntry, InputStream), A]): F[Step[F, (ZipEntry, InputStream), A]] =
-      if (s.isDone) F.pure(s) else F.flatten(
-        F.delay(
-          if (iterator.hasNext) {
-            val entry = iterator.next
+      if (s.isDone) F.pure(s)
+      else
+        F.flatten(
+          F.delay(
+            if (iterator.hasNext) {
+              val entry = iterator.next
 
-            F.flatMap(s.feedEl((entry, zipFile.getInputStream(entry))))(apply)
-          } else F.pure(s)
+              F.flatMap(s.feedEl((entry, zipFile.getInputStream(entry))))(apply)
+            } else F.pure(s)
+          )
         )
-      )
   }
 }

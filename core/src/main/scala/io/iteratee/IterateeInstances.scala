@@ -28,7 +28,8 @@ private class IterateeMonad[F[_], E](implicit F: Monad[F]) extends Monad[Iterate
 }
 
 private class IterateeMonadError[F[_], T, E](implicit F: MonadError[F, T])
-    extends IterateeMonad[F, E] with MonadError[Iteratee[F, E, ?], T] {
+    extends IterateeMonad[F, E]
+    with MonadError[Iteratee[F, E, ?], T] {
   final def raiseError[A](e: T): Iteratee[F, E, A] = Iteratee.fail(e)(F)
   final def handleErrorWith[A](fa: Iteratee[F, E, A])(f: T => Iteratee[F, E, A]): Iteratee[F, E, A] =
     fa.handleErrorWith(f)(F)

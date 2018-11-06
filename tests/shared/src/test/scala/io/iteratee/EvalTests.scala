@@ -22,11 +22,13 @@ class EvalEnumeratorTests extends StackSafeEnumeratorSuite[Eval] with EvalSuite 
     var counter = 0
     val enumerator = generateM(
       Eval.always(
-        if (counter > count) None else Some {
-          val result = counter
-          counter += 1
-          result
-        }
+        if (counter > count) None
+        else
+          Some {
+            val result = counter
+            counter += 1
+            result
+          }
       )
     )
 
@@ -39,11 +41,13 @@ class EvalEnumeratorTests extends StackSafeEnumeratorSuite[Eval] with EvalSuite 
     var counter = 0
     val enumerator = Enumerator.StackUnsafe.generateM(
       Eval.always(
-        if (counter > count) None else Some {
-          val result = counter
-          counter += 1
-          result
-        }
+        if (counter > count) None
+        else
+          Some {
+            val result = counter
+            counter += 1
+            result
+          }
       )
     )
 

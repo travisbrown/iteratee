@@ -8,6 +8,7 @@ import io.iteratee.{ Enumeratee, Enumerator, Iteratee }
  * @groupprio Enumeratees 2
  */
 trait EnumerateeModule[F[_]] { this: Module[F] =>
+
   /**
    * Map a function over a stream.
    *
@@ -94,10 +95,10 @@ trait EnumerateeModule[F[_]] { this: Module[F] =>
   final def filter[E](p: E => Boolean): Enumeratee[F, E, E] = Enumeratee.filter(p)(F)
 
   /**
-    * Drop values that do not satisfy the given monadic predicate.
-    *
-    * @group Enumeratees
-    */
+   * Drop values that do not satisfy the given monadic predicate.
+   *
+   * @group Enumeratees
+   */
   final def filterM[E](p: E => F[Boolean]): Enumeratee[F, E, E] = Enumeratee.filterM(p)(F)
 
   /**

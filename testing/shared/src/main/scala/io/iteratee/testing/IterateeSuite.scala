@@ -18,11 +18,13 @@ abstract class IterateeSuite[F[_]: Monad] extends BaseIterateeSuite[F] {
   )
 }
 
-abstract class IterateeErrorSuite[F[_], T: Arbitrary: Eq: Cogen](implicit
+abstract class IterateeErrorSuite[F[_], T: Arbitrary: Eq: Cogen](
+  implicit
   MEF: MonadError[F, T]
 ) extends BaseIterateeSuite[F] {
-  this: EnumerateeModule[F] with EnumeratorModule[F] with IterateeErrorModule[F, T]
-    with Module[F] { type M[f[_]] <: MonadError[f, T] } =>
+  this: EnumerateeModule[F] with EnumeratorModule[F] with IterateeErrorModule[F, T] with Module[F] {
+    type M[f[_]] <: MonadError[f, T]
+  } =>
 
   implicit val monadError: MonadError[VectorIntFoldingIteratee, T] = Iteratee.iterateeMonadError[F, T, Vector[Int]]
 
@@ -210,9 +212,9 @@ abstract class BaseIterateeSuite[F[_]: Monad] extends ModuleSuite[F] {
 
   "takeI" should "consume the specified number of values" in forAll { (eav: EnumeratorAndValues[Int], n: Int) =>
     /**
-      * This isn't a comprehensive way to avoid SI-9581, but it seems to keep clear of the cases
-      * ScalaCheck is likely to run into.
-      */
+     * This isn't a comprehensive way to avoid SI-9581, but it seems to keep clear of the cases
+     * ScalaCheck is likely to run into.
+     */
     whenever(n != Int.MaxValue) {
       assert(eav.resultWithLeftovers(takeI[Int](n)) === F.pure((eav.values.take(n), eav.values.drop(n))))
     }
@@ -226,7 +228,7 @@ abstract class BaseIterateeSuite[F[_]: Monad] extends ModuleSuite[F] {
     /**
      * This isn't a comprehensive way to avoid SI-9581, but it seems to keep clear of the cases
      * ScalaCheck is likely to run into.
-      */
+     */
     whenever(n != Int.MaxValue) {
       assert(eav.resultWithLeftovers(dropI[Int](n)) === F.pure(((), eav.values.drop(n))))
     }
@@ -400,23 +402,27 @@ abstract class BaseIterateeSuite[F[_]: Monad] extends ModuleSuite[F] {
 
   "foldMapOption" should "sum a stream while transforming it" in
     forAll { (eav: EnumeratorAndValues[Int]) =>
-      val result = F.pure((
-        if (eav.values.isEmpty) None else Some(eav.values.sum + eav.values.size),
-        Vector.empty[Int]
-      ))
+      val result = F.pure(
+        (
+          if (eav.values.isEmpty) None else Some(eav.values.sum + eav.values.size),
+          Vector.empty[Int]
+        )
+      )
 
       assert(eav.resultWithLeftovers(foldMapOption(_ + 1)) === result)
-   }
+    }
 
   "foldMapMOption" should "sum a stream while transforming it" in
     forAll { (eav: EnumeratorAndValues[Int]) =>
-      val result = F.pure((
-        if (eav.values.isEmpty) None else Some(eav.values.sum + eav.values.size),
-        Vector.empty[Int]
-      ))
+      val result = F.pure(
+        (
+          if (eav.values.isEmpty) None else Some(eav.values.sum + eav.values.size),
+          Vector.empty[Int]
+        )
+      )
 
       assert(eav.resultWithLeftovers(foldMapMOption(e => F.pure(e + 1))) === result)
-   }
+    }
 
   "intoIteratee" should "be available on values in a context" in forAll { (i: Int) =>
     import syntax._

@@ -68,7 +68,7 @@ abstract class EnumerateeSuite[F[_]: Monad] extends ModuleSuite[F] {
 
   it should "work with wrap" in forAll { (eav: EnumeratorAndValues[Int], n: Int) =>
     /**
-      * This isn't a comprehensive way to avoid SI-9581, but it seems to keep clear of the cases
+     * This isn't a comprehensive way to avoid SI-9581, but it seems to keep clear of the cases
      * ScalaCheck is likely to run into.
      */
     whenever(n != Int.MaxValue) {
@@ -169,7 +169,7 @@ abstract class EnumerateeSuite[F[_]: Monad] extends ModuleSuite[F] {
   }
 
   "filterM" should "filter the stream with a pure effectful function" in forAll { (eav: EnumeratorAndValues[Int]) =>
-    val p:  Int => Boolean    = _ % 2 == 0
+    val p: Int => Boolean = _ % 2 == 0
     val fp: Int => F[Boolean] = i => F.pure(p(i))
 
     assert(eav.enumerator.through(filterM(fp)).toVector === F.pure(eav.values.filter(p)))
@@ -298,7 +298,8 @@ abstract class EnumerateeSuite[F[_]: Monad] extends ModuleSuite[F] {
   "splitOn" should "split the stream on a predicate" in forAll { (eav: EnumeratorAndValues[Int]) =>
     val p: Int => Boolean = _ % 2 == 0
 
-    def splitOnEvens(xs: Vector[Int]): Vector[Vector[Int]] = if (xs.isEmpty) Vector.empty else {
+    def splitOnEvens(xs: Vector[Int]): Vector[Vector[Int]] = if (xs.isEmpty) Vector.empty
+    else {
       val (before, after) = xs.span(x => !p(x))
 
       before +: splitOnEvens(after.drop(1))
@@ -320,9 +321,12 @@ abstract class EnumerateeSuite[F[_]: Monad] extends ModuleSuite[F] {
 
   "intersperse" should "intersperse values in the stream with a delimiter" in {
     forAll { (eav: EnumeratorAndValues[Int], delim: Int) =>
-      val expected = eav.values.zip(Stream.continually(delim)).flatMap {
-        case (x, y) => Vector(x, y)
-      }.dropRight(1)
+      val expected = eav.values
+        .zip(Stream.continually(delim))
+        .flatMap {
+          case (x, y) => Vector(x, y)
+        }
+        .dropRight(1)
 
       assert(eav.resultWithLeftovers(consume[Int].through(intersperse(delim))) === F.pure((expected, Vector.empty)))
     }

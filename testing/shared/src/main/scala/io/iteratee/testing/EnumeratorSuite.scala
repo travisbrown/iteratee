@@ -8,7 +8,7 @@ import io.iteratee.modules.{ EnumerateeModule, EnumeratorModule, IterateeModule,
 import scala.Predef._
 
 abstract class EnumeratorSuite[F[_]: Monad] extends ModuleSuite[F] {
-    this: Module[F] with EnumerateeModule[F] with EnumeratorModule[F] with IterateeModule[F] =>
+  this: Module[F] with EnumerateeModule[F] with EnumeratorModule[F] with IterateeModule[F] =>
 
   type EnumeratorF[E] = Enumerator[F, E]
 
@@ -273,7 +273,7 @@ abstract class EnumeratorSuite[F[_]: Monad] extends ModuleSuite[F] {
 }
 
 abstract class StackSafeEnumeratorSuite[F[_]: Monad] extends EnumeratorSuite[F] {
-    this: Module[F] with EnumerateeModule[F] with EnumeratorModule[F] with IterateeModule[F] =>
+  this: Module[F] with EnumerateeModule[F] with EnumeratorModule[F] with IterateeModule[F] =>
 
   "StackUnsafe.enumStream" should "be consistent with enumStream" in forAll { (xs: Stream[Int]) =>
     val expected = enumStream(xs).toVector

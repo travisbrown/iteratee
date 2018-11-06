@@ -67,9 +67,8 @@ abstract class Enumerator[F[_], E] extends Serializable { self =>
   final def bindM[G[_], B](f: E => G[Enumerator[F, B]])(implicit F: Monad[F], G: Monad[G]): F[G[Enumerator[F, B]]] =
     map(f).into(
       Iteratee.fold[F, G[Enumerator[F, B]], G[Enumerator[F, B]]](G.pure(Enumerator.empty)) {
-        case (acc, concat) => G.flatMap(acc)(en =>
-          G.map(concat)(append => Semigroup[Enumerator[F, B]].combine(en, append))
-        )
+        case (acc, concat) =>
+          G.flatMap(acc)(en => G.map(concat)(append => Semigroup[Enumerator[F, B]].combine(en, append)))
       }
     )
 
@@ -119,6 +118,7 @@ final object Enumerator extends EnumeratorInstances {
     new Enumerator[F, E] {
       final def apply[A](s: Step[F, E, A]): F[Step[F, E, A]] = F.flatMap(fa)(s.feedEl)
     }
+
   /**
    * Lift an effectful value in a [[cats.Eval]] into an enumerator.
    */
@@ -162,16 +162,18 @@ final object Enumerator extends EnumeratorInstances {
   final def enumEither[F[_], T, E](either: Either[T, E])(implicit F: MonadError[F, T]): Enumerator[F, E] =
     either match {
       case Right(a) => enumOne(a)
-      case Left(t) => fail(t)
+      case Left(t)  => fail(t)
     }
 
   private[this] abstract class ChunkedIteratorEnumerator[F[_], E](implicit F: Monad[F]) extends Enumerator[F, E] {
     protected[this] def chunks: Iterator[Seq[E]]
 
     final def apply[A](s: Step[F, E, A]): F[Step[F, E, A]] = F.tailRecM((s, chunks)) {
-      case (step, it) => if (it.isEmpty || step.isDone) F.pure(Right(step)) else {
-        F.map(step.feed(it.next()))(s => Left((s, it)))
-      }
+      case (step, it) =>
+        if (it.isEmpty || step.isDone) F.pure(Right(step))
+        else {
+          F.map(step.feed(it.next()))(s => Left((s, it)))
+        }
     }
   }
 
@@ -235,9 +237,11 @@ final object Enumerator extends EnumeratorInstances {
   final def iterate[F[_], E](init: E)(f: E => E)(implicit F: Monad[F]): Enumerator[F, E] =
     new Enumerator[F, E] {
       final def apply[A](s: Step[F, E, A]): F[Step[F, E, A]] = F.tailRecM((s, init)) {
-        case (step, last) => if (step.isDone) F.pure(Right(step)) else {
-          F.map(step.feedEl(last))(s1 => Left((s1, f(last))))
-        }
+        case (step, last) =>
+          if (step.isDone) F.pure(Right(step))
+          else {
+            F.map(step.feedEl(last))(s1 => Left((s1, f(last))))
+          }
       }
     }
 
@@ -248,9 +252,11 @@ final object Enumerator extends EnumeratorInstances {
   final def iterateM[F[_], E](init: E)(f: E => F[E])(implicit F: Monad[F]): Enumerator[F, E] =
     new Enumerator[F, E] {
       final def apply[A](s: Step[F, E, A]): F[Step[F, E, A]] = F.tailRecM((s, init)) {
-        case (step, last) => if (step.isDone) F.pure(Right(step)) else {
-          F.map2(step.feedEl(last), f(last))((s1, next) => Left((s1, next)))
-        }
+        case (step, last) =>
+          if (step.isDone) F.pure(Right(step))
+          else {
+            F.map2(step.feedEl(last), f(last))((s1, next) => Left((s1, next)))
+          }
       }
     }
 
@@ -262,7 +268,7 @@ final object Enumerator extends EnumeratorInstances {
     new Enumerator[F, E] {
       final def apply[A](s: Step[F, E, A]): F[Step[F, E, A]] = F.tailRecM((s, Some(init): Option[E])) {
         case (step, Some(last)) if !step.isDone => F.map(step.feedEl(last))(s1 => Left((s1, f(last))))
-        case (step, _) => F.pure(Right(step))
+        case (step, _)                          => F.pure(Right(step))
       }
     }
 
@@ -286,10 +292,12 @@ final object Enumerator extends EnumeratorInstances {
   final def generateM[F[_], E](f: F[Option[E]])(implicit F: Monad[F]): Enumerator[F, E] =
     new Enumerator[F, E] {
       final def apply[A](s: Step[F, E, A]): F[Step[F, E, A]] = F.tailRecM(s) { step =>
-        if (step.isDone) F.pure(Right(step)) else F.flatMap(f) {
-          case Some(e) => F.map(step.feedEl(e))(Left(_))
-          case None => F.pure(Right(step))
-        }
+        if (step.isDone) F.pure(Right(step))
+        else
+          F.flatMap(f) {
+            case Some(e) => F.map(step.feedEl(e))(Left(_))
+            case None    => F.pure(Right(step))
+          }
       }
     }
 
@@ -305,7 +313,8 @@ final object Enumerator extends EnumeratorInstances {
       def chunks: Iterator[Vector[E]]
 
       private[this] final def go[A](it: Iterator[Vector[E]], step: Step[F, E, A]): F[Step[F, E, A]] =
-        if (it.isEmpty || step.isDone) F.pure(step) else {
+        if (it.isEmpty || step.isDone) F.pure(step)
+        else {
           val next = it.next()
 
           F.flatMap(step.feed(next))(go(it, _))
@@ -376,7 +385,7 @@ final object Enumerator extends EnumeratorInstances {
         private[this] def loop[A](step: Step[F, E, A], last: Option[E]): F[Step[F, E, A]] =
           last match {
             case Some(last) if !step.isDone => F.flatMap(step.feedEl(last))(loop(_, f(last)))
-            case _ => F.pure(step)
+            case _                          => F.pure(step)
           }
         final def apply[A](s: Step[F, E, A]): F[Step[F, E, A]] = loop(s, Some(init))
       }
@@ -393,7 +402,7 @@ final object Enumerator extends EnumeratorInstances {
         private[this] def loop[A](step: Step[F, E, A], last: Option[E]): F[Step[F, E, A]] =
           last match {
             case Some(last) if !step.isDone => F.flatten(F.map2(step.feedEl(last), f(last))(loop))
-            case _ => F.pure(step)
+            case _                          => F.pure(step)
           }
         final def apply[A](s: Step[F, E, A]): F[Step[F, E, A]] = loop(s, Some(init))
       }
@@ -408,10 +417,12 @@ final object Enumerator extends EnumeratorInstances {
     def generateM[F[_], E](f: F[Option[E]])(implicit F: Monad[F]): Enumerator[F, E] =
       new Enumerator[F, E] {
         final def apply[A](s: Step[F, E, A]): F[Step[F, E, A]] =
-          if (s.isDone) F.pure(s) else F.flatMap(f) {
-            case None => F.pure(s)
-            case Some(e) => F.flatMap(s.feedEl(e))(apply)
-          }
+          if (s.isDone) F.pure(s)
+          else
+            F.flatMap(f) {
+              case None    => F.pure(s)
+              case Some(e) => F.flatMap(s.feedEl(e))(apply)
+            }
       }
   }
 }

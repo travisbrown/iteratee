@@ -8,9 +8,13 @@ import org.scalatest.FlatSpec
 import org.scalatest.prop.{ Checkers, GeneratorDrivenPropertyChecks }
 import org.typelevel.discipline.Laws
 
-class BaseSuite extends FlatSpec with GeneratorDrivenPropertyChecks
-  with AllInstances with AllSyntax
-  with ArbitraryInstances with EqInstances {
+class BaseSuite
+    extends FlatSpec
+    with GeneratorDrivenPropertyChecks
+    with AllInstances
+    with AllSyntax
+    with ArbitraryInstances
+    with EqInstances {
   override def convertToEqualizer[T](left: T): Equalizer[T] =
     sys.error("Intentionally ambiguous implicit for Equalizer")
 

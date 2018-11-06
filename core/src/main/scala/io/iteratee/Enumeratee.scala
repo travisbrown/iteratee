@@ -28,6 +28,7 @@ abstract class Enumeratee[F[_], O, I] extends Serializable { self =>
 }
 
 final object Enumeratee extends EnumerateeInstances {
+
   /**
    * An identity stream transformer.
    */
@@ -51,7 +52,7 @@ final object Enumeratee extends EnumerateeInstances {
    */
   final def flatMapM[F[_], O, I](f: O => F[I])(implicit F: Monad[F]): Enumeratee[F, O, I] = new PureLoop[F, O, I] {
     protected final def loop[A](step: Step[F, I, A]): Step[F, O, Step[F, I, A]] = new StepCont[F, O, I, A](step) {
-      final def feedEl(e: O): F[Step[F, O, Step[F, I, A]]]= F.map(F.flatMap(f(e))(step.feedEl))(doneOrLoop)
+      final def feedEl(e: O): F[Step[F, O, Step[F, I, A]]] = F.map(F.flatMap(f(e))(step.feedEl))(doneOrLoop)
       final protected def feedNonEmpty(chunk: Seq[O]): F[Step[F, O, Step[F, I, A]]] = F.map(
         F.flatMap(catsStdInstancesForList.traverse(chunk.toList)(f))(step.feed)
       )(doneOrLoop)
@@ -77,28 +78,30 @@ final object Enumeratee extends EnumerateeInstances {
    */
   final def take[F[_], E](n: Long)(implicit F: Applicative[F]): Enumeratee[F, E, E] = new Enumeratee[F, E, E] {
     private[this] def loop[A](remaining: Long)(step: Step[F, E, A]): Step[F, E, Step[F, E, A]] =
-      if (step.isDone) Step.done(step) else new StepCont[F, E, E, A](step) {
-        final def feedEl(e: E): F[Step[F, E, Step[F, E, A]]] =
-          if (remaining <= 0L) {
-            F.pure(Step.doneWithLeftovers(step, e :: Nil))
-          } else {
-            F.map(step.feedEl(e))(loop(remaining - 1L))
-          }
-        final protected def feedNonEmpty(chunk: Seq[E]): F[Step[F, E, Step[F, E, A]]] =
-          if (remaining > Int.MaxValue.toLong) {
-            F.map(step.feed(chunk))(loop(remaining - chunk.size.toLong))
-          } else {
-            val (taken, left) = chunk.splitAt(remaining.toInt)
-
-            if (taken.isEmpty) {
-              F.pure(Step.doneWithLeftovers(step, left))
-            } else if (left.isEmpty) {
-              F.map(step.feed(taken))(loop(remaining - taken.size.toLong))
+      if (step.isDone) Step.done(step)
+      else
+        new StepCont[F, E, E, A](step) {
+          final def feedEl(e: E): F[Step[F, E, Step[F, E, A]]] =
+            if (remaining <= 0L) {
+              F.pure(Step.doneWithLeftovers(step, e :: Nil))
             } else {
-              F.map(step.feed(taken))(Step.doneWithLeftovers(_, left))
+              F.map(step.feedEl(e))(loop(remaining - 1L))
             }
-          }
-      }
+          final protected def feedNonEmpty(chunk: Seq[E]): F[Step[F, E, Step[F, E, A]]] =
+            if (remaining > Int.MaxValue.toLong) {
+              F.map(step.feed(chunk))(loop(remaining - chunk.size.toLong))
+            } else {
+              val (taken, left) = chunk.splitAt(remaining.toInt)
+
+              if (taken.isEmpty) {
+                F.pure(Step.doneWithLeftovers(step, left))
+              } else if (left.isEmpty) {
+                F.map(step.feed(taken))(loop(remaining - taken.size.toLong))
+              } else {
+                F.map(step.feed(taken))(Step.doneWithLeftovers(_, left))
+              }
+            }
+        }
 
     final def apply[A](step: Step[F, E, A]): F[Step[F, E, Step[F, E, A]]] = F.pure(loop(n)(step))
   }
@@ -137,7 +140,7 @@ final object Enumeratee extends EnumerateeInstances {
       ): F[(Vector[E], Vector[E])] = {
         def go(current: Vector[E], acc: Vector[E]): F[(Vector[E], Vector[E])] = current match {
           case vv @ e +: rest => F.ifM(p(e))(ifFalse = F.pure((acc, vv)), ifTrue = go(rest, acc :+ e))
-          case vv => F.pure((acc, vv))
+          case vv             => F.pure((acc, vv))
         }
         go(v, Vector.empty)
       }
@@ -146,7 +149,8 @@ final object Enumeratee extends EnumerateeInstances {
         final def feedEl(e: E): F[Step[F, E, Step[F, E, A]]] = {
           F.ifM(p(e))(
             ifFalse = F.pure(Step.doneWithLeftovers(step, e :: Nil)),
-            ifTrue  = F.map(step.feedEl(e))(doneOrLoop))
+            ifTrue = F.map(step.feedEl(e))(doneOrLoop)
+          )
         }
         final protected def feedNonEmpty(chunk: Seq[E]): F[Step[F, E, Step[F, E, A]]] = {
           F.flatMap(vectorSpanM(p, chunk.toVector)) {
@@ -169,7 +173,9 @@ final object Enumeratee extends EnumerateeInstances {
    */
   final def drop[F[_], E](n: Long)(implicit F: Applicative[F]): Enumeratee[F, E, E] = new Enumeratee[F, E, E] {
     private[this] def loop[A](remaining: Long)(step: Step[F, E, A]): Step[F, E, Step[F, E, A]] =
-      if (step.isDone) Step.done(step) else if (remaining <= 0L) new IdentityCont(step) else {
+      if (step.isDone) Step.done(step)
+      else if (remaining <= 0L) new IdentityCont(step)
+      else {
         new StepCont[F, E, E, A](step) {
           final def feedEl(e: E): F[Step[F, E, Step[F, E, A]]] = F.pure(loop(remaining - 1)(step))
           final protected def feedNonEmpty(chunk: Seq[E]): F[Step[F, E, Step[F, E, A]]] =
@@ -220,7 +226,7 @@ final object Enumeratee extends EnumerateeInstances {
       private[this] def vectorDropWhileM(p: E => F[Boolean], v: Vector[E]): F[Vector[E]] = {
         def go(current: Vector[E]): F[Vector[E]] = current match {
           case vv @ e +: rest => F.ifM(p(e))(ifFalse = F.pure(current), ifTrue = go(rest))
-          case vv => F.pure(current)
+          case vv             => F.pure(current)
         }
         go(v)
       }
@@ -285,8 +291,8 @@ final object Enumeratee extends EnumerateeInstances {
   }
 
   /**
-    * Drop values that do not satisfy a monadic predicate.
-    */
+   * Drop values that do not satisfy a monadic predicate.
+   */
   final def filterM[F[_], E](p: E => F[Boolean])(implicit F: Monad[F]): Enumeratee[F, E, E] = flatMap { e =>
     new Enumerator[F, E] {
       def apply[A](s: Step[F, E, A]): F[Step[F, E, A]] = F.ifM(p(e))(ifTrue = s.feedEl(e), ifFalse = F.pure(s))
@@ -300,9 +306,11 @@ final object Enumeratee extends EnumerateeInstances {
     new Enumeratee[F, O, I] {
       final def apply[A](step: Step[F, I, A]): F[Step[F, O, Step[F, I, A]]] = F.pure(
         Step.tailRecM[F, O, Step[F, I, A], Step[F, I, A]](step) { s =>
-          if (s.isDone) F.pure(Step.done(Right(s))) else {
+          if (s.isDone) F.pure(Step.done(Right(s)))
+          else {
             Step.isEnd[F, O].bind { isEnd =>
-              if (isEnd) F.pure(Step.done(Right(s))) else {
+              if (isEnd) F.pure(Step.done(Right(s)))
+              else {
                 F.flatMap(iteratee.state)(
                   _.bind(i => F.map(s.feedEl(i))(nextStep => Step.done(Left(nextStep))))
                 )
@@ -377,7 +385,8 @@ final object Enumeratee extends EnumerateeInstances {
    * Run an iteratee and then use the provided function to combine the result
    * with the remaining elements.
    */
-  final def remainderWithResult[F[_], O, R, I](iteratee: Iteratee[F, O, R])(f: (R, O) => I)(implicit
+  final def remainderWithResult[F[_], O, R, I](iteratee: Iteratee[F, O, R])(f: (R, O) => I)(
+    implicit
     F: Monad[F]
   ): Enumeratee[F, O, I] =
     new Enumeratee[F, O, I] {
@@ -398,7 +407,8 @@ final object Enumeratee extends EnumerateeInstances {
    * Run an iteratee and then use the provided effectful function to combine the
    * result with the remaining elements.
    */
-  final def remainderWithResultM[F[_], O, R, I](iteratee: Iteratee[F, O, R])(f: (R, O) => F[I])(implicit
+  final def remainderWithResultM[F[_], O, R, I](iteratee: Iteratee[F, O, R])(f: (R, O) => F[I])(
+    implicit
     F: Monad[F]
   ): Enumeratee[F, O, I] =
     new Enumeratee[F, O, I] {
@@ -426,25 +436,27 @@ final object Enumeratee extends EnumerateeInstances {
   final def uniq[F[_], E](implicit F: Applicative[F], E: Eq[E]): Enumeratee[F, E, E] =
     new Enumeratee[F, E, E] {
       private[this] final def stepWith[A](step: Step[F, E, A], last: Option[E]): Step[F, E, A] =
-        if (step.isDone) step else new Step.Cont[F, E, A] {
-          final def run: F[A] = step.run
-          final def feedEl(e: E): F[Step[F, E, A]] = last match {
-            case Some(v) if E.eqv(e, v) => F.pure(stepWith(step, last))
-            case _ => F.map(step.feedEl(e))(stepWith(_, Some(e)))
-          }
-          final protected def feedNonEmpty(chunk: Seq[E]): F[Step[F, E, A]] = {
-            val (newEs, newLast) = chunk.foldLeft((Vector.empty[E], last)) {
-              case ((acc, Some(lastValue)), e) if E.eqv(lastValue, e) => (acc, Some(lastValue))
-              case ((acc, _), e) => (acc :+ e, Some(e))
+        if (step.isDone) step
+        else
+          new Step.Cont[F, E, A] {
+            final def run: F[A] = step.run
+            final def feedEl(e: E): F[Step[F, E, A]] = last match {
+              case Some(v) if E.eqv(e, v) => F.pure(stepWith(step, last))
+              case _                      => F.map(step.feedEl(e))(stepWith(_, Some(e)))
             }
+            final protected def feedNonEmpty(chunk: Seq[E]): F[Step[F, E, A]] = {
+              val (newEs, newLast) = chunk.foldLeft((Vector.empty[E], last)) {
+                case ((acc, Some(lastValue)), e) if E.eqv(lastValue, e) => (acc, Some(lastValue))
+                case ((acc, _), e)                                      => (acc :+ e, Some(e))
+              }
 
-            if (newEs.isEmpty) {
-              F.pure(stepWith(step, last))
-            } else {
-              F.map(step.feed(newEs))(stepWith(_, newLast))
+              if (newEs.isEmpty) {
+                F.pure(stepWith(step, last))
+              } else {
+                F.map(step.feed(newEs))(stepWith(_, newLast))
+              }
             }
           }
-        }
 
       final def apply[A](step: Step[F, E, A]): F[Step[F, E, Step[F, E, A]]] =
         F.pure(stepWith(step, None).map(Step.done(_)))
@@ -490,9 +502,10 @@ final object Enumeratee extends EnumerateeInstances {
       private[this] final def loop[A](step: Step[F, (E1, E2), A]): F[Step[F, E1, Step[F, (E1, E2), A]]] =
         F.flatMap(Iteratee.head[F, E1].state)(
           _.bind {
-            case Some(e) => F.flatMap(
-              F.flatMap(Enumeratee.map[F, E2, (E1, E2)]((e, _)).apply(step))(e2.intoStep)
-            )(loop)
+            case Some(e) =>
+              F.flatMap(
+                F.flatMap(Enumeratee.map[F, E2, (E1, E2)]((e, _)).apply(step))(e2.intoStep)
+              )(loop)
             case None => F.pure(Step.done(step))
           }
         )
@@ -596,7 +609,8 @@ final object Enumeratee extends EnumerateeInstances {
       final protected def feedNonEmpty(chunk: Seq[E]): F[Step[F, E, Step[F, E, A]]] = {
         val c = chunk.lengthCompare(size - current)
 
-        if (c < 0) F.pure(loop(current + chunk.size, acc ++= chunk)(step)) else if (c == 0) {
+        if (c < 0) F.pure(loop(current + chunk.size, acc ++= chunk)(step))
+        else if (c == 0) {
           F.flatMap(step.feed((acc ++= chunk).result()))(doneOrLoop(0, freshBuilder()))
         } else {
           val newChunks = (acc ++= chunk).result().grouped(size)
@@ -614,7 +628,8 @@ final object Enumeratee extends EnumerateeInstances {
     private[this] final def doneOrLoop[A](current: Int, acc: Builder[E, Vector[E]])(
       step: Step[F, E, A]
     ): F[Step[F, E, Step[F, E, A]]] = if (step.isDone) {
-      if (current == 0) F.pure(Step.done(step)) else {
+      if (current == 0) F.pure(Step.done(step))
+      else {
         F.map(step.feed(acc.result()))(Step.done[F, E, Step[F, E, A]](_))
       }
     } else F.pure(loop(current, acc)(step))
@@ -628,13 +643,15 @@ final object Enumeratee extends EnumerateeInstances {
   final def rechunk[F[_], E](size: Int)(implicit F: Monad[F]): Enumeratee[F, E, E] =
     if (size <= 1) new Rechunk1[F, E] else new RechunkN[F, E](size)
 
-  private[this] abstract class StepCont[F[_], O, I, A](step: Step[F, I, A])(implicit
+  private[this] abstract class StepCont[F[_], O, I, A](step: Step[F, I, A])(
+    implicit
     F: Applicative[F]
   ) extends Step.Cont[F, O, Step[F, I, A]] {
     final def run: F[Step[F, I, A]] = F.pure(step)
   }
 
-  private[this] final class IdentityCont[F[_], E, A](step: Step[F, E, A])(implicit
+  private[this] final class IdentityCont[F[_], E, A](step: Step[F, E, A])(
+    implicit
     F: Applicative[F]
   ) extends StepCont[F, E, E, A](step) {
     private[this] def advance(next: Step[F, E, A]): Step[F, E, Step[F, E, A]] =

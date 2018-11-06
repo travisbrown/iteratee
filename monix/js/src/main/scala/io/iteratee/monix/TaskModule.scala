@@ -4,9 +4,11 @@ import cats.MonadError
 import io.iteratee.modules.{ EnumerateeModule, EnumeratorErrorModule, IterateeErrorModule, Module }
 import monix.eval.Task
 
-trait TaskModule extends Module[Task]
+trait TaskModule
+    extends Module[Task]
     with EnumerateeModule[Task]
-    with EnumeratorErrorModule[Task, Throwable] with IterateeErrorModule[Task, Throwable] {
+    with EnumeratorErrorModule[Task, Throwable]
+    with IterateeErrorModule[Task, Throwable] {
   final type M[f[_]] = MonadError[f, Throwable]
 }
 

@@ -16,12 +16,14 @@ trait ArbitraryEnumerators[F[_]] {
   private[this] val maxDepth = 4
 
   private[this] def appendGenerator[A: Arbitrary](depth: Int): List[Gen[EnumeratorAndValues[A]]] =
-    if (depth < maxDepth) List(
-      for {
-        EnumeratorAndValues(enumerator1, list1) <- generate[A](depth + 1)
-        EnumeratorAndValues(enumerator2, list2) <- generate[A](depth + 1)
-      } yield EnumeratorAndValues(enumerator1.append(enumerator2)(F), list1 ++ list2)
-    ) else Nil
+    if (depth < maxDepth)
+      List(
+        for {
+          EnumeratorAndValues(enumerator1, list1) <- generate[A](depth + 1)
+          EnumeratorAndValues(enumerator2, list2) <- generate[A](depth + 1)
+        } yield EnumeratorAndValues(enumerator1.append(enumerator2)(F), list1 ++ list2)
+      )
+    else Nil
 
   private[this] def generate[A](depth: Int)(implicit A: Arbitrary[A]): Gen[EnumeratorAndValues[A]] =
     Gen.oneOf(

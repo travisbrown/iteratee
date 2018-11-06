@@ -8,7 +8,8 @@ import io.iteratee.files.modules.FileModule
 import io.iteratee.modules.{ EnumerateeModule, EnumeratorErrorModule, IterateeErrorModule, Module }
 import scala.util.{ Failure, Success, Try }
 
-object FreeTryModule extends Module[Free[Try, ?]]
+object FreeTryModule
+    extends Module[Free[Try, ?]]
     with EnumerateeModule[Free[Try, ?]]
     with EnumeratorErrorModule[Free[Try, ?], Throwable]
     with IterateeErrorModule[Free[Try, ?], Throwable]
@@ -32,8 +33,7 @@ object FreeTryModule extends Module[Free[Try, ?]]
       val result = use(a)
 
       result.fold[Free[Try, B]](
-        b => release(a, ExitCase.complete).map(_ => b),
-        {
+        b => release(a, ExitCase.complete).map(_ => b), {
           case Success(f) => release(a, ExitCase.complete).flatMap(_ => f)
           case Failure(e) => release(a, ExitCase.error(e)).flatMap(_ => result)
         }
