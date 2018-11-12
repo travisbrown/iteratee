@@ -49,12 +49,7 @@ lazy val baseSettings = Seq(
       case _             => Nil
     }
   ),
-  coverageHighlighting := (
-    CrossVersion.partialVersion(scalaVersion.value) match {
-      case Some((2, 10)) => false
-      case _             => true
-    }
-  ),
+  coverageHighlighting := true,
   (scalastyleSources in Compile) ++= (sourceDirectories in Compile).value,
   addCompilerPlugin("org.spire-math" % "kind-projector" % "0.9.8" cross CrossVersion.binary)
 )
