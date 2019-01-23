@@ -28,7 +28,7 @@ val scalazVersion = "7.2.27"
 val scalazStreamVersion = "0.8.6a"
 val fs2Version = "1.0.2"
 
-val scalaCheckVersion = "1.13.5"
+val scalaCheckVersion = "1.14.0"
 val scalaTestVersion = "3.0.5"
 
 lazy val previousIterateeVersion = "0.18.0"
