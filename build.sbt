@@ -86,7 +86,8 @@ lazy val baseSettings = Seq(
   },
   coverageHighlighting := true,
   (scalastyleSources in Compile) ++= (sourceDirectories in Compile).value,
-  addCompilerPlugin("org.spire-math" % "kind-projector" % "0.9.9" cross CrossVersion.binary)
+  addCompilerPlugin("org.spire-math" % "kind-projector" % "0.9.9" cross CrossVersion.binary),
+  coverageEnabled := { if (priorTo2_13(scalaVersion.value)) coverageEnabled.value else false }
 )
 
 lazy val allSettings = baseSettings ++ publishSettings
