@@ -42,7 +42,7 @@ package object files {
   def listFiles[F[_]](dir: File)(implicit F: Sync[F]): Enumerator[F, File] =
     Enumerator.liftM(F.delay(dir.listFiles)).flatMap {
       case null  => Enumerator.empty[F, File]
-      case files => Enumerator.enumVector(files.toVector)
+      case files => Enumerator.enumVector(Vector(files: _*))
     }
 
   def listFilesRec[F[_]](dir: File)(implicit F: Sync[F]): Enumerator[F, File] = listFiles[F](dir).flatMap {

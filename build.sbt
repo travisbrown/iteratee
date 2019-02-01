@@ -17,38 +17,73 @@ val compilerOptions = Seq(
   "-Yno-adapted-args",
   "-Ywarn-dead-code",
   "-Ywarn-numeric-widen",
+  "-Ywarn-unused-import",
   "-Xfuture"
 )
 
 val catsVersion = "1.6.0"
 val catsEffectVersion = "1.2.0"
-val disciplineVersion = "0.9.0"
 val monixVersion = "3.0.0-RC2"
 val scalazVersion = "7.2.27"
 val scalazStreamVersion = "0.8.6a"
 val fs2Version = "1.0.3"
 
-val scalaCheckVersion = "1.13.5"
 val scalaTestVersion = "3.0.5"
+val scalaCheckVersion = "1.13.5"
+val disciplineVersion = "0.9.0"
+
+/**
+ * Some terrible hacks to work around Cats's decision to have builds for
+ * different Scala versions depend on different versions of Discipline, etc.
+ */
+def priorTo2_13(scalaVersion: String): Boolean =
+  CrossVersion.partialVersion(scalaVersion) match {
+    case Some((2, minor)) if minor < 13 => true
+    case _                              => false
+  }
+
+def scalaTestVersionFor(scalaVersion: String): String =
+  if (priorTo2_13(scalaVersion)) scalaTestVersion else "3.0.6-SNAP5"
+
+def scalaCheckVersionFor(scalaVersion: String): String =
+  if (priorTo2_13(scalaVersion)) scalaCheckVersion else "1.14.0"
+
+def disciplineVersionFor(scalaVersion: String): String =
+  if (priorTo2_13(scalaVersion)) disciplineVersion else "0.11.0"
 
 lazy val previousIterateeVersion = "0.18.0"
 
 val docMappingsApiDir = settingKey[String]("Subdirectory in site target directory for API docs")
 
 lazy val baseSettings = Seq(
-  scalacOptions ++= (compilerOptions :+ "-Yno-predef") ++ (
-    CrossVersion.partialVersion(scalaVersion.value) match {
-      case Some((2, p)) if p >= 11 => Seq("-Ywarn-unused-import")
-      case _                       => Nil
-    }
-  ),
-  scalacOptions in (Compile, console) := compilerOptions,
-  scalacOptions in (Compile, test) := compilerOptions ++ (
-    CrossVersion.partialVersion(scalaVersion.value) match {
-      case Some((2, 11)) => Seq("-Ywarn-unused-import")
-      case _             => Nil
-    }
-  ),
+  scalacOptions ++= {
+    if (priorTo2_13(scalaVersion.value)) compilerOptions
+    else
+      compilerOptions.flatMap {
+        case "-Ywarn-unused-import" => Some("-Ywarn-unused:imports")
+        case "-Yno-adapted-args" => None
+        case other => Some(other)
+      }
+  },
+  scalacOptions += "-Yno-predef",
+  scalacOptions in (Compile, console) := {
+    if (priorTo2_13(scalaVersion.value)) compilerOptions
+    else
+      compilerOptions.flatMap {
+        case "-Ywarn-unused-import" => Some("-Ywarn-unused:imports")
+        case "-Yno-adapted-args" => None
+        case other => Some(other)
+      }
+  },
+  scalacOptions in (Compile, test) := {
+    if (priorTo2_13(scalaVersion.value)) compilerOptions
+    else
+      compilerOptions.flatMap {
+        case "-Ywarn-unused-import" => Some("-Ywarn-unused:imports")
+        case "-Yno-adapted-args" => None
+        case other => Some(other)
+      }
+  },
   coverageHighlighting := true,
   (scalastyleSources in Compile) ++= (sourceDirectories in Compile).value,
   addCompilerPlugin("org.spire-math" % "kind-projector" % "0.9.9" cross CrossVersion.binary)
@@ -116,10 +151,10 @@ lazy val testing = crossProject(JSPlatform, JVMPlatform)
   .settings(allSettings: _*)
   .settings(
     libraryDependencies ++= Seq(
-      "org.scalacheck" %%% "scalacheck" % scalaCheckVersion,
-      "org.scalatest" %%% "scalatest" % scalaTestVersion,
+      "org.scalacheck" %%% "scalacheck" % scalaCheckVersionFor(scalaVersion.value),
+      "org.scalatest" %%% "scalatest" % scalaTestVersionFor(scalaVersion.value),
       "org.typelevel" %%% "cats-laws" % catsVersion,
-      "org.typelevel" %%% "discipline" % disciplineVersion
+      "org.typelevel" %%% "discipline" % disciplineVersionFor(scalaVersion.value)
     ),
     coverageExcludedPackages := "io\\.iteratee\\.testing\\..*"
   )
@@ -145,10 +180,10 @@ lazy val tests = crossProject(JSPlatform, JVMPlatform)
   .settings(inConfig(IntegrationTest)(scalafmtConfigSettings))
   .settings(
     libraryDependencies ++= Seq(
-      "org.scalacheck" %%% "scalacheck" % scalaCheckVersion,
-      "org.scalatest" %%% "scalatest" % scalaTestVersion,
+      "org.scalacheck" %%% "scalacheck" % scalaCheckVersionFor(scalaVersion.value),
+      "org.scalatest" %%% "scalatest" % scalaTestVersionFor(scalaVersion.value),
       "org.typelevel" %%% "cats-laws" % catsVersion,
-      "org.typelevel" %%% "discipline" % disciplineVersion
+      "org.typelevel" %%% "discipline" % disciplineVersionFor(scalaVersion.value)
     ),
     scalacOptions ~= {
       _.filterNot(Set("-Yno-predef"))
@@ -202,7 +237,8 @@ lazy val monix = crossProject(JSPlatform, JVMPlatform)
   .in(file("monix"))
   .configs(IntegrationTest)
   .settings(
-    moduleName := "iteratee-monix"
+    moduleName := "iteratee-monix",
+    crossScalaVersions := crossScalaVersions.value.init
   )
   .settings(allSettings: _*)
   .settings(Defaults.itSettings: _*)
