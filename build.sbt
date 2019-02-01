@@ -20,7 +20,7 @@ val compilerOptions = Seq(
   "-Xfuture"
 )
 
-val catsVersion = "1.5.0"
+val catsVersion = "1.6.0"
 val catsEffectVersion = "1.2.0"
 val disciplineVersion = "0.9.0"
 val monixVersion = "3.0.0-RC2"
