@@ -61,8 +61,8 @@ lazy val baseSettings = Seq(
     else
       compilerOptions.flatMap {
         case "-Ywarn-unused-import" => Some("-Ywarn-unused:imports")
-        case "-Yno-adapted-args" => None
-        case other => Some(other)
+        case "-Yno-adapted-args"    => None
+        case other                  => Some(other)
       }
   },
   scalacOptions += "-Yno-predef",
@@ -71,8 +71,8 @@ lazy val baseSettings = Seq(
     else
       compilerOptions.flatMap {
         case "-Ywarn-unused-import" => Some("-Ywarn-unused:imports")
-        case "-Yno-adapted-args" => None
-        case other => Some(other)
+        case "-Yno-adapted-args"    => None
+        case other                  => Some(other)
       }
   },
   scalacOptions in (Compile, test) := {
@@ -80,8 +80,8 @@ lazy val baseSettings = Seq(
     else
       compilerOptions.flatMap {
         case "-Ywarn-unused-import" => Some("-Ywarn-unused:imports")
-        case "-Yno-adapted-args" => None
-        case other => Some(other)
+        case "-Yno-adapted-args"    => None
+        case other                  => Some(other)
       }
   },
   coverageHighlighting := true,
