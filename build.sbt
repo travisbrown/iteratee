@@ -109,7 +109,7 @@ lazy val docSettings = Seq(
   ),
   git.remoteRepo := "git@github.com:travisbrown/iteratee.git",
   unidocProjectFilter in (ScalaUnidoc, unidoc) :=
-    inAnyProject -- inProjects(coreJS, benchmark, monixJS, testingJS, testsJVM, testsJS)
+    inAnyProject -- inProjects(coreJS, benchmark, monixJS, monixJVM, testingJS, testsJVM, testsJS)
 )
 
 lazy val iteratee = project
