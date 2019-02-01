@@ -118,7 +118,7 @@ lazy val iteratee = project
   .settings(allSettings)
   .settings(docSettings)
   .settings(noPublishSettings)
-  .aggregate(benchmark, coreJVM, coreJS, files, monixJVM, monixJS, scalaz, testingJVM, testingJS, testsJVM, testsJS)
+  .aggregate(coreJVM, coreJS, files, scalaz, testingJVM, testingJS, testsJVM, testsJS)
   .dependsOn(coreJVM, scalaz)
 
 lazy val core = crossProject(JSPlatform, JVMPlatform)
@@ -239,7 +239,7 @@ lazy val monix = crossProject(JSPlatform, JVMPlatform)
   .configs(IntegrationTest)
   .settings(
     moduleName := "iteratee-monix",
-    crossScalaVersions := crossScalaVersions.value.init
+    crossScalaVersions := crossScalaVersions.value.filterNot(_ == "2.13.0-M5")
   )
   .settings(allSettings: _*)
   .settings(Defaults.itSettings: _*)
@@ -263,7 +263,8 @@ lazy val monixJS = monix.js
 lazy val benchmark = project
   .configs(IntegrationTest)
   .settings(
-    moduleName := "iteratee-benchmark"
+    moduleName := "iteratee-benchmark",
+    crossScalaVersions := crossScalaVersions.value.filterNot(_ == "2.13.0-M5")
   )
   .settings(allSettings ++ Defaults.itSettings)
   .settings(inConfig(IntegrationTest)(scalafmtConfigSettings))
@@ -348,10 +349,10 @@ credentials ++= (
 ).toSeq
 
 val jvmProjects = Seq(
-  "benchmark",
+  //"benchmark",
   "core",
   "files",
-  "monix",
+  //"monix",
   "scalaz",
   "testing",
   "tests"
@@ -359,7 +360,7 @@ val jvmProjects = Seq(
 
 val jsProjects = Seq(
   "coreJS",
-  "monixJS",
+  //"monixJS",
   "testingJS",
   "testsJS"
 )
@@ -367,7 +368,7 @@ val jsProjects = Seq(
 addCommandAlias("testJVM", jvmProjects.map(";" + _ + "/test").mkString)
 addCommandAlias(
   "validateJVM",
-  ";testJVM;tests/it:test;benchmark/it:test;monix/it:test;scalaz/it:test;scalafmtCheck;scalafmtSbtCheck;test:scalafmtCheck;it:scalafmtCheck;scalastyle;unidoc"
+  ";testJVM;tests/it:test;scalaz/it:test;scalafmtCheck;scalafmtSbtCheck;test:scalafmtCheck;it:scalafmtCheck;scalastyle;unidoc"
 )
 addCommandAlias("testJS", jsProjects.map(";" + _ + "/test").mkString)
 addCommandAlias(
