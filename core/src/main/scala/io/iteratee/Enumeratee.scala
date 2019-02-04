@@ -1,6 +1,7 @@
 package io.iteratee
 
 import cats.{ Applicative, Eq, FlatMap, Monad }
+import cats.arrow.{ Category, Profunctor }
 import cats.instances.list.catsStdInstancesForList
 import io.iteratee.internal.Step
 import scala.collection.mutable.Builder
@@ -27,7 +28,16 @@ abstract class Enumeratee[F[_], O, I] extends Serializable { self =>
   final def contramap[J](f: J => O)(implicit F: Monad[F]): Enumeratee[F, J, I] = Enumeratee.map(f)(F).andThen(self)
 }
 
-final object Enumeratee extends EnumerateeInstances {
+final object Enumeratee {
+  implicit final def enumerateeInstance[F[_]](
+    implicit F: Monad[F]
+  ): Category[Enumeratee[F, ?, ?]] with Profunctor[Enumeratee[F, ?, ?]] =
+    new Category[Enumeratee[F, ?, ?]] with Profunctor[Enumeratee[F, ?, ?]] {
+      final def id[A]: Enumeratee[F, A, A] = Enumeratee.identity[F, A]
+      final def compose[A, B, C](f: Enumeratee[F, B, C], g: Enumeratee[F, A, B]): Enumeratee[F, A, C] = g.andThen(f)
+      final def dimap[A, B, C, D](fab: Enumeratee[F, A, B])(f: C => A)(g: B => D): Enumeratee[F, C, D] =
+        fab.map(g).contramap(f)
+    }
 
   /**
    * An identity stream transformer.

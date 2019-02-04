@@ -1,6 +1,6 @@
 package io.iteratee
 
-import cats.{ Applicative, FlatMap, Monad, MonadError, Semigroup, Eval }
+import cats.{ Applicative, FlatMap, Monad, MonadError, Monoid, Semigroup, Eval }
 import cats.kernel.Eq
 import io.iteratee.internal.Step
 import scala.Predef.=:=
@@ -101,8 +101,29 @@ abstract class Enumerator[F[_], E] extends Serializable { self =>
     }
 }
 
-final object Enumerator extends EnumeratorInstances {
+final object Enumerator {
   private[this] final val defaultChunkSize: Int = 1024
+
+  implicit final def enumeratorMonoid[F[_], E](implicit F: Monad[F]): Monoid[Enumerator[F, E]] =
+    new Monoid[Enumerator[F, E]] {
+      def combine(e1: Enumerator[F, E], e2: Enumerator[F, E]): Enumerator[F, E] = e1.append(e2)
+      def empty: Enumerator[F, E] = Enumerator.empty
+    }
+
+  implicit final def enumeratorMonad[F[_]](implicit F: Monad[F]): Monad[Enumerator[F, ?]] =
+    new Monad[Enumerator[F, ?]] {
+      final override def map[A, B](fa: Enumerator[F, A])(f: A => B): Enumerator[F, B] = fa.map(f)
+      final def flatMap[A, B](fa: Enumerator[F, A])(f: A => Enumerator[F, B]): Enumerator[F, B] = fa.flatMap(f)
+      final def pure[E](e: E): Enumerator[F, E] = Enumerator.enumOne[F, E](e)
+
+      /**
+       * Note that recursive monadic binding is not stack safe for enumerators.
+       */
+      final def tailRecM[A, B](a: A)(f: A => Enumerator[F, Either[A, B]]): Enumerator[F, B] = f(a).flatMap {
+        case Right(b)    => pure(b)
+        case Left(nextA) => tailRecM(nextA)(f)
+      }
+    }
 
   /**
    * An enumerator that produces the given values.
