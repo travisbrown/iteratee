@@ -27,15 +27,24 @@ abstract class Enumerator[F[_], E] extends Serializable { self =>
 
   final def flatMap[B](f: E => Enumerator[F, B])(implicit F: Monad[F]): Enumerator[F, B] =
     new Enumerator[F, B] {
-      protected def loop[A](step: Step[F, B, A]): Step[F, E, Step[F, B, A]] = new Step.Cont[F, E, Step[F, B, A]] {
-        final def run: F[Step[F, B, A]] = F.pure(step)
-        final def feedEl(e: E): F[Step[F, E, Step[F, B, A]]] = F.map(f(e)(step))(doneOrLoop)
-        final protected def feedNonEmpty(chunk: Seq[E]): F[Step[F, E, Step[F, B, A]]] =
-          F.map(chunk.tail.foldLeft(f(chunk.head))((acc, e) => acc.append(f(e))).apply(step))(doneOrLoop)
-      }
-
       final def doneOrLoop[A](step: Step[F, B, A]): Step[F, E, Step[F, B, A]] =
-        if (step.isDone) Step.done(step) else loop(step)
+        if (step.isDone) Step.done(step) else {
+          new Step.Cont[F, E, Step[F, B, A]] {
+            final def run: F[Step[F, B, A]] = F.pure(step)
+            final def feedEl(e: E): F[Step[F, E, Step[F, B, A]]] =
+              // F.map(f(e).apply(step))(doneOrLoop)
+              F.tailRecM()
+
+
+
+            final protected def feedNonEmpty(chunk: Seq[E]): F[Step[F, E, Step[F, B, A]]] =
+              F.map(
+                chunk.tail.foldLeft(f(chunk.head))(
+                  (acc, e) => acc.append(f(e))
+                ).apply(step)
+              )(doneOrLoop)
+          }
+        }
 
       final def apply[A](s: Step[F, B, A]): F[Step[F, B, A]] = F.flatMap(self(doneOrLoop(s)))(_.run)
     }
