@@ -26,7 +26,19 @@ abstract class Enumerator[F[_], E] extends Serializable { self =>
   final def flatMapM[B](f: E => F[B])(implicit F: Monad[F]): Enumerator[F, B] = through(Enumeratee.flatMapM(f))
 
   final def flatMap[B](f: E => Enumerator[F, B])(implicit F: Monad[F]): Enumerator[F, B] =
-    through(Enumeratee.flatMap(f))
+    new Enumerator[F, B] {
+      protected def loop[A](step: Step[F, B, A]): Step[F, E, Step[F, B, A]] = new Step.Cont[F, E, Step[F, B, A]] {
+        final def run: F[Step[F, B, A]] = F.pure(step)
+        final def feedEl(e: E): F[Step[F, E, Step[F, B, A]]] = F.map(f(e)(step))(doneOrLoop)
+        final protected def feedNonEmpty(chunk: Seq[E]): F[Step[F, E, Step[F, B, A]]] =
+          F.map(chunk.tail.foldLeft(f(chunk.head))((acc, e) => acc.append(f(e))).apply(step))(doneOrLoop)
+      }
+
+      final def doneOrLoop[A](step: Step[F, B, A]): Step[F, E, Step[F, B, A]] =
+        if (step.isDone) Step.done(step) else loop(step)
+
+      final def apply[A](s: Step[F, B, A]): F[Step[F, B, A]] = F.flatMap(self(doneOrLoop(s)))(_.run)
+    }
 
   final def take(n: Long)(implicit F: Monad[F]): Enumerator[F, E] = through(Enumeratee.take[F, E](n))
   final def takeWhile(p: E => Boolean)(implicit F: Monad[F]): Enumerator[F, E] = through(Enumeratee.takeWhile[F, E](p))
