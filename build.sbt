@@ -67,10 +67,10 @@ lazy val baseSettings = Seq(
   },
   scalacOptions += "-Yno-predef",
   scalacOptions in (Compile, console) := {
-    if (priorTo2_13(scalaVersion.value)) compilerOptions
+    if (priorTo2_13(scalaVersion.value)) compilerOptions.filterNot(_ == "-Ywarn-unused-import")
     else
       compilerOptions.flatMap {
-        case "-Ywarn-unused-import" => Some("-Ywarn-unused:imports")
+        case "-Ywarn-unused-import" => None
         case "-Yno-adapted-args"    => None
         case other                  => Some(other)
       }
