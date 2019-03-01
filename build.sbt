@@ -24,7 +24,6 @@ val compilerOptions = Seq(
 val catsVersion = "1.6.0"
 val catsEffectVersion = "1.2.0"
 val scalazVersion = "7.2.27"
-val scalazStreamVersion = "0.8.6a"
 val fs2Version = "1.0.4"
 
 val scalaTestVersion = "3.0.6"
@@ -227,8 +226,8 @@ lazy val benchmark = project
     libraryDependencies ++= Seq(
       "co.fs2" %% "fs2-core" % fs2Version,
       "org.scalatest" %% "scalatest" % scalaTestVersion % Test,
+      "org.scalaz" %% "scalaz-concurrent" % scalazVersion,
       "org.scalaz" %% "scalaz-iteratee" % scalazVersion,
-      "org.scalaz.stream" %% "scalaz-stream" % scalazStreamVersion,
       "org.typelevel" %% "cats-free" % catsVersion
     )
   )
@@ -319,7 +318,7 @@ val jsProjects = Seq(
 addCommandAlias("testJVM", jvmProjects.map(";" + _ + "/test").mkString)
 addCommandAlias(
   "validateJVM",
-  ";testJVM;tests/it:test;scalaz/it:test;scalafmtCheck;scalafmtSbtCheck;test:scalafmtCheck;it:scalafmtCheck;scalastyle;unidoc"
+  ";testJVM;tests/it:test;scalafmtCheck;scalafmtSbtCheck;test:scalafmtCheck;it:scalafmtCheck;scalastyle;unidoc"
 )
 addCommandAlias("testJS", jsProjects.map(";" + _ + "/test").mkString)
 addCommandAlias(
