@@ -23,7 +23,6 @@ val compilerOptions = Seq(
 
 val catsVersion = "1.6.0"
 val catsEffectVersion = "1.2.0"
-val monixVersion = "3.0.0-RC2"
 val scalazVersion = "7.2.27"
 val scalazStreamVersion = "0.8.6a"
 val fs2Version = "1.0.3"
@@ -41,9 +40,6 @@ def priorTo2_13(scalaVersion: String): Boolean =
     case Some((2, minor)) if minor < 13 => true
     case _                              => false
   }
-
-def scalaTestVersionFor(scalaVersion: String): String =
-  if (priorTo2_13(scalaVersion)) scalaTestVersion else "3.0.6-SNAP5"
 
 def scalaCheckVersionFor(scalaVersion: String): String =
   if (priorTo2_13(scalaVersion)) scalaCheckVersion else "1.14.0"
@@ -109,7 +105,7 @@ lazy val docSettings = Seq(
   ),
   git.remoteRepo := "git@github.com:travisbrown/iteratee.git",
   unidocProjectFilter in (ScalaUnidoc, unidoc) :=
-    inAnyProject -- inProjects(coreJS, benchmark, monixJS, monixJVM, testingJS, testsJVM, testsJS)
+    inAnyProject -- inProjects(coreJS, benchmark, testingJS, testsJVM, testsJS)
 )
 
 lazy val iteratee = project
@@ -118,8 +114,8 @@ lazy val iteratee = project
   .settings(allSettings)
   .settings(docSettings)
   .settings(noPublishSettings)
-  .aggregate(coreJVM, coreJS, files, scalaz, testingJVM, testingJS, testsJVM, testsJS)
-  .dependsOn(coreJVM, scalaz)
+  .aggregate(coreJVM, coreJS, files, testingJVM, testingJS, testsJVM, testsJS)
+  .dependsOn(coreJVM, files)
 
 lazy val core = crossProject(JSPlatform, JVMPlatform)
   .withoutSuffixFor(JVMPlatform)
@@ -153,7 +149,7 @@ lazy val testing = crossProject(JSPlatform, JVMPlatform)
   .settings(
     libraryDependencies ++= Seq(
       "org.scalacheck" %%% "scalacheck" % scalaCheckVersionFor(scalaVersion.value),
-      "org.scalatest" %%% "scalatest" % scalaTestVersionFor(scalaVersion.value),
+      "org.scalatest" %%% "scalatest" % scalaTestVersion,
       "org.typelevel" %%% "cats-laws" % catsVersion,
       "org.typelevel" %%% "discipline" % disciplineVersionFor(scalaVersion.value)
     ),
@@ -182,7 +178,7 @@ lazy val tests = crossProject(JSPlatform, JVMPlatform)
   .settings(
     libraryDependencies ++= Seq(
       "org.scalacheck" %%% "scalacheck" % scalaCheckVersionFor(scalaVersion.value),
-      "org.scalatest" %%% "scalatest" % scalaTestVersionFor(scalaVersion.value),
+      "org.scalatest" %%% "scalatest" % scalaTestVersion,
       "org.typelevel" %%% "cats-laws" % catsVersion,
       "org.typelevel" %%% "discipline" % disciplineVersionFor(scalaVersion.value)
     ),
@@ -219,52 +215,10 @@ lazy val files = project
   .settings(allSettings)
   .dependsOn(coreJVM)
 
-lazy val scalaz = project
-  .configs(IntegrationTest)
-  .settings(
-    moduleName := "iteratee-scalaz",
-    mimaPreviousArtifacts := Set("io.iteratee" %% "iteratee-scalaz" % previousIterateeVersion)
-  )
-  .settings(allSettings ++ Defaults.itSettings)
-  .settings(inConfig(IntegrationTest)(scalafmtConfigSettings))
-  .settings(
-    libraryDependencies += "org.scalaz" %% "scalaz-concurrent" % scalazVersion
-  )
-  .dependsOn(coreJVM, files, testsJVM % "test,it")
-
-lazy val monix = crossProject(JSPlatform, JVMPlatform)
-  .withoutSuffixFor(JVMPlatform)
-  .crossType(CrossType.Full)
-  .in(file("monix"))
-  .configs(IntegrationTest)
-  .settings(
-    moduleName := "iteratee-monix",
-    crossScalaVersions := crossScalaVersions.value.filterNot(_ == "2.13.0-M5")
-  )
-  .settings(allSettings: _*)
-  .settings(Defaults.itSettings: _*)
-  .settings(inConfig(IntegrationTest)(scalafmtConfigSettings))
-  .settings(
-    libraryDependencies ++= Seq(
-      "io.monix" %%% "monix-eval" % monixVersion,
-      "org.typelevel" %%% "cats-effect" % catsEffectVersion
-    )
-  )
-  .jvmSettings(
-    mimaPreviousArtifacts := Set("io.iteratee" %% "iteratee-monix" % previousIterateeVersion)
-  )
-  .jsSettings(commonJsSettings: _*)
-  .jvmConfigure(_.dependsOn(files))
-  .dependsOn(core, tests % "test,it")
-
-lazy val monixJVM = monix.jvm
-lazy val monixJS = monix.js
-
 lazy val benchmark = project
   .configs(IntegrationTest)
   .settings(
-    moduleName := "iteratee-benchmark",
-    crossScalaVersions := crossScalaVersions.value.filterNot(_ == "2.13.0-M5")
+    moduleName := "iteratee-benchmark"
   )
   .settings(allSettings ++ Defaults.itSettings)
   .settings(inConfig(IntegrationTest)(scalafmtConfigSettings))
@@ -272,14 +226,14 @@ lazy val benchmark = project
   .settings(
     libraryDependencies ++= Seq(
       "co.fs2" %% "fs2-core" % fs2Version,
-      "org.scalatest" %% "scalatest" % scalaTestVersion % "test",
+      "org.scalatest" %% "scalatest" % scalaTestVersion % Test,
       "org.scalaz" %% "scalaz-iteratee" % scalazVersion,
       "org.scalaz.stream" %% "scalaz-stream" % scalazStreamVersion,
       "org.typelevel" %% "cats-free" % catsVersion
     )
   )
   .enablePlugins(JmhPlugin)
-  .dependsOn(coreJVM, monixJVM, scalaz, testsJVM)
+  .dependsOn(coreJVM, testsJVM)
 
 lazy val publishSettings = Seq(
   releaseCrossBuild := true,
@@ -349,18 +303,15 @@ credentials ++= (
 ).toSeq
 
 val jvmProjects = Seq(
-  //"benchmark",
+  "benchmark",
   "core",
   "files",
-  //"monix",
-  "scalaz",
   "testing",
   "tests"
 )
 
 val jsProjects = Seq(
   "coreJS",
-  //"monixJS",
   "testingJS",
   "testsJS"
 )
