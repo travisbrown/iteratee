@@ -28,7 +28,7 @@ class FileModuleBenchmark {
   def linesIO: Enumerator[IO, String] = io.iteratee.files.modules.io.readLinesFromStream(bartebly)
   def linesTF: Enumerator[Free[Try, ?], String] = FreeTryModule.readLinesFromStream(bartebly)
 
-  def words[F[_]: Monad](line: String): Enumerator[F, String] = Enumerator.enumVector(line.split(" ").toVector)
+  def words[F[_]: Monad](line: String): Enumerator[F, String] = Enumerator.enumIndexedSeq(line.split(" ").toIndexedSeq)
   def avgLen[F[_]: Monad]: Iteratee[F, String, Double] = Iteratee
     .length[F, String]
     .zip(
