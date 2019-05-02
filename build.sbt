@@ -143,7 +143,7 @@ lazy val testing = crossProject(JSPlatform, JVMPlatform)
     libraryDependencies ++= Seq(
       "org.scalacheck" %%% "scalacheck" % scalaCheckVersion,
       "org.scalatest" %%% "scalatest" % scalaTestVersion,
-      "org.scalatestplus" %% "scalatestplus-scalacheck" % "1.0.0-SNAP4",
+      "org.scalatestplus" %%% "scalatestplus-scalacheck" % "1.0.0-SNAP4",
       "org.typelevel" %%% "cats-laws" % catsVersion,
       "org.typelevel" %%% "discipline" % disciplineVersion
     ),
@@ -173,17 +173,13 @@ lazy val tests = crossProject(JSPlatform, JVMPlatform)
     libraryDependencies ++= Seq(
       "org.scalacheck" %%% "scalacheck" % scalaCheckVersion,
       "org.scalatest" %%% "scalatest" % scalaTestVersion,
-      "org.scalatestplus" %% "scalatestplus-scalacheck" % "1.0.0-SNAP4",
+      "org.scalatestplus" %%% "scalatestplus-scalacheck" % "1.0.0-SNAP4",
       "org.typelevel" %%% "cats-laws" % catsVersion,
       "org.typelevel" %%% "discipline" % disciplineVersion
     ),
     scalacOptions ~= {
       _.filterNot(Set("-Yno-predef"))
     },
-    parallelExecution in Test := true,
-    testForkedParallel in Test := true,
-    parallelExecution in IntegrationTest := true,
-    testForkedParallel in IntegrationTest := true,
     coverageExcludedPackages := "io\\.iteratee\\.tests\\..*"
   )
   .jvmSettings(
