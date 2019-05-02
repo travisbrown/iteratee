@@ -21,14 +21,14 @@ val compilerOptions = Seq(
   "-Xfuture"
 )
 
-val catsVersion = "1.6.0"
-val catsEffectVersion = "1.3.0"
+val catsVersion = "2.0.0-M1"
+val catsEffectVersion = "2.0.0-M1"
 val scalazVersion = "7.2.27"
 val fs2Version = "1.0.4"
 
-val scalaTestVersion = "3.0.7"
-val scalaCheckVersion = "1.13.5"
-val disciplineVersion = "0.9.0"
+val scalaTestVersion = "3.1.0-SNAP9"
+val scalaCheckVersion = "1.14.0"
+val disciplineVersion = "0.11.0"
 
 /**
  * Some terrible hacks to work around Cats's decision to have builds for
@@ -39,12 +39,6 @@ def priorTo2_13(scalaVersion: String): Boolean =
     case Some((2, minor)) if minor < 13 => true
     case _                              => false
   }
-
-def scalaCheckVersionFor(scalaVersion: String): String =
-  if (priorTo2_13(scalaVersion)) scalaCheckVersion else "1.14.0"
-
-def disciplineVersionFor(scalaVersion: String): String =
-  if (priorTo2_13(scalaVersion)) disciplineVersion else "0.11.0"
 
 lazy val previousIterateeVersion = "0.18.0"
 
@@ -81,7 +75,7 @@ lazy val baseSettings = Seq(
   },
   coverageHighlighting := true,
   (scalastyleSources in Compile) ++= (sourceDirectories in Compile).value,
-  addCompilerPlugin("org.spire-math" % "kind-projector" % "0.9.9" cross CrossVersion.binary),
+  addCompilerPlugin("org.typelevel" % "kind-projector" % "0.10.0" cross CrossVersion.binary),
   coverageEnabled := { if (priorTo2_13(scalaVersion.value)) coverageEnabled.value else false }
 )
 
@@ -147,10 +141,11 @@ lazy val testing = crossProject(JSPlatform, JVMPlatform)
   .settings(allSettings: _*)
   .settings(
     libraryDependencies ++= Seq(
-      "org.scalacheck" %%% "scalacheck" % scalaCheckVersionFor(scalaVersion.value),
+      "org.scalacheck" %%% "scalacheck" % scalaCheckVersion,
       "org.scalatest" %%% "scalatest" % scalaTestVersion,
+      "org.scalatestplus" %% "scalatestplus-scalacheck" % "1.0.0-SNAP4",
       "org.typelevel" %%% "cats-laws" % catsVersion,
-      "org.typelevel" %%% "discipline" % disciplineVersionFor(scalaVersion.value)
+      "org.typelevel" %%% "discipline" % disciplineVersion
     ),
     coverageExcludedPackages := "io\\.iteratee\\.testing\\..*"
   )
@@ -176,10 +171,11 @@ lazy val tests = crossProject(JSPlatform, JVMPlatform)
   .settings(inConfig(IntegrationTest)(scalafmtConfigSettings))
   .settings(
     libraryDependencies ++= Seq(
-      "org.scalacheck" %%% "scalacheck" % scalaCheckVersionFor(scalaVersion.value),
+      "org.scalacheck" %%% "scalacheck" % scalaCheckVersion,
       "org.scalatest" %%% "scalatest" % scalaTestVersion,
+      "org.scalatestplus" %% "scalatestplus-scalacheck" % "1.0.0-SNAP4",
       "org.typelevel" %%% "cats-laws" % catsVersion,
-      "org.typelevel" %%% "discipline" % disciplineVersionFor(scalaVersion.value)
+      "org.typelevel" %%% "discipline" % disciplineVersion
     ),
     scalacOptions ~= {
       _.filterNot(Set("-Yno-predef"))
