@@ -3,7 +3,7 @@ package io.iteratee
 import cats.{ Applicative, FlatMap, Monad, MonadError, Monoid, Semigroup, Eval }
 import cats.kernel.Eq
 import io.iteratee.internal.Step
-import scala.Predef.=:=
+import scala.Predef._
 import scala.util.{ Left, Right }
 
 /**
