@@ -4,13 +4,13 @@ import cats.instances.AllInstances
 import cats.kernel.Eq
 import cats.syntax.AllSyntax
 import io.iteratee.modules.{ EnumeratorModule, IterateeModule, Module }
-import org.scalatest.FlatSpec
-import org.scalatest.prop.{ Checkers, GeneratorDrivenPropertyChecks }
+import org.scalatest.flatspec.AnyFlatSpec
+import org.scalatest.check.{ Checkers, ScalaCheckDrivenPropertyChecks }
 import org.typelevel.discipline.Laws
 
 class BaseSuite
-    extends FlatSpec
-    with GeneratorDrivenPropertyChecks
+    extends AnyFlatSpec
+    with ScalaCheckDrivenPropertyChecks
     with AllInstances
     with AllSyntax
     with ArbitraryInstances
