@@ -294,7 +294,6 @@ credentials ++= (
 ).toSeq
 
 val jvmProjects = Seq(
-  "benchmark",
   "core",
   "files",
   "testing",
