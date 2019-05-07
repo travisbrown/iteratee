@@ -63,9 +63,10 @@ final object Enumeratee {
   final def flatMapM[F[_], O, I](f: O => F[I])(implicit F: Monad[F]): Enumeratee[F, O, I] = new PureLoop[F, O, I] {
     protected final def loop[A](step: Step[F, I, A]): Step[F, O, Step[F, I, A]] = new StepCont[F, O, I, A](step) {
       final def feedEl(e: O): F[Step[F, O, Step[F, I, A]]] = F.map(F.flatMap(f(e))(step.feedEl))(doneOrLoop)
-      final protected def feedNonEmpty[C](chunk: C)(implicit is: Step.IsChunk[C, O]): F[Step[F, O, Step[F, I, A]]] = F.map(
-        F.flatMap(catsStdInstancesForList.traverse(is(chunk).toList)(f))(step.feed(_))
-      )(doneOrLoop)
+      final protected def feedNonEmpty[C](chunk: C)(implicit is: Step.IsChunk[C, O]): F[Step[F, O, Step[F, I, A]]] =
+        F.map(
+          F.flatMap(catsStdInstancesForList.traverse(is(chunk).toList)(f))(step.feed(_))
+        )(doneOrLoop)
     }
   }
 
@@ -191,7 +192,9 @@ final object Enumeratee {
       else {
         new StepCont[F, E, E, A](step) {
           final def feedEl(e: E): F[Step[F, E, Step[F, E, A]]] = F.pure(loop(remaining - 1)(step))
-          final protected def feedNonEmpty[C](chunk: C)(implicit is: Step.IsChunk[C, E]): F[Step[F, E, Step[F, E, A]]] = {
+          final protected def feedNonEmpty[C](
+            chunk: C
+          )(implicit is: Step.IsChunk[C, E]): F[Step[F, E, Step[F, E, A]]] = {
             val s = is(chunk).toSeq
             if (remaining > Int.MaxValue.toLong) {
               F.pure(loop(remaining - s.size.toLong)(step))
@@ -350,7 +353,9 @@ final object Enumeratee {
 
             F.map(step.feedEl(next))(doneOrLoop(next))
           }
-          final protected def feedNonEmpty[C](chunk: C)(implicit is: Step.IsChunk[C, O]): F[Step[F, O, Step[F, I, A]]] = {
+          final protected def feedNonEmpty[C](
+            chunk: C
+          )(implicit is: Step.IsChunk[C, O]): F[Step[F, O, Step[F, I, A]]] = {
             val s = is(chunk).toSeq
             val results = s.tail.scanLeft(f(current, s.head))(f)
 
@@ -377,7 +382,9 @@ final object Enumeratee {
           final def feedEl(e: O): F[Step[F, O, Step[F, I, A]]] =
             F.flatMap(f(current, e))(next => F.map(step.feedEl(next))(doneOrLoop(next)))
 
-          final protected def feedNonEmpty[C](chunk: C)(implicit is: Step.IsChunk[C, O]): F[Step[F, O, Step[F, I, A]]] = {
+          final protected def feedNonEmpty[C](
+            chunk: C
+          )(implicit is: Step.IsChunk[C, O]): F[Step[F, O, Step[F, I, A]]] = {
             val s = is(chunk).toSeq
             val pair = s.tail.foldLeft(
               F.flatMap(f(current, s.head))(next => F.map(step.feedEl(next))((next, _)))
@@ -493,7 +500,9 @@ final object Enumeratee {
       private[this] final def stepWith[A](i: Long, step: Step[F, (E, Long), A]): Step[F, E, Step[F, (E, Long), A]] =
         new StepCont[F, E, (E, Long), A](step) {
           final def feedEl(e: E): F[Step[F, E, Step[F, (E, Long), A]]] = F.map(step.feedEl((e, i)))(doneOrLoop(i + 1))
-          final protected def feedNonEmpty[C](chunk: C)(implicit is: Step.IsChunk[C, E]): F[Step[F, E, Step[F, (E, Long), A]]] = {
+          final protected def feedNonEmpty[C](
+            chunk: C
+          )(implicit is: Step.IsChunk[C, E]): F[Step[F, E, Step[F, (E, Long), A]]] = {
             val s = is(chunk).toSeq
             F.map(step.feed(s.zipWithIndex.map(p => (p._1, p._2 + i))))(doneOrLoop(i + s.size))
           }
@@ -600,7 +609,9 @@ final object Enumeratee {
         new StepCont[F, E, Vector[E], A](step) {
           final def feedEl(e: E): F[Step[F, E, Step[F, Vector[E], A]]] =
             F.map(step.feedEl(Vector(e)))(doneOrLoop)
-          final protected def feedNonEmpty[C](chunk: C)(implicit is: Step.IsChunk[C, E]): F[Step[F, E, Step[F, Vector[E], A]]] =
+          final protected def feedNonEmpty[C](
+            chunk: C
+          )(implicit is: Step.IsChunk[C, E]): F[Step[F, E, Step[F, Vector[E], A]]] =
             F.map(step.feedEl(is(chunk).toVector))(doneOrLoop)
         }
     }

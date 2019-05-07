@@ -101,7 +101,8 @@ final object Step { self =>
 
     final def isDone: Boolean = true
     final def run: F[A] = F.pure(value)
-    final def feed[C](chunk: C)(implicit is: Step.IsChunk[C, E]): F[Step[F, E, A]] = F.pure(doneWithLeftovers(value, remaining ++ is(chunk)))
+    final def feed[C](chunk: C)(implicit is: Step.IsChunk[C, E]): F[Step[F, E, A]] =
+      F.pure(doneWithLeftovers(value, remaining ++ is(chunk)))
     final def feedEl(e: E): F[Step[F, E, A]] = F.pure(doneWithLeftovers(value, remaining :+ e))
     final protected def feedNonEmpty[C](chunk: C)(implicit is: Step.IsChunk[C, E]): F[Step[F, E, A]] =
       F.pure(doneWithLeftovers(value, remaining ++ is(chunk)))
@@ -206,12 +207,14 @@ final object Step { self =>
 
     final def run: F[A] = F.pure(runPure)
     final def feedEl(e: E): F[Step[F, E, A]] = F.pure(feedElPure(e))
-    final protected def feedNonEmpty[C](chunk: C)(implicit is: Step.IsChunk[C, E]): F[Step[F, E, A]] = F.pure(feedNonEmptyPure[C](chunk))
+    final protected def feedNonEmpty[C](chunk: C)(implicit is: Step.IsChunk[C, E]): F[Step[F, E, A]] =
+      F.pure(feedNonEmptyPure[C](chunk))
 
     final def map[B](f: A => B): Step[F, E, B] = new PureCont[F, E, B] {
       final def runPure: B = f(self.runPure)
       final def feedElPure(e: E): Step[F, E, B] = self.feedElPure(e).map(f)
-      final protected def feedNonEmptyPure[C](chunk: C)(implicit is: Step.IsChunk[C, E]): Step[F, E, B] = self.feedNonEmptyPure[C](chunk).map(f)
+      final protected def feedNonEmptyPure[C](chunk: C)(implicit is: Step.IsChunk[C, E]): Step[F, E, B] =
+        self.feedNonEmptyPure[C](chunk).map(f)
     }
 
     final def contramap[E2](f: E2 => E): Step[F, E2, A] = new PureCont[F, E2, A] {
@@ -225,7 +228,8 @@ final object Step { self =>
       new Cont[F, E, B] {
         final def run: F[B] = M.flatMap(f(self.runPure))(_.run)
         final def feedEl(e: E): F[Step[F, E, B]] = self.feedElPure(e).bind(f)
-        final protected def feedNonEmpty[C](chunk: C)(implicit is: Step.IsChunk[C, E]): F[Step[F, E, B]] = self.feedNonEmptyPure(chunk).bind(f)
+        final protected def feedNonEmpty[C](chunk: C)(implicit is: Step.IsChunk[C, E]): F[Step[F, E, B]] =
+          self.feedNonEmptyPure(chunk).bind(f)
       }
     )
   }
@@ -281,7 +285,8 @@ final object Step { self =>
     new Cont[F, E, A] {
       final def run: F[A] = fa.value
       final def feedEl(e: E): F[Step[F, E, A]] = F.map(fa.value)(doneWithLeftovers(_, e :: Nil))
-      final protected def feedNonEmpty[C](chunk: C)(implicit is: Step.IsChunk[C, E]): F[Step[F, E, A]] = F.map(fa.value)(doneWithLeftovers(_, is(chunk).toList))
+      final protected def feedNonEmpty[C](chunk: C)(implicit is: Step.IsChunk[C, E]): F[Step[F, E, A]] =
+        F.map(fa.value)(doneWithLeftovers(_, is(chunk).toList))
     }
   )
 
@@ -304,7 +309,8 @@ final object Step { self =>
   final def fold[F[_], E, A](init: A)(f: (A, E) => A)(implicit F: Applicative[F]): Step[F, E, A] =
     new PureCont.WithValue[F, E, A](init) {
       final def feedElPure(e: E): Step[F, E, A] = self.fold(f(init, e))(f)
-      final protected def feedNonEmptyPure[C](chunk: C)(implicit is: Step.IsChunk[C, E]): Step[F, E, A] = self.fold(is(chunk).foldLeft(init)(f))(f)
+      final protected def feedNonEmptyPure[C](chunk: C)(implicit is: Step.IsChunk[C, E]): Step[F, E, A] =
+        self.fold(is(chunk).foldLeft(init)(f))(f)
     }
 
   /**
@@ -332,7 +338,8 @@ final object Step { self =>
   private[this] final class ConsumeCont[F[_], E](acc: Vector[E])(implicit F: Applicative[F])
       extends PureCont.WithValue[F, E, Vector[E]](acc) {
     final def feedElPure(e: E): Step[F, E, Vector[E]] = new ConsumeCont(acc :+ e)
-    final protected def feedNonEmptyPure[C](chunk: C)(implicit is: Step.IsChunk[C, E]): Step[F, E, Vector[E]] = new ConsumeCont(acc ++ is(chunk))
+    final protected def feedNonEmptyPure[C](chunk: C)(implicit is: Step.IsChunk[C, E]): Step[F, E, Vector[E]] =
+      new ConsumeCont(acc ++ is(chunk))
   }
 
   /**
@@ -355,9 +362,10 @@ final object Step { self =>
     C: Applicative[C]
   ) extends PureCont.WithValue[F, E, C[E]](acc) {
     final def feedElPure(e: E): Step[F, E, C[E]] = new ConsumeInCont(M.combineK(acc, C.pure(e)))
-    final protected def feedNonEmptyPure[C1](chunk: C1)(implicit is: Step.IsChunk[C1, E]): Step[F, E, C[E]] = new ConsumeInCont(
-      is(chunk).foldLeft(acc)((a, e) => M.combineK(a, C.pure(e)))
-    )
+    final protected def feedNonEmptyPure[C1](chunk: C1)(implicit is: Step.IsChunk[C1, E]): Step[F, E, C[E]] =
+      new ConsumeInCont(
+        is(chunk).foldLeft(acc)((a, e) => M.combineK(a, C.pure(e)))
+      )
   }
 
   /**
@@ -398,7 +406,8 @@ final object Step { self =>
   private[this] final class LastCont[F[_], E](acc: Option[E])(implicit F: Applicative[F])
       extends PureCont.WithValue[F, E, Option[E]](acc) {
     final def feedElPure(e: E): Step[F, E, Option[E]] = new LastCont(Some(e))
-    final protected def feedNonEmptyPure[C](chunk: C)(implicit is: Step.IsChunk[C, E]): Step[F, E, Option[E]] = new LastCont(Some(is(chunk).toSeq.last))
+    final protected def feedNonEmptyPure[C](chunk: C)(implicit is: Step.IsChunk[C, E]): Step[F, E, Option[E]] =
+      new LastCont(Some(is(chunk).toSeq.last))
   }
 
   /**
@@ -411,7 +420,8 @@ final object Step { self =>
   private[this] final class LengthCont[F[_], E](acc: Long)(implicit F: Applicative[F])
       extends PureCont.WithValue[F, E, Long](acc) {
     final def feedElPure(e: E): Step[F, E, Long] = new LengthCont(acc + 1L)
-    final protected def feedNonEmptyPure[C](chunk: C)(implicit is: Step.IsChunk[C, E]): Step[F, E, Long] = new LengthCont(acc + is(chunk).size.toLong)
+    final protected def feedNonEmptyPure[C](chunk: C)(implicit is: Step.IsChunk[C, E]): Step[F, E, Long] =
+      new LengthCont(acc + is(chunk).size.toLong)
   }
 
   /**
@@ -548,7 +558,8 @@ final object Step { self =>
   final def isEnd[F[_], E](implicit F: Applicative[F]): Step[F, E, Boolean] = new PureCont[F, E, Boolean] {
     final def runPure: Boolean = true
     final def feedElPure(e: E): Step[F, E, Boolean] = doneWithLeftovers(false, e :: Nil)
-    final protected def feedNonEmptyPure[C](chunk: C)(implicit is: Step.IsChunk[C, E]): Step[F, E, Boolean] = doneWithLeftovers(false, is(chunk).toSeq)
+    final protected def feedNonEmptyPure[C](chunk: C)(implicit is: Step.IsChunk[C, E]): Step[F, E, Boolean] =
+      doneWithLeftovers(false, is(chunk).toSeq)
   }
 
   private[this] class TailRecMCont[F[_], E, A, B](a: A)(f: A => F[Step[F, E, Either[A, B]]])(
