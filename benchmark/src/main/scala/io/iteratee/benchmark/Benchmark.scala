@@ -87,3 +87,37 @@ class StreamingBenchmark extends StreamingExampleData {
   @Benchmark
   def takeLongs7C: Vector[Long] = longStreamC.take(count).toVector
 }
+
+/**
+ * Compare the performance of iteratee operations.
+ *
+ * The following command will run the benchmarks with reasonable settings:
+ *
+ * > sbt "benchmark/jmh:run -i 10 -wi 10 -f 2 -t 1 io.iteratee.benchmark.SumBenchmark"
+ */
+@State(Scope.Thread)
+@BenchmarkMode(Array(Mode.Throughput))
+@OutputTimeUnit(TimeUnit.SECONDS)
+class SumBenchmark extends StreamingExampleData {
+  val count = 1000
+
+  val values = (0 to count).toVector
+  val enumII: i.Enumerator[Id, Int] = List.fill(100)(i.Enumerator.enumVector[Id, Int](values)).reduce(_.append(_))
+  val enumIO: i.Enumerator[IO, Int] = List.fill(100)(i.Enumerator.enumVector[IO, Int](values)).reduce(_.append(_))
+  val enumF = List.fill(100)(StreamF.chunk(fs2.Chunk.vector(values))).reduce(_ ++ _)
+
+  @Benchmark
+  def takeLongs0II: Int = enumII.into(i.Iteratee.sum)
+
+  @Benchmark
+  def takeLongs3IO: Int = enumIO.into(i.Iteratee.sum).unsafeRunSync
+
+  //@Benchmark
+  //def takeLongs5Z: Long = (z.Iteratee.take[Long, Vector](count).up[Task] &= longStreamZ).run.unsafePerformSync
+
+  @Benchmark
+  def takeLongs6F: Int = enumF.reduceSemigroup.compile.toVector.head
+
+  //@Benchmark
+  //def takeLongs7C: Long = longStreamC.take(count).sum
+}

@@ -44,7 +44,7 @@ sealed abstract class Step[F[_], E, A] extends Serializable {
    * Note that this method is unsafe! If you do not know that the chunk contains
    * at least one element, you must call `feed` instead.
    */
-  protected def feedNonEmpty(chunk: Seq[E]): F[Step[F, E, A]]
+  protected def feedChunk(chunk: Chunk[E]): F[Step[F, E, A]]
 
   /**
    * Map a function over the value of this [[Step]].
@@ -89,7 +89,7 @@ sealed abstract class Step[F[_], E, A] extends Serializable {
  * @groupprio Collection 2
  */
 final object Step { self =>
-  private[this] final class Done[F[_], E, A](val value: A)(private[internal] val remaining: Seq[E])(
+  private[this] abstract class BaseDone[F[_], E, A](val value: A)(
     implicit
     F: Applicative[F]
   ) extends Step[F, E, A] {
@@ -100,7 +100,7 @@ final object Step { self =>
     final def run: F[A] = F.pure(value)
     final def feed(chunk: Seq[E]): F[Step[F, E, A]] = F.pure(doneWithLeftovers(value, remaining ++ chunk))
     final def feedEl(e: E): F[Step[F, E, A]] = F.pure(doneWithLeftovers(value, remaining :+ e))
-    final protected def feedNonEmpty(chunk: Seq[E]): F[Step[F, E, A]] =
+    final protected def feedChunk(chunk: Chunk[E]): F[Step[F, E, A]] =
       F.pure(doneWithLeftovers(value, remaining ++ chunk))
 
     final def map[B](f: A => B): Step[F, E, B] = doneWithLeftovers(f(value), remaining)
@@ -129,6 +129,10 @@ final object Step { self =>
     }
   }
 
+  private[this] abstract class Done0[F[_], E, A](val value: A)(implicit F: Applicative[F]) extends Step[F, E, A] {
+
+  }
+
   private[internal] abstract class BaseCont[F[_], E, A](implicit F: Applicative[F]) extends Step[F, E, A] { self =>
     final def fold[Z](ifCont: (NonEmptyList[E] => F[Step[F, E, A]]) => Z, ifDone: (A, List[E]) => Z): Z =
       ifCont { nev =>
@@ -148,7 +152,7 @@ final object Step { self =>
     final def mapI[G[_]: Applicative](f: FunctionK[F, G]): Step[G, E, A] = new Cont[G, E, A] {
       final def run: G[A] = f(self.run)
       final def feedEl(e: E): G[Step[G, E, A]] = f(F.map(self.feedEl(e))(_.mapI(f)))
-      final protected def feedNonEmpty(chunk: Seq[E]): G[Step[G, E, A]] =
+      final protected def feedChunk(chunk: Chunk[E]): G[Step[G, E, A]] =
         f(F.map(self.feedNonEmpty(chunk))(_.mapI(f)))
     }
 
@@ -158,7 +162,7 @@ final object Step { self =>
       new Cont[F, E, (A, B)] {
         final def run: F[(A, B)] = F.product(self.run, other.run)
         final def feedEl(e: E): F[Step[F, E, (A, B)]] = F.map2(self.feedEl(e), other.feedEl(e))(_.zip(_))
-        final protected def feedNonEmpty(chunk: Seq[E]): F[Step[F, E, (A, B)]] =
+        final protected def feedChunk(chunk: Chunk[E]): F[Step[F, E, (A, B)]] =
           F.map2(self.feedNonEmpty(chunk), other.feedNonEmpty(chunk))(_.zip(_))
       }
     }
@@ -168,7 +172,7 @@ final object Step { self =>
     final def map[B](f: A => B): Step[F, E, B] = new Cont[F, E, B] {
       final def run: F[B] = F.map(self.run)(f)
       final def feedEl(e: E): F[Step[F, E, B]] = F.map(self.feedEl(e))(_.map(f))
-      final protected def feedNonEmpty(chunk: Seq[E]): F[Step[F, E, B]] =
+      final protected def feedChunk(chunk: Chunk[E]): F[Step[F, E, B]] =
         F.map(self.feedNonEmpty(chunk))(_.map(f))
     }
 
@@ -183,7 +187,7 @@ final object Step { self =>
       new Cont[F, E, B] {
         final def run: F[B] = M.flatMap(self.run)(a => M.flatMap(f(a))(_.run))
         final def feedEl(e: E): F[Step[F, E, B]] = M.flatMap(self.feedEl(e))(_.bind(f))
-        final protected def feedNonEmpty(chunk: Seq[E]): F[Step[F, E, B]] =
+        final protected def feedChunk(chunk: Chunk[E]): F[Step[F, E, B]] =
           M.flatMap(self.feedNonEmpty(chunk))(_.bind(f))
       }
     )
@@ -202,7 +206,7 @@ final object Step { self =>
 
     final def run: F[A] = F.pure(runPure)
     final def feedEl(e: E): F[Step[F, E, A]] = F.pure(feedElPure(e))
-    final protected def feedNonEmpty(chunk: Seq[E]): F[Step[F, E, A]] = F.pure(feedNonEmptyPure(chunk))
+    final protected def feedChunk(chunk: Chunk[E]): F[Step[F, E, A]] = F.pure(feedNonEmptyPure(chunk))
 
     final def map[B](f: A => B): Step[F, E, B] = new PureCont[F, E, B] {
       final def runPure: B = f(self.runPure)
@@ -221,7 +225,7 @@ final object Step { self =>
       new Cont[F, E, B] {
         final def run: F[B] = M.flatMap(f(self.runPure))(_.run)
         final def feedEl(e: E): F[Step[F, E, B]] = self.feedElPure(e).bind(f)
-        final protected def feedNonEmpty(chunk: Seq[E]): F[Step[F, E, B]] = self.feedNonEmptyPure(chunk).bind(f)
+        final protected def feedChunk(chunk: Chunk[E]): F[Step[F, E, B]] = self.feedNonEmptyPure(chunk).bind(f)
       }
     )
   }
@@ -242,7 +246,7 @@ final object Step { self =>
   )(implicit F: Applicative[F]): Step[F, E, A] = new Cont[F, E, A] {
     final def run: F[A] = onEnd
     final def feedEl(e: E): F[Step[F, E, A]] = onInput(NonEmptyList(e, Nil))
-    final protected def feedNonEmpty(chunk: Seq[E]): F[Step[F, E, A]] =
+    final protected def feedChunk(chunk: Chunk[E]): F[Step[F, E, A]] =
       onInput(NonEmptyList.fromListUnsafe(chunk.toList))
   }
 
@@ -277,7 +281,7 @@ final object Step { self =>
     new Cont[F, E, A] {
       final def run: F[A] = fa.value
       final def feedEl(e: E): F[Step[F, E, A]] = F.map(fa.value)(doneWithLeftovers(_, e :: Nil))
-      final protected def feedNonEmpty(chunk: Seq[E]): F[Step[F, E, A]] = F.map(fa.value)(doneWithLeftovers(_, chunk))
+      final protected def feedChunk(chunk: Chunk[E]): F[Step[F, E, A]] = F.map(fa.value)(doneWithLeftovers(_, chunk))
     }
   )
 
@@ -312,7 +316,7 @@ final object Step { self =>
   final def foldM[F[_], E, A](init: A)(f: (A, E) => F[A])(implicit F: Monad[F]): Step[F, E, A] =
     new Cont.WithValue[F, E, A](init) {
       final def feedEl(e: E): F[Step[F, E, A]] = F.map(f(init, e))(foldM(_)(f))
-      final protected def feedNonEmpty(chunk: Seq[E]): F[Step[F, E, A]] =
+      final protected def feedChunk(chunk: Chunk[E]): F[Step[F, E, A]] =
         F.map(chunk.tail.foldLeft(f(init, chunk.head))((fa, e) => F.flatMap(fa)(a => f(a, e))))(foldM(_)(f))
     }
 
@@ -414,8 +418,15 @@ final object Step { self =>
   private[this] final class SumCont[F[_], E](acc: E)(implicit F: Applicative[F], M: Semigroup[E])
       extends PureCont.WithValue[F, E, E](acc) {
     final def feedElPure(e: E): Step[F, E, E] = new SumCont(M.combine(acc, e))
-    final protected def feedNonEmptyPure(chunk: Seq[E]): Step[F, E, E] =
-      new SumCont(M.combine(acc, chunk.reduce(M.combine)))
+    final protected def feedNonEmptyPure(chunk: Seq[E]): Step[F, E, E] = {
+      val iterator = chunk.iterator
+      var result = acc
+
+      while (iterator.hasNext) {
+        result = M.combine(acc, iterator.next())
+      }
+      new SumCont(result)
+    }
   }
 
   /**
@@ -444,7 +455,7 @@ final object Step { self =>
   private[this] final class FoldMapMCont[F[_], E, A](acc: A)(f: E => F[A])(implicit F: Applicative[F], M: Semigroup[A])
       extends Cont.WithValue[F, E, A](acc) {
     final def feedEl(e: E): F[Step[F, E, A]] = F.map(f(e))(a => new FoldMapMCont(M.combine(acc, a))(f))
-    final protected def feedNonEmpty(chunk: Seq[E]): F[Step[F, E, A]] = F.map(
+    final protected def feedChunk(chunk: Chunk[E]): F[Step[F, E, A]] = F.map(
       chunk.foldLeft(F.pure(acc)) {
         case (acc, e) => F.map2(acc, f(e))(M.combine)
       }
@@ -574,7 +585,7 @@ final object Step { self =>
     final def feedEl(e: E): F[Step[F, E, B]] =
       F.flatMap(f(a))(s => F.flatMap(s.feedEl(e))(F.tailRecM(_)(loop)))
 
-    final protected def feedNonEmpty(chunk: Seq[E]): F[Step[F, E, B]] =
+    final protected def feedChunk(chunk: Chunk[E]): F[Step[F, E, B]] =
       F.flatMap(f(a))(s => F.flatMap(s.feedNonEmpty(chunk))(F.tailRecM(_)(loop)))
   }
 
