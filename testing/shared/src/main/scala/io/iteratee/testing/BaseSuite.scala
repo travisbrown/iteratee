@@ -5,7 +5,7 @@ import cats.kernel.Eq
 import cats.syntax.AllSyntax
 import io.iteratee.modules.{ EnumeratorModule, IterateeModule, Module }
 import org.scalatest.flatspec.AnyFlatSpec
-import org.scalatest.check.{ Checkers, ScalaCheckDrivenPropertyChecks }
+import org.scalatestplus.scalacheck.{ Checkers, ScalaCheckDrivenPropertyChecks }
 import org.typelevel.discipline.Laws
 
 class BaseSuite
