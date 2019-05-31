@@ -51,6 +51,7 @@ lazy val baseSettings = Seq(
       compilerOptions.flatMap {
         case "-Ywarn-unused-import" => Some("-Ywarn-unused:imports")
         case "-Yno-adapted-args"    => None
+        case "-Xfuture"             => None
         case other                  => Some(other)
       }
   },
@@ -61,6 +62,7 @@ lazy val baseSettings = Seq(
       compilerOptions.flatMap {
         case "-Ywarn-unused-import" => Some("-Ywarn-unused:imports")
         case "-Yno-adapted-args"    => None
+        case "-Xfuture"             => None
         case other                  => Some(other)
       }
   },
@@ -70,6 +72,7 @@ lazy val baseSettings = Seq(
       compilerOptions.flatMap {
         case "-Ywarn-unused-import" => Some("-Ywarn-unused:imports")
         case "-Yno-adapted-args"    => None
+        case "-Xfuture"             => None
         case other                  => Some(other)
       }
   },
