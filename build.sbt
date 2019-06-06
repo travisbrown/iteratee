@@ -21,14 +21,14 @@ val compilerOptions = Seq(
   "-Xfuture"
 )
 
-val catsVersion = "2.0.0-M2"
-val catsEffectVersion = "2.0.0-M2"
+val catsVersion = "2.0.0-M3"
+val catsEffectVersion = "2.0.0-M3"
 val scalazVersion = "7.2.27"
 val fs2Version = "1.0.4"
 
-val scalaTestVersion = "3.1.0-SNAP11"
+val scalaTestVersion = "3.1.0-SNAP12"
 val scalaCheckVersion = "1.14.0"
-val disciplineVersion = "0.12.0-M1"
+val disciplineVersion = "0.12.0-M2"
 
 /**
  * Some terrible hacks to work around Cats's decision to have builds for
@@ -78,7 +78,7 @@ lazy val baseSettings = Seq(
   },
   coverageHighlighting := true,
   (scalastyleSources in Compile) ++= (sourceDirectories in Compile).value,
-  addCompilerPlugin("org.typelevel" % "kind-projector" % "0.10.1" cross CrossVersion.binary),
+  addCompilerPlugin("org.typelevel" % "kind-projector" % "0.10.2" cross CrossVersion.binary),
   coverageEnabled := { if (priorTo2_13(scalaVersion.value)) coverageEnabled.value else false }
 )
 
@@ -146,7 +146,7 @@ lazy val testing = crossProject(JSPlatform, JVMPlatform)
     libraryDependencies ++= Seq(
       "org.scalacheck" %%% "scalacheck" % scalaCheckVersion,
       "org.scalatest" %%% "scalatest" % scalaTestVersion,
-      "org.scalatestplus" %%% "scalatestplus-scalacheck" % "1.0.0-SNAP6",
+      "org.scalatestplus" %%% "scalatestplus-scalacheck" % "1.0.0-SNAP7",
       "org.typelevel" %%% "cats-laws" % catsVersion,
       "org.typelevel" %%% "discipline-core" % disciplineVersion
     ),
@@ -176,7 +176,7 @@ lazy val tests = crossProject(JSPlatform, JVMPlatform)
     libraryDependencies ++= Seq(
       "org.scalacheck" %%% "scalacheck" % scalaCheckVersion,
       "org.scalatest" %%% "scalatest" % scalaTestVersion,
-      "org.scalatestplus" %%% "scalatestplus-scalacheck" % "1.0.0-SNAP6",
+      "org.scalatestplus" %%% "scalatestplus-scalacheck" % "1.0.0-SNAP7",
       "org.typelevel" %%% "cats-laws" % catsVersion,
       "org.typelevel" %%% "discipline-core" % disciplineVersion
     ),
