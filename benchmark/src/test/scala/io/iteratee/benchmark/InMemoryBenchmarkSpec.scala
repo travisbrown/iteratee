@@ -1,8 +1,8 @@
 package io.iteratee.benchmark
 
-import org.scalatest.FlatSpec
+import org.scalatest.flatspec.AnyFlatSpec
 
-class InMemoryBenchmarkSpec extends FlatSpec {
+class InMemoryBenchmarkSpec extends AnyFlatSpec {
   val benchmark: InMemoryBenchmark = new InMemoryBenchmark
   val sum = 49995000
 
