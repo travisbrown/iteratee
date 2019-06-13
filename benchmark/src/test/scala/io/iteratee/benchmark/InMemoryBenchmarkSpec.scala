@@ -11,18 +11,18 @@ class InMemoryBenchmarkSpec extends FlatSpec {
   }
 
   it should "correctly calculate the sum using cats.effect.IO" in {
-    assert(benchmark.sumInts3IO === sum)
+    assert(benchmark.sumInts1IO === sum)
   }
 
   it should "correctly calculate the sum using scalaz-iteratee" in {
-    assert(benchmark.sumInts5Z === sum)
+    assert(benchmark.sumInts2Z === sum)
   }
 
   it should "correctly calculate the sum using fs2" in {
-    assert(benchmark.sumInts6F === sum)
+    assert(benchmark.sumInts3F === sum)
   }
 
   it should "correctly calculate the sum using the collections library" in {
-    assert(benchmark.sumInts7C === sum)
+    assert(benchmark.sumInts4C === sum)
   }
 }
