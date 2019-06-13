@@ -1,9 +1,9 @@
 package io.iteratee.benchmark
 
-import org.scalatest.FlatSpec
+import org.scalatest.flatspec.AnyFlatSpec
 import scala.Predef.intWrapper
 
-class StreamingBenchmarkSpec extends FlatSpec {
+class StreamingBenchmarkSpec extends AnyFlatSpec {
   val benchmark: StreamingBenchmark = new StreamingBenchmark
   val taken = (0 until 10000).toVector
 
