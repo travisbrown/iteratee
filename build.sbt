@@ -110,7 +110,7 @@ lazy val iteratee = project
   .settings(allSettings)
   .settings(docSettings)
   .settings(noPublishSettings)
-  .aggregate(coreJVM, coreJS, files, testingJVM, testingJS, testsJVM, testsJS)
+  .aggregate(coreJVM, coreJS, files, testingJVM, testingJS, testsJVM, testsJS, benchmark)
   .dependsOn(coreJVM, files)
 
 lazy val core = crossProject(JSPlatform, JVMPlatform)
