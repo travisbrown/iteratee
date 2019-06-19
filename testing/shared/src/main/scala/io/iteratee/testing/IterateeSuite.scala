@@ -2,7 +2,7 @@ package io.iteratee.testing
 
 import cats.{ Eq, Eval, Monad, MonadError }
 import cats.data.{ EitherT, NonEmptyList }
-import cats.laws.discipline.{ ContravariantTests, MonadTests, MonadErrorTests, SemigroupalTests }
+import cats.laws.discipline.{ ContravariantTests, MonadErrorTests, MonadTests, SemigroupalTests }
 import io.iteratee.Iteratee
 import io.iteratee.internal.Step
 import io.iteratee.modules.{ EnumerateeModule, EnumeratorModule, IterateeErrorModule, IterateeModule, Module }

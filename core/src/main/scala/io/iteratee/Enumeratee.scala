@@ -156,13 +156,12 @@ final object Enumeratee {
       }
 
       protected final def loop[A](step: Step[F, E, A]): Step[F, E, Step[F, E, A]] = new StepCont[F, E, E, A](step) {
-        final def feedEl(e: E): F[Step[F, E, Step[F, E, A]]] = {
+        final def feedEl(e: E): F[Step[F, E, Step[F, E, A]]] =
           F.ifM(p(e))(
             ifFalse = F.pure(Step.doneWithLeftovers(step, e :: Nil)),
             ifTrue = F.map(step.feedEl(e))(doneOrLoop)
           )
-        }
-        final protected def feedNonEmpty(chunk: Seq[E]): F[Step[F, E, Step[F, E, A]]] = {
+        final protected def feedNonEmpty(chunk: Seq[E]): F[Step[F, E, Step[F, E, A]]] =
           F.flatMap(vectorSpanM(p, chunk.toVector)) {
             case (taken, left) =>
               if (taken.isEmpty) {
@@ -173,7 +172,6 @@ final object Enumeratee {
                 F.map(step.feed(taken))(Step.doneWithLeftovers(_, left))
               }
           }
-        }
       }
     }
 
