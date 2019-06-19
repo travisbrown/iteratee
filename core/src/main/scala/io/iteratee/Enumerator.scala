@@ -1,6 +1,6 @@
 package io.iteratee
 
-import cats.{ Applicative, FlatMap, Monad, MonadError, Monoid, Semigroup, Eval }
+import cats.{ Applicative, Eval, FlatMap, Monad, MonadError, Monoid, Semigroup }
 import cats.kernel.Eq
 import io.iteratee.internal.Step
 import scala.Predef._

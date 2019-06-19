@@ -1,6 +1,6 @@
 import ReleaseTransformations._
 import org.scalafmt.sbt.ScalafmtPlugin.scalafmtConfigSettings
-import sbtcrossproject.{ crossProject, CrossType }
+import sbtcrossproject.{ CrossType, crossProject }
 import scala.xml.{ Elem, Node => XmlNode, NodeSeq => XmlNodeSeq }
 import scala.xml.transform.{ RewriteRule, RuleTransformer }
 
@@ -78,7 +78,7 @@ lazy val baseSettings = Seq(
   },
   coverageHighlighting := true,
   (scalastyleSources in Compile) ++= (sourceDirectories in Compile).value,
-  addCompilerPlugin("org.typelevel" % "kind-projector" % "0.10.3" cross CrossVersion.binary),
+  addCompilerPlugin(("org.typelevel" % "kind-projector" % "0.10.3").cross(CrossVersion.binary)),
   coverageEnabled := { if (priorTo2_13(scalaVersion.value)) coverageEnabled.value else false }
 )
 
@@ -242,9 +242,9 @@ lazy val publishSettings = Seq(
   publishTo := {
     val nexus = "https://oss.sonatype.org/"
     if (isSnapshot.value)
-      Some("snapshots" at nexus + "content/repositories/snapshots")
+      Some("snapshots".at(nexus + "content/repositories/snapshots"))
     else
-      Some("releases" at nexus + "service/local/staging/deploy/maven2")
+      Some("releases".at(nexus + "service/local/staging/deploy/maven2"))
   },
   autoAPIMappings := true,
   apiURL := Some(url("https://travisbrown.github.io/iteratee/api/")),
@@ -287,13 +287,12 @@ credentials ++= (
   for {
     username <- Option(System.getenv().get("SONATYPE_USERNAME"))
     password <- Option(System.getenv().get("SONATYPE_PASSWORD"))
-  } yield
-    Credentials(
-      "Sonatype Nexus Repository Manager",
-      "oss.sonatype.org",
-      username,
-      password
-    )
+  } yield Credentials(
+    "Sonatype Nexus Repository Manager",
+    "oss.sonatype.org",
+    username,
+    password
+  )
 ).toSeq
 
 val jvmProjects = Seq(
