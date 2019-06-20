@@ -78,8 +78,7 @@ lazy val baseSettings = Seq(
   },
   coverageHighlighting := true,
   (scalastyleSources in Compile) ++= (sourceDirectories in Compile).value,
-  addCompilerPlugin(("org.typelevel" % "kind-projector" % "0.10.3").cross(CrossVersion.binary)),
-  coverageEnabled := { if (priorTo2_13(scalaVersion.value)) coverageEnabled.value else false }
+  addCompilerPlugin(("org.typelevel" % "kind-projector" % "0.10.3").cross(CrossVersion.binary))
 )
 
 lazy val allSettings = baseSettings ++ publishSettings
