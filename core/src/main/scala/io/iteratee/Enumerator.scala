@@ -116,7 +116,7 @@ final object Enumerator {
       def loop(fn: () => Enumerator[F, E]): Enumerator[F, E] =
         fn() match {
           case DeferEnumerator(nextFn) => loop(nextFn)
-          case notDefer => notDefer
+          case notDefer                => notDefer
         }
       loop(build)
     }
@@ -138,10 +138,6 @@ final object Enumerator {
       final override def map[A, B](fa: Enumerator[F, A])(f: A => B): Enumerator[F, B] = fa.map(f)
       final def flatMap[A, B](fa: Enumerator[F, A])(f: A => Enumerator[F, B]): Enumerator[F, B] = fa.flatMap(f)
       final def pure[E](e: E): Enumerator[F, E] = Enumerator.enumOne[F, E](e)
-
-      /**
-       * Note that recursive monadic binding is not stack safe for enumerators.
-       */
       final def tailRecM[A, B](a: A)(f: A => Enumerator[F, Either[A, B]]): Enumerator[F, B] =
         f(a).through(Enumeratee.tailRecM(f))
     }
@@ -194,6 +190,7 @@ final object Enumerator {
   private[iteratee] case class EnumOne[F[_], E](e: E, app: Applicative[F]) extends Enumerator[F, E] {
     final def apply[A](s: Step[F, E, A]): F[Step[F, E, A]] = s.feedEl(e)
   }
+
   /**
    * An enumerator that produces a single value.
    */
