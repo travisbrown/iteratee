@@ -1,6 +1,6 @@
 package io.iteratee
 
-import cats.{ Applicative, Eval, FlatMap, Monad, MonadError, Monoid, Semigroup }
+import cats.{ Applicative, Defer, Eval, FlatMap, Monad, MonadError, Monoid, Semigroup }
 import cats.kernel.Eq
 import io.iteratee.internal.Step
 import scala.Predef._
@@ -110,6 +110,29 @@ final object Enumerator {
       def empty: Enumerator[F, E] = Enumerator.empty
     }
 
+  private case class DeferEnumerator[F[_], E](build: () => Enumerator[F, E]) extends Enumerator[F, E] {
+    lazy val built: Enumerator[F, E] = {
+      @annotation.tailrec
+      def loop(fn: () => Enumerator[F, E]): Enumerator[F, E] =
+        fn() match {
+          case DeferEnumerator(nextFn) => loop(nextFn)
+          case notDefer => notDefer
+        }
+      loop(build)
+    }
+
+    def apply[A](s: Step[F, E, A]): F[Step[F, E, A]] = built(s)
+  }
+
+  def defer[F[_], A](e: => Enumerator[F, A]): Enumerator[F, A] =
+    DeferEnumerator(() => e)
+
+  implicit def enumeratorDefer[F[_]]: Defer[Enumerator[F, ?]] =
+    new Defer[Enumerator[F, ?]] {
+      def defer[A](e: => Enumerator[F, A]): Enumerator[F, A] =
+        DeferEnumerator(() => e)
+    }
+
   implicit final def enumeratorMonad[F[_]](implicit F: Monad[F]): Monad[Enumerator[F, ?]] =
     new Monad[Enumerator[F, ?]] {
       final override def map[A, B](fa: Enumerator[F, A])(f: A => B): Enumerator[F, B] = fa.map(f)
@@ -119,10 +142,8 @@ final object Enumerator {
       /**
        * Note that recursive monadic binding is not stack safe for enumerators.
        */
-      final def tailRecM[A, B](a: A)(f: A => Enumerator[F, Either[A, B]]): Enumerator[F, B] = f(a).flatMap {
-        case Right(b)    => pure(b)
-        case Left(nextA) => tailRecM(nextA)(f)
-      }
+      final def tailRecM[A, B](a: A)(f: A => Enumerator[F, Either[A, B]]): Enumerator[F, B] =
+        f(a).through(Enumeratee.tailRecM(f))
     }
 
   /**
@@ -170,12 +191,14 @@ final object Enumerator {
       final def apply[A](s: Step[F, E, A]): F[Step[F, E, A]] = F.map(f)(_ => s)
     }
 
+  private[iteratee] case class EnumOne[F[_], E](e: E, app: Applicative[F]) extends Enumerator[F, E] {
+    final def apply[A](s: Step[F, E, A]): F[Step[F, E, A]] = s.feedEl(e)
+  }
   /**
    * An enumerator that produces a single value.
    */
-  final def enumOne[F[_]: Applicative, E](e: E): Enumerator[F, E] = new Enumerator[F, E] {
-    final def apply[A](s: Step[F, E, A]): F[Step[F, E, A]] = s.feedEl(e)
-  }
+  final def enumOne[F[_]: Applicative, E](e: E): Enumerator[F, E] =
+    EnumOne[F, E](e, implicitly)
 
   /**
    * An enumerator that either produces a single value or fails.
