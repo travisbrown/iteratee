@@ -82,6 +82,34 @@ final object Enumeratee {
       }
     }
 
+  final def tailRecM[F[_], A, B](f: A => Enumerator[F, Either[A, B]])(implicit F: Monad[F]): Enumeratee[F, Either[A, B], B] =
+    new PureLoop[F, Either[A, B], B] {
+      protected final def loop[C](step: Step[F, B, C]): Step[F, Either[A, B], Step[F, B, C]] =
+        new StepCont[F, Either[A, B], B, C](step) {
+          @annotation.tailrec
+          final def feedEl(e: Either[A, B]): F[Step[F, Either[A, B], Step[F, B, C]]] = {
+            e match {
+              case Left(a) =>
+                f(a) match {
+                  case Enumerator.EnumOne(e, _) => feedEl(e)
+                  case other => other(this)
+                }
+              case Right(b) =>
+                F.map(step.feedEl(b))(doneOrLoop)
+            }
+          }
+          final protected def feedNonEmpty(chunk: Seq[Either[A, B]]): F[Step[F, Either[A, B], Step[F, B, C]]] = {
+            val enumerator = chunk.iterator.map {
+              case Left(a) => f(a)
+              case right => Enumerator.enumOne[F, Either[A, B]](right)
+            }
+            .reduce(_.append(_))
+
+            enumerator(this)
+          }
+        }
+      }
+
   /**
    * An [[Enumeratee]] that takes a given number of the first values in a
    * stream.

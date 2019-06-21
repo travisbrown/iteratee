@@ -16,7 +16,7 @@ abstract class EnumeratorSuite[F[_]: Monad] extends ModuleSuite[F] {
     SemigroupalTests.Isomorphisms.invariant[EnumeratorF]
 
   checkLaws(s"Enumerator[$monadName, Int]", MonoidTests[Enumerator[F, Int]].monoid)
-  checkLaws(s"Enumerator[$monadName, Int]", MonadTests[EnumeratorF].stackUnsafeMonad[Int, Int, Int])
+  checkLaws(s"Enumerator[$monadName, Int]", MonadTests[EnumeratorF].monad[Int, Int, Int])
 
   "liftToEnumerator" should "lift a value in a context into an enumerator" in forAll { (i: Int) =>
     assert(liftToEnumerator(F.pure(i)).toVector === F.pure(Vector(i)))
