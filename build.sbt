@@ -21,8 +21,8 @@ val compilerOptions = Seq(
   "-Xfuture"
 )
 
-val catsVersion = "2.0.0-RC2"
-val catsEffectVersion = "2.0.0-RC2"
+val catsVersion = "2.0.0"
+val catsEffectVersion = "2.0.0"
 val scalazVersion = "7.2.28"
 val fs2Version = "1.1.0-M1"
 
