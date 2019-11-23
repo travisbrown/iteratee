@@ -56,7 +56,6 @@ trait FutureSuite extends FutureModule {
 }
 
 object FutureSuite {
-
   /**
    * Needed because `scala.concurrent.Future` boxes `java.lang.Error`.
    */
