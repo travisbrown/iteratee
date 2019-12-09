@@ -13,6 +13,7 @@ import cats.data.NonEmptyList
  * @tparam A The type of the result calculated by the [[io.iteratee.Iteratee]]
  */
 sealed abstract class Step[F[_], E, A] extends Serializable {
+
   /**
    * Reduce this [[Step]] to a value using the given functions.
    */

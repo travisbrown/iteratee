@@ -116,8 +116,9 @@ sealed class Iteratee[F[_], E, A] private[iteratee] (final val state: F[Step[F, 
    * or not it succeeds.
    */
   final def ensureEval[T](action: Eval[F[Unit]])(implicit F: MonadError[F, T]): Iteratee[F, E, A] =
-    handleErrorWith[T](_ => Iteratee.iteratee(F.flatMap(action.value)(_ => state)))
-      .flatMapM(result => F.map(action.value)(_ => result))
+    handleErrorWith[T](_ => Iteratee.iteratee(F.flatMap(action.value)(_ => state))).flatMapM(result =>
+      F.map(action.value)(_ => result)
+    )
 }
 
 private[iteratee] class IterateeLowPriorityInstances {
