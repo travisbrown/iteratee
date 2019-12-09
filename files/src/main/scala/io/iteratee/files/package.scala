@@ -53,12 +53,11 @@ package object files {
   def writeLines[F[_]](file: File)(implicit F: Sync[F]): Iteratee[F, String, Unit] =
     Iteratee.liftM(F.delay(new BufferedWriter(new FileWriter(file)))).flatMap { writer =>
       Iteratee
-        .foldM[F, String, Unit](())(
-          (_, line) =>
-            F.delay {
-              writer.write(line)
-              writer.newLine()
-            }
+        .foldM[F, String, Unit](())((_, line) =>
+          F.delay {
+            writer.write(line)
+            writer.newLine()
+          }
         )
         .ensure(F.delay(writer.close()))
     }
@@ -66,12 +65,11 @@ package object files {
   def writeLinesToStream[F[_]](stream: OutputStream)(implicit F: Sync[F]): Iteratee[F, String, Unit] =
     Iteratee.liftM(F.delay(new BufferedWriter(new OutputStreamWriter(stream)))).flatMap { writer =>
       Iteratee
-        .foldM[F, String, Unit](())(
-          (_, line) =>
-            F.delay {
-              writer.write(line)
-              writer.newLine()
-            }
+        .foldM[F, String, Unit](())((_, line) =>
+          F.delay {
+            writer.write(line)
+            writer.newLine()
+          }
         )
         .ensure(F.delay(writer.close()))
     }
