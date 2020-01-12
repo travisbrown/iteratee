@@ -26,7 +26,7 @@ class FileModuleBenchmark {
   private def bartebly: InputStream = getClass.getResourceAsStream("/io/iteratee/examples/pg/11231/11231.txt")
 
   def linesIO: Enumerator[IO, String] = io.iteratee.files.modules.io.readLinesFromStream(bartebly)
-  def linesTF: Enumerator[Free[Try, ?], String] = FreeTryModule.readLinesFromStream(bartebly)
+  def linesTF: Enumerator[Free[Try, *], String] = FreeTryModule.readLinesFromStream(bartebly)
 
   def words[F[_]: Monad](line: String): Enumerator[F, String] = Enumerator.enumIndexedSeq(line.split(" ").toIndexedSeq)
   def avgLen[F[_]: Monad]: Iteratee[F, String, Double] = Iteratee
@@ -42,5 +42,5 @@ class FileModuleBenchmark {
   def avgWordLengthIO: Double = linesIO.flatMap(words[IO]).into(avgLen).unsafeRunSync
 
   @Benchmark
-  def avgWordLengthTF: Double = linesTF.flatMap(words[Free[Try, ?]]).into(avgLen[Free[Try, ?]]).runTailRec.get
+  def avgWordLengthTF: Double = linesTF.flatMap(words[Free[Try, *]]).into(avgLen[Free[Try, *]]).runTailRec.get
 }
