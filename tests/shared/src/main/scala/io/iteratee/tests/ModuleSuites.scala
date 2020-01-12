@@ -15,13 +15,13 @@ import scala.concurrent.duration._
 import scala.util.{ Failure, Success, Try }
 
 trait EitherSuite extends EitherModule {
-  def monadName: String = "Either[Throwable, ?]"
+  def monadName: String = "Either[Throwable, *]"
 
   implicit def eqF[A](implicit A: Eq[A]): Eq[Either[Throwable, A]] = catsStdEqForEither(Eq.fromUniversalEquals, A)
 }
 
 trait EitherTSuite extends EitherTModule {
-  def monadName: String = "EitherT[Eval, Throwable, ?]"
+  def monadName: String = "EitherT[Eval, Throwable, *]"
 
   implicit def eqEval[A](implicit A: Eq[A]): Eq[Eval[Either[Throwable, A]]] =
     Eval.catsEqForEval(catsStdEqForEither(Eq.fromUniversalEquals, A))

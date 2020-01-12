@@ -127,14 +127,14 @@ final object Enumerator {
   def defer[F[_], A](e: => Enumerator[F, A]): Enumerator[F, A] =
     DeferEnumerator(() => e)
 
-  implicit def enumeratorDefer[F[_]]: Defer[Enumerator[F, ?]] =
-    new Defer[Enumerator[F, ?]] {
+  implicit def enumeratorDefer[F[_]]: Defer[Enumerator[F, *]] =
+    new Defer[Enumerator[F, *]] {
       def defer[A](e: => Enumerator[F, A]): Enumerator[F, A] =
         DeferEnumerator(() => e)
     }
 
-  implicit final def enumeratorMonad[F[_]](implicit F: Monad[F]): Monad[Enumerator[F, ?]] =
-    new Monad[Enumerator[F, ?]] {
+  implicit final def enumeratorMonad[F[_]](implicit F: Monad[F]): Monad[Enumerator[F, *]] =
+    new Monad[Enumerator[F, *]] {
       final override def map[A, B](fa: Enumerator[F, A])(f: A => B): Enumerator[F, B] = fa.map(f)
       final def flatMap[A, B](fa: Enumerator[F, A])(f: A => Enumerator[F, B]): Enumerator[F, B] = fa.flatMap(f)
       final def pure[E](e: E): Enumerator[F, E] = Enumerator.enumOne[F, E](e)

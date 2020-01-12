@@ -9,15 +9,15 @@ import io.iteratee.modules.{ EnumerateeModule, EnumeratorErrorModule, IterateeEr
 import scala.util.{ Failure, Success, Try }
 
 object FreeTryModule
-    extends Module[Free[Try, ?]]
-    with EnumerateeModule[Free[Try, ?]]
-    with EnumeratorErrorModule[Free[Try, ?], Throwable]
-    with IterateeErrorModule[Free[Try, ?], Throwable]
-    with FileModule[Free[Try, ?]] {
+    extends Module[Free[Try, *]]
+    with EnumerateeModule[Free[Try, *]]
+    with EnumeratorErrorModule[Free[Try, *], Throwable]
+    with IterateeErrorModule[Free[Try, *], Throwable]
+    with FileModule[Free[Try, *]] {
   final type M[f[_]] = Sync[f]
 
-  final protected val F: Sync[Free[Try, ?]] = new Sync[Free[Try, ?]] {
-    private[this] val FF = Monad[Free[Try, ?]]
+  final protected val F: Sync[Free[Try, *]] = new Sync[Free[Try, *]] {
+    private[this] val FF = Monad[Free[Try, *]]
     def pure[A](x: A): Free[Try, A] = FF.pure(x)
     def raiseError[A](e: Throwable): Free[Try, A] = Free.liftF(MonadError[Try, Throwable].raiseError(e))
     def handleErrorWith[A](fa: Free[Try, A])(f: Throwable => Free[Try, A]): Free[Try, A] = Free.liftF(

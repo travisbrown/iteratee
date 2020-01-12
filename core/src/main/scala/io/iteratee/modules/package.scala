@@ -24,23 +24,23 @@ package modules {
   final object try_ extends TryModule
 
   trait EitherModule
-      extends Module[Either[Throwable, ?]]
-      with EnumerateeModule[Either[Throwable, ?]]
-      with EnumeratorErrorModule[Either[Throwable, ?], Throwable]
-      with IterateeErrorModule[Either[Throwable, ?], Throwable] {
+      extends Module[Either[Throwable, *]]
+      with EnumerateeModule[Either[Throwable, *]]
+      with EnumeratorErrorModule[Either[Throwable, *], Throwable]
+      with IterateeErrorModule[Either[Throwable, *], Throwable] {
     final type M[f[_]] = MonadError[f, Throwable]
 
-    final protected val F: MonadError[Either[Throwable, ?], Throwable] = catsStdInstancesForEither
+    final protected val F: MonadError[Either[Throwable, *], Throwable] = catsStdInstancesForEither
   }
 
   trait EitherTModule
-      extends Module[EitherT[Eval, Throwable, ?]]
-      with EnumerateeModule[EitherT[Eval, Throwable, ?]]
-      with EnumeratorErrorModule[EitherT[Eval, Throwable, ?], Throwable]
-      with IterateeErrorModule[EitherT[Eval, Throwable, ?], Throwable] {
+      extends Module[EitherT[Eval, Throwable, *]]
+      with EnumerateeModule[EitherT[Eval, Throwable, *]]
+      with EnumeratorErrorModule[EitherT[Eval, Throwable, *], Throwable]
+      with IterateeErrorModule[EitherT[Eval, Throwable, *], Throwable] {
     final type M[f[_]] = MonadError[f, Throwable]
 
-    final protected val F: MonadError[EitherT[Eval, Throwable, ?], Throwable] =
+    final protected val F: MonadError[EitherT[Eval, Throwable, *], Throwable] =
       EitherT.catsDataMonadErrorForEitherT
   }
 
