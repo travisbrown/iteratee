@@ -21,10 +21,10 @@ val compilerOptions = Seq(
   "-Xfuture"
 )
 
-val catsVersion = "2.0.0"
-val catsEffectVersion = "2.0.0"
-val scalazVersion = "7.2.30"
-val fs2Version = "2.1.0"
+val catsVersion = "2.1.1"
+val catsEffectVersion = "2.1.3"
+val scalazVersion = "7.3.0"
+val fs2Version = "2.3.0"
 
 val scalaTestVersion = "3.1.1"
 val scalaCheckVersion = "1.14.3"
@@ -220,7 +220,6 @@ lazy val benchmark = project
     libraryDependencies ++= Seq(
       "co.fs2" %% "fs2-core" % fs2Version,
       "org.scalatest" %% "scalatest" % scalaTestVersion % Test,
-      "org.scalaz" %% "scalaz-concurrent" % scalazVersion,
       "org.scalaz" %% "scalaz-iteratee" % scalazVersion,
       "org.typelevel" %% "cats-free" % catsVersion
     )
