@@ -23,7 +23,6 @@ val compilerOptions = Seq(
 
 val catsVersion = "2.1.1"
 val catsEffectVersion = "2.1.3"
-val scalazVersion = "7.3.0"
 val fs2Version = "2.3.0"
 
 val scalaTestVersion = "3.1.1"
@@ -220,7 +219,6 @@ lazy val benchmark = project
     libraryDependencies ++= Seq(
       "co.fs2" %% "fs2-core" % fs2Version,
       "org.scalatest" %% "scalatest" % scalaTestVersion % Test,
-      "org.scalaz" %% "scalaz-iteratee" % scalazVersion,
       "org.typelevel" %% "cats-free" % catsVersion
     )
   )
