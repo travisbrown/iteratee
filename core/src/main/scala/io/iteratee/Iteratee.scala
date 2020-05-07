@@ -26,8 +26,8 @@ sealed class Iteratee[F[_], E, A] private[iteratee] (final val state: F[Step[F, 
   /**
    * Reduce this [[Iteratee]] to an effectful value using the given functions.
    */
-  final def fold[Z](ifCont: (NonEmptyList[E] => Iteratee[F, E, A]) => Z, ifDone: (A, List[E]) => Z)(
-    implicit F: Functor[F]
+  final def fold[Z](ifCont: (NonEmptyList[E] => Iteratee[F, E, A]) => Z, ifDone: (A, List[E]) => Z)(implicit
+    F: Functor[F]
   ): F[Z] = F.map(state)(_.fold(f => ifCont(in => Iteratee.iteratee(f(in))), ifDone))
 
   /**
@@ -368,8 +368,7 @@ final object Iteratee extends IterateeLowPriorityInstances {
    *
    * @group Collection
    */
-  final def foldMapOption[F[_], E, A](f: E => A)(
-    implicit
+  final def foldMapOption[F[_], E, A](f: E => A)(implicit
     F: Applicative[F],
     A: Semigroup[A]
   ): Iteratee[F, E, Option[A]] =
@@ -381,8 +380,7 @@ final object Iteratee extends IterateeLowPriorityInstances {
    *
    * @group Collection
    */
-  final def foldMapMOption[F[_], E, A](f: E => F[A])(
-    implicit
+  final def foldMapMOption[F[_], E, A](f: E => F[A])(implicit
     F: Applicative[F],
     A: Semigroup[A]
   ): Iteratee[F, E, Option[A]] =
