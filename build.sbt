@@ -26,7 +26,7 @@ val catsEffectVersion = "2.0.0"
 val scalazVersion = "7.2.30"
 val fs2Version = "2.1.0"
 
-val scalaTestVersion = "3.1.1"
+val scalaTestVersion = "3.1.2"
 val scalaCheckVersion = "1.14.3"
 val disciplineVersion = "1.0.2"
 
