@@ -5,6 +5,9 @@ import scala.xml.{ Elem, Node => XmlNode, NodeSeq => XmlNodeSeq }
 import scala.xml.transform.{ RewriteRule, RuleTransformer }
 
 organization in ThisBuild := "io.iteratee"
+scalaVersion in ThisBuild := "2.12.11"
+crossScalaVersions in ThisBuild := Seq("2.12.11", "2.13.2")
+githubWorkflowPublishTargetBranches in ThisBuild := Nil
 
 val compilerOptions = Seq(
   "-deprecation",
