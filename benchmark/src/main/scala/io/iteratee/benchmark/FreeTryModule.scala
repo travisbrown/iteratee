@@ -33,7 +33,8 @@ object FreeTryModule
       val result = use(a)
 
       result.fold[Free[Try, B]](
-        b => release(a, ExitCase.complete).map(_ => b), {
+        b => release(a, ExitCase.complete).map(_ => b),
+        {
           case Success(f) => release(a, ExitCase.complete).flatMap(_ => f)
           case Failure(e) => release(a, ExitCase.error(e)).flatMap(_ => result)
         }

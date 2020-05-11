@@ -18,8 +18,7 @@ abstract class IterateeSuite[F[_]: Monad] extends BaseIterateeSuite[F] {
   )
 }
 
-abstract class IterateeErrorSuite[F[_], T: Arbitrary: Eq: Cogen](
-  implicit
+abstract class IterateeErrorSuite[F[_], T: Arbitrary: Eq: Cogen](implicit
   MEF: MonadError[F, T]
 ) extends BaseIterateeSuite[F] {
   this: EnumerateeModule[F] with EnumeratorModule[F] with IterateeErrorModule[F, T] with Module[F] {

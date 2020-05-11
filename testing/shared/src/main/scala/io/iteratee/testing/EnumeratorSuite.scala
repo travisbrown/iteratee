@@ -70,7 +70,10 @@ abstract class EnumeratorSuite[F[_]: Monad] extends ModuleSuite[F] {
 
   "enumIndexedSeq" should "enumerate a slice of values from an indexed sequence" in {
     forAll { (xs: Vector[Int], start: Int, count: Int) =>
-      assert(enumIndexedSeq(xs, start, start + count).toVector === F.pure(xs.slice(start, start + count)))
+      // Check for overflow (workaround for #11990 in 2.13.2).
+      val until = if (start + count < 0) Int.MaxValue else start + count
+
+      assert(enumIndexedSeq(xs, start, until).toVector === F.pure(xs.slice(start, until)))
     }
   }
 

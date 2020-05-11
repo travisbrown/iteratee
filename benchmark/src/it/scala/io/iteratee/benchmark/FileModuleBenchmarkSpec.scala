@@ -14,10 +14,6 @@ class FileModuleBenchmarkSpec extends FlatSpec {
     assert(benchmark.avgWordLengthTF === length)
   }
 
-  it should "correctly calculate the average word length using Scalaz's Task" in {
-    assert(benchmark.avgWordLengthS === length)
-  }
-
   it should "correctly calculate the average word length using Monix's Task" in {
     assert(benchmark.avgWordLengthM === length)
   }

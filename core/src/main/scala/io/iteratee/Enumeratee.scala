@@ -29,8 +29,8 @@ abstract class Enumeratee[F[_], O, I] extends Serializable { self =>
 }
 
 final object Enumeratee {
-  implicit final def enumerateeInstance[F[_]](
-    implicit F: Monad[F]
+  implicit final def enumerateeInstance[F[_]](implicit
+    F: Monad[F]
   ): Category[Enumeratee[F, *, *]] with Profunctor[Enumeratee[F, *, *]] =
     new Category[Enumeratee[F, *, *]] with Profunctor[Enumeratee[F, *, *]] {
       final def id[A]: Enumeratee[F, A, A] = Enumeratee.identity[F, A]
@@ -173,8 +173,8 @@ final object Enumeratee {
 
   final def takeWhileM[F[_], E](p: E => F[Boolean])(implicit F: Monad[F]): Enumeratee[F, E, E] =
     new PureLoop[F, E, E] {
-      private[this] final def vectorSpanM[F[_], E](p: E => F[Boolean], v: Vector[E])(
-        implicit F: Monad[F]
+      private[this] final def vectorSpanM[F[_], E](p: E => F[Boolean], v: Vector[E])(implicit
+        F: Monad[F]
       ): F[(Vector[E], Vector[E])] = {
         def go(current: Vector[E], acc: Vector[E]): F[(Vector[E], Vector[E])] = current match {
           case vv @ e +: rest => F.ifM(p(e))(ifFalse = F.pure((acc, vv)), ifTrue = go(rest, acc :+ e))
@@ -421,8 +421,7 @@ final object Enumeratee {
    * Run an iteratee and then use the provided function to combine the result
    * with the remaining elements.
    */
-  final def remainderWithResult[F[_], O, R, I](iteratee: Iteratee[F, O, R])(f: (R, O) => I)(
-    implicit
+  final def remainderWithResult[F[_], O, R, I](iteratee: Iteratee[F, O, R])(f: (R, O) => I)(implicit
     F: Monad[F]
   ): Enumeratee[F, O, I] =
     new Enumeratee[F, O, I] {
@@ -443,8 +442,7 @@ final object Enumeratee {
    * Run an iteratee and then use the provided effectful function to combine the
    * result with the remaining elements.
    */
-  final def remainderWithResultM[F[_], O, R, I](iteratee: Iteratee[F, O, R])(f: (R, O) => F[I])(
-    implicit
+  final def remainderWithResultM[F[_], O, R, I](iteratee: Iteratee[F, O, R])(f: (R, O) => F[I])(implicit
     F: Monad[F]
   ): Enumeratee[F, O, I] =
     new Enumeratee[F, O, I] {
@@ -679,15 +677,13 @@ final object Enumeratee {
   final def rechunk[F[_], E](size: Int)(implicit F: Monad[F]): Enumeratee[F, E, E] =
     if (size <= 1) new Rechunk1[F, E] else new RechunkN[F, E](size)
 
-  private[this] abstract class StepCont[F[_], O, I, A](step: Step[F, I, A])(
-    implicit
+  private[this] abstract class StepCont[F[_], O, I, A](step: Step[F, I, A])(implicit
     F: Applicative[F]
   ) extends Step.Cont[F, O, Step[F, I, A]] {
     final def run: F[Step[F, I, A]] = F.pure(step)
   }
 
-  private[this] final class IdentityCont[F[_], E, A](step: Step[F, E, A])(
-    implicit
+  private[this] final class IdentityCont[F[_], E, A](step: Step[F, E, A])(implicit
     F: Applicative[F]
   ) extends StepCont[F, E, E, A](step) {
     private[this] def advance(next: Step[F, E, A]): Step[F, E, Step[F, E, A]] =

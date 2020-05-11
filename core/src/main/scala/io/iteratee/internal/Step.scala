@@ -89,8 +89,7 @@ sealed abstract class Step[F[_], E, A] extends Serializable {
  * @groupprio Collection 2
  */
 final object Step { self =>
-  private[this] final class Done[F[_], E, A](val value: A)(private[internal] val remaining: Seq[E])(
-    implicit
+  private[this] final class Done[F[_], E, A](val value: A)(private[internal] val remaining: Seq[E])(implicit
     F: Applicative[F]
   ) extends Step[F, E, A] {
     final def fold[Z](ifCont: (NonEmptyList[E] => F[Step[F, E, A]]) => Z, ifDone: (A, List[E]) => Z): Z =
@@ -335,15 +334,13 @@ final object Step { self =>
    *
    * @group Collection
    */
-  final def consumeIn[F[_], E, C[_]](
-    implicit
+  final def consumeIn[F[_], E, C[_]](implicit
     F: Applicative[F],
     M: MonoidK[C],
     C: Applicative[C]
   ): Step[F, E, C[E]] = new ConsumeInCont(M.empty)
 
-  private[this] final class ConsumeInCont[F[_], E, C[_]](acc: C[E])(
-    implicit
+  private[this] final class ConsumeInCont[F[_], E, C[_]](acc: C[E])(implicit
     F: Applicative[F],
     M: MonoidK[C],
     C: Applicative[C]
@@ -539,8 +536,7 @@ final object Step { self =>
     final protected def feedNonEmptyPure(chunk: Seq[E]): Step[F, E, Boolean] = doneWithLeftovers(false, chunk)
   }
 
-  private[this] class TailRecMCont[F[_], E, A, B](a: A)(f: A => F[Step[F, E, Either[A, B]]])(
-    implicit
+  private[this] class TailRecMCont[F[_], E, A, B](a: A)(f: A => F[Step[F, E, Either[A, B]]])(implicit
     F: Monad[F]
   ) extends Step.Cont[F, E, B] {
     final def run: F[B] = F.tailRecM[A, B](a)(a => F.flatMap(f(a))(_.run))

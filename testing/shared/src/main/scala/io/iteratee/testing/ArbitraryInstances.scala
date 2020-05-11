@@ -7,8 +7,7 @@ import org.scalacheck.{ Arbitrary, Gen }
 import scala.Predef._
 
 trait ArbitraryInstances {
-  implicit def arbitraryEnumerator[F[_]: Monad, A](
-    implicit
+  implicit def arbitraryEnumerator[F[_]: Monad, A](implicit
     A: Arbitrary[A]
   ): Arbitrary[Enumerator[F, A]] =
     Arbitrary(
@@ -46,8 +45,7 @@ trait ArbitraryInstances {
     )
   }
 
-  implicit def arbitraryVectorIteratee[F[_]: Monad, A](
-    implicit
+  implicit def arbitraryVectorIteratee[F[_]: Monad, A](implicit
     A: Arbitrary[A]
   ): Arbitrary[Iteratee[F, Vector[A], Vector[A]]] = {
     val M: Monad[({ type L[x] = Iteratee[F, Vector[A], x] })#L] = implicitly
@@ -75,8 +73,7 @@ trait ArbitraryInstances {
     )
   }
 
-  implicit def arbitraryVectorUnitIteratee[F[_]: Monad, A](
-    implicit
+  implicit def arbitraryVectorUnitIteratee[F[_]: Monad, A](implicit
     A: Arbitrary[A]
   ): Arbitrary[Iteratee[F, Vector[A], Unit]] = Arbitrary(
     arbitraryVectorIteratee[F, A].arbitrary.map(_.discard)
