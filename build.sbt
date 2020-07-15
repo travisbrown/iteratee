@@ -22,7 +22,7 @@ val compilerOptions = Seq(
 )
 
 val catsVersion = "2.1.1"
-val catsEffectVersion = "2.1.3"
+val catsEffectVersion = "2.1.4"
 val fs2Version = "2.4.2"
 
 val scalaTestVersion = "3.2.0"
