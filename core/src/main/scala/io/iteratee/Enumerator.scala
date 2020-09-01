@@ -7,7 +7,6 @@ import scala.Predef._
 import scala.util.{ Left, Right }
 
 /**
- *
  * @tparam F The effect type constructor
  * @tparam E The type of the enumerated data
  */
