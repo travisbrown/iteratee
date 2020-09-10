@@ -41,14 +41,14 @@ trait FutureSuite extends FutureModule {
   protected def ec: ExecutionContext = scala.concurrent.ExecutionContext.Implicits.global
 
   implicit def eqF[A](implicit A: Eq[A]): Eq[Future[A]] = new Eq[Future[A]] {
-    def liftToTry[A](f: Future[A]): Future[Try[A]] = f.map(Success(_)).recover {
-      case t => Failure(t)
+    def liftToTry[A](f: Future[A]): Future[Try[A]] = f.map(Success(_)).recover { case t =>
+      Failure(t)
     }
 
     def eqv(fx: Future[A], fy: Future[A]): Boolean =
       Await.result(
-        liftToTry(fx).zip(liftToTry(fy)).map {
-          case (tx, ty) => Eq[Try[A]].eqv(tx, ty)
+        liftToTry(fx).zip(liftToTry(fy)).map { case (tx, ty) =>
+          Eq[Try[A]].eqv(tx, ty)
         },
         20.seconds
       )

@@ -274,16 +274,16 @@ abstract class EnumerateeSuite[F[_]: Monad] extends ModuleSuite[F] {
   }
 
   "zipWithIndex" should "zip a stream's values with their indices" in forAll { (eav: EnumeratorAndValues[Int]) =>
-    val result = eav.values.zipWithIndex.map {
-      case (v, i) => (v, i.toLong)
+    val result = eav.values.zipWithIndex.map { case (v, i) =>
+      (v, i.toLong)
     }
 
     assert(eav.enumerator.through(zipWithIndex).toVector === F.pure(result))
   }
 
   it should "work with an iteratee that stops early" in forAll { (eav: EnumeratorAndValues[Int]) =>
-    val result = eav.values.zipWithIndex.map {
-      case (v, i) => (v, i.toLong)
+    val result = eav.values.zipWithIndex.map { case (v, i) =>
+      (v, i.toLong)
     }
 
     assert(eav.enumerator.through(zipWithIndex).into(head) === F.pure(result.headOption))
@@ -323,8 +323,8 @@ abstract class EnumerateeSuite[F[_]: Monad] extends ModuleSuite[F] {
     forAll { (eav: EnumeratorAndValues[Int], delim: Int) =>
       val expected = eav.values
         .zip(Stream.continually(delim))
-        .flatMap {
-          case (x, y) => Vector(x, y)
+        .flatMap { case (x, y) =>
+          Vector(x, y)
         }
         .dropRight(1)
 
@@ -351,8 +351,8 @@ abstract class EnumerateeSuite[F[_]: Monad] extends ModuleSuite[F] {
   "chunks" should "observe chunks" in forAll { (vs: Vector[Vector[Int]]) =>
     val cs = vs.filter(_.nonEmpty)
 
-    val enumerator = cs.foldLeft(empty[Int]) {
-      case (e, chunk) => e.append(enumVector(chunk))
+    val enumerator = cs.foldLeft(empty[Int]) { case (e, chunk) =>
+      e.append(enumVector(chunk))
     }
 
     assert(enumerator.through(Enumeratee.chunks[F, Int]).toVector === F.pure(cs))
