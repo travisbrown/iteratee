@@ -21,9 +21,9 @@ val compilerOptions = Seq(
   "-Xfuture"
 )
 
-val catsVersion = "2.3.0"
-val catsEffectVersion = "2.3.0"
-val fs2Version = "2.4.5"
+val catsVersion = "2.2.0"
+val catsEffectVersion = "2.2.0"
+val fs2Version = "2.4.6"
 
 val scalaTestVersion = "3.2.3"
 val scalaCheckVersion = "1.15.1"
@@ -77,7 +77,7 @@ lazy val baseSettings = Seq(
   },
   coverageHighlighting := true,
   (scalastyleSources in Compile) ++= (sourceDirectories in Compile).value,
-  addCompilerPlugin(("org.typelevel" % "kind-projector" % "0.11.0").cross(CrossVersion.full))
+  addCompilerPlugin(("org.typelevel" % "kind-projector" % "0.11.2").cross(CrossVersion.full))
 )
 
 lazy val allSettings = baseSettings ++ publishSettings
