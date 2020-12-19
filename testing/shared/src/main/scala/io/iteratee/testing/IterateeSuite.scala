@@ -298,10 +298,9 @@ abstract class BaseIterateeSuite[F[_]: Monad] extends ModuleSuite[F] {
 
   "discard" should "throw away the result" in forAll { (eav: EnumeratorAndValues[Int]) =>
     var total = 0
-    val iteratee = fold[Int, Int](0) {
-      case (acc, i) =>
-        total += i
-        i
+    val iteratee = fold[Int, Int](0) { case (acc, i) =>
+      total += i
+      i
     }
 
     assert(eav.resultWithLeftovers(iteratee.discard) === F.pure(((), Vector.empty)))
