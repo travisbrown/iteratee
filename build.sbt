@@ -5,6 +5,31 @@ import scala.xml.{ Elem, Node => XmlNode, NodeSeq => XmlNodeSeq }
 import scala.xml.transform.{ RewriteRule, RuleTransformer }
 
 organization in ThisBuild := "io.iteratee"
+crossScalaVersions in ThisBuild := List("2.12.12", "2.13.4")
+scalaVersion in ThisBuild := crossScalaVersions.value.last
+
+githubWorkflowJavaVersions in ThisBuild := Seq("adopt@1.8")
+githubWorkflowPublishTargetBranches in ThisBuild := Nil
+githubWorkflowBuild in ThisBuild := Seq(
+  WorkflowStep.Sbt(
+    List(
+      "clean",
+      "coverage",
+      "scalastyle",
+      "scalafmtCheckAll",
+      "scalafmtSbtCheck",
+      "test",
+      "coverageReport"
+    ),
+    id = None,
+    name = Some("Test")
+  ),
+  WorkflowStep.Use(
+    "codecov",
+    "codecov-action",
+    "v1"
+  )
+)
 
 val compilerOptions = Seq(
   "-deprecation",
