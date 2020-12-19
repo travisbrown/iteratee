@@ -93,7 +93,7 @@ lazy val docSettings = Seq(
     "-groups",
     "-implicits",
     "-doc-source-url",
-    scmInfo.value.get.browseUrl + "/tree/master€{FILE_PATH}.scala",
+    scmInfo.value.get.browseUrl + "/tree/main€{FILE_PATH}.scala",
     "-sourcepath",
     baseDirectory.in(LocalRootProject).value.getAbsolutePath
   ),
