@@ -442,8 +442,8 @@ final object Step { self =>
       extends Cont.WithValue[F, E, A](acc) {
     final def feedEl(e: E): F[Step[F, E, A]] = F.map(f(e))(a => new FoldMapMCont(M.combine(acc, a))(f))
     final protected def feedNonEmpty(chunk: Seq[E]): F[Step[F, E, A]] = F.map(
-      chunk.foldLeft(F.pure(acc)) {
-        case (acc, e) => F.map2(acc, f(e))(M.combine)
+      chunk.foldLeft(F.pure(acc)) { case (acc, e) =>
+        F.map2(acc, f(e))(M.combine)
       }
     )(new FoldMapMCont(_)(f))
   }

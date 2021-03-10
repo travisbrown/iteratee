@@ -65,9 +65,8 @@ abstract class Enumerator[F[_], E] extends Serializable { self =>
 
   final def bindM[G[_], B](f: E => G[Enumerator[F, B]])(implicit F: Monad[F], G: Monad[G]): F[G[Enumerator[F, B]]] =
     map(f).into(
-      Iteratee.fold[F, G[Enumerator[F, B]], G[Enumerator[F, B]]](G.pure(Enumerator.empty)) {
-        case (acc, concat) =>
-          G.flatMap(acc)(en => G.map(concat)(append => Semigroup[Enumerator[F, B]].combine(en, append)))
+      Iteratee.fold[F, G[Enumerator[F, B]], G[Enumerator[F, B]]](G.pure(Enumerator.empty)) { case (acc, concat) =>
+        G.flatMap(acc)(en => G.map(concat)(append => Semigroup[Enumerator[F, B]].combine(en, append)))
       }
     )
 
@@ -208,12 +207,11 @@ final object Enumerator {
   private[this] abstract class ChunkedIteratorEnumerator[F[_], E](implicit F: Monad[F]) extends Enumerator[F, E] {
     protected[this] def chunks: Iterator[Seq[E]]
 
-    final def apply[A](s: Step[F, E, A]): F[Step[F, E, A]] = F.tailRecM((s, chunks)) {
-      case (step, it) =>
-        if (it.isEmpty || step.isDone) F.pure(Right(step))
-        else {
-          F.map(step.feed(it.next()))(s => Left((s, it)))
-        }
+    final def apply[A](s: Step[F, E, A]): F[Step[F, E, A]] = F.tailRecM((s, chunks)) { case (step, it) =>
+      if (it.isEmpty || step.isDone) F.pure(Right(step))
+      else {
+        F.map(step.feed(it.next()))(s => Left((s, it)))
+      }
     }
   }
 
@@ -276,12 +274,11 @@ final object Enumerator {
    */
   final def iterate[F[_], E](init: E)(f: E => E)(implicit F: Monad[F]): Enumerator[F, E] =
     new Enumerator[F, E] {
-      final def apply[A](s: Step[F, E, A]): F[Step[F, E, A]] = F.tailRecM((s, init)) {
-        case (step, last) =>
-          if (step.isDone) F.pure(Right(step))
-          else {
-            F.map(step.feedEl(last))(s1 => Left((s1, f(last))))
-          }
+      final def apply[A](s: Step[F, E, A]): F[Step[F, E, A]] = F.tailRecM((s, init)) { case (step, last) =>
+        if (step.isDone) F.pure(Right(step))
+        else {
+          F.map(step.feedEl(last))(s1 => Left((s1, f(last))))
+        }
       }
     }
 
@@ -291,12 +288,11 @@ final object Enumerator {
    */
   final def iterateM[F[_], E](init: E)(f: E => F[E])(implicit F: Monad[F]): Enumerator[F, E] =
     new Enumerator[F, E] {
-      final def apply[A](s: Step[F, E, A]): F[Step[F, E, A]] = F.tailRecM((s, init)) {
-        case (step, last) =>
-          if (step.isDone) F.pure(Right(step))
-          else {
-            F.map2(step.feedEl(last), f(last))((s1, next) => Left((s1, next)))
-          }
+      final def apply[A](s: Step[F, E, A]): F[Step[F, E, A]] = F.tailRecM((s, init)) { case (step, last) =>
+        if (step.isDone) F.pure(Right(step))
+        else {
+          F.map2(step.feedEl(last), f(last))((s1, next) => Left((s1, next)))
+        }
       }
     }
 
