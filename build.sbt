@@ -27,7 +27,7 @@ val fs2Version = "2.5.0"
 
 val scalaTestVersion = "3.2.7"
 val scalaCheckVersion = "1.15.4"
-val disciplineVersion = "1.1.4"
+val disciplineVersion = "1.1.5"
 
 /**
  * Some terrible hacks to work around Cats's decision to have builds for
