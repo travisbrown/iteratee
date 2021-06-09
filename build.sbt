@@ -226,6 +226,9 @@ lazy val tests = crossProject(JSPlatform, JVMPlatform)
     )
   )
   .jsSettings(commonJsSettings: _*)
+  .jsSettings(
+    Test / test := {}
+  )
   .jvmConfigure(_.dependsOn(files))
   .dependsOn(testing)
 
