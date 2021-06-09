@@ -1,7 +1,7 @@
 # iteratee.io
 
-[![Build status](https://img.shields.io/travis/travisbrown/iteratee/master.svg)](https://travis-ci.org/travisbrown/iteratee)
-[![Coverage status](https://img.shields.io/codecov/c/github/travisbrown/iteratee/master.svg)](https://codecov.io/github/travisbrown/iteratee)
+[![Build status](https://img.shields.io/travis/travisbrown/iteratee/main.svg)](https://travis-ci.org/travisbrown/iteratee)
+[![Coverage status](https://img.shields.io/codecov/c/github/travisbrown/iteratee/main.svg)](https://codecov.io/github/travisbrown/iteratee)
 [![Gitter](https://img.shields.io/badge/gitter-join%20chat-green.svg)](https://gitter.im/travisbrown/iteratee)
 [![Maven Central](https://img.shields.io/maven-central/v/io.iteratee/iteratee-core_2.13.svg)](https://maven-badges.herokuapp.com/maven-central/io.iteratee/iteratee-core_2.13)
 

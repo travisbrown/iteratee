@@ -7,4 +7,5 @@ target/
 .settings
 .project
 .classpath
+.bsp/
 tmp/

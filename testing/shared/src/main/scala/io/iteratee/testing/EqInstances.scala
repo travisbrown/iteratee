@@ -2,7 +2,7 @@ package io.iteratee.testing
 
 import cats.Monad
 import cats.kernel.Eq
-import io.iteratee.{ Enumeratee, Enumerator, Iteratee }
+import io.iteratee.{Enumeratee, Enumerator, Iteratee}
 import org.scalacheck.Arbitrary
 import scala.Predef._
 

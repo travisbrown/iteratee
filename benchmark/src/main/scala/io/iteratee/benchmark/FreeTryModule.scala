@@ -1,12 +1,12 @@
 package io.iteratee.benchmark
 
-import cats.{ Monad, MonadError }
-import cats.effect.{ ExitCase, Sync }
+import cats.{Monad, MonadError}
+import cats.effect.Sync
 import cats.free.Free
 import cats.instances.try_._
 import io.iteratee.files.modules.FileModule
-import io.iteratee.modules.{ EnumerateeModule, EnumeratorErrorModule, IterateeErrorModule, Module }
-import scala.util.{ Failure, Success, Try }
+import io.iteratee.modules.{EnumerateeModule, EnumeratorErrorModule, IterateeErrorModule, Module}
+import scala.util.Try
 
 object FreeTryModule
     extends Module[Free[Try, *]]
@@ -26,21 +26,14 @@ object FreeTryModule
     def flatMap[A, B](fa: Free[Try, A])(f: A => Free[Try, B]): Free[Try, B] = FF.flatMap(fa)(f)
     def tailRecM[A, B](a: A)(f: A => Free[Try, Either[A, B]]): Free[Try, B] = FF.tailRecM(a)(f)
 
-    // Don't use this; it's a quick hack for benchmarking only.
-    final def bracketCase[A, B](acquire: Free[Try, A])(use: A => Free[Try, B])(
-      release: (A, ExitCase[Throwable]) => Free[Try, Unit]
-    ): Free[Try, B] = acquire.flatMap { a =>
-      val result = use(a)
+    def suspend[A](hint: Sync.Type)(thunk: => A): Free[Try, A] = Free.defer(Free.pure(thunk))
 
-      result.fold[Free[Try, B]](
-        b => release(a, ExitCase.complete).map(_ => b),
-        {
-          case Success(f) => release(a, ExitCase.complete).flatMap(_ => f)
-          case Failure(e) => release(a, ExitCase.error(e)).flatMap(_ => result)
-        }
-      )
-    }
-
-    def suspend[A](thunk: => Free[Try, A]): Free[Try, A] = Free.defer(thunk)
+    def monotonic: Free[Try, scala.concurrent.duration.FiniteDuration] = Predef.???
+    def realTime: Free[Try, scala.concurrent.duration.FiniteDuration] = Predef.???
+    def canceled: Free[Try, Unit] = Predef.???
+    def forceR[A, B](fa: Free[Try, A])(fb: Free[Try, B]): Free[Try, B] = Predef.???
+    def onCancel[A](fa: Free[Try, A], fin: Free[Try, Unit]): Free[Try, A] = Predef.???
+    def rootCancelScope: cats.effect.kernel.CancelScope = Predef.???
+    def uncancelable[A](body: cats.effect.kernel.Poll[Free[Try, *]] => Free[Try, A]): Free[Try, A] = Predef.???
   }
 }

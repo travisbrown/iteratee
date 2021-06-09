@@ -1,10 +1,10 @@
 package io.iteratee.testing
 
 import cats.Monad
-import cats.laws.discipline.{ CategoryTests, ProfunctorTests }
-import io.iteratee.{ Enumeratee, Iteratee }
-import io.iteratee.modules.{ EnumerateeModule, EnumeratorModule, IterateeModule, Module }
-import org.scalacheck.{ Arbitrary, Gen }
+import cats.laws.discipline.{CategoryTests, ProfunctorTests}
+import io.iteratee.{Enumeratee, Iteratee}
+import io.iteratee.modules.{EnumerateeModule, EnumeratorModule, IterateeModule, Module}
+import org.scalacheck.{Arbitrary, Gen}
 import scala.Predef._
 
 abstract class EnumerateeSuite[F[_]: Monad] extends ModuleSuite[F] {

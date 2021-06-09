@@ -1,6 +1,6 @@
 package io.iteratee
 
-import cats.{ Applicative, Comonad, Contravariant, Eval, Functor, Monad, MonadError, Monoid, MonoidK, Semigroup }
+import cats.{Applicative, Comonad, Contravariant, Eval, Functor, Monad, MonadError, Monoid, MonoidK, Semigroup}
 import cats.arrow.FunctionK
 import cats.data.NonEmptyList
 import io.iteratee.internal.Step

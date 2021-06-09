@@ -1,10 +1,10 @@
 package io.iteratee
 
-import cats.{ Applicative, Defer, Eval, FlatMap, Monad, MonadError, Monoid, Semigroup }
+import cats.{Applicative, Defer, Eval, FlatMap, Monad, MonadError, Monoid, Semigroup}
 import cats.kernel.Eq
 import io.iteratee.internal.Step
 import scala.Predef._
-import scala.util.{ Left, Right }
+import scala.util.{Left, Right}
 
 /**
  * @tparam F The effect type constructor

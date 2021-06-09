@@ -1,7 +1,7 @@
 package io.iteratee
 
-import cats.{ Applicative, Eq, FlatMap, Monad }
-import cats.arrow.{ Category, Profunctor }
+import cats.{Applicative, Eq, FlatMap, Monad}
+import cats.arrow.{Category, Profunctor}
 import cats.instances.list.catsStdInstancesForList
 import io.iteratee.internal.Step
 import scala.collection.mutable.Builder
@@ -9,8 +9,8 @@ import scala.collection.mutable.Builder
 abstract class Enumeratee[F[_], O, I] extends Serializable { self =>
   def apply[A](step: Step[F, I, A]): F[Step[F, O, Step[F, I, A]]]
 
-  final def wrap(enum: Enumerator[F, O])(implicit F: FlatMap[F]): Enumerator[F, I] = new Enumerator[F, I] {
-    final def apply[A](s: Step[F, I, A]): F[Step[F, I, A]] = F.flatMap(self(s))(enum.intoStep)
+  final def wrap(enumerator: Enumerator[F, O])(implicit F: FlatMap[F]): Enumerator[F, I] = new Enumerator[F, I] {
+    final def apply[A](s: Step[F, I, A]): F[Step[F, I, A]] = F.flatMap(self(s))(enumerator.intoStep)
   }
 
   final def into[A](iteratee: Iteratee[F, I, A])(implicit F: Monad[F]): Iteratee[F, O, A] = iteratee.through(this)

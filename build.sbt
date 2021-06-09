@@ -1,10 +1,33 @@
 import ReleaseTransformations._
 import org.scalafmt.sbt.ScalafmtPlugin.scalafmtConfigSettings
-import sbtcrossproject.{ CrossType, crossProject }
-import scala.xml.{ Elem, Node => XmlNode, NodeSeq => XmlNodeSeq }
-import scala.xml.transform.{ RewriteRule, RuleTransformer }
+import sbtcrossproject.{CrossType, crossProject}
+import scala.xml.{Elem, Node => XmlNode, NodeSeq => XmlNodeSeq}
+import scala.xml.transform.{RewriteRule, RuleTransformer}
 
-organization in ThisBuild := "io.iteratee"
+ThisBuild / organization := "io.iteratee"
+ThisBuild / crossScalaVersions := List("2.12.14", "2.13.6", "3.0.0")
+ThisBuild / scalaVersion := crossScalaVersions.value.last
+
+ThisBuild / githubWorkflowJavaVersions := Seq("adopt@1.8")
+ThisBuild / githubWorkflowPublishTargetBranches := Nil
+ThisBuild / githubWorkflowBuild := Seq(
+  WorkflowStep.Sbt(
+    List(
+      "clean",
+      "coverage",
+      "scalastyle",
+      "scalafmtCheckAll",
+      "scalafmtSbtCheck",
+      "test",
+      "coverageReport"
+    ),
+    id = None,
+    name = Some("Test")
+  ),
+  WorkflowStep.Use(
+    UseRef.Public("codecov", "codecov-action", "v1")
+  )
+)
 
 val compilerOptions = Seq(
   "-deprecation",
@@ -22,8 +45,8 @@ val compilerOptions = Seq(
 )
 
 val catsVersion = "2.6.1"
-val catsEffectVersion = "2.3.3"
-val fs2Version = "2.5.0"
+val catsEffectVersion = "3.1.1"
+val fs2Version = "3.0.4"
 
 val scalaTestVersion = "3.2.9"
 val scalaCheckVersion = "1.15.4"
@@ -39,7 +62,7 @@ def priorTo2_13(scalaVersion: String): Boolean =
     case _                              => false
   }
 
-lazy val previousIterateeVersion = "0.18.0"
+lazy val previousIterateeVersion = "0.19.0"
 
 val docMappingsApiDir = settingKey[String]("Subdirectory in site target directory for API docs")
 
@@ -55,7 +78,7 @@ lazy val baseSettings = Seq(
       }
   },
   scalacOptions += "-Yno-predef",
-  scalacOptions in (Compile, console) := {
+  Compile / console / scalacOptions := {
     if (priorTo2_13(scalaVersion.value)) compilerOptions
     else
       compilerOptions.flatMap {
@@ -65,7 +88,7 @@ lazy val baseSettings = Seq(
         case other                  => Some(other)
       }
   },
-  scalacOptions in (Compile, test) := {
+  Test / compile / scalacOptions := {
     if (priorTo2_13(scalaVersion.value)) compilerOptions
     else
       compilerOptions.flatMap {
@@ -74,31 +97,44 @@ lazy val baseSettings = Seq(
         case "-Xfuture"             => None
         case other                  => Some(other)
       }
+  },
+  scalacOptions ++= {
+    if (scalaVersion.value.startsWith("3")) Seq("-Ykind-projector:underscores")
+    else Seq("-Xsource:3", "-P:kind-projector:underscore-placeholders")
   },
   coverageHighlighting := true,
-  (scalastyleSources in Compile) ++= (sourceDirectories in Compile).value,
-  addCompilerPlugin(("org.typelevel" % "kind-projector" % "0.13.0").cross(CrossVersion.full))
+  coverageEnabled := {
+    if (scalaVersion.value.startsWith("3")) false else coverageEnabled.value
+  },
+  Compile / scalastyleSources ++= (Compile / sourceDirectories).value,
+  libraryDependencies ++= {
+    if (scalaVersion.value.startsWith("3")) Nil
+    else
+      Seq(
+        compilerPlugin(("org.typelevel" %% "kind-projector" % "0.13.0").cross(CrossVersion.full))
+      )
+  }
 )
 
 lazy val allSettings = baseSettings ++ publishSettings
 
 lazy val commonJsSettings = Seq(
-  scalaJSStage in Global := FastOptStage
+  Global / scalaJSStage := FastOptStage
 )
 
 lazy val docSettings = Seq(
   docMappingsApiDir := "api",
-  addMappingsToSiteDir(mappings in (ScalaUnidoc, packageDoc), docMappingsApiDir),
-  scalacOptions in (ScalaUnidoc, unidoc) ++= Seq(
+  addMappingsToSiteDir(ScalaUnidoc / packageDoc / mappings, docMappingsApiDir),
+  ScalaUnidoc / unidoc / scalacOptions ++= Seq(
     "-groups",
     "-implicits",
     "-doc-source-url",
-    scmInfo.value.get.browseUrl + "/tree/master€{FILE_PATH}.scala",
+    scmInfo.value.get.browseUrl + "/tree/main€{FILE_PATH}.scala",
     "-sourcepath",
-    baseDirectory.in(LocalRootProject).value.getAbsolutePath
+    (LocalRootProject / baseDirectory).value.getAbsolutePath
   ),
   git.remoteRepo := "git@github.com:travisbrown/iteratee.git",
-  unidocProjectFilter in (ScalaUnidoc, unidoc) :=
+  ScalaUnidoc / unidoc / unidocProjectFilter :=
     inAnyProject -- inProjects(coreJS, benchmark, testingJS, testsJVM, testsJS)
 )
 
@@ -144,7 +180,7 @@ lazy val testing = crossProject(JSPlatform, JVMPlatform)
     libraryDependencies ++= Seq(
       "org.scalacheck" %%% "scalacheck" % scalaCheckVersion,
       "org.scalatest" %%% "scalatest" % scalaTestVersion,
-      "org.scalatestplus" %%% "scalacheck-1-14" % "3.2.2.0",
+      "org.scalatestplus" %%% "scalacheck-1-15" % "3.2.9.0",
       "org.typelevel" %%% "cats-laws" % catsVersion,
       "org.typelevel" %%% "discipline-core" % disciplineVersion
     ),
@@ -174,7 +210,7 @@ lazy val tests = crossProject(JSPlatform, JVMPlatform)
     libraryDependencies ++= Seq(
       "org.scalacheck" %%% "scalacheck" % scalaCheckVersion,
       "org.scalatest" %%% "scalatest" % scalaTestVersion,
-      "org.scalatestplus" %%% "scalacheck-1-14" % "3.2.2.0",
+      "org.scalatestplus" %%% "scalacheck-1-15" % "3.2.9.0",
       "org.typelevel" %%% "cats-laws" % catsVersion,
       "org.typelevel" %%% "discipline-core" % disciplineVersion
     ),
@@ -190,6 +226,9 @@ lazy val tests = crossProject(JSPlatform, JVMPlatform)
     )
   )
   .jsSettings(commonJsSettings: _*)
+  .jsSettings(
+    Test / test := {}
+  )
   .jvmConfigure(_.dependsOn(files))
   .dependsOn(testing)
 
@@ -232,7 +271,7 @@ lazy val publishSettings = Seq(
   homepage := Some(url("https://github.com/travisbrown/iteratee")),
   licenses := Seq("Apache 2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0")),
   publishMavenStyle := true,
-  publishArtifact in Test := false,
+  Test / publishArtifact := false,
   pomIncludeRepository := { _ =>
     false
   },

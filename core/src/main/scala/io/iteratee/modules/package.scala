@@ -1,12 +1,12 @@
 package io.iteratee
 
-import cats.{ Eval, Id, Monad, MonadError, catsInstancesForId }
+import cats.{Eval, Id, Monad, MonadError, catsInstancesForId}
 import cats.data.EitherT
 import cats.instances.either.catsStdInstancesForEither
 import cats.instances.future.catsStdInstancesForFuture
 import cats.instances.option.catsStdInstancesForOption
 import cats.instances.try_.catsStdInstancesForTry
-import scala.concurrent.{ ExecutionContext, Future }
+import scala.concurrent.{ExecutionContext, Future}
 import scala.util.Try
 
 package object modules {

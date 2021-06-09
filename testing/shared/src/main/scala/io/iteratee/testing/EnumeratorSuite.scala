@@ -1,10 +1,10 @@
 package io.iteratee.testing
 
-import cats.{ Eval, Monad }
+import cats.{Eval, Monad}
 import cats.kernel.laws.discipline.MonoidTests
-import cats.laws.discipline.{ MonadTests, SemigroupalTests }
+import cats.laws.discipline.{MonadTests, SemigroupalTests}
 import io.iteratee.Enumerator
-import io.iteratee.modules.{ EnumerateeModule, EnumeratorModule, IterateeModule, Module }
+import io.iteratee.modules.{EnumerateeModule, EnumeratorModule, IterateeModule, Module}
 import scala.Predef._
 
 abstract class EnumeratorSuite[F[_]: Monad] extends ModuleSuite[F] {

@@ -1,8 +1,7 @@
 package io.iteratee
 
-import cats.instances.either._
 import cats.laws.discipline.arbitrary.catsLawsCogenForThrowable
-import io.iteratee.testing.{ EnumerateeSuite, EnumeratorSuite, IterateeErrorSuite }
+import io.iteratee.testing.{EnumerateeSuite, EnumeratorSuite, IterateeErrorSuite}
 import io.iteratee.testing.EqInstances.eqThrowable
 import io.iteratee.tests.EitherSuite
 

@@ -17,7 +17,7 @@ import java.io.{
   OutputStream,
   OutputStreamWriter
 }
-import java.util.zip.{ ZipEntry, ZipFile }
+import java.util.zip.{ZipEntry, ZipFile}
 import scala.Predef.genericArrayOps
 import scala.collection.JavaConverters._
 
@@ -129,7 +129,7 @@ package object files {
         F.flatten(
           F.delay(
             if (iterator.hasNext) {
-              val entry = iterator.next
+              val entry = iterator.next()
 
               F.flatMap(s.feedEl((entry, zipFile.getInputStream(entry))))(apply)
             } else F.pure(s)
