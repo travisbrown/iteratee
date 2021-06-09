@@ -45,8 +45,8 @@ val compilerOptions = Seq(
 )
 
 val catsVersion = "2.6.1"
-val catsEffectVersion = "2.3.3"
-val fs2Version = "2.5.0"
+val catsEffectVersion = "2.5.1"
+val fs2Version = "2.5.6"
 
 val scalaTestVersion = "3.2.9"
 val scalaCheckVersion = "1.15.4"
@@ -167,7 +167,7 @@ lazy val testing = crossProject(JSPlatform, JVMPlatform)
     libraryDependencies ++= Seq(
       "org.scalacheck" %%% "scalacheck" % scalaCheckVersion,
       "org.scalatest" %%% "scalatest" % scalaTestVersion,
-      "org.scalatestplus" %%% "scalacheck-1-14" % "3.2.2.0",
+      "org.scalatestplus" %%% "scalacheck-1-15" % "3.2.9.0",
       "org.typelevel" %%% "cats-laws" % catsVersion,
       "org.typelevel" %%% "discipline-core" % disciplineVersion
     ),
