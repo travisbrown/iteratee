@@ -25,9 +25,7 @@ githubWorkflowBuild in ThisBuild := Seq(
     name = Some("Test")
   ),
   WorkflowStep.Use(
-    "codecov",
-    "codecov-action",
-    "v1"
+    UseRef.Public("codecov", "codecov-action", "v1")
   )
 )
 
