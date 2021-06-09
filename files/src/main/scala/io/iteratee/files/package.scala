@@ -17,7 +17,7 @@ import java.io.{
   OutputStream,
   OutputStreamWriter
 }
-import java.util.zip.{ ZipEntry, ZipFile }
+import java.util.zip.{ZipEntry, ZipFile}
 import scala.Predef.genericArrayOps
 import scala.collection.JavaConverters._
 

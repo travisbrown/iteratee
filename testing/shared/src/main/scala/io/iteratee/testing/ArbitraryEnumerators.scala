@@ -1,8 +1,8 @@
 package io.iteratee.testing
 
-import io.iteratee.{ Enumerator, Iteratee }
-import io.iteratee.modules.{ EnumeratorModule, IterateeModule, Module }
-import org.scalacheck.{ Arbitrary, Gen }
+import io.iteratee.{Enumerator, Iteratee}
+import io.iteratee.modules.{EnumeratorModule, IterateeModule, Module}
+import org.scalacheck.{Arbitrary, Gen}
 
 trait ArbitraryEnumerators[F[_]] {
   this: ModuleSuite[F] with Module[F] with EnumeratorModule[F] with IterateeModule[F] =>

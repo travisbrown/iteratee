@@ -3,9 +3,9 @@ package io.iteratee.testing
 import cats.instances.AllInstances
 import cats.kernel.Eq
 import cats.syntax.AllSyntax
-import io.iteratee.modules.{ EnumeratorModule, IterateeModule, Module }
+import io.iteratee.modules.{EnumeratorModule, IterateeModule, Module}
 import org.scalatest.flatspec.AnyFlatSpec
-import org.scalatestplus.scalacheck.{ Checkers, ScalaCheckDrivenPropertyChecks }
+import org.scalatestplus.scalacheck.{Checkers, ScalaCheckDrivenPropertyChecks}
 import org.typelevel.discipline.Laws
 
 class BaseSuite

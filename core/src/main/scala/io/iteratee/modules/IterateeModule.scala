@@ -1,6 +1,6 @@
 package io.iteratee.modules
 
-import cats.{ Applicative, MonadError, Monoid, MonoidK, Semigroup }
+import cats.{Applicative, MonadError, Monoid, MonoidK, Semigroup}
 import cats.data.NonEmptyList
 import io.iteratee.Iteratee
 

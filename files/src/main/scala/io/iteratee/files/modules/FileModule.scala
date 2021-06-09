@@ -1,9 +1,9 @@
 package io.iteratee.files.modules
 
 import cats.effect.Sync
-import _root_.io.iteratee.{ Enumerator, Iteratee }
+import _root_.io.iteratee.{Enumerator, Iteratee}
 import _root_.io.iteratee.modules.Module
-import java.io.{ File, InputStream, OutputStream }
+import java.io.{File, InputStream, OutputStream}
 import java.util.zip.ZipEntry
 
 trait FileModule[F[_]] { this: Module[F] { type M[f[_]] = Sync[f] } =>

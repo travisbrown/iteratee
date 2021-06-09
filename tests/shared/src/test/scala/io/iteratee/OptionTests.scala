@@ -1,6 +1,6 @@
 package io.iteratee
 
-import io.iteratee.testing.{ EnumerateeSuite, EnumeratorSuite, IterateeSuite }
+import io.iteratee.testing.{EnumerateeSuite, EnumeratorSuite, IterateeSuite}
 import io.iteratee.tests.OptionSuite
 
 class OptionEnumerateeTests extends EnumerateeSuite[Option] with OptionSuite

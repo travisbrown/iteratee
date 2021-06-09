@@ -4,7 +4,7 @@ import cats.Monad
 import cats.effect.IO
 import cats.effect.unsafe.implicits.global
 import cats.free.Free
-import io.iteratee.{ Enumerator, Iteratee }
+import io.iteratee.{Enumerator, Iteratee}
 import java.io.InputStream
 import java.util.concurrent.TimeUnit
 import org.openjdk.jmh.annotations._

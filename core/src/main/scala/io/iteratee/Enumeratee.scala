@@ -1,7 +1,7 @@
 package io.iteratee
 
-import cats.{ Applicative, Eq, FlatMap, Monad }
-import cats.arrow.{ Category, Profunctor }
+import cats.{Applicative, Eq, FlatMap, Monad}
+import cats.arrow.{Category, Profunctor}
 import cats.instances.list.catsStdInstancesForList
 import io.iteratee.internal.Step
 import scala.collection.mutable.Builder

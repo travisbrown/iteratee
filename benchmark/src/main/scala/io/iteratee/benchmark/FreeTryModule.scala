@@ -1,11 +1,11 @@
 package io.iteratee.benchmark
 
-import cats.{ Monad, MonadError }
+import cats.{Monad, MonadError}
 import cats.effect.Sync
 import cats.free.Free
 import cats.instances.try_._
 import io.iteratee.files.modules.FileModule
-import io.iteratee.modules.{ EnumerateeModule, EnumeratorErrorModule, IterateeErrorModule, Module }
+import io.iteratee.modules.{EnumerateeModule, EnumeratorErrorModule, IterateeErrorModule, Module}
 import scala.util.Try
 
 object FreeTryModule

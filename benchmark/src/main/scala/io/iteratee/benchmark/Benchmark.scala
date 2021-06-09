@@ -1,10 +1,10 @@
 package io.iteratee.benchmark
 
-import cats.{ Id, catsInstancesForId }
+import cats.{Id, catsInstancesForId}
 import cats.effect.IO
 import cats.effect.unsafe.implicits.global
-import fs2.{ Stream => StreamF }
-import io.{ iteratee => i }
+import fs2.{Stream => StreamF}
+import io.{iteratee => i}
 import java.util.concurrent.TimeUnit
 import org.openjdk.jmh.annotations._
 import scala.Predef.intWrapper

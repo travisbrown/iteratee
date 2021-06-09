@@ -1,7 +1,7 @@
 package io.iteratee.files
 
-import cats.effect.{ IO, Sync }
-import io.iteratee.modules.{ EnumerateeModule, EnumeratorErrorModule, IterateeErrorModule, Module }
+import cats.effect.{IO, Sync}
+import io.iteratee.modules.{EnumerateeModule, EnumeratorErrorModule, IterateeErrorModule, Module}
 
 package modules {
   final object io extends IOModule

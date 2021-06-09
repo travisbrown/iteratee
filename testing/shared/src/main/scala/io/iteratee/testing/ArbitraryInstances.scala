@@ -1,8 +1,8 @@
 package io.iteratee.testing
 
 import cats.Monad
-import io.iteratee.{ Enumeratee, Enumerator, Iteratee }
-import org.scalacheck.{ Arbitrary, Gen }
+import io.iteratee.{Enumeratee, Enumerator, Iteratee}
+import org.scalacheck.{Arbitrary, Gen}
 import scala.Predef._
 
 trait ArbitraryInstances {

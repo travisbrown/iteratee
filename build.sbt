@@ -1,8 +1,8 @@
 import ReleaseTransformations._
 import org.scalafmt.sbt.ScalafmtPlugin.scalafmtConfigSettings
-import sbtcrossproject.{ CrossType, crossProject }
-import scala.xml.{ Elem, Node => XmlNode, NodeSeq => XmlNodeSeq }
-import scala.xml.transform.{ RewriteRule, RuleTransformer }
+import sbtcrossproject.{CrossType, crossProject}
+import scala.xml.{Elem, Node => XmlNode, NodeSeq => XmlNodeSeq}
+import scala.xml.transform.{RewriteRule, RuleTransformer}
 
 ThisBuild / organization := "io.iteratee"
 ThisBuild / crossScalaVersions := List("2.12.14", "2.13.6", "3.0.0")

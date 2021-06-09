@@ -1,7 +1,7 @@
 package io.iteratee
 
-import cats.{ Id, catsInstancesForId }
-import io.iteratee.testing.{ EnumerateeSuite, EnumeratorSuite, IterateeSuite }
+import cats.{Id, catsInstancesForId}
+import io.iteratee.testing.{EnumerateeSuite, EnumeratorSuite, IterateeSuite}
 import io.iteratee.tests.IdSuite
 
 class IdEnumerateeTests extends EnumerateeSuite[Id] with IdSuite

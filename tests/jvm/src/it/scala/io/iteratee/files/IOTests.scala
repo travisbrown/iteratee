@@ -1,10 +1,10 @@
 package io.iteratee.files
 
 import cats.effect.IO
-import cats.effect.laws.util.{ TestContext, TestInstances }
+import cats.effect.laws.util.{TestContext, TestInstances}
 import cats.kernel.Eq
 import io.iteratee.files.modules.IOModule
-import io.iteratee.testing.{ EnumerateeSuite, IterateeErrorSuite, StackSafeEnumeratorSuite }
+import io.iteratee.testing.{EnumerateeSuite, IterateeErrorSuite, StackSafeEnumeratorSuite}
 import io.iteratee.testing.EqInstances.eqThrowable
 import io.iteratee.testing.files.FileModuleSuite
 

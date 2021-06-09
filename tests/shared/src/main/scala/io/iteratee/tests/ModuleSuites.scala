@@ -9,10 +9,10 @@ import cats.kernel.Eq
 import io.iteratee.modules._
 import io.iteratee.testing.EqInstances.eqThrowable
 import org.scalacheck.Arbitrary
-import scala.concurrent.{ Await, ExecutionContext, Future }
+import scala.concurrent.{Await, ExecutionContext, Future}
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration._
-import scala.util.{ Failure, Success, Try }
+import scala.util.{Failure, Success, Try}
 
 trait EitherSuite extends EitherModule {
   def monadName: String = "Either[Throwable, *]"

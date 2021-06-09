@@ -1,12 +1,12 @@
 package io.iteratee.testing
 
-import cats.{ Eq, Eval, Monad, MonadError }
-import cats.data.{ EitherT, NonEmptyList }
-import cats.laws.discipline.{ ContravariantTests, MonadErrorTests, MonadTests, SemigroupalTests }
+import cats.{Eq, Eval, Monad, MonadError}
+import cats.data.{EitherT, NonEmptyList}
+import cats.laws.discipline.{ContravariantTests, MonadErrorTests, MonadTests, SemigroupalTests}
 import io.iteratee.Iteratee
 import io.iteratee.internal.Step
-import io.iteratee.modules.{ EnumerateeModule, EnumeratorModule, IterateeErrorModule, IterateeModule, Module }
-import org.scalacheck.{ Arbitrary, Cogen }
+import io.iteratee.modules.{EnumerateeModule, EnumeratorModule, IterateeErrorModule, IterateeModule, Module}
+import org.scalacheck.{Arbitrary, Cogen}
 import scala.Predef._
 
 abstract class IterateeSuite[F[_]: Monad] extends BaseIterateeSuite[F] {

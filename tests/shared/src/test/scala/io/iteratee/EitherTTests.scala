@@ -1,10 +1,10 @@
 package io.iteratee
 
-import cats.{ Eval, Id, MonadError, catsInstancesForId }
+import cats.{Eval, Id, MonadError, catsInstancesForId}
 import cats.arrow.FunctionK
 import cats.data.EitherT
 import cats.laws.discipline.arbitrary.catsLawsCogenForThrowable
-import io.iteratee.testing.{ EnumerateeSuite, IterateeErrorSuite, StackSafeEnumeratorSuite }
+import io.iteratee.testing.{EnumerateeSuite, IterateeErrorSuite, StackSafeEnumeratorSuite}
 import io.iteratee.testing.EqInstances.eqThrowable
 import io.iteratee.tests.EitherTSuite
 import org.scalacheck.Arbitrary
