@@ -4,13 +4,13 @@ import sbtcrossproject.{ CrossType, crossProject }
 import scala.xml.{ Elem, Node => XmlNode, NodeSeq => XmlNodeSeq }
 import scala.xml.transform.{ RewriteRule, RuleTransformer }
 
-organization in ThisBuild := "io.iteratee"
-crossScalaVersions in ThisBuild := List("2.12.14", "2.13.6")
-scalaVersion in ThisBuild := crossScalaVersions.value.last
+ThisBuild / organization := "io.iteratee"
+ThisBuild / crossScalaVersions := List("2.12.14", "2.13.6")
+ThisBuild / scalaVersion := crossScalaVersions.value.last
 
-githubWorkflowJavaVersions in ThisBuild := Seq("adopt@1.8")
-githubWorkflowPublishTargetBranches in ThisBuild := Nil
-githubWorkflowBuild in ThisBuild := Seq(
+ThisBuild / githubWorkflowJavaVersions := Seq("adopt@1.8")
+ThisBuild / githubWorkflowPublishTargetBranches := Nil
+ThisBuild / githubWorkflowBuild := Seq(
   WorkflowStep.Sbt(
     List(
       "clean",
@@ -78,7 +78,7 @@ lazy val baseSettings = Seq(
       }
   },
   scalacOptions += "-Yno-predef",
-  scalacOptions in (Compile, console) := {
+  Compile / console / scalacOptions := {
     if (priorTo2_13(scalaVersion.value)) compilerOptions
     else
       compilerOptions.flatMap {
@@ -88,7 +88,7 @@ lazy val baseSettings = Seq(
         case other                  => Some(other)
       }
   },
-  scalacOptions in (Compile, test) := {
+  Test / compile / scalacOptions := {
     if (priorTo2_13(scalaVersion.value)) compilerOptions
     else
       compilerOptions.flatMap {
@@ -99,29 +99,35 @@ lazy val baseSettings = Seq(
       }
   },
   coverageHighlighting := true,
-  (scalastyleSources in Compile) ++= (sourceDirectories in Compile).value,
-  addCompilerPlugin(("org.typelevel" % "kind-projector" % "0.13.0").cross(CrossVersion.full))
+  Compile / scalastyleSources ++= (Compile / sourceDirectories).value,
+  libraryDependencies ++= {
+    if (scalaVersion.value.startsWith("3")) Nil
+    else
+      Seq(
+        compilerPlugin(("org.typelevel" %% "kind-projector" % "0.13.0").cross(CrossVersion.full))
+      )
+  }
 )
 
 lazy val allSettings = baseSettings ++ publishSettings
 
 lazy val commonJsSettings = Seq(
-  scalaJSStage in Global := FastOptStage
+  Global / scalaJSStage := FastOptStage
 )
 
 lazy val docSettings = Seq(
   docMappingsApiDir := "api",
-  addMappingsToSiteDir(mappings in (ScalaUnidoc, packageDoc), docMappingsApiDir),
-  scalacOptions in (ScalaUnidoc, unidoc) ++= Seq(
+  addMappingsToSiteDir(ScalaUnidoc / packageDoc / mappings, docMappingsApiDir),
+  ScalaUnidoc / unidoc / scalacOptions ++= Seq(
     "-groups",
     "-implicits",
     "-doc-source-url",
     scmInfo.value.get.browseUrl + "/tree/main€{FILE_PATH}.scala",
     "-sourcepath",
-    baseDirectory.in(LocalRootProject).value.getAbsolutePath
+    (LocalRootProject / baseDirectory).value.getAbsolutePath
   ),
   git.remoteRepo := "git@github.com:travisbrown/iteratee.git",
-  unidocProjectFilter in (ScalaUnidoc, unidoc) :=
+  ScalaUnidoc / unidoc / unidocProjectFilter :=
     inAnyProject -- inProjects(coreJS, benchmark, testingJS, testsJVM, testsJS)
 )
 
@@ -255,7 +261,7 @@ lazy val publishSettings = Seq(
   homepage := Some(url("https://github.com/travisbrown/iteratee")),
   licenses := Seq("Apache 2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0")),
   publishMavenStyle := true,
-  publishArtifact in Test := false,
+  Test / publishArtifact := false,
   pomIncludeRepository := { _ =>
     false
   },
