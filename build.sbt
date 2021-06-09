@@ -62,7 +62,7 @@ def priorTo2_13(scalaVersion: String): Boolean =
     case _                              => false
   }
 
-lazy val previousIterateeVersion = "0.18.0"
+lazy val previousIterateeVersion = "0.19.0"
 
 val docMappingsApiDir = settingKey[String]("Subdirectory in site target directory for API docs")
 
