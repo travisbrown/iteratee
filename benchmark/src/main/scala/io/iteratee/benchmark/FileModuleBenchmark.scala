@@ -2,9 +2,8 @@ package io.iteratee.benchmark
 
 import cats.Monad
 import cats.effect.IO
+import cats.effect.unsafe.implicits.global
 import cats.free.Free
-import cats.instances.int._
-import cats.instances.try_._
 import io.iteratee.{ Enumerator, Iteratee }
 import java.io.InputStream
 import java.util.concurrent.TimeUnit
@@ -39,7 +38,7 @@ class FileModuleBenchmark {
     }
 
   @Benchmark
-  def avgWordLengthIO: Double = linesIO.flatMap(words[IO]).into(avgLen).unsafeRunSync
+  def avgWordLengthIO: Double = linesIO.flatMap(words[IO]).into(avgLen).unsafeRunSync()
 
   @Benchmark
   def avgWordLengthTF: Double = linesTF.flatMap(words[Free[Try, *]]).into(avgLen[Free[Try, *]]).runTailRec.get

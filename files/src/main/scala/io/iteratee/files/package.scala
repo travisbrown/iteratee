@@ -129,7 +129,7 @@ package object files {
         F.flatten(
           F.delay(
             if (iterator.hasNext) {
-              val entry = iterator.next
+              val entry = iterator.next()
 
               F.flatMap(s.feedEl((entry, zipFile.getInputStream(entry))))(apply)
             } else F.pure(s)

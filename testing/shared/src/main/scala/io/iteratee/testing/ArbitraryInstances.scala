@@ -1,7 +1,6 @@
 package io.iteratee.testing
 
 import cats.Monad
-import cats.instances.int._
 import io.iteratee.{ Enumeratee, Enumerator, Iteratee }
 import org.scalacheck.{ Arbitrary, Gen }
 import scala.Predef._

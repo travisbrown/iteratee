@@ -1,6 +1,6 @@
 package io.iteratee
 
-import cats.{ Eval, Id, MonadError }
+import cats.{ Eval, Id, MonadError, catsInstancesForId }
 import cats.arrow.FunctionK
 import cats.data.EitherT
 import cats.laws.discipline.arbitrary.catsLawsCogenForThrowable

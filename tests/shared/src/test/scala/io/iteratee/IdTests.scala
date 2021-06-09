@@ -1,6 +1,6 @@
 package io.iteratee
 
-import cats.Id
+import cats.{ Id, catsInstancesForId }
 import io.iteratee.testing.{ EnumerateeSuite, EnumeratorSuite, IterateeSuite }
 import io.iteratee.tests.IdSuite
 

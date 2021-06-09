@@ -1,6 +1,5 @@
 package io.iteratee
 
-import cats.instances.option._
 import io.iteratee.testing.{ EnumerateeSuite, EnumeratorSuite, IterateeSuite }
 import io.iteratee.tests.OptionSuite
 

@@ -14,6 +14,6 @@ package modules {
       with IterateeErrorModule[IO, Throwable] {
     type M[f[_]] = Sync[f]
 
-    protected val F: Sync[IO] = IO.ioEffect
+    protected val F: Sync[IO] = IO.asyncForIO
   }
 }

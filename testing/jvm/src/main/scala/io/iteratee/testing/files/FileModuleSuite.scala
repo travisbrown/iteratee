@@ -10,6 +10,7 @@ import scala.Predef._
 
 abstract class FileModuleSuite[F[_]: Monad] extends ModuleSuite[F] {
   this: Module[F] with EnumeratorModule[F] with IterateeModule[F] with FileModule[F] =>
+  type M[f[_]] = cats.effect.Sync[f]
 
   "readLines" should "enumerate text lines from a file" in {
     val txt = new File(getClass.getResource("/io/iteratee/examples/pg/11231/11231.txt").toURI)
@@ -107,7 +108,7 @@ abstract class FileModuleSuite[F[_]: Monad] extends ModuleSuite[F] {
     assert(readLines(tmp).toVector === F.pure(lines.toVector))
   }
 
-  "writeBytes" should "write arbitrary bytes to a temporary file" in forAll { bytes: List[Array[Byte]] =>
+  "writeBytes" should "write arbitrary bytes to a temporary file" in forAll { (bytes: List[Array[Byte]]) =>
     val tmp = File.createTempFile("it-writeBytes", ".txt")
     tmp.deleteOnExit()
 
@@ -115,7 +116,7 @@ abstract class FileModuleSuite[F[_]: Monad] extends ModuleSuite[F] {
     assert(readBytes(tmp).toVector.map(_.flatMap(_.toVector)) === F.pure(bytes.toVector.flatten))
   }
 
-  "writeBytesToStream" should "write arbitrary bytes to a temporary file" in forAll { bytes: List[Array[Byte]] =>
+  "writeBytesToStream" should "write arbitrary bytes to a temporary file" in forAll { (bytes: List[Array[Byte]]) =>
     val tmp = File.createTempFile("it-writeBytesToStream", ".txt")
     tmp.deleteOnExit()
 

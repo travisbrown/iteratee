@@ -1,8 +1,8 @@
 package io.iteratee.benchmark
 
-import cats.Id
+import cats.{ Id, catsInstancesForId }
 import cats.effect.IO
-import cats.instances.int._
+import cats.effect.unsafe.implicits.global
 import fs2.{ Stream => StreamF }
 import io.{ iteratee => i }
 import java.util.concurrent.TimeUnit
@@ -40,10 +40,10 @@ class InMemoryBenchmark extends InMemoryExampleData {
   def sumInts0II: Int = intsII.into(i.Iteratee.sum)
 
   @Benchmark
-  def sumInts1IO: Int = intsIO.into(i.Iteratee.sum).unsafeRunSync
+  def sumInts1IO: Int = intsIO.into(i.Iteratee.sum).unsafeRunSync()
 
   @Benchmark
-  def sumInts3F: Int = intsF.fold1(_ + _).compile.last.unsafeRunSync.get
+  def sumInts3F: Int = intsF.fold1(_ + _).compile.last.unsafeRunSync().get
 
   @Benchmark
   def sumInts4C: Int = intsC.sum
@@ -66,10 +66,10 @@ class StreamingBenchmark extends StreamingExampleData {
   def takeLongs0II: Vector[Long] = longStreamII.into(i.Iteratee.take(count))
 
   @Benchmark
-  def takeLongs1IO: Vector[Long] = longStreamIO.into(i.Iteratee.take(count)).unsafeRunSync
+  def takeLongs1IO: Vector[Long] = longStreamIO.into(i.Iteratee.take(count)).unsafeRunSync()
 
   @Benchmark
-  def takeLongs3F: Vector[Long] = longStreamF.take(count.toLong).compile.toVector.unsafeRunSync
+  def takeLongs3F: Vector[Long] = longStreamF.take(count.toLong).compile.toVector.unsafeRunSync()
 
   @Benchmark
   def takeLongs4C: Vector[Long] = longStreamC.take(count).toVector

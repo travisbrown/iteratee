@@ -5,7 +5,7 @@ import scala.xml.{ Elem, Node => XmlNode, NodeSeq => XmlNodeSeq }
 import scala.xml.transform.{ RewriteRule, RuleTransformer }
 
 ThisBuild / organization := "io.iteratee"
-ThisBuild / crossScalaVersions := List("2.12.14", "2.13.6")
+ThisBuild / crossScalaVersions := List("2.12.14", "2.13.6", "3.0.0")
 ThisBuild / scalaVersion := crossScalaVersions.value.last
 
 ThisBuild / githubWorkflowJavaVersions := Seq("adopt@1.8")
@@ -45,8 +45,8 @@ val compilerOptions = Seq(
 )
 
 val catsVersion = "2.6.1"
-val catsEffectVersion = "2.5.1"
-val fs2Version = "2.5.6"
+val catsEffectVersion = "3.1.1"
+val fs2Version = "3.0.4"
 
 val scalaTestVersion = "3.2.9"
 val scalaCheckVersion = "1.15.4"
@@ -98,7 +98,14 @@ lazy val baseSettings = Seq(
         case other                  => Some(other)
       }
   },
+  scalacOptions ++= {
+    if (scalaVersion.value.startsWith("3")) Seq("-Ykind-projector:underscores")
+    else Seq("-Xsource:3", "-P:kind-projector:underscore-placeholders")
+  },
   coverageHighlighting := true,
+  coverageEnabled := {
+    if (scalaVersion.value.startsWith("3")) false else coverageEnabled.value
+  },
   Compile / scalastyleSources ++= (Compile / sourceDirectories).value,
   libraryDependencies ++= {
     if (scalaVersion.value.startsWith("3")) Nil
@@ -203,7 +210,7 @@ lazy val tests = crossProject(JSPlatform, JVMPlatform)
     libraryDependencies ++= Seq(
       "org.scalacheck" %%% "scalacheck" % scalaCheckVersion,
       "org.scalatest" %%% "scalatest" % scalaTestVersion,
-      "org.scalatestplus" %%% "scalacheck-1-14" % "3.2.2.0",
+      "org.scalatestplus" %%% "scalacheck-1-15" % "3.2.9.0",
       "org.typelevel" %%% "cats-laws" % catsVersion,
       "org.typelevel" %%% "discipline-core" % disciplineVersion
     ),
