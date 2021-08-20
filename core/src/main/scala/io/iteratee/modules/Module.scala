@@ -4,8 +4,10 @@ import cats.Monad
 import io.iteratee.{Enumerator, Iteratee}
 
 /**
- * @groupname Syntax Extension methods
- * @groupprio Syntax 3
+ * @groupname Syntax
+ *   Extension methods
+ * @groupprio Syntax
+ *   3
  */
 trait Module[F[_]] {
   type M[f[_]] <: Monad[f]

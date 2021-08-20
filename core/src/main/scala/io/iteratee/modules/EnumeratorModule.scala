@@ -4,11 +4,15 @@ import cats.MonadError
 import io.iteratee.Enumerator
 
 /**
- * @groupname Enumerators Enumerators
- * @groupprio Enumerators 0
+ * @groupname Enumerators
+ *   Enumerators
+ * @groupprio Enumerators
+ *   0
  *
- * @groupname Helpers Helper classes
- * @groupprio Helpers 4
+ * @groupname Helpers
+ *   Helper classes
+ * @groupprio Helpers
+ *   4
  */
 trait EnumeratorModule[F[_]] { this: Module[F] =>
   private[this] final def defaultChunkSize: Int = 1024
@@ -101,40 +105,35 @@ trait EnumeratorModule[F[_]] { this: Module[F] =>
   final def repeat[E](e: E): Enumerator[F, E] = Enumerator.repeat(e)(F)
 
   /**
-   * An enumerator that iteratively performs an operation and returns the
-   * results.
+   * An enumerator that iteratively performs an operation and returns the results.
    *
    * @group Enumerators
    */
   final def iterate[E](init: E)(f: E => E): Enumerator[F, E] = Enumerator.iterate(init)(f)(F)
 
   /**
-   * An enumerator that iteratively performs an effectful operation and returns
-   * the results.
+   * An enumerator that iteratively performs an effectful operation and returns the results.
    *
    * @group Enumerators
    */
   final def iterateM[E](init: E)(f: E => F[E]): Enumerator[F, E] = Enumerator.iterateM(init)(f)(F)
 
   /**
-   * An enumerator that iteratively performs an operation until None is produced and returns
-   * the results.
+   * An enumerator that iteratively performs an operation until None is produced and returns the results.
    *
    * @group Enumerators
    */
   final def iterateUntil[E](init: E)(f: E => Option[E]): Enumerator[F, E] = Enumerator.iterateUntil(init)(f)(F)
 
   /**
-   * An enumerator that iteratively performs an effectful operation until None is produced and returns
-   * the results.
+   * An enumerator that iteratively performs an effectful operation until None is produced and returns the results.
    *
    * @group Enumerators
    */
   final def iterateUntilM[E](init: E)(f: E => F[Option[E]]): Enumerator[F, E] = Enumerator.iterateUntilM(init)(f)(F)
 
   /**
-   * An enumerator that returns the result of an effectful operation until
-   * `None` is generated.
+   * An enumerator that returns the result of an effectful operation until `None` is generated.
    *
    * @group Enumerators
    */

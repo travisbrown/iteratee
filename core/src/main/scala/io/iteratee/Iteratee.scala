@@ -6,14 +6,17 @@ import cats.data.NonEmptyList
 import io.iteratee.internal.Step
 
 /**
- * An iteratee processes a stream of elements of type `E` and returns a value of
- * type `F[A]`.
+ * An iteratee processes a stream of elements of type `E` and returns a value of type `F[A]`.
  *
- * @see [[io.iteratee.internal.Step]]
+ * @see
+ *   [[io.iteratee.internal.Step]]
  *
- * @tparam F A type constructor representing a context for effects
- * @tparam E The type of the input data
- * @tparam A The type of the calculated result
+ * @tparam F
+ *   A type constructor representing a context for effects
+ * @tparam E
+ *   The type of the input data
+ * @tparam A
+ *   The type of the calculated result
  */
 sealed class Iteratee[F[_], E, A] private[iteratee] (final val state: F[Step[F, E, A]]) extends Serializable { self =>
 
@@ -31,8 +34,7 @@ sealed class Iteratee[F[_], E, A] private[iteratee] (final val state: F[Step[F, 
   ): F[Z] = F.map(state)(_.fold(f => ifCont(in => Iteratee.iteratee(f(in))), ifDone))
 
   /**
-   * Run this iteratee and close the stream so that it must produce an effectful
-   * value.
+   * Run this iteratee and close the stream so that it must produce an effectful value.
    */
   final def run(implicit F: Monad[F]): F[A] = F.flatMap(state)(_.run)
 
@@ -65,8 +67,7 @@ sealed class Iteratee[F[_], E, A] private[iteratee] (final val state: F[Step[F, 
     Iteratee.iteratee(F.map(state)(_.contramap(f)))
 
   /**
-   * Create a new [[Iteratee]] that first processes values with the given
-   * [[Enumeratee]].
+   * Create a new [[Iteratee]] that first processes values with the given [[Enumeratee]].
    */
   final def through[O](enumeratee: Enumeratee[F, O, E])(implicit F: Monad[F]): Iteratee[F, O, A] =
     Iteratee.joinI(Iteratee.iteratee(F.flatMap(state)(enumeratee(_))))
@@ -87,8 +88,7 @@ sealed class Iteratee[F[_], E, A] private[iteratee] (final val state: F[Step[F, 
   )
 
   /**
-   * Zip this [[Iteratee]] with another to create an iteratee that returns a
-   * pair of their results.
+   * Zip this [[Iteratee]] with another to create an iteratee that returns a pair of their results.
    */
   final def zip[B](other: Iteratee[F, E, B])(implicit F: Applicative[F]): Iteratee[F, E, (A, B)] =
     Iteratee.iteratee(F.map2(self.state, other.state)(_.zip(_)))
@@ -105,15 +105,13 @@ sealed class Iteratee[F[_], E, A] private[iteratee] (final val state: F[Step[F, 
   final def discard(implicit F: Functor[F]): Iteratee[F, E, Unit] = as(())
 
   /**
-   * Ensure that an action will be performed when this iteratee is done, whether
-   * or not it succeeds.
+   * Ensure that an action will be performed when this iteratee is done, whether or not it succeeds.
    */
   final def ensure[T](action: F[Unit])(implicit F: MonadError[F, T]): Iteratee[F, E, A] =
     ensureEval(Eval.now(action))
 
   /**
-   * Ensure that an action will be performed when this iteratee is done, whether
-   * or not it succeeds.
+   * Ensure that an action will be performed when this iteratee is done, whether or not it succeeds.
    */
   final def ensureEval[T](action: Eval[F[Unit]])(implicit F: MonadError[F, T]): Iteratee[F, E, A] =
     handleErrorWith[T](_ => Iteratee.iteratee(F.flatMap(action.value)(_ => state))).flatMapM(result =>
@@ -136,14 +134,20 @@ private[iteratee] class IterateeLowPriorityInstances {
 }
 
 /**
- * @groupname Constructors Constructors
- * @groupprio Constructors 0
+ * @groupname Constructors
+ *   Constructors
+ * @groupprio Constructors
+ *   0
  *
- * @groupname Utilities Miscellaneous utilities
- * @groupprio Utilities 1
+ * @groupname Utilities
+ *   Miscellaneous utilities
+ * @groupprio Utilities
+ *   1
  *
- * @groupname Collection Collection operation iteratees
- * @groupprio Collection 2
+ * @groupname Collection
+ *   Collection operation iteratees
+ * @groupprio Collection
+ *   2
  */
 final object Iteratee extends IterateeLowPriorityInstances {
   implicit final def iterateeContravariant[F[_], A](implicit F: Monad[F]): Contravariant[Iteratee[F, *, A]] =
@@ -163,8 +167,7 @@ final object Iteratee extends IterateeLowPriorityInstances {
   }
 
   /**
-   * Create an incomplete [[Iteratee]] that will use the given function to
-   * process the next input.
+   * Create an incomplete [[Iteratee]] that will use the given function to process the next input.
    *
    * @group Constructors
    */
@@ -226,8 +229,7 @@ final object Iteratee extends IterateeLowPriorityInstances {
   final def identity[F[_]: Applicative, E]: Iteratee[F, E, Unit] = done[F, E, Unit](())
 
   /**
-   * Collapse an [[Iteratee]] returning a [[io.iteratee.internal.Step]] into one
-   * layer.
+   * Collapse an [[Iteratee]] returning a [[io.iteratee.internal.Step]] into one layer.
    *
    * @group Utilities
    */
@@ -235,8 +237,7 @@ final object Iteratee extends IterateeLowPriorityInstances {
     iteratee(F.flatMap(it.state)(Step.joinI(_)))
 
   /**
-   * An [[Iteratee]] that folds a stream using an initial value and an
-   * accumulation function.
+   * An [[Iteratee]] that folds a stream using an initial value and an accumulation function.
    *
    * @group Collection
    */
@@ -244,8 +245,7 @@ final object Iteratee extends IterateeLowPriorityInstances {
     Iteratee.fromStep(Step.fold[F, E, A](init)(f))
 
   /**
-   * An [[Iteratee]] that folds a stream using an initial value and a monadic
-   * accumulation function.
+   * An [[Iteratee]] that folds a stream using an initial value and a monadic accumulation function.
    *
    * @group Collection
    */
@@ -260,8 +260,7 @@ final object Iteratee extends IterateeLowPriorityInstances {
   final def consume[F[_]: Applicative, A]: Iteratee[F, A, Vector[A]] = fromStep(Step.consume[F, A])
 
   /**
-   * An [[Iteratee]] that collects all the elements in a stream in a given
-   * collection type.
+   * An [[Iteratee]] that collects all the elements in a stream in a given collection type.
    *
    * @group Collection
    */
@@ -276,8 +275,7 @@ final object Iteratee extends IterateeLowPriorityInstances {
   final def head[F[_]: Applicative, E]: Iteratee[F, E, Option[E]] = fromStep(Step.head[F, E])
 
   /**
-   * An [[Iteratee]] that returns the first value in a stream without consuming
-   * it.
+   * An [[Iteratee]] that returns the first value in a stream without consuming it.
    *
    * @group Collection
    */
@@ -291,16 +289,14 @@ final object Iteratee extends IterateeLowPriorityInstances {
   final def last[F[_]: Applicative, E]: Iteratee[F, E, Option[E]] = fromStep(Step.last[F, E])
 
   /**
-   * An [[Iteratee]] that returns a given number of the first values in a
-   * stream.
+   * An [[Iteratee]] that returns a given number of the first values in a stream.
    *
    * @group Collection
    */
   final def take[F[_]: Applicative, A](n: Int): Iteratee[F, A, Vector[A]] = fromStep(Step.take[F, A](n))
 
   /**
-   * An [[Iteratee]] that returns values from a stream as long as they satisfy
-   * the given predicate.
+   * An [[Iteratee]] that returns values from a stream as long as they satisfy the given predicate.
    *
    * @group Collection
    */
@@ -315,8 +311,7 @@ final object Iteratee extends IterateeLowPriorityInstances {
   final def drop[F[_]: Applicative, E](n: Int): Iteratee[F, E, Unit] = fromStep(Step.drop[F, E](n))
 
   /**
-   * An [[Iteratee]] that drops values from a stream as long as they satisfy the
-   * given predicate.
+   * An [[Iteratee]] that drops values from a stream as long as they satisfy the given predicate.
    *
    * @group Collection
    */
@@ -346,16 +341,14 @@ final object Iteratee extends IterateeLowPriorityInstances {
   final def sum[F[_]: Applicative, E: Monoid]: Iteratee[F, E, E] = fromStep(Step.sum[F, E])
 
   /**
-   * An [[Iteratee]] that combines values using a function to a type with a
-   * [[cats.Monoid]] instance.
+   * An [[Iteratee]] that combines values using a function to a type with a [[cats.Monoid]] instance.
    *
    * @group Collection
    */
   final def foldMap[F[_]: Applicative, E, A: Monoid](f: E => A): Iteratee[F, E, A] = Iteratee.fromStep(Step.foldMap(f))
 
   /**
-   * An [[Iteratee]] that combines values using an effectful function to a type
-   * with a [[cats.Monoid]] instance.
+   * An [[Iteratee]] that combines values using an effectful function to a type with a [[cats.Monoid]] instance.
    *
    * @group Collection
    */
@@ -363,8 +356,7 @@ final object Iteratee extends IterateeLowPriorityInstances {
     Iteratee.fromStep(Step.foldMapM(f))
 
   /**
-   * An [[Iteratee]] that combines values using a function to a type with a
-   * [[cats.Semigroup]] instance.
+   * An [[Iteratee]] that combines values using a function to a type with a [[cats.Semigroup]] instance.
    *
    * @group Collection
    */
@@ -375,8 +367,7 @@ final object Iteratee extends IterateeLowPriorityInstances {
     foldMap[F, E, Option[A]](e => Some(f(e)))(F, cats.kernel.instances.option.catsKernelStdMonoidForOption(A))
 
   /**
-   * An [[Iteratee]] that combines values using an effectful function to a type
-   * with a [[cats.Semigroup]] instance.
+   * An [[Iteratee]] that combines values using an effectful function to a type with a [[cats.Semigroup]] instance.
    *
    * @group Collection
    */

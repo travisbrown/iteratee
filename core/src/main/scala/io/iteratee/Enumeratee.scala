@@ -70,8 +70,7 @@ final object Enumeratee {
   }
 
   /**
-   * Map a function returning an [[Enumerator]] over a stream and flatten the
-   * results.
+   * Map a function returning an [[Enumerator]] over a stream and flatten the results.
    */
   final def flatMap[F[_], O, I](f: O => Enumerator[F, I])(implicit F: Monad[F]): Enumeratee[F, O, I] =
     new PureLoop[F, O, I] {
@@ -111,8 +110,7 @@ final object Enumeratee {
     }
 
   /**
-   * An [[Enumeratee]] that takes a given number of the first values in a
-   * stream.
+   * An [[Enumeratee]] that takes a given number of the first values in a stream.
    */
   final def take[F[_], E](n: Long)(implicit F: Applicative[F]): Enumeratee[F, E, E] = new Enumeratee[F, E, E] {
     private[this] def loop[A](remaining: Long)(step: Step[F, E, A]): Step[F, E, Step[F, E, A]] =
@@ -145,8 +143,7 @@ final object Enumeratee {
   }
 
   /**
-   * An [[Enumeratee]] that tales values from a stream as long as they satisfy
-   * the given predicate.
+   * An [[Enumeratee]] that tales values from a stream as long as they satisfy the given predicate.
    */
   final def takeWhile[F[_], E](p: E => Boolean)(implicit F: Applicative[F]): Enumeratee[F, E, E] =
     new PureLoop[F, E, E] {
@@ -203,8 +200,7 @@ final object Enumeratee {
     }
 
   /**
-   * An [[Enumeratee]] that drops a given number of the first values in a
-   * stream.
+   * An [[Enumeratee]] that drops a given number of the first values in a stream.
    */
   final def drop[F[_], E](n: Long)(implicit F: Applicative[F]): Enumeratee[F, E, E] = new Enumeratee[F, E, E] {
     private[this] def loop[A](remaining: Long)(step: Step[F, E, A]): Step[F, E, Step[F, E, A]] =
@@ -232,8 +228,7 @@ final object Enumeratee {
   }
 
   /**
-   * An [[Enumeratee]] that drops values from a stream as long as they satisfy
-   * the given predicate.
+   * An [[Enumeratee]] that drops values from a stream as long as they satisfy the given predicate.
    */
   final def dropWhile[F[_], E](p: E => Boolean)(implicit F: Applicative[F]): Enumeratee[F, E, E] =
     new PureLoop[F, E, E] {
@@ -253,8 +248,7 @@ final object Enumeratee {
     }
 
   /**
-   * An [[Enumeratee]] that drops values from a stream as long as they satisfy
-   * the given monadic predicate.
+   * An [[Enumeratee]] that drops values from a stream as long as they satisfy the given monadic predicate.
    */
   final def dropWhileM[F[_], E](p: E => F[Boolean])(implicit F: Monad[F]): Enumeratee[F, E, E] =
     new PureLoop[F, E, E] {
@@ -281,8 +275,7 @@ final object Enumeratee {
     }
 
   /**
-   * Transform values using a [[scala.PartialFunction]] and drop values that
-   * aren't matched.
+   * Transform values using a [[scala.PartialFunction]] and drop values that aren't matched.
    */
   final def collect[F[_], O, I](pf: PartialFunction[O, I])(implicit F: Applicative[F]): Enumeratee[F, O, I] =
     new PureLoop[F, O, I] {
@@ -384,8 +377,7 @@ final object Enumeratee {
     }
 
   /**
-   * An [[Enumeratee]] that folds a stream using an effectful function while
-   * emitting intermediate results.
+   * An [[Enumeratee]] that folds a stream using an effectful function while emitting intermediate results.
    *
    * @group Collection
    */
@@ -416,8 +408,7 @@ final object Enumeratee {
     }
 
   /**
-   * Run an iteratee and then use the provided function to combine the result
-   * with the remaining elements.
+   * Run an iteratee and then use the provided function to combine the result with the remaining elements.
    */
   final def remainderWithResult[F[_], O, R, I](iteratee: Iteratee[F, O, R])(f: (R, O) => I)(implicit
     F: Monad[F]
@@ -437,8 +428,7 @@ final object Enumeratee {
     }
 
   /**
-   * Run an iteratee and then use the provided effectful function to combine the
-   * result with the remaining elements.
+   * Run an iteratee and then use the provided effectful function to combine the result with the remaining elements.
    */
   final def remainderWithResultM[F[_], O, R, I](iteratee: Iteratee[F, O, R])(f: (R, O) => F[I])(implicit
     F: Monad[F]
@@ -463,7 +453,8 @@ final object Enumeratee {
   /**
    * Collapse consecutive duplicates.
    *
-   * @note Assumes that the stream is sorted.
+   * @note
+   *   Assumes that the stream is sorted.
    */
   final def uniq[F[_], E](implicit F: Applicative[F], E: Eq[E]): Enumeratee[F, E, E] =
     new Enumeratee[F, E, E] {
@@ -526,8 +517,7 @@ final object Enumeratee {
   )
 
   /**
-   * Transform a stream by taking the cross-product with the given
-   * [[Enumerator]].
+   * Transform a stream by taking the cross-product with the given [[Enumerator]].
    */
   final def cross[F[_], E1, E2](e2: Enumerator[F, E2])(implicit F: Monad[F]): Enumeratee[F, E1, (E1, E2)] =
     new Enumeratee[F, E1, (E1, E2)] {
@@ -597,8 +587,8 @@ final object Enumeratee {
   /**
    * Observe the chunks in a stream.
    *
-   * @note Typically you should never rely on the underlying chunking of a
-   * stream, but in some cases it can be useful.
+   * @note
+   *   Typically you should never rely on the underlying chunking of a stream, but in some cases it can be useful.
    */
   final def chunks[F[_], E](implicit F: Applicative[F]): Enumeratee[F, E, Vector[E]] =
     new PureLoop[F, E, Vector[E]] {
