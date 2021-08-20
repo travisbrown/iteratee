@@ -53,8 +53,8 @@ val scalaCheckVersion = "1.15.4"
 val disciplineVersion = "1.1.5"
 
 /**
- * Some terrible hacks to work around Cats's decision to have builds for
- * different Scala versions depend on different versions of Discipline, etc.
+ * Some terrible hacks to work around Cats's decision to have builds for different Scala versions depend on different
+ * versions of Discipline, etc.
  */
 def priorTo2_13(scalaVersion: String): Boolean =
   CrossVersion.partialVersion(scalaVersion) match {

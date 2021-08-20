@@ -211,8 +211,8 @@ abstract class BaseIterateeSuite[F[_]: Monad] extends ModuleSuite[F] {
 
   "takeI" should "consume the specified number of values" in forAll { (eav: EnumeratorAndValues[Int], n: Int) =>
     /**
-     * This isn't a comprehensive way to avoid SI-9581, but it seems to keep clear of the cases
-     * ScalaCheck is likely to run into.
+     * This isn't a comprehensive way to avoid SI-9581, but it seems to keep clear of the cases ScalaCheck is likely to
+     * run into.
      */
     whenever(n != Int.MaxValue) {
       assert(eav.resultWithLeftovers(takeI[Int](n)) === F.pure((eav.values.take(n), eav.values.drop(n))))
@@ -225,8 +225,8 @@ abstract class BaseIterateeSuite[F[_]: Monad] extends ModuleSuite[F] {
 
   "dropI" should "drop the specified number of values" in forAll { (eav: EnumeratorAndValues[Int], n: Int) =>
     /**
-     * This isn't a comprehensive way to avoid SI-9581, but it seems to keep clear of the cases
-     * ScalaCheck is likely to run into.
+     * This isn't a comprehensive way to avoid SI-9581, but it seems to keep clear of the cases ScalaCheck is likely to
+     * run into.
      */
     whenever(n != Int.MaxValue) {
       assert(eav.resultWithLeftovers(dropI[Int](n)) === F.pure(((), eav.values.drop(n))))
@@ -344,8 +344,8 @@ abstract class BaseIterateeSuite[F[_]: Monad] extends ModuleSuite[F] {
   it should "zip two iteratees with leftovers (scalaz/scalaz#1068)" in {
     forAll { (eav: EnumeratorAndValues[Int], m: Int, n: Int) =>
       /**
-       * This isn't a comprehensive way to avoid SI-9581, but it seems to keep clear of the cases
-       * ScalaCheck is likely to run into.
+       * This isn't a comprehensive way to avoid SI-9581, but it seems to keep clear of the cases ScalaCheck is likely
+       * to run into.
        */
       whenever(m != Int.MaxValue && n != Int.MaxValue) {
         val result = ((eav.values.take(m), eav.values.take(n)), eav.values.drop(math.max(m, n)))

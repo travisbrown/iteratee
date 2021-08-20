@@ -4,8 +4,10 @@ import cats.kernel.Eq
 import io.iteratee.{Enumeratee, Enumerator, Iteratee}
 
 /**
- * @groupname Enumeratees Enumeratees
- * @groupprio Enumeratees 2
+ * @groupname Enumeratees
+ *   Enumeratees
+ * @groupprio Enumeratees
+ *   2
  */
 trait EnumerateeModule[F[_]] { this: Module[F] =>
 
@@ -24,64 +26,56 @@ trait EnumerateeModule[F[_]] { this: Module[F] =>
   final def flatMapM[O, I](f: O => F[I]): Enumeratee[F, O, I] = Enumeratee.flatMapM(f)(F)
 
   /**
-   * Map a function returning an [[Enumerator]] over a stream and flatten the
-   * results.
+   * Map a function returning an [[Enumerator]] over a stream and flatten the results.
    *
    * @group Enumeratees
    */
   final def flatMap[O, I](f: O => Enumerator[F, I]): Enumeratee[F, O, I] = Enumeratee.flatMap(f)(F)
 
   /**
-   * An [[Enumeratee]] that takes a given number of the first values in a
-   * stream.
+   * An [[Enumeratee]] that takes a given number of the first values in a stream.
    *
    * @group Enumeratees
    */
   final def take[E](n: Long): Enumeratee[F, E, E] = Enumeratee.take(n)(F)
 
   /**
-   * An [[Enumeratee]] that takes values from a stream as long as they satisfy
-   * the given predicate.
+   * An [[Enumeratee]] that takes values from a stream as long as they satisfy the given predicate.
    *
    * @group Enumeratees
    */
   final def takeWhile[E](p: E => Boolean): Enumeratee[F, E, E] = Enumeratee.takeWhile(p)(F)
 
   /**
-   * An [[Enumeratee]] that takes values from a stream as long as they satisfy
-   * the given monadic predicate.
+   * An [[Enumeratee]] that takes values from a stream as long as they satisfy the given monadic predicate.
    *
    * @group Enumeratees
    */
   final def takeWhileM[E](p: E => F[Boolean]): Enumeratee[F, E, E] = Enumeratee.takeWhileM(p)(F)
 
   /**
-   * An [[Enumeratee]] that drops a given number of the first values in a
-   * stream.
+   * An [[Enumeratee]] that drops a given number of the first values in a stream.
    *
    * @group Enumeratees
    */
   final def drop[E](n: Long): Enumeratee[F, E, E] = Enumeratee.drop(n)(F)
 
   /**
-   * An [[Enumeratee]] that drops values from a stream as long as they satisfy
-   * the given predicate.
+   * An [[Enumeratee]] that drops values from a stream as long as they satisfy the given predicate.
    *
    * @group Enumeratees
    */
   final def dropWhile[E](p: E => Boolean): Enumeratee[F, E, E] = Enumeratee.dropWhile(p)(F)
 
   /**
-   * An [[Enumeratee]] that drops values from a stream as long as they satisfy
-   * the given monadic predicate.
+   * An [[Enumeratee]] that drops values from a stream as long as they satisfy the given monadic predicate.
    *
    * @group Enumeratees
    */
   final def dropWhileM[E](p: E => F[Boolean]): Enumeratee[F, E, E] = Enumeratee.dropWhileM(p)(F)
 
   /**
-   * Transform values using a [[scala.PartialFunction]] and drop values that
-   * aren't matched.
+   * Transform values using a [[scala.PartialFunction]] and drop values that aren't matched.
    *
    * @group Enumeratees
    */
@@ -116,16 +110,14 @@ trait EnumerateeModule[F[_]] { this: Module[F] =>
   final def scan[O, I](init: I)(f: (I, O) => I): Enumeratee[F, O, I] = Enumeratee.scan(init)(f)(F)
 
   /**
-   * An [[Enumeratee]] that folds a stream using an effectful function while
-   * emitting intermediate results.
+   * An [[Enumeratee]] that folds a stream using an effectful function while emitting intermediate results.
    *
    * @group Enumeratees
    */
   final def scanM[O, I](init: I)(f: (I, O) => F[I]): Enumeratee[F, O, I] = Enumeratee.scanM(init)(f)(F)
 
   /**
-   * Run an iteratee and then use the provided function to combine the result
-   * with the remaining elements.
+   * Run an iteratee and then use the provided function to combine the result with the remaining elements.
    *
    * @group Enumeratees
    */
@@ -133,8 +125,7 @@ trait EnumerateeModule[F[_]] { this: Module[F] =>
     Enumeratee.remainderWithResult(iteratee)(f)(F)
 
   /**
-   * Run an iteratee and then use the provided effectful function to combine the
-   * result with the remaining elements.
+   * Run an iteratee and then use the provided effectful function to combine the result with the remaining elements.
    *
    * @group Enumeratees
    */
@@ -144,7 +135,8 @@ trait EnumerateeModule[F[_]] { this: Module[F] =>
   /**
    * Collapse consecutive duplicates.
    *
-   * @note Assumes that the stream is sorted.
+   * @note
+   *   Assumes that the stream is sorted.
    * @group Enumeratees
    */
   final def uniq[E](implicit E: Eq[E]): Enumeratee[F, E, E] = Enumeratee.uniq[F, E](F, E)
@@ -171,8 +163,7 @@ trait EnumerateeModule[F[_]] { this: Module[F] =>
   final def splitOn[E](p: E => Boolean): Enumeratee[F, E, Vector[E]] = Enumeratee.splitOn(p)(F)
 
   /**
-   * Transform a stream by taking the cross-product with the given
-   * [[Enumerator]].
+   * Transform a stream by taking the cross-product with the given [[Enumerator]].
    *
    * @group Enumeratees
    */

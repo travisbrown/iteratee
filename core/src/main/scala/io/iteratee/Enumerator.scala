@@ -7,8 +7,10 @@ import scala.Predef._
 import scala.util.{Left, Right}
 
 /**
- * @tparam F The effect type constructor
- * @tparam E The type of the enumerated data
+ * @tparam F
+ *   The effect type constructor
+ * @tparam E
+ *   The type of the enumerated data
  */
 abstract class Enumerator[F[_], E] extends Serializable { self =>
   def apply[A](s: Step[F, E, A]): F[Step[F, E, A]]
@@ -269,8 +271,7 @@ final object Enumerator {
   }
 
   /**
-   * An enumerator that iteratively performs an operation and returns the
-   * results.
+   * An enumerator that iteratively performs an operation and returns the results.
    */
   final def iterate[F[_], E](init: E)(f: E => E)(implicit F: Monad[F]): Enumerator[F, E] =
     new Enumerator[F, E] {
@@ -283,8 +284,7 @@ final object Enumerator {
     }
 
   /**
-   * An enumerator that iteratively performs an effectful operation and returns
-   * the results.
+   * An enumerator that iteratively performs an effectful operation and returns the results.
    */
   final def iterateM[F[_], E](init: E)(f: E => F[E])(implicit F: Monad[F]): Enumerator[F, E] =
     new Enumerator[F, E] {
@@ -297,8 +297,7 @@ final object Enumerator {
     }
 
   /**
-   * An enumerator that iteratively performs an operation until `None` is
-   * generated and returns the results.
+   * An enumerator that iteratively performs an operation until `None` is generated and returns the results.
    */
   final def iterateUntil[F[_], E](init: E)(f: E => Option[E])(implicit F: Monad[F]): Enumerator[F, E] =
     new Enumerator[F, E] {
@@ -309,8 +308,7 @@ final object Enumerator {
     }
 
   /**
-   * An enumerator that iteratively performs an effectful operation until `None`
-   * is generated and returns the results.
+   * An enumerator that iteratively performs an effectful operation until `None` is generated and returns the results.
    */
   final def iterateUntilM[F[_], E](init: E)(f: E => F[Option[E]])(implicit F: Monad[F]): Enumerator[F, E] =
     new Enumerator[F, E] {
@@ -322,8 +320,7 @@ final object Enumerator {
     }
 
   /**
-   * An enumerator that returns the result of an effectful operation until
-   * `None` is generated.
+   * An enumerator that returns the result of an effectful operation until `None` is generated.
    */
   final def generateM[F[_], E](f: F[Option[E]])(implicit F: Monad[F]): Enumerator[F, E] =
     new Enumerator[F, E] {
@@ -340,9 +337,8 @@ final object Enumerator {
   /**
    * Enumerators that rely on `F` to provide stack safety.
    *
-   * These implementations will generally be more efficient than the default
-   * ones, but will not be stack safe unless recursive monadic binding in `F` is
-   * stack safe.
+   * These implementations will generally be more efficient than the default ones, but will not be stack safe unless
+   * recursive monadic binding in `F` is stack safe.
    */
   final object StackUnsafe {
     private[this] abstract class ChunkedIteratorEnumerator[F[_], E](implicit F: Monad[F]) extends Enumerator[F, E] {
@@ -370,8 +366,7 @@ final object Enumerator {
     /**
      * An enumerator that repeats the given value indefinitely.
      *
-     * Note that this implementation will only be stack safe if recursive monadic
-     * binding in `F` is stack safe.
+     * Note that this implementation will only be stack safe if recursive monadic binding in `F` is stack safe.
      */
     final def repeat[F[_], E](e: E)(implicit F: Monad[F]): Enumerator[F, E] =
       new Enumerator[F, E] {
@@ -380,11 +375,9 @@ final object Enumerator {
       }
 
     /**
-     * An enumerator that iteratively performs an operation and returns the
-     * results.
+     * An enumerator that iteratively performs an operation and returns the results.
      *
-     * Note that this implementation will only be stack safe if recursive monadic
-     * binding in `F` is stack safe.
+     * Note that this implementation will only be stack safe if recursive monadic binding in `F` is stack safe.
      */
     def iterate[F[_], E](init: E)(f: E => E)(implicit F: Monad[F]): Enumerator[F, E] =
       new Enumerator[F, E] {
@@ -395,11 +388,9 @@ final object Enumerator {
       }
 
     /**
-     * An enumerator that iteratively performs an effectful operation and returns
-     * the results.
+     * An enumerator that iteratively performs an effectful operation and returns the results.
      *
-     * Note that this implementation will only be stack safe if recursive monadic
-     * binding in `F` is stack safe.
+     * Note that this implementation will only be stack safe if recursive monadic binding in `F` is stack safe.
      */
     def iterateM[F[_], E](init: E)(f: E => F[E])(implicit F: Monad[F]): Enumerator[F, E] =
       new Enumerator[F, E] {
@@ -410,11 +401,9 @@ final object Enumerator {
       }
 
     /**
-     * An enumerator that iteratively performs an operation until `None` is
-     * generated and returns the results.
+     * An enumerator that iteratively performs an operation until `None` is generated and returns the results.
      *
-     * Note that this implementation will only be stack safe if recursive monadic
-     * binding in `F` is stack safe.
+     * Note that this implementation will only be stack safe if recursive monadic binding in `F` is stack safe.
      */
     def iterateUntil[F[_], E](init: E)(f: E => Option[E])(implicit F: Monad[F]): Enumerator[F, E] =
       new Enumerator[F, E] {
@@ -427,11 +416,9 @@ final object Enumerator {
       }
 
     /**
-     * An enumerator that iteratively performs an effectful operation until `None`
-     * is generated and returns the results.
+     * An enumerator that iteratively performs an effectful operation until `None` is generated and returns the results.
      *
-     * Note that this implementation will only be stack safe if recursive monadic
-     * binding in `F` is stack safe.
+     * Note that this implementation will only be stack safe if recursive monadic binding in `F` is stack safe.
      */
     def iterateUntilM[F[_], E](init: E)(f: E => F[Option[E]])(implicit F: Monad[F]): Enumerator[F, E] =
       new Enumerator[F, E] {
@@ -444,11 +431,9 @@ final object Enumerator {
       }
 
     /**
-     * An enumerator that returns the result of an effectful operation until
-     * `None` is generated.
+     * An enumerator that returns the result of an effectful operation until `None` is generated.
      *
-     * Note that this implementation will only be stack safe if recursive monadic
-     * binding in `F` is stack safe.
+     * Note that this implementation will only be stack safe if recursive monadic binding in `F` is stack safe.
      */
     def generateM[F[_], E](f: F[Option[E]])(implicit F: Monad[F]): Enumerator[F, E] =
       new Enumerator[F, E] {

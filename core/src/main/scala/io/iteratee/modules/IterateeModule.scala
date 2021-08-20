@@ -5,17 +5,20 @@ import cats.data.NonEmptyList
 import io.iteratee.Iteratee
 
 /**
- * @groupname Iteratees Iteratees
- * @groupprio Iteratees 1
+ * @groupname Iteratees
+ *   Iteratees
+ * @groupprio Iteratees
+ *   1
  *
- * @groupname Helpers Helper classes
- * @groupprio Helpers 4
+ * @groupname Helpers
+ *   Helper classes
+ * @groupprio Helpers
+ *   4
  */
 trait IterateeModule[F[_]] { self: Module[F] =>
 
   /**
-   * Create an incomplete [[Iteratee]] that will use the given function to
-   * process the next input.
+   * Create an incomplete [[Iteratee]] that will use the given function to process the next input.
    *
    * @group Constructors
    */
@@ -51,16 +54,14 @@ trait IterateeModule[F[_]] { self: Module[F] =>
   final def identityIteratee[E]: Iteratee[F, E, Unit] = Iteratee.identity(F)
 
   /**
-   * An [[Iteratee]] that folds a stream using an initial value and an
-   * accumulation function.
+   * An [[Iteratee]] that folds a stream using an initial value and an accumulation function.
    *
    * @group Iteratees
    */
   final def fold[E, A](init: A)(f: (A, E) => A): Iteratee[F, E, A] = Iteratee.fold(init)(f)(F)
 
   /**
-   * An [[Iteratee]] that folds a stream using an initial value and a monadic
-   * accumulation function.
+   * An [[Iteratee]] that folds a stream using an initial value and a monadic accumulation function.
    *
    * @group Iteratees
    */
@@ -74,8 +75,7 @@ trait IterateeModule[F[_]] { self: Module[F] =>
   final def consume[E]: Iteratee[F, E, Vector[E]] = Iteratee.consume(F)
 
   /**
-   * An [[Iteratee]] that collects all the elements in a stream in a given
-   * collection type.
+   * An [[Iteratee]] that collects all the elements in a stream in a given collection type.
    *
    * @group Iteratees
    */
@@ -90,8 +90,7 @@ trait IterateeModule[F[_]] { self: Module[F] =>
   final def head[E]: Iteratee[F, E, Option[E]] = Iteratee.head(F)
 
   /**
-   * An [[Iteratee]] that returns the first value in a stream without consuming
-   * it.
+   * An [[Iteratee]] that returns the first value in a stream without consuming it.
    *
    * @group Iteratees
    */
@@ -105,16 +104,14 @@ trait IterateeModule[F[_]] { self: Module[F] =>
   final def last[E]: Iteratee[F, E, Option[E]] = Iteratee.last(F)
 
   /**
-   * An [[Iteratee]] that returns a given number of the first values in a
-   * stream.
+   * An [[Iteratee]] that returns a given number of the first values in a stream.
    *
    * @group Iteratees
    */
   final def takeI[E](n: Int): Iteratee[F, E, Vector[E]] = Iteratee.take(n)(F)
 
   /**
-   * An [[Iteratee]] that returns values from a stream as long as they satisfy
-   * the given predicate.
+   * An [[Iteratee]] that returns values from a stream as long as they satisfy the given predicate.
    *
    * @group Iteratees
    */
@@ -128,8 +125,7 @@ trait IterateeModule[F[_]] { self: Module[F] =>
   final def dropI[E](n: Int): Iteratee[F, E, Unit] = Iteratee.drop(n)(F)
 
   /**
-   * An [[Iteratee]] that drops values from a stream as long as they satisfy the
-   * given predicate.
+   * An [[Iteratee]] that drops values from a stream as long as they satisfy the given predicate.
    *
    * @group Iteratees
    */
@@ -157,24 +153,21 @@ trait IterateeModule[F[_]] { self: Module[F] =>
   final def sum[E](implicit E: Monoid[E]): Iteratee[F, E, E] = Iteratee.sum(F, E)
 
   /**
-   * An [[Iteratee]] that combines values using a function to a type with a
-   * [[cats.Monoid]] instance.
+   * An [[Iteratee]] that combines values using a function to a type with a [[cats.Monoid]] instance.
    *
    * @group Iteratees
    */
   final def foldMap[E, A](f: E => A)(implicit A: Monoid[A]): Iteratee[F, E, A] = Iteratee.foldMap(f)(F, A)
 
   /**
-   * An [[Iteratee]] that combines values using an effectful function to a type
-   * with a [[cats.Monoid]] instance.
+   * An [[Iteratee]] that combines values using an effectful function to a type with a [[cats.Monoid]] instance.
    *
    * @group Iteratees
    */
   final def foldMapM[E, A](f: E => F[A])(implicit A: Monoid[A]): Iteratee[F, E, A] = Iteratee.foldMapM(f)(F, A)
 
   /**
-   * An [[Iteratee]] that combines values using a function to a type with a
-   * [[cats.Semigroup]] instance.
+   * An [[Iteratee]] that combines values using a function to a type with a [[cats.Semigroup]] instance.
    *
    * @group Iteratees
    */
@@ -182,8 +175,7 @@ trait IterateeModule[F[_]] { self: Module[F] =>
     Iteratee.foldMapOption(f)(F, A)
 
   /**
-   * An [[Iteratee]] that combines values using an effectful function to a type
-   * with a [[cats.Semigroup]] instance.
+   * An [[Iteratee]] that combines values using an effectful function to a type with a [[cats.Semigroup]] instance.
    *
    * @group Iteratees
    */

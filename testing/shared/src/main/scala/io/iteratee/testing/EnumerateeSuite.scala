@@ -44,8 +44,8 @@ abstract class EnumerateeSuite[F[_]: Monad] extends ModuleSuite[F] {
 
   "take" should "consume the specified number of values" in forAll { (eav: EnumeratorAndValues[Int], n: Int) =>
     /**
-     * This isn't a comprehensive way to avoid SI-9581, but it seems to keep clear of the cases
-     * ScalaCheck is likely to run into.
+     * This isn't a comprehensive way to avoid SI-9581, but it seems to keep clear of the cases ScalaCheck is likely to
+     * run into.
      */
     whenever(n != Int.MaxValue) {
       val expected = F.pure((eav.values.take(n), eav.values.drop(n)))
@@ -68,8 +68,8 @@ abstract class EnumerateeSuite[F[_]: Monad] extends ModuleSuite[F] {
 
   it should "work with wrap" in forAll { (eav: EnumeratorAndValues[Int], n: Int) =>
     /**
-     * This isn't a comprehensive way to avoid SI-9581, but it seems to keep clear of the cases
-     * ScalaCheck is likely to run into.
+     * This isn't a comprehensive way to avoid SI-9581, but it seems to keep clear of the cases ScalaCheck is likely to
+     * run into.
      */
     whenever(n != Int.MaxValue) {
       val eavNew = eav.copy(enumerator = take[Int](n.toLong).wrap(eav.enumerator))

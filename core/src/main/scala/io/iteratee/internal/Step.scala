@@ -8,9 +8,12 @@ import cats.data.NonEmptyList
 /**
  * Represents the current state of an [[io.iteratee.Iteratee]].
  *
- * @tparam F The effect type constructor
- * @tparam E The type of the input data
- * @tparam A The type of the result calculated by the [[io.iteratee.Iteratee]]
+ * @tparam F
+ *   The effect type constructor
+ * @tparam E
+ *   The type of the input data
+ * @tparam A
+ *   The type of the result calculated by the [[io.iteratee.Iteratee]]
  */
 sealed abstract class Step[F[_], E, A] extends Serializable {
 
@@ -41,8 +44,8 @@ sealed abstract class Step[F[_], E, A] extends Serializable {
   /**
    * Feed a chunk that is known to be non-empty to this [[Step]].
    *
-   * Note that this method is unsafe! If you do not know that the chunk contains
-   * at least one element, you must call `feed` instead.
+   * Note that this method is unsafe! If you do not know that the chunk contains at least one element, you must call
+   * `feed` instead.
    */
   protected def feedNonEmpty(chunk: Seq[E]): F[Step[F, E, A]]
 
@@ -67,8 +70,7 @@ sealed abstract class Step[F[_], E, A] extends Serializable {
   def mapI[G[_]: Applicative](f: FunctionK[F, G]): Step[G, E, A]
 
   /**
-   * Map a function returning a [[Step]] in a monadic context over the value of
-   * this [[Step]] and flatten the result.
+   * Map a function returning a [[Step]] in a monadic context over the value of this [[Step]] and flatten the result.
    */
   def bind[B](f: A => F[Step[F, E, B]])(implicit M: Monad[F]): F[Step[F, E, B]]
 
@@ -79,14 +81,20 @@ sealed abstract class Step[F[_], E, A] extends Serializable {
 }
 
 /**
- * @groupname Constructors Constructors
- * @groupprio Constructors 0
+ * @groupname Constructors
+ *   Constructors
+ * @groupprio Constructors
+ *   0
  *
- * @groupname Utilities Miscellaneous utilities
- * @groupprio Utilities 1
+ * @groupname Utilities
+ *   Miscellaneous utilities
+ * @groupprio Utilities
+ *   1
  *
- * @groupname Collection Collection operation steps
- * @groupprio Collection 2
+ * @groupname Collection
+ *   Collection operation steps
+ * @groupprio Collection
+ *   2
  */
 final object Step { self =>
   private[this] final class Done[F[_], E, A](val value: A)(private[internal] val remaining: Seq[E])(implicit
@@ -230,8 +238,7 @@ final object Step { self =>
   }
 
   /**
-   * Create an incomplete [[Step]] that will use the given functions to process
-   * the next input.
+   * Create an incomplete [[Step]] that will use the given functions to process the next input.
    *
    * @group Constructors
    */
@@ -291,8 +298,7 @@ final object Step { self =>
     }
 
   /**
-   * A [[Step]] that folds a stream using an initial value and an accumulation
-   * function.
+   * A [[Step]] that folds a stream using an initial value and an accumulation function.
    *
    * @group Collection
    */
@@ -303,8 +309,7 @@ final object Step { self =>
     }
 
   /**
-   * A [[Step]] that folds a stream using an initial value and a monadic
-   * accumulation function.
+   * A [[Step]] that folds a stream using an initial value and a monadic accumulation function.
    *
    * @group Collection
    */
@@ -329,8 +334,7 @@ final object Step { self =>
   }
 
   /**
-   * A [[Step]] that collects all the elements in a stream in a given collection
-   * type.
+   * A [[Step]] that collects all the elements in a stream in a given collection type.
    *
    * @group Collection
    */
@@ -473,8 +477,7 @@ final object Step { self =>
   }
 
   /**
-   * A [[Step]] that returns values from a stream as long as they satisfy the
-   * given predicate.
+   * A [[Step]] that returns values from a stream as long as they satisfy the given predicate.
    *
    * @group Collection
    */
@@ -511,8 +514,7 @@ final object Step { self =>
       }
 
   /**
-   * A [[Step]] that drops values from a stream as long as they satisfy the
-   * given predicate.
+   * A [[Step]] that drops values from a stream as long as they satisfy the given predicate.
    *
    * @group Collection
    */
