@@ -180,7 +180,7 @@ lazy val testing = crossProject(JSPlatform, JVMPlatform)
     libraryDependencies ++= Seq(
       "org.scalacheck" %%% "scalacheck" % scalaCheckVersion,
       "org.scalatest" %%% "scalatest" % scalaTestVersion,
-      "org.scalatestplus" %%% "scalacheck-1-15" % "3.2.9.0",
+      "org.scalatestplus" %%% "scalacheck-1-15" % "3.2.10.0",
       "org.typelevel" %%% "cats-laws" % catsVersion,
       "org.typelevel" %%% "discipline-core" % disciplineVersion
     ),
@@ -210,7 +210,7 @@ lazy val tests = crossProject(JSPlatform, JVMPlatform)
     libraryDependencies ++= Seq(
       "org.scalacheck" %%% "scalacheck" % scalaCheckVersion,
       "org.scalatest" %%% "scalatest" % scalaTestVersion,
-      "org.scalatestplus" %%% "scalacheck-1-15" % "3.2.9.0",
+      "org.scalatestplus" %%% "scalacheck-1-15" % "3.2.10.0",
       "org.typelevel" %%% "cats-laws" % catsVersion,
       "org.typelevel" %%% "discipline-core" % disciplineVersion
     ),
