@@ -50,7 +50,7 @@ val fs2Version = "3.1.5"
 
 val scalaTestVersion = "3.2.10"
 val scalaCheckVersion = "1.15.4"
-val disciplineVersion = "1.1.5"
+val disciplineVersion = "1.2.0"
 
 /**
  * Some terrible hacks to work around Cats's decision to have builds for different Scala versions depend on different
