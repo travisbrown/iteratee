@@ -111,7 +111,7 @@ lazy val baseSettings = Seq(
     if (scalaVersion.value.startsWith("3")) Nil
     else
       Seq(
-        compilerPlugin(("org.typelevel" %% "kind-projector" % "0.13.2").cross(CrossVersion.full))
+        compilerPlugin(("org.typelevel" %% "kind-projector" % "0.13.3").cross(CrossVersion.full))
       )
   }
 )
